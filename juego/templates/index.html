@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SparkApp UDD — Bienvenida</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <main class="phone" role="region" aria-label="Pantalla de bienvenida">
+    <header>
+      <div class="progress" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="hero">
+        <img src="{% static 'images/logo.png' %}" alt="Logo SparkApp UDD">
+      </div>
+    </header>
+
+    <h1>Bienvenido al juego</h1>
+    <p class="subtitle">Crea equipos, conoce a tus compañeros y diviértete.</p>
+
+    <button class="btn primary">Iniciar sesión</button>
+    <button class="btn secondary">Registrarme</button>
+    
+
+    <p class="footer">¿Ya eres todo un emprendedor? <a href="#">Log in</a></p>
+  </main>
+</body>
+</html>

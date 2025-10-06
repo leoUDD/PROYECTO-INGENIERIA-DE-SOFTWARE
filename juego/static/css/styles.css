@@ -1,0 +1,114 @@
+:root{
+  --bg:#f7f7f8;
+  --card:#fff;
+  --text:#111827;
+  --muted:#071430;
+  --primary:#4b74aa;
+  --primary-pressed:#3d618e;
+  --accent:#f2e205;
+  --radius:24px;
+  --shadow:0 12px 28px rgba(0,0,0,.08);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:"Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+}
+
+/* Marco tipo teléfono */
+.phone{
+  width:min(420px, 100%);
+  background:var(--card);
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  padding:22px 20px 18px;
+}
+
+/* Indicadores de progreso */
+.progress{
+  display:flex; gap:12px; justify-content:center; margin-bottom:14px;
+}
+.progress span{
+  flex:1; max-width:68px; height:8px;
+  background:#e5e7eb; border-radius:999px;
+}
+
+/* Imagen/logo */
+.hero{
+  display:flex; justify-content:center; margin:8px 0 6px;
+}
+.hero img{
+  width:70%; max-width:260px; height:auto; object-fit:contain;
+}
+
+/* Texto principal */
+h1{
+  margin:12px 0 6px;
+  text-align:center;
+  line-height:1.15;
+  font-size:clamp(26px, 6vw, 34px);
+  font-weight:800;
+}
+.subtitle{
+  text-align:center; color:var(--muted);
+  font-size:clamp(14px, 3.6vw, 16px);
+  margin:0 12px 22px;
+}
+
+/* Botones */
+.btn{
+  width:100%;
+  border:none;
+  border-radius:18px;
+  padding:14px 16px;
+  font-size:17px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s transform,.2s background-color,.2s box-shadow;
+}
+.btn.primary{
+  background:var(--primary);
+  color:#fff;
+  box-shadow:0 8px 18px rgba(75,116,170,.35);
+}
+.btn.primary:active{
+  transform:translateY(1px);
+  background:var(--primary-pressed);
+}
+.btn.secondary{
+  background:#0000000d;
+  color:var(--text);
+  margin-top:10px;
+}
+.btn.skip{
+  background:transparent;
+  color:var(--skip);
+  font-weight:600;
+  margin-top:12px;
+}
+
+/* Footer */
+.footer{
+  margin-top:16px;
+  text-align:center;
+  color:var(--muted);
+  font-size:15px;
+}
+.footer a{
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:700;
+}
+
+/* Accesibilidad */
+.btn:focus-visible, a:focus-visible{
+  outline:3px solid #000000;
+  outline-offset:3px;
+}
