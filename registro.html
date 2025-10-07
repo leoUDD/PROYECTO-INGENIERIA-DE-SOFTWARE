@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SparkApp UDD — Registro</title>
+</head>
+<body>
+  <main class="phone" role="region" aria-label="Pantalla de registro equipos">
+    <header>
+      <div class="progress" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+    </header>
+
+    <h1>Registrate para empezar a jugar</h1>
+    <form method="post">
+      <label for="user_name">Nombre y Apellido</label>
+      <input type="text" id="user_name" name="user_name" required>
+
+      <label for="carrera">Carrera</label>
+      <select id="carrera" name="carrera" required>
+        <option value="">Selecciona tu carrera</option>
+        <option value="ingenieria">Ingeniería</option>
+        <option value="diseño">Diseño</option>
+        <option value="arquitectura">Arquitectura</option>
+      </select>
+
+      <button type="submit" class="btn primary">Continuar</button>
+    </form>
+  </main>
