@@ -6,24 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SparkApp UDD — Bienvenida</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
 </head>
 <body>
   <main class="phone" role="region" aria-label="Pantalla de bienvenida">
-    <header>
-      <div class="progress" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </div>
-      <div class="hero">
-        <img src="{% static 'images/logo.png' %}" alt="Logo SparkApp UDD">
-      </div>
-    </header>
-
-    <h1>Bienvenido al juego</h1>
+      <img src="{% static 'images/logo.png' %}" alt="Logo SparkApp UDD" class="logo">
+    <h1 class="title">Bienvenido al juego</h1>
     <p class="subtitle">Crea equipos, conoce a tus compañeros y diviértete.</p>
-    <video src="" autoplay poster="">
-      Tu navegador no admite el elemento <code>video</code>.
-    </video>
+
+    <div class="video-wrap">
+      <video class="video" controls playsinline preload="metadata"
+             poster="{% static 'images/videoprueba.png' %}">
+        <source src="{% static 'videos/videonuevo_seek.mp4' %}" type="video/mp4">
+        Tu navegador no admite el elemento <code>video</code>.
+      </video>
+    </div>
+
     <button class="btn primary">Iniciar</button>
   </main>
 </body>
