@@ -8,3 +8,6 @@ def registro(request):
 
 def lego(request):
     return render(request, 'lego.html')
+
+def crearequipo(request):
+    return render(request, 'crearequipo.html')
