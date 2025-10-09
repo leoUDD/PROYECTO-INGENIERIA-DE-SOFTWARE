@@ -6,4 +6,5 @@ urlpatterns = [
     path('registro/', views.registro, name='registro'),
     path('lego/', views.lego, name='lego'),
     path('crearequipo/', views.crearequipo, name='crearequipo'),
+    path('unirseequipo/', views.unirseequipo, name='unirseequipo'),
 ]

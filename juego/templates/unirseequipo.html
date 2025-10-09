@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SparkApp UDD — Registro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_registro.css' %}" />
+</head>
+<body>
+  <main class="phone" role="region" aria-label="Pantalla de registro equipos">
+    <h1>Unete a un equipo!</h1>
+    <form method="post">
+        {% csrf_token %}
+      <label for="equipo">Equipo</label>
+      <select id="equipo" name="equipo" required>
+        <option value="">Selecciona tu equipo</option>
+        <option value="Equipo 1">Equipo 1</option>
+        <option value="Equipo 2">Equipo 2</option>
+        <option value="Equipo 3">Equipo 3</option>
+        <option value="Equipo 4">Equipo 4</option>
+      </select>
+
+      <button type="submit" class="btn primary">Continuar</button>
+    </form>
+  </main>
