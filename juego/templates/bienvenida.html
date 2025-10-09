@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SparkApp UDD — Bienvenida</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}" />
 </head>
 <body>
   <main class="phone" role="region" aria-label="Pantalla de bienvenida">
@@ -22,7 +22,8 @@
       </video>
     </div>
 
-    <button class="btn primary">Iniciar</button>
+    <a href="{% url 'registro' %}" class="btn primary">Iniciar</a>
+
   </main>
 </body>
 </html>
