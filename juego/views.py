@@ -5,3 +5,6 @@ def bienvenida(request):
 
 def registro(request):
     return render(request, 'registro.html')
+
+def lego(request):
+    return render(request, 'lego.html')
