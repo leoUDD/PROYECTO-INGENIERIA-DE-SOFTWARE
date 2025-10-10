@@ -1,0 +1,91 @@
+:root{
+  --bg: linear-gradient(rgba(255,255,255,.2), rgba(245,247,250,.2)),
+        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --card:#fff;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#4b74aa;
+  --radius:28px;
+  --shadow:0 12px 28px rgba(0,0,0,.08);
+}
+
+/* Reset básico */
+*{ box-sizing:border-box }
+html,body{ height:100% }
+img{ max-width:100%; display:block; height:auto }
+
+/* Fondo / tipografía */
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+}
+
+/* Card principal */
+.phone{
+  width: clamp(380px, 94vw, 900px);
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px 30px;
+  text-align:center;
+}
+
+/* Encabezado */
+.logo{ width: clamp(180px, 40%, 260px); margin: 0 auto 14px }
+h1{ margin: 8px 0; font-size: clamp(26px, 4vw, 40px); font-weight:800 }
+.phone > p{ color: var(--muted); margin: 0 0 28px }
+
+/* Contenedor de los 3 perfiles */
+.perfiles{
+  display:flex; flex-wrap:wrap; justify-content:center; gap:36px;
+}
+
+/* Cada item (círculo + texto) */
+.perfil{
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+
+/* El botón circular (el <a> dentro de .perfil) */
+.perfil > a{
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;                 /* recorta la imagen dentro del círculo */
+  border: 6px solid #fff;           /* borde blanco como en tu referencia */
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+  background: #eef3fb;              /* color de fondo mientras carga la imagen */
+  display: inline-flex; align-items:center; justify-content:center;
+  text-decoration: none;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.perfil > a:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(0,0,0,.18);
+  border-color: rgba(75,116,170,.35);
+}
+.perfil > a:active{ transform: translateY(-1px); }
+
+/* Imagen dentro del círculo */
+.perfil > a > img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    /* rellena sin deformar */
+  object-position: 50% 50%;
+}
+
+/* Texto debajo del círculo */
+.perfil-texto{
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Responsivo grande */
+@media (min-width: 900px){
+  .perfil > a{ width: 180px; height: 180px }
+  .perfil-texto{ font-size: 20px }
+}

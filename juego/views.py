@@ -1,5 +1,8 @@
 from django.shortcuts import render
 
+def perfiles(request):
+    return render(request, 'perfiles.html')
+
 def bienvenida(request):
     return render(request, 'bienvenida.html')
 
