@@ -1,0 +1,232 @@
+:root{
+  --bg: linear-gradient(rgba(255,255,255,0.2), rgba(245,247,250,0.2)),
+        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --card:#fff;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#4b74aa;
+  --primary-pressed:#3d618e;
+  --radius:28px;
+  --shadow:0 12px 28px rgba(0,0,0,.08);
+}
+
+/* RESET */
+*{ 
+    box-sizing:border-box 
+}
+
+html,body{ 
+    height:100% 
+}
+
+img{ 
+    max-width:100%; 
+    height:auto; 
+    display:block 
+}
+
+/* BASE */
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+/* CARD */
+.phone{
+  width: clamp(360px, 94vw, 700px);
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:40px 30px;
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* LOGO + TITULOS */
+.logo{ 
+    width: clamp(160px, 40%, 240px); 
+    margin-bottom: 12px; 
+}
+
+.title{
+  text-align:center; 
+  margin:12px 0 8px;
+  font-size: clamp(26px, 4vw, 40px); 
+  font-weight:800;
+}
+
+.subtitle{
+  text-align:center; 
+  color:var(--muted);
+  font-size: clamp(15px, 2vw, 18px); 
+  margin-bottom: 22px;
+}
+
+/* FORM */
+form{ 
+    width:100%; 
+    display:flex; 
+    flex-direction:column; 
+    gap:14px; 
+}
+
+label{ 
+    font-size:16px; 
+    color:#374151; 
+    font-weight:500; 
+    margin-bottom:3px; 
+}
+
+input[type='email'],
+input[type="text"],
+input[type="password"],
+select{
+    width:100%;
+    padding:14px;
+    border:1.5px solid #e5e7eb; 
+    border-radius:14px;
+    font-size:16px; 
+    background:#fff; 
+    color:#111827;
+    outline:none; 
+    transition:border-color .2s, box-shadow .2s;
+}
+input:focus{
+  border-color:#4b74aa; 
+  box-shadow:0 0 0 3px rgba(75,116,170,.2);
+}
+
+/* Password con botón mostrar/ocultar */
+.password-wrap{ 
+    position:relative; 
+}
+
+.password-wrap input{ 
+    padding-right:46px; 
+}
+
+.toggle-pass{
+  position:absolute; 
+  right:8px; 
+  top:50%; 
+  transform:translateY(-50%);
+  border:none; 
+  background:transparent; 
+  cursor:pointer; 
+  font-size:18px; 
+  line-height:1;
+}
+
+/* Checkbox línea */
+.checkline{ 
+    display:flex; 
+    align-items:center; 
+    gap:10px; font-size:14px; 
+    color:#374151; 
+}
+
+.checkline input{ 
+    width:18px; 
+    height:18px; 
+    accent-color:var(--primary); 
+}
+
+/* BOTÓN */
+.btn{
+    display: block;
+    width:100%; 
+    border:none; 
+    border-radius:18px;
+    padding:16px 18px; 
+    font-size:18px; 
+    font-weight:600;
+    font-family: "Poppins",sans-serif;
+    text-align:center;
+    text-decoration: none;
+    line-height: 1.2;
+    cursor:pointer;
+    transition:.2s transform,.2s background-color,.2s box-shadow;
+}
+.btn.primary{ 
+    background:var(--primary); 
+    color:#fff; 
+    box-shadow:0 8px 18px rgba(75,116,170,.35);
+}
+.btn.primary:active{ 
+    transform:translateY(1px); 
+    background:var(--primary-pressed); 
+}
+.btn.secondary{
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(75,116,170,.35);
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 8px;
+}
+/* FOOTER */
+.form-footer{
+  margin-top:10px; text-align:center; color:#6b7280; font-size:15px;
+}
+.form-footer a{ 
+    color:var(--primary); 
+    text-decoration:none; font-weight:600 
+}
+
+.form-footer a:hover{ 
+    text-decoration:underline 
+}
+
+/* RESPONSIVE */
+@media (min-width: 600px){
+  .phone{ padding:50px 40px; }
+  .title{ font-size: clamp(28px, 3.6vw, 44px); }
+  .btn{ font-size: clamp(18px, 2vw, 20px); }
+}
+
+/* === POPUP DE ERROR === */
+.popup {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #f44336; /* rojo alerta */
+  color: white;
+  padding: 14px 22px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  font-weight: 600;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.popup p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
