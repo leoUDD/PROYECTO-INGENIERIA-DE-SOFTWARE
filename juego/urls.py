@@ -9,7 +9,6 @@ urlpatterns = [
     path('registro/', views.registro, name='registro'),
     path('lego/', views.lego, name='lego'),
     path('crearequipo/', views.crearequipo, name='crearequipo'),
-    path('unirseequipo/', views.unirseequipo, name='unirseequipo'),
     path('introducciones/', views.introducciones, name='introducciones'),
     path('promptconocidos/', views.promptconocidos, name='promptconocidos'),
     path('conocidos/', views.conocidos, name='conocidos'),

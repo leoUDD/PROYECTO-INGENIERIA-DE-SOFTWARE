@@ -46,9 +46,6 @@ def lego(request):
 def crearequipo(request):
     return render(request, 'crearequipo.html')
 
-def unirseequipo(request):
-    return render(request, 'unirseequipo.html')
-
 def introducciones(request):
     return render(request, 'introducciones.html')
 
