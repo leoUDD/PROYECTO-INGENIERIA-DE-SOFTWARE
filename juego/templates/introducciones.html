@@ -13,6 +13,28 @@
     <h1 class="title">Introducete!</h1>
     <p class="subtitle">Tienen dos minutos como grupo para introducirse.</p>
     <p class="body">Digan su nombre, carrera y algo sobre ustedes!</p>
+    
+    <div id="timer" class="timer">02:00</div>
+    <script>
+      let timeLeft = 120; // 2 minutes in seconds
+      const timerElement = document.getElementById('timer');
+
+      function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (timeLeft > 0) {
+          timeLeft--;
+        } else {
+          clearInterval(timerInterval);
+          alert("Se termino el tiempo!");
+          // window.location.href = "{% url '...' %}";  agregar url a donde redirigir
+        }
+      }
+
+      const timerInterval = setInterval(updateTimer, 1000);
+      updateTimer(); // Initial call to display the timer immediately
+    </script>
 
   </main>
 </body>
