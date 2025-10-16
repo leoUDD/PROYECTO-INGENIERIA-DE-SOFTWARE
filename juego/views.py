@@ -14,3 +14,6 @@ def crearequipo(request):
 
 def unirseequipo(request):
     return render(request, 'unirseequipo.html')
+
+def introducciones(request):
+    return render(request, 'introducciones.html')

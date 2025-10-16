@@ -7,4 +7,5 @@ urlpatterns = [
     path('lego/', views.lego, name='lego'),
     path('crearequipo/', views.crearequipo, name='crearequipo'),
     path('unirseequipo/', views.unirseequipo, name='unirseequipo'),
+    path('introducciones/', views.introducciones, name='introducciones'),
 ]

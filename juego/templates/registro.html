@@ -10,19 +10,11 @@
 </head>
 <body>
   <main class="phone" role="region" aria-label="Pantalla de registro equipos">
-    <h1>Registrate para empezar a jugar</h1>
+    <h1>Inicia sesion como grupo</h1>
     <form method="post">
-      <label for="user_name">Nombre y Apellido</label>
-      <input type="text" id="user_name" name="user_name" required>
-
-      <label for="carrera">Carrera</label>
-      <select id="carrera" name="carrera" required>
-        <option value="">Selecciona tu carrera</option>
-        <option value="ingenieria">Ingeniería</option>
-        <option value="diseño">Diseño</option>
-        <option value="arquitectura">Arquitectura</option>
-      </select>
-
+      <label for="group_ID">ID del grupo</label>
+      <input type="text" id="group_ID" name="group_ID" required>
+      {% csrf_token %}  
       <button type="submit" class="btn primary">Continuar</button>
     </form>
   </main>
