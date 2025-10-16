@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SparkApp UDD — Perfiles</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_perfiles.css' %}" />
+</head>
+<body>
+    <main class="phone" role="region" aria-label="Pantalla de perfiles">
+        <img src="{% static 'images/logo.png' %}" alt="Logo SparkApp UDD" class="logo">
+        <h1>Perfiles</h1>
+        <p>Bienvenido a la sección de perfiles de SparkApp UDD.</p>
+      
+        <section class="perfiles">
+            <div class="perfil alumno">
+                <a href="{% url 'login' %}" class="alumno">
+                    <img src="{% static 'images/panda.png' %}" alt="Alumno">
+                </a>
+                <p class="perfil-texto">Alumno</p>
+            </div>
+
+            <div class="perfil profesor">
+                <a href="#" class="profesor">
+                    <img src="{% static 'images/buho.png' %}" alt="Icono de Profesor" class="icon">
+                </a>
+                <p class="perfil-texto">Profesor</p>
+            </div>
+
+            <div class="perfil administrador">
+                <a href="#" class="administrador">
+                    <img src="{% static 'images/zorro.png' %}" alt="Icono de Administrador" class="icon">
+                </a>
+                <p class="perfil-texto">Administrador</p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
