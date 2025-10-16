@@ -51,3 +51,9 @@ def unirseequipo(request):
 
 def introducciones(request):
     return render(request, 'introducciones.html')
+
+def promptconocidos(request):
+    return render(request, 'promptconocidos.html')
+
+def conocidos(request):
+    return render(request, 'conocidos.html')
