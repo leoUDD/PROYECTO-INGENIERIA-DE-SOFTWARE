@@ -27,7 +27,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'misionemprende',  # Replace with your database name
+            'USER': 'root',  # Replace with your MySQL username
+            'PASSWORD': 'pass123', # Replace with your MySQL password
+            'HOST': 'localhost',  # Or the IP address/hostname of your MySQL server
+            'PORT': '3306',       # Default MySQL port
+        }
+    }
 # Application definition
 
 INSTALLED_APPS = [
