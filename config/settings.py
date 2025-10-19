@@ -94,4 +94,42 @@ from pathlib import Path as _Path  # por si acaso
 if isinstance(TEMPLATES, list) and TEMPLATES:
     TEMPLATES[0]['DIRS'] = [BASE_DIR / 'juego' / 'templates']
 # --- FIN FIX ---
+# --- FIX ROBUSTO TEMPLATES (no mover archivos) ---
+from pathlib import Path as _Path
+
+# Asegura que exista un bloque TEMPLATES usable
+_templates = TEMPLATES if isinstance(TEMPLATES, (list, tuple)) and TEMPLATES else [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [],
+    'APP_DIRS': True,
+    'OPTIONS': {'context_processors': [
+        'django.template.context_processors.request',
+        'django.contrib.auth.context_processors.auth',
+        'django.contrib.messages.context_processors.messages',
+    ]},
+}]
+
+# Carpetas que queremos sí o sí
+_extra_dirs = [BASE_DIR / 'juego' / 'templates']
+_global_dir = BASE_DIR / 'templates'
+if _global_dir.exists():
+    _extra_dirs.append(_global_dir)
+
+# De-duplicar y fijar DIRS
+_dirs = list(_templates[0].get('DIRS', []))
+for d in _extra_dirs:
+    if d not in _dirs:
+        _dirs.append(d)
+_templates[0]['DIRS'] = _dirs
+
+# Sobrescribe TEMPLATES con nuestro bloque consolidado
+TEMPLATES = list(_templates)
+
+# Log de verificación en consola (solo en DEBUG)
+if DEBUG:
+    try:
+        print("TEMPLATES.DIRS =", [str(p) for p in TEMPLATES[0]['DIRS']])
+    except Exception:
+        pass
+# --- FIN FIX ROBUSTO ---
 
