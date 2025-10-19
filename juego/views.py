@@ -28,6 +28,10 @@ def registrarse(request):
     return render(request, 'registrarse.html')
 
 
+
+
+
+
 def login(request):
     if request.method == 'POST':
         # Lógica de autenticación (demo)
