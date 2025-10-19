@@ -99,7 +99,7 @@ def market_view(request):
         "other_teams": other_teams,
     }
 
-    return render(request, "juego/market.html", context)
+    return render(request, "market.html", context)
 
 
 @require_http_methods(["POST"])
