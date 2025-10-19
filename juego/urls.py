@@ -14,4 +14,5 @@ urlpatterns = [
     path('conocidos/', views.conocidos, name='conocidos'),
     path('market/', views.market_view, name='market'),
     path('market/issue/<int:challenge_id>/', views.issue_challenge_view, name='issue_challenge'),
+    path("<int:session_id>/peer-review/", peer_review_view, name="peer_review"),
 ]
