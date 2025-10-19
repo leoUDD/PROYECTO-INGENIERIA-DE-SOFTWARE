@@ -46,7 +46,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates',            # (si la usas)
             BASE_DIR / 'juego' / 'templates',  # 👈 agrega esto
         ],
         'APP_DIRS': True,
