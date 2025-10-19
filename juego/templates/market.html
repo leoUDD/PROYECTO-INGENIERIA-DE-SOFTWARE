@@ -39,7 +39,8 @@
             <div class="d-flex align-items-center justify-content-between mt-auto">
               <span class="badge bg-warning text-dark">{{ c.cost }} tokens</span>
 
-              <form method="post" action="{% url 'juego:issue_challenge' c.id %}" class="d-flex gap-2 align-items-center">
+              <!-- 🔧 OJO: sin namespace 'juego' -->
+              <form method="post" action="{% url 'issue_challenge' c.id %}" class="d-flex gap-2 align-items-center">
                 {% csrf_token %}
                 <select class="form-select form-select-sm" name="target_team_id" required style="width:auto;">
                   <option value="" selected disabled>Equipo objetivo</option>
