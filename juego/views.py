@@ -2,7 +2,6 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 
-
 # ===========================
 # 📋 Vistas principales
 # ===========================
@@ -13,14 +12,14 @@ def perfiles(request):
 
 def registrarse(request):
     if request.method == 'POST':
-        # Aquí se puede manejar la lógica de registro del usuario
+        # Lógica de registro (ejemplo)
         user_name = request.POST.get('user_name')
         email = request.POST.get('email')
         carrera = request.POST.get('carrera')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        # Validar que las contraseñas coincidan
+        # Validación de contraseñas
         if password != confirm_password:
             error = 'Las contraseñas no coinciden'
             return render(request, 'registrarse.html', {'error': error})
@@ -31,10 +30,9 @@ def registrarse(request):
 
 def login(request):
     if request.method == 'POST':
-        # Aquí se puede manejar la lógica de autenticación del usuario
+        # Lógica de autenticación (demo)
         email = request.POST.get('email')
         password = request.POST.get('password')
-        # Autenticación (esto es solo un ejemplo, se debe implementar la lógica real)
         if email == 'leo@udd.cl' and password == '1234':
             return render(request, 'bienvenida.html', {'email': email})
         else:
@@ -179,4 +177,5 @@ def peer_review_view(request, session_id):
         context["submitted"] = True
 
     return render(request, "evaluation/peer_review.html", context)
+
 
