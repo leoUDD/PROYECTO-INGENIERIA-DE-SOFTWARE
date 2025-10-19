@@ -174,7 +174,7 @@ class Evaluacion(models.Model):
 class Grupo(models.Model):
     idgrupo = models.IntegerField(db_column='idGrupo', primary_key=True)  # Field name made lowercase.
     usuario_idusuario = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='usuario_idUsuario')  # Field name made lowercase.
-    tokens = models.IntegerField(blank=True, null=True)
+    tokensGrupo = models.IntegerField(blank=True, null=True)
     etapa = models.IntegerField(blank=True, null=True)
 
     class Meta:
