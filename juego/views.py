@@ -133,15 +133,30 @@ def issue_challenge_view(request, challenge_id):
         f"Has retado al equipo {target_team_id} con “{challenge['title']}” por {challenge['cost']} tokens."
     )
     return redirect("market")
-    
-    def peer_review_view(request, session_id):
+
+
+# ===========================
+# 🧩 EVALUACIÓN (Peer Review)
+# ===========================
+
+def peer_review_view(request, session_id):
     # Datos MOCK para que funcione sin BD (luego lo conectan a sus modelos)
-    class Obj: pass
-    session = Obj(); session.name = "Sesión Demo"
-    evaluator_team = Obj(); evaluator_team.id = 1; evaluator_team.name = "Equipo Alpha"
+    class Obj:
+        pass
+
+    session = Obj()
+    session.name = "Sesión Demo"
+
+    evaluator_team = Obj()
+    evaluator_team.id = 1
+    evaluator_team.name = "Equipo Alpha"
+
     target_teams = []
     for i, name in [(2, "Equipo Beta"), (3, "Equipo Gamma"), (4, "Equipo Delta")]:
-        t = Obj(); t.id = i; t.name = name; target_teams.append(t)
+        t = Obj()
+        t.id = i
+        t.name = name
+        target_teams.append(t)
 
     criteria = [
         {"key": "claridad", "label": "Claridad de la solución"},
@@ -164,3 +179,4 @@ def issue_challenge_view(request, challenge_id):
         context["submitted"] = True
 
     return render(request, "evaluation/peer_review.html", context)
+
