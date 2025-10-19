@@ -89,3 +89,9 @@ STATIC_URL = 'static/'
 
 # === Default PK ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# --- FIX duro para templates (dejar al final del settings) ---
+from pathlib import Path as _Path  # por si acaso
+if isinstance(TEMPLATES, list) and TEMPLATES:
+    TEMPLATES[0]['DIRS'] = [BASE_DIR / 'juego' / 'templates']
+# --- FIN FIX ---
+
