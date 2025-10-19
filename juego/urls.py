@@ -1,5 +1,6 @@
+# juego/urls.py
 from django.urls import path
-from . import views
+from . import views  # Importa todo el módulo views
 
 urlpatterns = [
     path('', views.perfiles, name='perfiles'),
@@ -12,7 +13,12 @@ urlpatterns = [
     path('introducciones/', views.introducciones, name='introducciones'),
     path('promptconocidos/', views.promptconocidos, name='promptconocidos'),
     path('conocidos/', views.conocidos, name='conocidos'),
+
+    # Mercado de retos
     path('market/', views.market_view, name='market'),
     path('market/issue/<int:challenge_id>/', views.issue_challenge_view, name='issue_challenge'),
-    path("<int:session_id>/peer-review/", peer_review_view, name="peer_review"),
+
+    # Peer review (usa la función definida en views.py)
+    path('<int:session_id>/peer-review/', views.peer_review_view, name='peer_review'),
 ]
+
