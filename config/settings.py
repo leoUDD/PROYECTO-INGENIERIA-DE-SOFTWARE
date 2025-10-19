@@ -41,15 +41,16 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 
 # === Templates ===
-# Usa carpeta global:  /templates/  (ej: templates/juego/market.html)
+# Forzamos a buscar en juego/templates sin mover carpetas
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'juego' / 'templates',  # 👈 agrega esto
-        ],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'juego' / 'templates'],  # <-- TU carpeta exacta
+        'APP_DIRS': False,  # ignorar loaders automáticos por app
         'OPTIONS': {
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',  # busca solo en DIRS
+            ],
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -89,47 +90,5 @@ STATIC_URL = 'static/'
 
 # === Default PK ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# --- FIX duro para templates (dejar al final del settings) ---
-from pathlib import Path as _Path  # por si acaso
-if isinstance(TEMPLATES, list) and TEMPLATES:
-    TEMPLATES[0]['DIRS'] = [BASE_DIR / 'juego' / 'templates']
-# --- FIN FIX ---
-# --- FIX ROBUSTO TEMPLATES (no mover archivos) ---
-from pathlib import Path as _Path
 
-# Asegura que exista un bloque TEMPLATES usable
-_templates = TEMPLATES if isinstance(TEMPLATES, (list, tuple)) and TEMPLATES else [{
-    'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [],
-    'APP_DIRS': True,
-    'OPTIONS': {'context_processors': [
-        'django.template.context_processors.request',
-        'django.contrib.auth.context_processors.auth',
-        'django.contrib.messages.context_processors.messages',
-    ]},
-}]
-
-# Carpetas que queremos sí o sí
-_extra_dirs = [BASE_DIR / 'juego' / 'templates']
-_global_dir = BASE_DIR / 'templates'
-if _global_dir.exists():
-    _extra_dirs.append(_global_dir)
-
-# De-duplicar y fijar DIRS
-_dirs = list(_templates[0].get('DIRS', []))
-for d in _extra_dirs:
-    if d not in _dirs:
-        _dirs.append(d)
-_templates[0]['DIRS'] = _dirs
-
-# Sobrescribe TEMPLATES con nuestro bloque consolidado
-TEMPLATES = list(_templates)
-
-# Log de verificación en consola (solo en DEBUG)
-if DEBUG:
-    try:
-        print("TEMPLATES.DIRS =", [str(p) for p in TEMPLATES[0]['DIRS']])
-    except Exception:
-        pass
-# --- FIN FIX ROBUSTO ---
 
