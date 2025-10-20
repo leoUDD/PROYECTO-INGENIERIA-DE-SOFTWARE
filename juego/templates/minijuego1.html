@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Misión Emprende UDD — Sopa de Letras</title>
+  <link rel="stylesheet" href="{% static 'css/estilo_sopadeletras.css' %}">
+</head>
+<body>
+  <main class="game-container">
+    <h1>🧩 Sopa de Letras — Innovación</h1>
+    <p>Encuentra las palabras ocultas relacionadas con el emprendimiento 💡</p>
+    <div id="timer-container">
+        <span>⏱️ Tiempo restante: </span>
+        <span id="timer">02:00</span>
+    </div>
+    <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+    <div id="timeModal" class="modal" aria-hidden="true" role="dialog">
+        <div class="modal-content">
+            <h2>⏰ ¡Tiempo terminado!</h2>
+            <p>Se acabó el tiempo para completar la sopa de letras.</p>
+            <button id="btnRetry" type="button">Continuar</button>
+        </div>
+    </div>
+
+
+
+    <div id="grid" class="grid" aria-label="Tablero de sopa de letras"></div>
+    <div id="winModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="winTitle">
+      <div class="modal-content">
+        <h2 id="winTitle">Ganaste!</h2>
+        <p>Se han encontrado todas las palabras. ¡Felicidades!</p>
+        <button id="btnNext" type="button">Avanzar</button>
+      </div>
+    </div>
+    <div class="words">
+      <h3>Palabras a encontrar:</h3>
+      <ul id="word-list">
+        <li>IDEA</li>
+        <li>EQUIPO</li>
+        <li>NEGOCIO</li>
+        <li>CREATIVIDAD</li>
+        <li>LIDERAZGO</li>
+      </ul>
+      <div id="status" class="status">0/5</div>
+    </div>
+    
+  </main>
+
+  <script src="{% static 'js/sopadeletras.js' %}"></script>
+</body>
+</html>

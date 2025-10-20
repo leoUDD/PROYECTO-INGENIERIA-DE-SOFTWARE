@@ -1,0 +1,162 @@
+:root {
+  --cols: 12;
+  --bg: linear-gradient(rgba(255,255,255,0.2), rgba(245,247,250,0.2)),
+    url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --primary: #4b74aa;
+  --accent: #00d4ff;
+  --found: #16a34a;
+  --warn: #ea580c;
+}
+
+body {
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: #111827;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.game-container {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  text-align: center;
+  max-width: 720px;
+}
+
+h1 { color: var(--primary); margin-bottom: 10px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 40px);
+  grid-gap: 4px;
+  justify-content: center;
+  margin: 20px auto;
+  user-select: none;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.15em;
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.cell:hover { background: #e5f0ff; transform: translateY(-2px); }
+
+.cell.selected {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(0,212,255,.35) inset;
+  transform: scale(1.06);
+}
+
+.cell.found {
+  background: #ecfdf5;
+  color: var(--found);
+  box-shadow: 0 0 0 2px rgba(22,163,74,.35) inset;
+  cursor: default;
+}
+
+.words { margin-top: 14px; text-align: left; }
+.words ul { list-style: none; padding: 0; margin: 0 0 6px; }
+.words li { padding: 4px 0; font-weight: 700; }
+.words li.found { color: var(--found); text-decoration: line-through; }
+
+.status { font-weight: 600; color: #374151; }
+
+/* ===== MODAL DE VICTORIA ===== */
+.modal {
+  position: fixed; inset: 0;
+  display: none; /* oculto por defecto */
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(3px);
+  z-index: 999;
+}
+
+.modal-content{
+  width: min(92vw, 420px);
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+  animation: popIn .35s ease;
+}
+
+.modal-content h2{
+  margin: 0 0 8px;
+  color: #16a34a;
+  font-size: 1.9rem;
+}
+
+.modal-content p{
+  margin: 0 0 18px;
+  color: #374151;
+}
+
+.modal-content button{
+  background: #4b74aa;
+  color: #fff;
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .15s ease, background .2s ease;
+}
+.modal-content button:hover{ transform: translateY(-1px); }
+.modal-content button:active{ transform: translateY(0); opacity: .9; }
+
+@keyframes popIn{
+  from{ transform: scale(.92); opacity: 0; }
+  to{ transform: scale(1); opacity: 1; }
+}
+
+/* Confeti overlay */
+#confetti-canvas{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000; /* por encima del modal */
+}
+
+/* ===== TEMPORIZADOR ===== */
+#timer-container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  font-family:"Poppins", sans-serif;
+  font-size:1.2rem;
+  font-weight:600;
+  margin-bottom:10px;
+  color:#1e293b;
+}
+
+#timer{
+  padding:4px 10px;
+  border:2px solid #4b74aa;
+  border-radius:10px;
+  background:#f9fafb;
+  font-weight:700;
+  color:#111827;
+  box-shadow:0 0 10px rgba(75,116,170,.3);
+  transition:all .3s ease;
+}
+
+/* Cambia a rojo los últimos segundos */
+#timer.low-time{
+  border-color:#ef4444;
+  color:#b91c1c;
+  box-shadow:0 0 15px rgba(239,68,68,.6);
+}
