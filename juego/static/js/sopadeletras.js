@@ -4,8 +4,9 @@ const words = ["IDEA", "EQUIPO", "NEGOCIO", "CREATIVIDAD", "LIDERAZGO"];
 const gridEl = document.getElementById("grid");
 const statusEl = document.getElementById("status");
 
-// sincroniza columnas con el CSS (usa :root { --cols: 12; } en tu CSS)
+// sincroniza columnas/filas con el CSS
 document.documentElement.style.setProperty('--cols', gridSize);
+document.documentElement.style.setProperty('--rows', gridSize);
 
 // 8 direcciones: horizontales, verticales y diagonales
 const DIRS = [
@@ -31,7 +32,7 @@ function createFixedBoard() {
     "XOXXXXXAXXXX",
     "XCXXXXXXEXXX",
     "XIXXXXXXXRXX",
-    "XOXXXXXXXXCX"  
+    "XOXXXXXXXXCX"
   ];
   board = gridTemplate.map(row => row.split(""));
 }
@@ -59,19 +60,37 @@ function render() {
       cell.dataset.r = r;
       cell.dataset.c = c;
 
-      cell.addEventListener("mousedown", handleDown);
-      cell.addEventListener("mouseover", handleOver);
-      cell.addEventListener("mouseup", handleUp);
+      // Evita selección azul y gestos por defecto
+      cell.addEventListener("mousedown", (e)=>{ e.preventDefault(); handleDown(e); });
+      cell.addEventListener("mouseover", (e)=>{ e.preventDefault(); handleOver(e); });
+      cell.addEventListener("mouseup",   (e)=>{ e.preventDefault(); handleUp(e); });
+
+      // Opcional: soporte táctil básico
+      cell.addEventListener("touchstart", (e)=>{ e.preventDefault(); handleDown(convertTouch(e)); }, {passive:false});
+      cell.addEventListener("touchmove",  (e)=>{ e.preventDefault(); handleOver(convertTouch(e)); }, {passive:false});
+      cell.addEventListener("touchend",   (e)=>{ e.preventDefault(); handleUp(); }, {passive:false});
 
       gridEl.appendChild(cell);
     }
   }
+
+  // Evita arrastres no deseados
+  gridEl.addEventListener('dragstart', (e)=> e.preventDefault());
   document.addEventListener("mouseup", cancelDragOutside);
+  document.addEventListener("touchend", cancelDragOutside, {passive:false});
 }
 
-// ===== Manejo de selección (click + arrastre en línea recta) =====
+function convertTouch(e){
+  const touch = e.touches && e.touches[0] ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : null);
+  if (!touch) return e;
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  return { currentTarget: el, button: 0 };
+}
+
+// ===== Manejo de selección (click/drag en línea recta) =====
 function handleDown(e) {
   if (e.button !== 0) return; // solo click izquierdo
+  if (!e.currentTarget || !e.currentTarget.dataset) return;
   mouseDown = true;
   clearTempSelection();
   addToSelection(e.currentTarget);
@@ -79,6 +98,7 @@ function handleDown(e) {
 
 function handleOver(e) {
   if (!mouseDown) return;
+  if (!e.currentTarget || !e.currentTarget.dataset) return;
   addToSelection(e.currentTarget, true);
 }
 
@@ -95,8 +115,10 @@ function cancelDragOutside() {
 }
 
 function addToSelection(el, validateLine = false) {
+  if (!el || !el.dataset) return;
   const r = parseInt(el.dataset.r, 10);
   const c = parseInt(el.dataset.c, 10);
+  if (Number.isNaN(r) || Number.isNaN(c)) return;
 
   // evitar duplicar celdas
   if (selection.some(s => s.r === r && s.c === c)) return;
@@ -117,7 +139,7 @@ function addToSelection(el, validateLine = false) {
 }
 
 function clearTempSelection() {
-  selection.forEach(s => s.el.classList.remove("selected"));
+  selection.forEach(s => s.el && s.el.classList.remove("selected"));
   selection = [];
 }
 
@@ -145,6 +167,7 @@ function checkSelection() {
 
   if (match) {
     selection.forEach(s => {
+      if (!s.el) return;
       s.el.classList.remove("selected");
       s.el.classList.add("found");
       s.el.style.pointerEvents = "none";
@@ -160,18 +183,15 @@ function checkSelection() {
   }
 }
 
-// ===== Utilidades para la lista (robustas con o sin data-word) =====
+// ===== Utilidades para la lista =====
 function getWordListItem(word) {
-  // 1) Intentar por data-word exacto
+  // Intentar por data-word exacto
   let li = document.querySelector(`#word-list li[data-word="${word}"]`);
   if (li) return li;
-
-  // 2) Fallback: buscar por texto del li en mayúsculas
+  // Fallback por texto
   const items = document.querySelectorAll('#word-list li');
   for (const item of items) {
-    if (item.textContent.trim().toUpperCase() === word) {
-      return item;
-    }
+    if (item.textContent.trim().toUpperCase() === word) return item;
   }
   return null;
 }
@@ -187,7 +207,7 @@ function markWordAsFound(word) {
 }
 
 function updateStatus() {
-  if (!statusEl) return; // por si no existe el contador en el HTML
+  if (!statusEl) return;
   const total = words.length;
   const items = document.querySelectorAll('#word-list li.found');
   const found = items ? items.length : 0;
@@ -199,6 +219,8 @@ function allFound() {
   if (!list.length) return false;
   return [...list].every(li => li.classList.contains("found"));
 }
+
+/* ===== Modales ===== */
 function showWinModal(){
   const modal = document.getElementById('winModal');
   const btn = document.getElementById('btnNext');
@@ -207,161 +229,17 @@ function showWinModal(){
   modal.style.display = 'flex';
   modal.setAttribute('aria-hidden', 'false');
 
-  launchConfetti(7000, 700); // Celebración
-  setTimeout(() => {launchConfetti(6000, 500);}, 1200);
-  setTimeout(() => {launchConfetti(5000, 400);}, 2500);
+  const victoryAudio = document.getElementById('victory-sound');
+  if (victoryAudio){ victoryAudio.currentTime = 0; victoryAudio.play(); }
 
   // Enfocar el botón para accesibilidad
   setTimeout(() => btn.focus(), 50);
 
-  // Cerrar con ESC si quisieras (opcional)
-  document.addEventListener('keydown', onEscClose);
-
   // Acción del botón: redirigir a la siguiente etapa
   btn.addEventListener('click', goNext, { once: true });
-
-  function onEscClose(e){
-    if (e.key === 'Escape'){
-      modal.style.display = 'none';
-      modal.setAttribute('aria-hidden', 'true');
-      document.removeEventListener('keydown', onEscClose);
-    }
-  }
 }
-// Confeti vanilla: canvas temporal + partículas animadas
-function launchConfetti(durationMs = 1000, particleCount = 160) {
-  // Crear canvas overlay
-  const canvas = document.createElement('canvas');
-  canvas.id = 'confetti-canvas';
-  document.body.appendChild(canvas);
+function goNext(){ window.location.href = "{% url 'desafios' %}"; }
 
-  const ctx = canvas.getContext('2d');
-  let W = canvas.width = window.innerWidth;
-  let H = canvas.height = window.innerHeight;
-
-  const onResize = () => {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  };
-  window.addEventListener('resize', onResize);
-
-  // Paleta y partículas
-  const colors = ['#FFC700','#FF2D55','#00D4FF','#4B74AA','#16A34A'];
-  const GRAV = 0.18;       // gravedad
-  const DRAG = 0.995;      // rozamiento
-  const FADE = 0.012;      // velocidad de desvanecimiento
-
-  const particles = [];
-  // Emitir desde múltiples posiciones (centro y bordes)
-const emitters = [
-  { x: W / 2, y: H * 0.2 },   // centro arriba
-  { x: W * 0.1, y: H * 0.3 }, // izquierda
-  { x: W * 0.9, y: H * 0.3 }, // derecha
-  { x: W / 2, y: H * 0.8 }    // parte baja
-];
-
-// combinar todas las partículas de los emisores
-for (const em of emitters) {
-  for (let i = 0; i < particleCount / emitters.length; i++) {
-    const angle = (Math.random() * Math.PI * 2); // 360°
-    const speed = 4 + Math.random() * 6;
-    particles.push({
-      x: em.x + (Math.random() * 30 - 15),
-      y: em.y + (Math.random() * 30 - 15),
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 1,
-      size: 6 + Math.random() * 4,
-      rot: Math.random() * Math.PI,
-      vr: (Math.random() - 0.5) * 0.3,
-      color: colors[(Math.random() * colors.length) | 0],
-      alpha: 1
-    });
-  }
-}
-
-
-  let start = null;
-  function frame(ts){
-    if (!start) start = ts;
-    const elapsed = ts - start;
-
-    ctx.clearRect(0, 0, W, H);
-
-    for (const p of particles) {
-      // física
-      p.vx *= DRAG;
-      p.vy = p.vy * DRAG + GRAV;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rot += p.vr;
-      p.alpha -= FADE;
-
-      // dibujo
-      if (p.alpha > 0 && p.y < H + 40) {
-        ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.fillStyle = p.color;
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        // rectángulos “papel picado”
-        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
-        ctx.restore();
-      } else {
-        p.alpha = 0;
-      }
-    }
-
-    // continuar mientras dure la animación y haya algo visible
-    if (elapsed < durationMs && particles.some(p => p.alpha > 0)) {
-      requestAnimationFrame(frame);
-    } else {
-      cleanup();
-    }
-  }
-
-  function cleanup(){
-    window.removeEventListener('resize', onResize);
-    canvas.remove();
-  }
-
-  requestAnimationFrame(frame);
-}
-
-function goNext(){
-    window.location.href = "{% url '#' %}";
-}
-// ===== TEMPORIZADOR (2 minutos = 120s) =====
-let timeLeft = 120;
-let timerInterval;
-
-function startTimer() {
-  const timerEl = document.getElementById('timer');
-  if (!timerEl) return;
-
-  function updateTimer() {
-    const min = Math.floor(timeLeft / 60);
-    const sec = timeLeft % 60;
-    timerEl.textContent = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-
-    // efecto visual al quedar menos de 10s
-    if (timeLeft <= 10) {
-      timerEl.classList.add('low-time');
-    }
-
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      showTimeUpModal();
-      reproducirAlarma();
-    } else {
-      timeLeft--;
-    }
-  }
-
-  updateTimer(); // primera actualización inmediata
-  timerInterval = setInterval(updateTimer, 1000);
-}
-
-// Mostrar modal de tiempo terminado
 function showTimeUpModal() {
   const modal = document.getElementById('timeModal');
   const btn = document.getElementById('btnRetry');
@@ -369,26 +247,93 @@ function showTimeUpModal() {
 
   modal.style.display = 'flex';
   modal.setAttribute('aria-hidden', 'false');
-  
 
-  btn.addEventListener('click', () => {
-    window.location.href = "{% url '#' %}";
-  }, { once: true });
+  btn.addEventListener('click', goNext, { once: true });
 }
-function reproducirAlarma() {
-        const alarmAudio = document.getElementById('alarm-audio');
-        alarmAudio.currentTime = 0;
-        alarmAudio.play();
 
-        const body = document.body;
-        body.classList.add('flash');
-        setTimeout(() => {body.classList.remove('flash');}, 800);
-      }
-// ===== Inicio =====
+/* ===== Temporizador (120s) ===== */
+let timeLeft = 120;
+let timerInterval;
+
+function startTimer() {
+  const timerEl = document.getElementById('timer');
+  const alarmAudio = document.getElementById('alarm-audio');
+
+  function updateTimer() {
+    const min = Math.floor(timeLeft / 60);
+    const sec = timeLeft % 60;
+    timerEl.textContent = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+
+    if (timeLeft <= 10) timerEl.classList.add('low-time');
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      showTimeUpModal();
+      if (alarmAudio){ alarmAudio.currentTime = 0; alarmAudio.play(); }
+    }
+    timeLeft--;
+  }
+
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+/* ===== Ajuste de grilla 100% responsiva =====
+   Calcula el tamaño de celda con el ANCHO INTERNO del card
+   y el ALTO disponible del viewport para que JAMÁS sobresalga.
+*/
+(function makeGridResponsive(){
+  const root = document.documentElement;
+
+  function adjustGrid(){
+    const cols = gridSize;
+    const rows = gridSize;
+    const gap = 4;
+
+    const container = document.querySelector('.game-container');
+    const wordsBox  = document.querySelector('.words');
+    const titleEl   = document.querySelector('h1');
+    const subEl     = document.querySelector('p');
+    const timerBox  = document.getElementById('timer-container');
+
+    // Ancho interno real del card (sin padding)
+    const cs = getComputedStyle(container);
+    const innerW = container.clientWidth
+                 - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+
+    // Por si el viewport es aún más chico (iPhone con safe areas)
+    const maxWidth = Math.min(innerW, window.innerWidth * 0.94);
+
+    // Alto disponible aproximado dentro del viewport
+    const wordsH = wordsBox ? wordsBox.offsetHeight : 0;
+    const headerH = (titleEl?.offsetHeight || 0) + (subEl?.offsetHeight || 0) + (timerBox?.offsetHeight || 0);
+    const containerVPadding = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const verticalMargins = 40; // respiración
+    const availableH = window.innerHeight - headerH - wordsH - containerVPadding - verticalMargins;
+
+    // Tamaño de celda por ancho y por alto
+    const cellByWidth  = (maxWidth  - (cols - 1) * gap - 2 * gap) / cols;
+    const cellByHeight = (availableH - (rows - 1) * gap - 2 * gap) / rows;
+
+    // Celda final (con límites)
+    const cell = Math.floor(Math.min(cellByWidth, cellByHeight));
+    const finalSize = Math.max(22, Math.min(cell, 60));
+
+    root.style.setProperty('--cell-size', finalSize + 'px');
+    root.style.setProperty('--cols', cols);
+    root.style.setProperty('--rows', rows);
+    root.style.setProperty('--gap', gap + 'px');
+  }
+
+  window.addEventListener('resize', adjustGrid);
+  adjustGrid();
+})();
+
+/* ===== Inicio ===== */
 (function init() {
   startTimer();
   createFixedBoard();
-  fillRandom();   // reemplaza las 'X'
-  render();       // dibuja tablero
-  updateStatus(); // 0/n al inicio
+  fillRandom();
+  render();
+  updateStatus();
 })();

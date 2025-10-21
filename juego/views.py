@@ -84,7 +84,6 @@ def conocidos(request):
 def minijuego1(request):
     return render(request, 'minijuego1.html')
 
-
 # ===========================
 # 🛒 MERCADO DE RETOS
 # ===========================

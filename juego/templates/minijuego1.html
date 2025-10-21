@@ -16,6 +16,7 @@
         <span id="timer">02:00</span>
     </div>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+    <audio id="victory-sound" src="{% static 'sounds/victory.mp3' %}" preload="auto"></audio>
     <div id="timeModal" class="modal" aria-hidden="true" role="dialog">
         <div class="modal-content">
             <h2>⏰ ¡Tiempo terminado!</h2>
@@ -23,7 +24,6 @@
             <button id="btnRetry" type="button">Continuar</button>
         </div>
     </div>
-
 
 
     <div id="grid" class="grid" aria-label="Tablero de sopa de letras"></div>
