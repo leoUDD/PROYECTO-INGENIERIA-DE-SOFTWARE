@@ -51,6 +51,14 @@ def bienvenida(request):
 
 
 def registro(request):
+    if request.method == 'POST':
+        # Lógica para manejar el registro (ejemplo)
+        id_grupo = request.POST.get('id_grupo')
+        if id_grupo == '1234':
+            return render(request, 'promptconocidos.html', {'id_grupo': id_grupo})
+        else:
+            error = 'ID de grupo inválido'
+            return render(request, 'registro.html', {'error': error})
     return render(request, 'registro.html')
 
 
@@ -73,6 +81,8 @@ def promptconocidos(request):
 def conocidos(request):
     return render(request, 'conocidos.html')
 
+def minijuego1(request):
+    return render(request, 'minijuego1.html')
 
 # ===========================
 # 🛒 MERCADO DE RETOS

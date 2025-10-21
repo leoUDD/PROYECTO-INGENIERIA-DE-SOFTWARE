@@ -13,6 +13,7 @@ urlpatterns = [
     path('introducciones/', views.introducciones, name='introducciones'),
     path('promptconocidos/', views.promptconocidos, name='promptconocidos'),
     path('conocidos/', views.conocidos, name='conocidos'),
+    path('minijuego1/', views.minijuego1, name='minijuego1'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),
