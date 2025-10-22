@@ -14,6 +14,8 @@ urlpatterns = [
     path('promptconocidos/', views.promptconocidos, name='promptconocidos'),
     path('conocidos/', views.conocidos, name='conocidos'),
     path('minijuego1/', views.minijuego1, name='minijuego1'),
+    path('tematicas/', views.tematicas, name='tematicas'),
+    path('desafios/', views.desafios, name='desafios'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),

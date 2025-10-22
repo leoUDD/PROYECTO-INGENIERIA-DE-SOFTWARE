@@ -6,11 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Registro</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_registro.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/estilo_login.css' %}" />
 </head>
 <body>
   <main class="phone" role="region" aria-label="Pantalla de registro equipos">
-    <h1>Inicia sesion como grupo</h1>
+    <h1>Únete a un grupo</h1>
+    {% if error %}
+    <div class="popup" id="popup_error" role="alert" aria-live="assertive">
+        <p>{{ error }}</p>
+        <button class="close-btn" type="button" onclick="closePopUp()">X</button>
+    </div>
+    {% endif %}
     <form method="post" action="{% url 'registro' %}">
       <label for="id_grupo">ID del grupo</label>
       <input type="text" id="id_grupo" name="id_grupo" required>
@@ -18,3 +24,16 @@
       <button type="submit" class="btn primary">Continuar</button>
     </form>
   </main>
+  <script>
+    function closePopUp() {
+        const popUp = document.getElementById('popup_error');
+        if (popUp) popUp.style.display = 'none';
+    }
+
+    setTimeout(() => {
+        const popUp = document.getElementById('popup_error');
+        if (popUp) popUp.style.display = 'none';
+    }, 4000);
+    </script>
+</body>
+</html>

@@ -84,6 +84,12 @@ def conocidos(request):
 def minijuego1(request):
     return render(request, 'minijuego1.html')
 
+def tematicas(request):
+    return render(request, 'tematicas.html')
+
+def desafios(request):
+    return render(request, 'desafios.html')
+
 # ===========================
 # 🛒 MERCADO DE RETOS
 # ===========================

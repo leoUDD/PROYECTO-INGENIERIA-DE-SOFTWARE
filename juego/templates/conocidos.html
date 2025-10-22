@@ -11,20 +11,22 @@
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
     <h1 class="title">Se conocen!</h1>
-    <p class="subtitle">Tienen dos minutos como grupo para conocerse mejor para esta dinamica..</p>
-    <p class="body">Discutan entre si: Cuales son sus habilidades? (Liderazgo, perseverancia, trabajo en equipo...)</p>
+    <p class="subtitle">Tienen dos minutos como grupo para conocerse mejor para esta dinámica..</p>
+    <p class="body">¿Cuáles son sus habilidades? (Liderazgo, perseverancia, trabajo en equipo...)
+      Nombra una habilidad que tenga uno de los integrantes del equipo y cuenta una anécdota donde hayas visto esa habilidad en acción.
+    </p>
     <img class="phone-image" src="{% static 'images/conocidos.png' %}" alt="Imagen de conocerse" />
-    <h2 id="timer">02:00</h2>
+    <h2 id="timer">00:15</h2>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
     <div id="modal-fin" class="modal">
       <div class="modal-content">
         <h2>Tiempo terminado</h2>
-        <p>El tiempo para conocerse ha terminado. Presiona el boton para continuar.</p>
+        <p>El tiempo para conocerse ha terminado. Presiona el botón para continuar.</p>
         <button id="buttonContinuar">Continuar</button>
       </div>
     </div>
         <script>
-      let timeLeft = 120; // 2 minutes in seconds
+      let timeLeft = 15; // 2 minutes in seconds
       const timerElement = document.getElementById('timer');
 
       function updateTimer() {
