@@ -238,7 +238,11 @@ function showWinModal(){
   // Acción del botón: redirigir a la siguiente etapa
   btn.addEventListener('click', goNext, { once: true });
 }
-function goNext(){ window.location.href = "{% url 'desafios' %}"; }
+function goNext(){
+  const routes = document.getElementById('routes');
+  const url = routes?.dataset.tematicasUrl;
+  if (url) window.location.href = url;
+  }
 
 function showTimeUpModal() {
   const modal = document.getElementById('timeModal');
@@ -252,8 +256,8 @@ function showTimeUpModal() {
 }
 
 /* ===== Temporizador (120s) ===== */
-let timeLeft = 120;
-let timerInterval;
+let timeLeft = 15;
+let timerInterval = null;
 
 function startTimer() {
   const timerEl = document.getElementById('timer');
@@ -273,9 +277,8 @@ function startTimer() {
     }
     timeLeft--;
   }
-
+  const timerInterval = setInterval(updateTimer, 1000);
   updateTimer();
-  timerInterval = setInterval(updateTimer, 1000);
 }
 
 /* ===== Ajuste de grilla 100% responsiva =====

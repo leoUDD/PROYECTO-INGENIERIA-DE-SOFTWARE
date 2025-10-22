@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Misión Emprende UDD — Elige la temática</title>
+  <link rel="stylesheet" href="{% static 'css/estilo_tematicas.css' %}">
+</head>
+<body>
+  <main class="selector-container" role="main" aria-labelledby="page-title">
+    <header class="header">
+      <h1 id="page-title">Elige la temática del desafío</h1>
+      <p class="subtitle">Selecciona una categoría para continuar. Cada bloque explica de qué trata.</p>
+    </header>
+
+    <section class="themes-grid" aria-label="Temáticas disponibles">
+      <!-- Card 1 -->
+      <article class="theme-card" tabindex="0"
+               data-slug="salud"
+               data-url="{% url 'desafios' %}">
+        <div class="thumb">
+          <img src="{% static 'images/tema_salud.png' %}" alt="Icono de salud">
+        </div>
+        <div class="content">
+          <h2 class="title">Salud</h2>
+          <div class="chips">
+            <span class="chip">🫶 Empatía</span>
+            <span class="chip">💡 Innovar</span>
+            <span class="chip">💪 Bienestar</span>
+          </div>
+          <p class="desc">Desarrolla ideas que mejoren la calidad de vida de las personas y fomenten hábitos saludables en la comunidad.</p>
+        </div>
+        <div class="actions">
+          <button class="btn select" onclick="guardarTema('salud')">Elegir</button>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="theme-card" tabindex="0"
+               data-slug="sustentabilidad"
+               data-url="{% url 'desafios' %}">
+        <div class="thumb">
+          <img src="{% static 'images/tema_sustentabilidad.png' %}" alt="Icono de sustentabilidad">
+        </div>
+        <div class="content">
+          <h2 class="title">Sustentabilidad</h2>
+          <div class="chips">
+            <span class="chip">🌱 Ambiental</span>
+            <span class="chip">♻️ Reciclaje</span>
+            <span class="chip">⚙️ Creativo</span>
+          </div>
+          <p class="desc">Desarrolla ideas que promuevan la sostenibilidad y el cuidado del medio ambiente.</p>
+        </div>
+        <div class="actions">
+          <button class="btn select" onclick="guardarTema('sustentabilidad')">Elegir</button>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="theme-card" tabindex="0"
+               data-slug="educacion"
+               data-url="{% url 'desafios' %}">
+        <div class="thumb">
+          <img src="{% static 'images/tema_educacion.png' %}" alt="Icono de educación">
+        </div>
+        <div class="content">
+          <h2 class="title">Educación</h2>
+          <div class="chips">
+            <span class="chip">🗣️ Comunicar</span>
+            <span class="chip">🎓 Liderazgo</span>
+            <span class="chip">💭 Ideas</span>
+          </div>
+          <p class="desc">Transforma la enseñanza con propuestas innovadoras que impulsen el aprendizaje y la inclusión.</p>
+        </div>
+        <div class="actions">
+          <button class="btn select" onclick="guardarTema('educacion')">Elegir</button>
+        </div>
+      </article>
+    </section>
+    <footer class="footer-actions">
+      <button id="btnContinuar" class="btn primary" disabled>Continuar</button>
+    </footer>
+  </main>
+  <script src="{% static 'js/tematica.js' %}" defer></script>
+</body>
+</html>
