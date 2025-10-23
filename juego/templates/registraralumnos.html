@@ -25,7 +25,65 @@
     </aside>
 
     <main class="main-content">
+<h1 class="title">Registro de Alumnos</h1>
+<p class="subtitle">Ingrese los datos de los alumnos y presione "Enviar" para crear un nuevo grupo.</p>
 
+<section class="table-section">
+  <h2 id="groupTitle">Grupo 1</h2>
+
+  <table id="inputTable"></table>
+
+  <button id="submitBtn">Enviar</button>
+
+  <h3>Datos enviados:</h3>
+  <pre id="output"></pre>
+</section>
+
+<script>
+  let groupNumber = 1;
+
+  function createTable() {
+    const table = document.getElementById('inputTable');
+    table.innerHTML = ''; // Limpiar tabla existente
+
+    const columnas = ['Nombre', 'Correo', 'Carrera'];
+
+    for (let i = 0; i < 8; i++) { // 8 filas
+      const row = document.createElement('tr');
+      for (let j = 0; j < 3; j++) { // 3 columnas
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = columnas[j];
+        cell.appendChild(input);
+        row.appendChild(cell);
+      }
+      table.appendChild(row);
+    }
+  }
+
+  function handleSubmit() {
+    const rows = document.querySelectorAll('#inputTable tr');
+    const data = [];
+
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('input');
+      const rowData = [];
+      cells.forEach(input => rowData.push(input.value.trim()));
+      data.push(rowData);
+    });
+
+    const output = document.getElementById('output');
+    output.textContent += `Grupo ${groupNumber}:\n` + JSON.stringify(data, null, 2) + '\n\n';
+
+    groupNumber++;
+    document.getElementById('groupTitle').textContent = `Grupo ${groupNumber}`;
+    createTable();
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+  createTable();
+</script>
     </main>
   </div>
 </body>
