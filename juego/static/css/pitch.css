@@ -1,0 +1,137 @@
+/* Variables */
+:root {
+  --bg: linear-gradient(rgba(255,255,255,0.2), rgba(245,247,250,0.2)),
+        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --card: #fff;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #4b74aa;
+  --primary-pressed: #3d618e;
+  --radius: 28px;
+  --shadow: 0 12px 28px rgba(0,0,0,.08);
+
+  --fs-title: clamp(28px, 4vw, 44px);
+  --fs-sub: clamp(15px, 2vw, 20px);
+  --fs-body: clamp(15px, 1.9vw, 18px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: "Poppins", system-ui, sans-serif; }
+img { max-width: 100%; display: block; }
+
+/* Base */
+body {
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Estilo carta principal */
+.phone {
+  width: clamp(380px, 94vw, 800px);
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Texto */
+.title {
+  text-align: center;
+  font-size: var(--fs-title);
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted);
+  font-size: var(--fs-sub);
+}
+
+/* Estilo de tips */
+.tips {
+  width: 100%;
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+}
+
+.tips h2 {
+  color: var(--primary);
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.tips ul {
+  list-style: disc;
+  margin-left: 18px;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: var(--fs-body);
+}
+/* Formulario para escribir notas pitch etc */
+.pitch-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  resize: both;
+}
+
+.pitch-form label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pitch-form textarea {
+  resize: vertical;
+  width: 100%;
+  border: 2px solid #d1d5db;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: var(--fs-body);
+  font-family: inherit;
+  transition: border-color .2s ease;
+}
+
+.pitch-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(75, 116, 170, 0.2);
+}
+
+.pitch-form button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.pitch-form button:hover {
+  background: var(--primary-pressed);
+  transform: scale(1.03);
+}
+
+
+@media (max-width: 480px) {
+  .phone {
+    padding: 28px 20px;
+  }
+  .tips ul {
+    margin-left: 14px;
+  }
+}

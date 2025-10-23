@@ -9,8 +9,31 @@
   <link rel="stylesheet" href="{% static 'css/estilo_conocidos.css' %}" />
 </head>
 <body>
+    <main class="phone" role="region" aria-label="Actividad Pitch">
+      <img src="{% static 'images/pitch-logo.png' %}" alt="Logo Pitch" class="logo">
+    <h1 class="title">Crea tu pitch!</h1>
+    <p class="subtitle">Escribe un pitch, o simplemente prepara algunas notas para tu presentacion.</p>
+
+    <section class="tips">
+      <h2>Consejos para un buen pitch</h2>
+      <ul>
+        <li>Comienza explicando claramente tu problema.</li>
+        <li>Explica brevemente tu solucion construida con LEGOs.</li>
+        <li>Explica por que tu solucion es especial: que la hace unica? Cuales son sus beneficios?</li>
+        <li>Manténlo corto (menos de 2 minutos)</li>
+      </ul>
+    </section>
+    <form class="pitch-form">
+      <textarea id="pitch-text" name="pitch-text" placeholder="Escribe tu pitch, o simplemente unas notas!" rows="8"></textarea>
+    </form>
 
 
 
-    
+
+
+
+</main>
+
+
+
 </body>
