@@ -6,15 +6,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — LEGO</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/estilo_conocidos.css' %}" />
 </head>
 <body>
-  <main class="phone" role="region" aria-label="Pantalla de bienvenida">
+  <main class="phone" role="region" aria-label="Actividad Lego">
       <img src="{% static 'images/Lego-logo.png' %}" alt="Logo lego" class="logo">
     <h1 class="title">Construye tu desafio!</h1>
     <p class="subtitle">Tu profesor te entregará una caja con LEGOS.</p>
     <p class="body">Usa los LEGOS para construir una representación física de tu solución al desafío.</p>
+    <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+    <div id="timer" class="timer">00:15</div>
+    <div id="modal-fin" class="modal">
+      <div class="modal-content">
+        <h2>Tiempo terminado</h2>
+        <p>El tiempo para conocerse ha terminado. Presiona el botón para continuar.</p>
+        <button id="buttonContinuar">Continuar</button>
+      </div>
+    </div>
+    </div>
+<script>
+      let timeLeft = 15; // 15 seconds
+      const timerElement = document.getElementById('timer');
 
+      function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (timeLeft <= 10) {
+          timerElement.style.boxShadow = '0 0 20px #ff2d55, 0 0 40px #ff0000 inset';
+          timerElement.style.textShadow = '0 0 10px #ff2d55';
+        }
+        if (timeLeft > 0) {
+          timeLeft--;
+        } else {
+          clearInterval(timerInterval);
+          reproducirAlarma();
+          mostrarModal();
+        }
+      }
+      function mostrarModal() {
+        const modal = document.getElementById('modal-fin');
+        modal.style.display = 'flex';
+        document.getElementById('buttonContinuar').addEventListener('click', () => {
+          window.location.href = "{% url 'pitch' %}";
+        });
+      }
+      function reproducirAlarma() {
+        const alarmAudio = document.getElementById('alarm-audio');
+        alarmAudio.currentTime = 0;
+        alarmAudio.play();
+
+        const body = document.body;
+        body.classList.add('flash');
+        setTimeout(() => {body.classList.remove('flash');}, 800);
+      }
+
+      const timerInterval = setInterval(updateTimer, 1000);
+      updateTimer(); // Initial call to display the timer immediately
+    </script>
   </main>
 </body>
 

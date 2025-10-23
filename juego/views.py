@@ -98,6 +98,9 @@ def desafios(request):
 
 def bubblemap(request):
     return render(request, 'bubblemap.html')
+
+def pitch(request):
+    return render(request, 'pitch.html')
 # ===========================
 # 🛒 MERCADO DE RETOS
 # ===========================

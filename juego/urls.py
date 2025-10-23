@@ -17,6 +17,7 @@ urlpatterns = [
     path('tematicas/', views.tematicas, name='tematicas'),
     path('desafios/', views.desafios, name='desafios'),
     path('bubblemap/', views.bubblemap, name='bubblemap'),
+    path('pitch/', views.pitch, name='pitch'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),
