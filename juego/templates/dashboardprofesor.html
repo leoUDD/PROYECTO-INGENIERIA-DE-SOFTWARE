@@ -6,22 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Dashboard Profesor</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardprofesor.css' %}" />
 </head>
 <body>
-  <main class="phone" role="region" aria-label="Pantalla de bienvenida">
-      <img src="{% static 'images/logo.png' %}" alt="Logo Misión Emprende UDD" class="logo">
-    <h1 class="title">Bienvenido, (profesor)!</h1>
-    <p class="subtitle">Este dashboard es para que puedas registrar a tus alumnos.</p>
+  <div class="dashboard">
 
-    <div class="video-wrap">
-      <video class="video" controls playsinline preload="metadata"
-             poster="{% static 'images/videoprueba.png' %}">
-        <source src="{% static 'videos/videonuevo_seek.mp4' %}" type="video/mp4">
-        Tu navegador no admite el elemento <code>video</code>.
-      </video>
-    </div>
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2 class="sidebar-title">Dashboard Profesor</h2>
+      </div>
 
-  </main>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="#">Registrar alumnos</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h1 class="title">Bienvenido, (profesor)!</h1>
+      <p class="subtitle">Este dashboard es para que puedas registrar a tus alumnos. (el video sera reemplazado por uno de explicacion)</p>
+
+      <div class="video-wrap">
+        <video class="video" controls playsinline preload="metadata"
+               poster="{% static 'images/videoprueba.png' %}">
+          <source src="{% static 'videos/videonuevo_seek.mp4' %}" type="video/mp4">
+          Tu navegador no admite el elemento <code>video</code>.
+        </video>
+      </div>
+    </main>
+  </div>
 </body>
 </html>
