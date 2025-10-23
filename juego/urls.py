@@ -18,6 +18,7 @@ urlpatterns = [
     path('desafios/', views.desafios, name='desafios'),
     path('bubblemap/', views.bubblemap, name='bubblemap'),
     path('pitch/', views.pitch, name='pitch'),
+    path('dashboardprofesor/', views.dashboardprofesor, name='dashboardprofesor'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),

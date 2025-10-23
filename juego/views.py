@@ -88,6 +88,9 @@ def minijuego1(request):
 def tematicas(request):
     return render(request, 'tematicas.html')
 
+def dashboardprofesor(request):
+    return render(request, 'dashboardprofesor.html')
+
 def desafios(request):
     slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
     theme = get_theme(slug)
