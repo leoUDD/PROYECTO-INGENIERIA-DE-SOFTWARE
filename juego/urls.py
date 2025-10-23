@@ -19,6 +19,7 @@ urlpatterns = [
     path('bubblemap/', views.bubblemap, name='bubblemap'),
     path('pitch/', views.pitch, name='pitch'),
     path('dashboardprofesor/', views.dashboardprofesor, name='dashboardprofesor'),
+    path('registraralumnos/', views.registraralumnos, name='registraralumnos'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),

@@ -104,6 +104,9 @@ def bubblemap(request):
 
 def pitch(request):
     return render(request, 'pitch.html')
+
+def registraralumnos(request):
+    return render(request, 'registraralumnos.html') 
 # ===========================
 # 🛒 MERCADO DE RETOS
 # ===========================

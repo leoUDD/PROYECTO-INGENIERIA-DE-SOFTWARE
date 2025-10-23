@@ -19,22 +19,13 @@
       <nav class="sidebar-nav">
         <ul>
           <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
-          <li><a href="{% url 'registraralumnos' %}">Registrar alumnos</a></li>
+          <li><a href="#">Registrar alumnos</a></li>
         </ul>
       </nav>
     </aside>
 
     <main class="main-content">
-      <h1 class="title">Bienvenido, (profesor)!</h1>
-      <p class="subtitle">Este dashboard es para que puedas registrar a tus alumnos. (el video sera reemplazado por uno de explicacion)</p>
-      <p class="body">(agregaremos autenticacion en el producto real, obviamente)</p>
-      <div class="video-wrap">
-        <video class="video" controls playsinline preload="metadata"
-               poster="{% static 'images/videoprueba.png' %}">
-          <source src="{% static 'videos/videonuevo_seek.mp4' %}" type="video/mp4">
-          Tu navegador no admite el elemento <code>video</code>.
-        </video>
-      </div>
+
     </main>
   </div>
 </body>
