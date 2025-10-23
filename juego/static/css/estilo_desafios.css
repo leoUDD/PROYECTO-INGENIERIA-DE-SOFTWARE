@@ -1,0 +1,202 @@
+:root{
+  --bg: linear-gradient(rgba(255,255,255,0.25), rgba(245,247,250,0.25)),
+        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --card:#fff;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#4b74aa;
+  --primary-pressed:#3d618e;
+  --accent:#ec4899;
+  --radius:24px;
+  --shadow:0 12px 28px rgba(0,0,0,.08);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.selector-container{
+  width: clamp(360px, 94vw, 1100px);
+  background: var(--card);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  padding: clamp(22px, 3.8vw, 40px);
+  display:flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.header h1{
+  font-size: clamp(26px, 3.8vw, 40px);
+  color: var(--primary);
+  font-weight: 800;
+}
+.subtitle{
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* Grid de desafíos */
+.challenges-grid{
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 20px);
+}
+@media (min-width: 640px){
+  .challenges-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px){
+  .challenges-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Card */
+.challenge-card{
+  position: relative; /* necesario para anclar el botón */
+  display:flex;
+  flex-direction: column;
+  border: 1px solid #eef2f7;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(0,0,0,.04);
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  height: 100%;
+}
+.challenge-card:hover{ transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,0,0,.07); }
+
+/* Check visual + borde azul al seleccionar */
+.challenge-card::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid transparent;
+  border-radius: 20px;
+  pointer-events:none;
+  transition:border-color .2s ease;
+}
+.challenge-card.selected::before{
+  border-color: var(--primary);
+}
+.challenge-card.selected::after{
+  content:"✔";
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:var(--primary);
+  color:#fff;
+  font-size:18px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 0 8px rgba(75,116,170,.45);
+  animation:check-pop .2s ease;
+  pointer-events:none;
+}
+@keyframes check-pop{
+  from{ transform:scale(.6); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+
+/* Contenido (dejamos espacio para el botón) */
+.content{
+  padding: 18px 18px 64px 18px; /* fondo extra para que no pise el botón */
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:140px;
+}
+.title{
+  font-size: clamp(18px, 2.2vw, 22px);
+  font-weight: 800;
+  color: var(--primary);
+}
+.desc{
+  color: var(--muted);
+  font-size: clamp(14px, 1.8vw, 16px);
+  line-height:1.45;
+  flex: 1;
+}
+
+/* Botón anclado abajo-derecha */
+.actions{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+}
+
+/* Botones */
+.btn{
+  appearance:none;
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease, background-color .15s ease, color .15s ease;
+}
+
+/* Base "Elegir" */
+.btn.select{
+  background:#eef2ff;
+  color:#24316a;
+}
+.btn.select:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(36,49,106,.2);
+}
+
+/* Botón cuando la card está seleccionada (dos vías):
+   1) Si tu JS añade class `selected` al botón
+   2) O si prefieres que cambie solo por el estado de la card seleccionada */
+.btn.select.selected,
+.challenge-card.selected .btn.select{
+  background: var(--primary);
+  color:#fff;
+  box-shadow:0 0 8px rgba(75,116,170,.4);
+}
+
+/* Sin cambios de hover cuando está “seleccionado” o deshabilitado */
+.btn.select.selected:hover,
+.btn.select:disabled{
+  transform:none;
+  box-shadow:0 0 8px rgba(75,116,170,.4);
+  cursor:default;
+}
+
+/* Footer */
+.footer-actions{
+  display:flex;
+  justify-content:center;
+  margin-top:6px;
+}
+.btn.primary{
+  width: clamp(240px, 40vw, 360px);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(75,116,170,.35);
+  font-size: clamp(16px, 1.9vw, 18px);
+  padding: 14px 18px;
+}
+.btn.primary:disabled{
+  opacity: .5;
+  filter: grayscale(20%);
+  cursor: not-allowed;
+}
+.btn.primary:hover:not(:disabled){
+  background: var(--primary-pressed);
+  transform: translateY(-1px);
+}

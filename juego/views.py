@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
+from .tematicas_data import get_theme
 
 # ===========================
 # 📋 Vistas principales
@@ -28,16 +29,16 @@ def registrarse(request):
     return render(request, 'registrarse.html')
 
 
-
-
-
-
 def login(request):
     if request.method == 'POST':
         # Lógica de autenticación (demo)
         email = request.POST.get('email')
         password = request.POST.get('password')
         if email == 'leo@udd.cl' and password == '1234':
+            return render(request, 'bienvenida.html', {'email': email})
+        if email == 'seba@udd.cl' and password == '1234':
+            return render(request, 'bienvenida.html', {'email': email})
+        if email == 'jesus@udd.cl' and password == '1234':
             return render(request, 'bienvenida.html', {'email': email})
         else:
             error = 'Credenciales inválidas'
@@ -88,8 +89,15 @@ def tematicas(request):
     return render(request, 'tematicas.html')
 
 def desafios(request):
-    return render(request, 'desafios.html')
+    slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
+    theme = get_theme(slug)
+    if not theme:
+        return redirect('tematicas')
+    request.session['tema'] = slug
+    return render(request, 'desafios.html', {'theme': theme, 'slug': slug})
 
+def bubblemap(request):
+    return render(request, 'bubblemap.html')
 # ===========================
 # 🛒 MERCADO DE RETOS
 # ===========================

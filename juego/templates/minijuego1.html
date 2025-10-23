@@ -13,7 +13,7 @@
     <p>Encuentra las palabras ocultas relacionadas con el emprendimiento 💡</p>
     <div id="timer-container">
         <span>⏱️ Tiempo restante: </span>
-        <span id="timer" class="timer">00:15</span>
+        <span id="timer" class="timer">00:45</span>
     </div>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
     <audio id="victory-sound" src="{% static 'sounds/victory.mp3' %}" preload="auto"></audio>
@@ -49,6 +49,6 @@
           data-tematicas-url="{% url 'tematicas' %}">
     </div>
   </main>
-  <script src="{% static 'js/sopadeletras.js' %}"></script>
+  <script src="{% static 'js/sopadeletras.js' %}?v=3" defer></script>
 </body>
 </html>

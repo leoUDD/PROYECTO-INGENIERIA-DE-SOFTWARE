@@ -15,7 +15,7 @@
     <p class="body">Digan su nombre, carrera y algo curioso sobre ustedes!</p>
     <img class="phone-image" src="{% static 'images/intro.png' %}" alt="Imagen de introducción" />
 
-    <div id="timer" class="timer">00:15</div>
+    <div id="timer" class="timer">00:45</div>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
     <div id="modal-fin" class="modal">
       <div class="modal-content">
@@ -25,7 +25,7 @@
       </div>
     </div>
     <script>
-      let timeLeft = 15; // 2 minutes in seconds
+      let timeLeft = 45; // 45 seconds
       const timerElement = document.getElementById('timer');
 
       function updateTimer() {
