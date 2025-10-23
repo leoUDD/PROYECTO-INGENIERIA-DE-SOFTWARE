@@ -18,7 +18,14 @@ let board = [];
 let mouseDown = false;
 let selection = [];
 
-// === Tablero fijo: 12x12. Las 'X' se rellenan con letras al azar ===
+// === Estado global del juego/temporizador ===
+let timerInterval = null;
+let gameEnded = false;
+let timeLeft = 45; // <— 45 segundos
+
+console.log("Sopa de Letras — build v3 • timeLeft =", timeLeft);
+
+/* ===== Tablero fijo: 12x12. Las 'X' se rellenan con letras al azar ===== */
 function createFixedBoard() {
   const gridTemplate = [
     "IDEAXXXXXXXX",
@@ -65,7 +72,7 @@ function render() {
       cell.addEventListener("mouseover", (e)=>{ e.preventDefault(); handleOver(e); });
       cell.addEventListener("mouseup",   (e)=>{ e.preventDefault(); handleUp(e); });
 
-      // Opcional: soporte táctil básico
+      // Soporte táctil básico
       cell.addEventListener("touchstart", (e)=>{ e.preventDefault(); handleDown(convertTouch(e)); }, {passive:false});
       cell.addEventListener("touchmove",  (e)=>{ e.preventDefault(); handleOver(convertTouch(e)); }, {passive:false});
       cell.addEventListener("touchend",   (e)=>{ e.preventDefault(); handleUp(); }, {passive:false});
@@ -81,9 +88,9 @@ function render() {
 }
 
 function convertTouch(e){
-  const touch = e.touches && e.touches[0] ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : null);
-  if (!touch) return e;
-  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const t = e.touches && e.touches[0] ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : null);
+  if (!t) return e;
+  const el = document.elementFromPoint(t.clientX, t.clientY);
   return { currentTarget: el, button: 0 };
 }
 
@@ -91,13 +98,14 @@ function convertTouch(e){
 function handleDown(e) {
   if (e.button !== 0) return; // solo click izquierdo
   if (!e.currentTarget || !e.currentTarget.dataset) return;
+  if (gameEnded) return;
   mouseDown = true;
   clearTempSelection();
   addToSelection(e.currentTarget);
 }
 
 function handleOver(e) {
-  if (!mouseDown) return;
+  if (!mouseDown || gameEnded) return;
   if (!e.currentTarget || !e.currentTarget.dataset) return;
   addToSelection(e.currentTarget, true);
 }
@@ -158,7 +166,7 @@ function textFromSelection() {
 
 // Verifica si la selección coincide con una palabra (normal o al revés)
 function checkSelection() {
-  if (selection.length === 0) return;
+  if (selection.length === 0 || gameEnded) return;
 
   const str = textFromSelection();
   const rev = [...str].reverse().join("");
@@ -175,8 +183,10 @@ function checkSelection() {
     markWordAsFound(match);
     clearTempSelection();
     updateStatus();
+
     if (allFound()) {
-      setTimeout(showWinModal, 200);
+      endGame(true); // victoria
+      return;
     }
   } else {
     clearTempSelection();
@@ -185,10 +195,8 @@ function checkSelection() {
 
 // ===== Utilidades para la lista =====
 function getWordListItem(word) {
-  // Intentar por data-word exacto
   let li = document.querySelector(`#word-list li[data-word="${word}"]`);
   if (li) return li;
-  // Fallback por texto
   const items = document.querySelectorAll('#word-list li');
   for (const item of items) {
     if (item.textContent.trim().toUpperCase() === word) return item;
@@ -220,8 +228,27 @@ function allFound() {
   return [...list].every(li => li.classList.contains("found"));
 }
 
+/* ===== Cierre unificado del juego ===== */
+function endGame(won, alarmAudio = null) {
+  if (gameEnded) return;          // idempotente
+  gameEnded = true;               // marca fin del juego
+  clearInterval(timerInterval);   // **DETENER** el tiempo
+
+  // si venía de tiempo agotado y estaba sonando la alarma
+  if (alarmAudio && !won) {
+    try { alarmAudio.pause(); alarmAudio.currentTime = 0; } catch(_) {}
+  }
+
+  if (won) {
+    setTimeout(showWinModal, 200);
+  } else {
+    setTimeout(showTimeUpModal, 0);
+  }
+}
+
 /* ===== Modales ===== */
 function showWinModal(){
+  if (!gameEnded) return;
   const modal = document.getElementById('winModal');
   const btn = document.getElementById('btnNext');
   if (!modal || !btn) return;
@@ -232,38 +259,38 @@ function showWinModal(){
   const victoryAudio = document.getElementById('victory-sound');
   if (victoryAudio){ victoryAudio.currentTime = 0; victoryAudio.play(); }
 
-  // Enfocar el botón para accesibilidad
   setTimeout(() => btn.focus(), 50);
-
-  // Acción del botón: redirigir a la siguiente etapa
   btn.addEventListener('click', goNext, { once: true });
 }
+
 function goNext(){
   const routes = document.getElementById('routes');
   const url = routes?.dataset.tematicasUrl;
   if (url) window.location.href = url;
-  }
+}
 
 function showTimeUpModal() {
+  if (!gameEnded) return;
   const modal = document.getElementById('timeModal');
   const btn = document.getElementById('btnRetry');
   if (!modal || !btn) return;
 
   modal.style.display = 'flex';
   modal.setAttribute('aria-hidden', 'false');
-
   btn.addEventListener('click', goNext, { once: true });
 }
 
-/* ===== Temporizador (120s) ===== */
-let timeLeft = 15;
-let timerInterval = null;
-
+/* ===== Temporizador (45s) ===== */
 function startTimer() {
   const timerEl = document.getElementById('timer');
   const alarmAudio = document.getElementById('alarm-audio');
 
   function updateTimer() {
+    if (gameEnded) {
+      clearInterval(timerInterval);
+      return;
+    }
+
     const min = Math.floor(timeLeft / 60);
     const sec = timeLeft % 60;
     timerEl.textContent = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
@@ -272,19 +299,18 @@ function startTimer() {
 
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      showTimeUpModal();
-      if (alarmAudio){ alarmAudio.currentTime = 0; alarmAudio.play(); }
+      endGame(false, alarmAudio); // tiempo agotado
+      return;
     }
     timeLeft--;
   }
-  const timerInterval = setInterval(updateTimer, 1000);
+
+  // IMPORTANTE: usar la variable GLOBAL, no crear una local
+  timerInterval = setInterval(updateTimer, 1000);
   updateTimer();
 }
 
-/* ===== Ajuste de grilla 100% responsiva =====
-   Calcula el tamaño de celda con el ANCHO INTERNO del card
-   y el ALTO disponible del viewport para que JAMÁS sobresalga.
-*/
+/* ===== Ajuste de grilla 100% responsiva ===== */
 (function makeGridResponsive(){
   const root = document.documentElement;
 
@@ -334,9 +360,9 @@ function startTimer() {
 
 /* ===== Inicio ===== */
 (function init() {
-  startTimer();
   createFixedBoard();
   fillRandom();
   render();
   updateStatus();
+  startTimer();
 })();

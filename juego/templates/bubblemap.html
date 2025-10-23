@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Misión Emprende UDD — Bubble Map</title>
+  <link rel="stylesheet" href="{% static 'css/estilo_bubblemap.css' %}">
+</head>
+<body>
+  <main class="bubblemap-container">
+    <h1>💭 Bubble Map — Genera tus ideas</h1>
+    <p class="subtitle">Escribe en los círculos tus conceptos o palabras clave relacionadas con las características de la persona.</p>
+
+    <section class="bubbles">
+      <div class="bubble central">
+        <img src="{% static 'images/persona3.png' %}" alt="Persona" />
+      </div>
+
+      <div class="bubble"><textarea placeholder="¿Qué le gusta y qué no le gusta?"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Qué siente respecto a lo que le está pasando?"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Qué obstáculos enfrenta?"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Qué le dicen los demás?"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Cuáles son sus hobbies?"></textarea></div>
+      <div class="bubble"><textarea placeholder="Otras"></textarea></div>
+    </section>
+
+    <footer class="footer-actions">
+      <button id="btnContinuar" class="btn primary">Continuar</button>
+    </footer>
+  </main>
+
+  <script>
+    // Ajusta tamaño del texto según largo
+    document.querySelectorAll('.bubble textarea').forEach(area => {
+      area.addEventListener('input', () => {
+        area.style.height = 'auto';
+        area.style.height = area.scrollHeight + 'px';
+      });
+    });
+  </script>
+</body>
+<script>
+  document.getElementById("btnContinuar").addEventListener("click", () => {
+    window.location.href = "{% url 'lego' %}";
+  });
+</script>
+</html>
