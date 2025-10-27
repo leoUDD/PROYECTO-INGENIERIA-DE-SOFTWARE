@@ -20,6 +20,8 @@ urlpatterns = [
     path('pitch/', views.pitch, name='pitch'),
     path('dashboardprofesor/', views.dashboardprofesor, name='dashboardprofesor'),
     path('registraralumnos/', views.registraralumnos, name='registraralumnos'),
+    path('cargar-alumnos/', views.cargar_alumnos, name='cargar_alumnos'),
+    path('agregar-alumnos/', views.agregar_alumno_manual, name='agregar_alumno_manual'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),

@@ -6,85 +6,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Dashboard Profesor</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_dashboardprofesor.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/estilo_registraralumnos.css' %}" />
 </head>
 <body>
   <div class="dashboard">
 
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-logo">
         <h2 class="sidebar-title">Dashboard Profesor</h2>
       </div>
-
       <nav class="sidebar-nav">
         <ul>
           <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
-          <li><a href="#">Registrar alumnos</a></li>
+          <li><a href="{% url 'dashboardprofesor' %}">Registrar alumnos</a></li>
         </ul>
       </nav>
     </aside>
 
+    <!-- Main -->
     <main class="main-content">
-<h1 class="title">Registro de Alumnos</h1>
-<p class="subtitle">Ingrese los datos de los alumnos y presione "Enviar" para crear un nuevo grupo.</p>
+      <h1 class="title">Registro de Alumnos</h1>
+      <p class="subtitle">Cargue un Excel con la lista completa o ingrese un alumno manualmente.</p>
 
-<section class="table-section">
-  <h2 id="groupTitle">Grupo 1</h2>
+      <!-- Mensajes Django -->
+      {% if messages %}
+        <ul class="messages" role="status" aria-live="polite">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
 
-  <table id="inputTable"></table>
+      <!-- ========== SECCIÓN 1: CARGA DESDE EXCEL ========== -->
+      <section class="upload-section card" aria-labelledby="titulo-excel">
+        <h2 id="titulo-excel">📂 Cargar lista desde Excel</h2>
 
-  <button id="submitBtn">Enviar</button>
+        <form method="post" action="{% url 'cargar_alumnos' %}" enctype="multipart/form-data" class="upload-form">
+          {% csrf_token %}
+  
+          <input type="file" name="archivo_excel" id="archivo_excel" accept=".xlsx" required>
+          <label for="archivo_excel" class="file-label">Elegir archivo Excel</label>
 
-  <h3>Datos enviados:</h3>
-  <pre id="output"></pre>
-</section>
+          <span id="file-name" class="file-name">Ningún archivo seleccionado</span>
 
-<script>
-  let groupNumber = 1;
+          <button type="submit" class="btn primary">Subir archivo</button>
+        </form>
 
-  function createTable() {
-    const table = document.getElementById('inputTable');
-    table.innerHTML = ''; // Limpiar tabla existente
+        <p class="note">
+          Formato esperado (encabezados): <b>Correo</b>, <b>RUT</b>, <b>Nombre</b>, <b>Apellido Paterno</b>, <b>Apellido Materno</b>.
+        </p>
+      </section>
 
-    const columnas = ['Nombre', 'Correo', 'Carrera'];
+      <!-- ========== SECCIÓN 2: ALTA MANUAL ========== -->
+      <section class="manual-section card" aria-labelledby="titulo-manual">
+        <h2 id="titulo-manual">👤 Ingresar un alumno</h2>
 
-    for (let i = 0; i < 8; i++) { // 8 filas
-      const row = document.createElement('tr');
-      for (let j = 0; j < 3; j++) { // 3 columnas
-        const cell = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.placeholder = columnas[j];
-        cell.appendChild(input);
-        row.appendChild(cell);
-      }
-      table.appendChild(row);
-    }
-  }
+        <form method="post" action="{% url 'agregar_alumno_manual' %}" class="manual-form">
+          {% csrf_token %}
 
-  function handleSubmit() {
-    const rows = document.querySelectorAll('#inputTable tr');
-    const data = [];
-
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('input');
-      const rowData = [];
-      cells.forEach(input => rowData.push(input.value.trim()));
-      data.push(rowData);
-    });
-
-    const output = document.getElementById('output');
-    output.textContent += `Grupo ${groupNumber}:\n` + JSON.stringify(data, null, 2) + '\n\n';
-
-    groupNumber++;
-    document.getElementById('groupTitle').textContent = `Grupo ${groupNumber}`;
-    createTable();
-  }
-
-  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
-  createTable();
-</script>
+          <table aria-label="Ingreso manual de un alumno">
+            <thead>
+              <tr>
+                <th scope="col">Correo</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido Paterno</th>
+                <th scope="col">Apellido Materno</th>
+                <th scope="col">Carrera</th>
+                <th scope="col" aria-label="Acciones"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="email" name="email" placeholder="correo@ejemplo.com" required></td>
+                <td><input type="text" name="nombre" placeholder="Nombre" required></td>
+                <td><input type="text" name="apellido_paterno" placeholder="Apellido Paterno"></td>
+                <td><input type="text" name="apellido_materno" placeholder="Apellido Materno"></td>
+                <td><input type="text" name="carrera" placeholder="Carrera"></td>
+                <td>
+                  <!-- Botón de envío con estilo “+ Agregar” -->
+                  <button type="submit" class="btn add" title="Agregar alumno">+</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </form>
+      </section>
     </main>
   </div>
+  <script>
+  const fileInput = document.getElementById('archivo_excel');
+  const fileName = document.getElementById('file-name');
+
+  fileInput.addEventListener('change', function() {
+    if (this.files.length > 0) {
+      fileName.textContent = this.files[0].name;
+    } else {
+      fileName.textContent = "Ningún archivo seleccionado";
+    }
+  });
+  </script>
 </body>
 </html>

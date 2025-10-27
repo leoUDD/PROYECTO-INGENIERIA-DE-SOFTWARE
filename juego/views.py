@@ -2,6 +2,8 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .tematicas_data import get_theme
+import openpyxl
+from . import models
 
 # ===========================
 # 📋 Vistas principales
@@ -90,6 +92,76 @@ def tematicas(request):
 
 def dashboardprofesor(request):
     return render(request, 'dashboardprofesor.html')
+
+def cargar_alumnos(request):
+    if request.method == "POST" and request.FILES.get("archivo_excel"):
+        archivo = request.FILES["archivo_excel"]
+
+        try:
+            wb = openpyxl.load_workbook(archivo)
+            hoja = wb.active
+        except Exception:
+            messages.error(request, "Error al leer el archivo Excel. Asegúrate de que sea un .xlsx válido.")
+            return redirect("cargar_alumnos")
+
+        profesor = models.Profesor.objects.first()  # ⚠️ Ajustar cuando haya login
+        count = 0
+
+        # Iterar sobre las filas del Excel, saltando el encabezado
+        for fila in hoja.iter_rows(min_row=2, values_only=True):
+            try:
+                correo, rut, nombre, apellido_paterno, apellido_materno = fila[:5]
+            except ValueError:
+                continue  # si la fila está incompleta, la salta
+
+            if not correo or not nombre:
+                continue
+
+            nombre_completo = f"{nombre} {apellido_paterno or ''} {apellido_materno or ''}".strip()
+
+            # Evita duplicados por correo
+            if not models.Alumno.objects.filter(emailalumno=correo).exists():
+                models.Alumno.objects.create(
+                    profesor_idprofesor=profesor,
+                    emailalumno=correo,
+                    nombrealumno=nombre_completo,
+                    carreraalumno="No especificada",  # temporal
+                )
+                count += 1
+
+        messages.success(request, f"✅ Se cargaron {count} alumnos correctamente.")
+        return redirect("dashboardprofesor")
+
+    return render(request, "registro/cargar_alumnos.html")
+
+def agregar_alumno_manual(request):
+    if request.method == "POST":
+        correo = request.POST.get("email", "").strip()
+        nombre = request.POST.get("nombre", "").strip()
+        ap_paterno = request.POST.get("apellido_paterno", "").strip()
+        ap_materno = request.POST.get("apellido_materno", "").strip()
+        carrera = request.POST.get("carrera", "").strip()
+
+        if not correo or not nombre:
+            messages.warning(request, "Correo y Nombre son obligatorios.")
+            return redirect("dashboardprofesor")
+
+        profesor = models.Profesor.objects.first()  # TODO: usar el profesor autenticado
+
+        if models.Alumno.objects.filter(emailalumno=correo).exists():
+            messages.warning(request, "⚠️ Ya existe un alumno con ese correo.")
+            return redirect("dashboardprofesor")
+
+        models.Alumno.objects.create(
+            profesor_idprofesor=profesor,
+            emailalumno=correo,
+            nombrealumno=f"{nombre} {ap_paterno} {ap_materno}".strip(),
+            carreraalumno=carrera or "No especificada",
+        )
+        messages.success(request, "✅ Alumno agregado correctamente.")
+        return redirect("dashboardprofesor")
+
+    return redirect("dashboardprofesor")
 
 def desafios(request):
     slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
@@ -214,5 +286,3 @@ def peer_review_view(request, session_id):
         context["submitted"] = True
 
     return render(request, "evaluation/peer_review.html", context)
-
-
