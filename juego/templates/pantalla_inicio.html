@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Bienvenida</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_pantalla_inicio.css' %}">
+</head>
+<body>
+  <main class="transition-container">
+    <section class="card">
+      <div class="logo">
+        <img src="{% static 'images/logo2.png' %}" alt="Logo Misión Emprende">
+      </div>
+
+      <h1>¡Bienvenido a Misión Emprende!</h1>
+      <p class="intro-comic">
+        ¡Tu misión está por comenzar!  
+        <br> Prepárate para una experiencia donde el <strong>trabajo en equipo, la empatía</strong> 
+        y <strong>la creatividad</strong> serán tus mejores herramientas.
+      </p>
+
+      <div class="next-step">
+        <p>Haz click en Comenzar y adéntrate en tu primera misión.</p>
+        <button class="btn primary" id="btnComenzar">Comenzar</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('btnComenzar').addEventListener('click', () => {
+      // Redirige a la siguiente vista del juego (ajusta el nombre de la URL según tu proyecto)
+      window.location.href = "{% url 'promptconocidos' %}";
+    });
+  </script>
+</body>
+</html>

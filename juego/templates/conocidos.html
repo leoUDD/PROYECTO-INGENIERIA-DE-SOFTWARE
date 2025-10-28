@@ -10,7 +10,7 @@
 </head>
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
-    <h1 class="title">Se conocen!</h1>
+    <h1 class="title">Es momento de fortalecer lazos!</h1>
     <p class="subtitle">Tienen dos minutos como grupo para conocerse mejor para esta dinámica..</p>
     <p class="body">¿Cuáles son sus habilidades? (Liderazgo, perseverancia, trabajo en equipo...)
       Nombra una habilidad que tenga uno de los integrantes del equipo y cuenta una anécdota donde hayas visto esa habilidad en acción.
@@ -50,7 +50,7 @@
         const modal = document.getElementById('modal-fin');
         modal.style.display = 'flex';
         document.getElementById('buttonContinuar').addEventListener('click', () => {
-          window.location.href = "{% url 'minijuego1' %}";
+          window.location.href = "{% url 'trabajoenequipo' %}";
         });
       }
       function reproducirAlarma() {

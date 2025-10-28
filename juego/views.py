@@ -58,12 +58,14 @@ def registro(request):
         # Lógica para manejar el registro (ejemplo)
         id_grupo = request.POST.get('id_grupo')
         if id_grupo == '1234':
-            return render(request, 'promptconocidos.html', {'id_grupo': id_grupo})
+            return render(request, 'pantalla_inicio.html', {'id_grupo': id_grupo})
         else:
             error = 'ID de grupo inválido'
             return render(request, 'registro.html', {'error': error})
     return render(request, 'registro.html')
 
+def trabajoenequipo(request):
+    return render(request, 'trabajoenequipo.html')
 
 def lego(request):
     return render(request, 'lego.html')
@@ -76,6 +78,8 @@ def crearequipo(request):
 def introducciones(request):
     return render(request, 'introducciones.html')
 
+def pantalla_inicio(request):
+    return render(request, 'pantalla_inicio.html')
 
 def promptconocidos(request):
     return render(request, 'promptconocidos.html')
