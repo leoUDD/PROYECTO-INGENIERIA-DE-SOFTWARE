@@ -118,7 +118,7 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 class Alumno(models.Model):
-    idalumno = models.IntegerField(db_column='idAlumno', primary_key=True)  # Field name made lowercase.
+    idalumno = models.AutoField(db_column='idAlumno', primary_key=True)  # Field name made lowercase.
     profesor_idprofesor = models.ForeignKey('Profesor', models.DO_NOTHING, db_column='profesor_idProfesor')  # Field name made lowercase.
     emailalumno = models.CharField(db_column='emailAlumno', max_length=100, blank=True, null=True)  # Field name made lowercase.
     nombrealumno = models.CharField(db_column='nombreAlumno', max_length=200, blank=True, null=True)  # Field name made lowercase.
@@ -130,7 +130,7 @@ class Alumno(models.Model):
 
 
 class Desafio(models.Model):
-    iddesafio = models.IntegerField(db_column='idDesafio', primary_key=True)  # Field name made lowercase.
+    iddesafio = models.AutoField(db_column='idDesafio', primary_key=True)  # Field name made lowercase.
     idadministrador_idadministrador = models.ForeignKey('Idadministrador', models.DO_NOTHING, db_column='idadministrador_idAdministrador')  # Field name made lowercase.
     nombredesafio = models.CharField(db_column='nombreDesafio', max_length=100, blank=True, null=True)  # Field name made lowercase.
     tokensdesafio = models.IntegerField(db_column='tokensDesafio', blank=True, null=True)  # Field name made lowercase.
@@ -141,7 +141,7 @@ class Desafio(models.Model):
 
 
 class Desafiolego(models.Model):
-    iddesafiolego = models.IntegerField(db_column='idDesafioLego', primary_key=True)  # Field name made lowercase.
+    iddesafiolego = models.AutoField(db_column='idDesafioLego', primary_key=True)  # Field name made lowercase.
     reto_idreto = models.ForeignKey('Reto', models.DO_NOTHING, db_column='reto_idReto')  # Field name made lowercase.
     grupo_idgrupo = models.ForeignKey('Grupo', models.DO_NOTHING, db_column='grupo_idGrupo')  # Field name made lowercase.
 
@@ -151,7 +151,7 @@ class Desafiolego(models.Model):
 
 
 class Encuesta(models.Model):
-    idencuesta = models.IntegerField(db_column='idEncuesta', primary_key=True)  # Field name made lowercase.
+    idencuesta = models.AutoField(db_column='idEncuesta', primary_key=True)  # Field name made lowercase.
     grupo_idgrupo = models.ForeignKey('Grupo', models.DO_NOTHING, db_column='grupo_idGrupo')  # Field name made lowercase.
     fecha = models.DateTimeField(blank=True, null=True)
 
@@ -161,7 +161,7 @@ class Encuesta(models.Model):
 
 
 class Evaluacion(models.Model):
-    idevaluacion = models.IntegerField(db_column='idEvaluacion', primary_key=True)  # Field name made lowercase.
+    idevaluacion = models.AutoField(db_column='idEvaluacion', primary_key=True)  # Field name made lowercase.
     desafiolego_iddesafiolego = models.ForeignKey(Desafiolego, models.DO_NOTHING, db_column='desafioLego_idDesafioLego')  # Field name made lowercase.
     puntaje = models.IntegerField(blank=True, null=True)
     grupoevaluado = models.IntegerField(db_column='grupoEvaluado', blank=True, null=True)  # Field name made lowercase.
@@ -172,7 +172,7 @@ class Evaluacion(models.Model):
 
 
 class Grupo(models.Model):
-    idgrupo = models.IntegerField(db_column='idGrupo', primary_key=True)  # Field name made lowercase.
+    idgrupo = models.AutoField(db_column='idGrupo', primary_key=True)  # Field name made lowercase.
     usuario_idusuario = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='usuario_idUsuario')  # Field name made lowercase.
     tokensGrupo = models.IntegerField(blank=True, null=True)
     etapa = models.IntegerField(blank=True, null=True)
@@ -183,7 +183,7 @@ class Grupo(models.Model):
 
 
 class Idadministrador(models.Model):
-    idadministrador = models.IntegerField(db_column='idAdministrador', primary_key=True)  # Field name made lowercase.
+    idadministrador = models.AutoField(db_column='idAdministrador', primary_key=True)  # Field name made lowercase.
     usuario_idusuario = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='usuario_idUsuario')  # Field name made lowercase.
     email = models.CharField(max_length=100, blank=True, null=True)
 
@@ -193,7 +193,7 @@ class Idadministrador(models.Model):
 
 
 class Mapaempatia(models.Model):
-    idmapaempatia = models.IntegerField(db_column='idMapaEmpatia', primary_key=True)  # Field name made lowercase.
+    idmapaempatia = models.AutoField(db_column='idMapaEmpatia', primary_key=True)  # Field name made lowercase.
     desafio_iddesafio = models.ForeignKey(Desafio, models.DO_NOTHING, db_column='desafio_idDesafio')  # Field name made lowercase.
     emociones = models.CharField(max_length=200, blank=True, null=True)
     gustos = models.CharField(max_length=200, blank=True, null=True)
@@ -208,7 +208,7 @@ class Mapaempatia(models.Model):
 
 
 class Profesor(models.Model):
-    idprofesor = models.IntegerField(db_column='idProfesor', primary_key=True)  # Field name made lowercase.
+    idprofesor = models.AutoField(db_column='idProfesor', primary_key=True)  # Field name made lowercase.
     usuario_idusuario = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='usuario_idUsuario')  # Field name made lowercase.
     emailprofesor = models.CharField(max_length=100, blank=True, null=True)
     facultad = models.CharField(max_length=100, blank=True, null=True)
@@ -219,7 +219,7 @@ class Profesor(models.Model):
 
 
 class Reto(models.Model):
-    idreto = models.IntegerField(db_column='idReto', primary_key=True)  # Field name made lowercase.
+    idreto = models.AutoField(db_column='idReto', primary_key=True)  # Field name made lowercase.
     desafio_iddesafio = models.ForeignKey(Desafio, models.DO_NOTHING, db_column='desafio_idDesafio')  # Field name made lowercase.
     nombrereto = models.CharField(db_column='nombreReto', max_length=90, blank=True, null=True)  # Field name made lowercase.
     descripcionreto = models.CharField(db_column='descripcionReto', max_length=200, blank=True, null=True)  # Field name made lowercase.
@@ -232,7 +232,7 @@ class Reto(models.Model):
 
 
 class Tokens(models.Model):
-    idtokens = models.IntegerField(db_column='idTokens', primary_key=True)  # Field name made lowercase.
+    idtokens = models.AutoField(db_column='idTokens', primary_key=True)  # Field name made lowercase.
     grupo_idgrupo = models.ForeignKey(Grupo, models.DO_NOTHING, db_column='grupo_idGrupo')  # Field name made lowercase.
     numtokens = models.IntegerField(db_column='numTokens', blank=True, null=True)  # Field name made lowercase.
 
@@ -242,7 +242,7 @@ class Tokens(models.Model):
 
 
 class Usuario(models.Model):
-    idusuario = models.IntegerField(db_column='idUsuario', primary_key=True)  # Field name made lowercase.
+    idusuario = models.AutoField(db_column='idUsuario', primary_key=True)  # Field name made lowercase.
     password = models.CharField(max_length=45, blank=True, null=True)
 
     class Meta:

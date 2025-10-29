@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Dashboard Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardadmin.css' %}" />
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2 class="sidebar-title">Dashboard Admin</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="{% url 'dashboardadmin' %}">Inicio</a></li>
+          <li><a href="{% url 'registrarprofesor' %}">Registrar profesor</a></li>
+          <li><a href="{% url 'agregardesafio' %}">Agregar desafío</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ===== CONTENIDO ===== -->
+    <main class="main-content">
+      {% if messages %}
+        <div class="messages">
+          {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      <h1 class="title">Panel General</h1>
+      <p class="subtitle">Resumen general de la plataforma y actividad actual.</p>
+
+      <!-- ===== KPIs ===== -->
+      <section class="kpis">
+        <div class="kpi-card">
+          <div class="kpi-title">👨‍🏫 Profesores</div>
+          <div class="kpi-value">{{ kpis.profesores|default:0 }}</div>
+          <div class="kpi-desc">Registrados en la plataforma</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">🎓 Alumnos</div>
+          <div class="kpi-value">{{ kpis.alumnos|default:0 }}</div>
+          <div class="kpi-desc">Participando en el juego</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">🧩 Grupos</div>
+          <div class="kpi-value">{{ kpis.grupos|default:0 }}</div>
+          <div class="kpi-desc">Formados en total</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">🎯 Desafíos</div>
+          <div class="kpi-value">{{ kpis.desafios|default:0 }}</div>
+          <div class="kpi-desc">Activos en la base</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">💰 Tokens</div>
+          <div class="kpi-value">{{ kpis.tokens|default:0 }}</div>
+          <div class="kpi-desc">Totales asignados</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">📊 Evaluaciones</div>
+          <div class="kpi-value">{{ kpis.evaluaciones|default:0 }}</div>
+          <div class="kpi-desc">Registradas</div>
+        </div>
+      </section>
+
+      <!-- ===== CHARTS ===== -->
+      <section class="charts">
+        <div class="chart-card">
+          <h3 class="chart-title">Top desafíos por tokens</h3>
+          <canvas id="chartTopDesafios"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Alumnos por carrera</h3>
+          <canvas id="chartAlumnosCarrera"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Evolución semanal</h3>
+          <canvas id="chartLinea"></canvas>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    // Datos por defecto en 0 (puedes pasarlos desde la vista cuando estén listos)
+    const KPI = {
+      profesores: Number("{{ kpis.profesores|default:0 }}") || 0,
+      alumnos: Number("{{ kpis.alumnos|default:0 }}") || 0,
+      grupos: Number("{{ kpis.grupos|default:0 }}") || 0,
+      desafios: Number("{{ kpis.desafios|default:0 }}") || 0,
+      tokens: Number("{{ kpis.tokens|default:0 }}") || 0,
+      evaluaciones: Number("{{ kpis.evaluaciones|default:0 }}") || 0,
+    };
+
+    const DATA = {
+      topDesafios: {
+        labels: ['Desafío 1','Desafío 2','Desafío 3','Desafío 4','Desafío 5'],
+        values: [0,0,0,0,0]
+      },
+      alumnosCarrera: {
+        labels: ['Carrera 1','Carrera 2','Carrera 3','Carrera 4'],
+        values: [0,0,0,0]
+      },
+      weekly: [0,0,0,0,0,0,0]
+    };
+
+    // Top desafíos (barra horizontal)
+    new Chart(document.getElementById('chartTopDesafios').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: DATA.topDesafios.labels,
+        datasets: [{ label: 'Tokens', data: DATA.topDesafios.values }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+
+    // Alumnos por carrera (barra horizontal)
+    new Chart(document.getElementById('chartAlumnosCarrera').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: DATA.alumnosCarrera.labels,
+        datasets: [{ label: 'Alumnos', data: DATA.alumnosCarrera.values }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+
+    // Evolución semanal (línea)
+    new Chart(document.getElementById('chartLinea').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+        datasets: [{
+          label: 'Nuevos alumnos',
+          data: DATA.weekly,
+          tension: 0.3,
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  </script>
+</body>
+</html>

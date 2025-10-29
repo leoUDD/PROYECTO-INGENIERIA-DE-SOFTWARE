@@ -24,6 +24,9 @@ urlpatterns = [
     path('registraralumnos/', views.registraralumnos, name='registraralumnos'),
     path('cargar-alumnos/', views.cargar_alumnos, name='cargar_alumnos'),
     path('agregar-alumnos/', views.agregar_alumno_manual, name='agregar_alumno_manual'),
+    path('dashboardadmin/', views.dashboardadmin, name='dashboardadmin'),
+    path('registrarprofesor/', views.registrarprofesor, name='registrarprofesor'),
+    path('agregardesafio/', views.agregardesafio, name='agregardesafio'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),
