@@ -97,6 +97,15 @@ def tematicas(request):
 def dashboardprofesor(request):
     return render(request, 'dashboardprofesor.html')
 
+def dashboardadmin(request):
+    return render(request, 'dashboardadmin.html')
+
+def registrarprofesor(request):
+    return render(request, 'registrarprofesor.html')
+
+def agregardesafio(request):
+    return render(request, 'agregardesafio.html')
+
 def cargar_alumnos(request):
     if request.method == "POST" and request.FILES.get("archivo_excel"):
         archivo = request.FILES["archivo_excel"]
