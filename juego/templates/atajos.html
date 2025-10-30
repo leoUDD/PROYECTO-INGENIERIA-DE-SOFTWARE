@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<script>
+  window.FLUJO_JUEGO = [
+    "{% url 'perfiles' %}",
+    "{% url 'login'}",
+    "{% url 'bienvenida'}",
+    "{% url 'registro'}",
+    "{% url 'pantalla_inicio'}",
+    "{% url 'promptconocidos' %}",
+    "{% url 'introducciones' %}",
+    "{% url 'conocidos' %}",
+    "{% url 'trabajoenequipo' %}",
+    "{% url 'minijuego1' %}",
+    "{% url 'intro_desafios' %}",
+    "{% url 'tematicas' %}",
+    "{% url 'desafios' %}",
+    "{% url 'bubblemap' %}",
+    "{% url 'lego' %}",
+    "{% url 'pitch' %}"
+  ];
+</script>
+<script src="{% static 'js/atajos.js' %}"></script>
