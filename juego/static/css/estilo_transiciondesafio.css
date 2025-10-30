@@ -4,8 +4,8 @@
   --card:#fff;
   --text:#111827;
   --muted:#6b7280;
-  --primary:#c43e3e;
-  --primary-pressed:#9e3030;
+  --primary:#0a8177;
+  --primary-pressed:#07675f;
   --shadow:0 12px 28px rgba(0,0,0,.1);
   --radius:24px;
 }
@@ -80,7 +80,7 @@ body {
   font-size:clamp(15px, 1.8vw, 18px);
   font-weight:700;
   cursor:pointer;
-  box-shadow:0 8px 16px rgba(196,62,62,.25);
+  box-shadow:0 8px 16px rgba(10,129,119,.25);
   transition:background .25s ease, transform .2s ease;
 }
 

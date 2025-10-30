@@ -75,7 +75,7 @@
     document.getElementById('btnContinuar').addEventListener('click', () => {
       const id = localStorage.getItem('desafioSeleccionado');
       if (id) {
-        window.location.href = "{% url 'transicion_empatia' %}";
+        window.location.href = "{% url 'transicionempatia' %}";
       }
     });
   </script>
