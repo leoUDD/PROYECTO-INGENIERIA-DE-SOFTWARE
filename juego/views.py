@@ -5,6 +5,10 @@ from .tematicas_data import get_theme
 import openpyxl
 from . import models
 import pandas as pd
+from .forms import UploadExcelForm
+from .models import Alumno, Profesor
+from django.db import transaction
+
 
 # ===========================
 # 📋 Vistas principales
@@ -123,45 +127,44 @@ def transiciondesafio(request):
     return render(request, 'transiciondesafio.html')
 
 def cargar_alumnos(request):
+    alumnos = []  # por si queremos mostrar los actuales al entrar a la página
+
+    # Obtener profesor (en el futuro puedes usar el usuario logueado)
+    profesor = Profesor.objects.first()
+    if profesor:
+        alumnos = Alumno.objects.filter(profesor_idprofesor=profesor)
+
     if request.method == "POST" and request.FILES.get("archivo_excel"):
         archivo = request.FILES["archivo_excel"]
 
         try:
-            wb = openpyxl.load_workbook(archivo)
-            hoja = wb.active
-        except Exception:
-            messages.error(request, "Error al leer el archivo Excel. Asegúrate de que sea un .xlsx válido.")
-            return redirect("cargar_alumnos")
+            # Lee el archivo (Excel o CSV)
+            if archivo.name.endswith('.xlsx'):
+                df = pd.read_excel(archivo)
+            else:
+                df = pd.read_csv(archivo)
 
-        profesor = models.Profesor.objects.first()  # ⚠️ Ajustar cuando haya login
-        count = 0
+            # Inserta los alumnos
+            with transaction.atomic():
+                for _, row in df.iterrows():
+                    Alumno.objects.create(
+                        profesor_idprofesor=profesor,
+                        emailalumno=row['Correo'],
+                        rutalumno=row['RUT'],
+                        nombrealumno=row['Nombre'],
+                        apellidopaternoalumno=row['Apellido Paterno'],
+                        apellidomaternoalumno=row['Apellido Materno'],
+                        carreraalumno=''
+                    )
 
-        # Iterar sobre las filas del Excel, saltando el encabezado
-        for fila in hoja.iter_rows(min_row=2, values_only=True):
-            try:
-                correo, rut, nombre, apellido_paterno, apellido_materno = fila[:5]
-            except ValueError:
-                continue  # si la fila está incompleta, la salta
+            messages.success(request, "Alumnos cargados correctamente.")
+            alumnos = Alumno.objects.filter(profesor_idprofesor=profesor)  # refrescar lista
 
-            if not correo or not nombre:
-                continue
+        except Exception as e:
+            messages.error(request, f"Error al leer el archivo: {e}")
 
-            nombre_completo = f"{nombre} {apellido_paterno or ''} {apellido_materno or ''}".strip()
-
-            # Evita duplicados por correo
-            if not models.Alumno.objects.filter(emailalumno=correo).exists():
-                models.Alumno.objects.create(
-                    profesor_idprofesor=profesor,
-                    emailalumno=correo,
-                    nombrealumno=nombre_completo,
-                    carreraalumno="No especificada",  # temporal
-                )
-                count += 1
-
-        messages.success(request, f"✅ Se cargaron {count} alumnos correctamente.")
-        return redirect("dashboardprofesor")
-
-    return render(request, "registro/cargar_alumnos.html")
+    # Renderizamos la misma plantilla con la lista actualizada
+    return render(request, "registraralumnos.html", {"alumnos": alumnos})
 
 def agregar_alumno_manual(request):
     if request.method == "POST":
