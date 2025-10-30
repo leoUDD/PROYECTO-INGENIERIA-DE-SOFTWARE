@@ -4,6 +4,7 @@ from django.views.decorators.http import require_http_methods
 from .tematicas_data import get_theme
 import openpyxl
 from . import models
+import pandas as pd
 
 # ===========================
 # 📋 Vistas principales
