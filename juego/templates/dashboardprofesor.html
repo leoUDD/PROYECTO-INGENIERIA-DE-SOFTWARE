@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Dashboard Profesor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardprofesor.css' %}" />
+</head>
+<body>
+  <div class="dashboard">
+
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2 class="sidebar-title">Dashboard Profesor</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
+          <li><a href="{% url 'registraralumnos' %}">Registrar alumnos</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h1 class="title">Bienvenido, (profesor)!</h1>
+      <p class="subtitle">Este dashboard es para que puedas registrar a tus alumnos. (el video sera reemplazado por uno de explicacion)</p>
+      <p class="body">(agregaremos autenticacion en el producto real, obviamente)</p>
+      <div class="video-wrap">
+        <video class="video" controls playsinline preload="metadata"
+               poster="{% static 'images/videoprueba.png' %}">
+          <source src="{% static 'videos/videonuevo_seek.mp4' %}" type="video/mp4">
+          Tu navegador no admite el elemento <code>video</code>.
+        </video>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

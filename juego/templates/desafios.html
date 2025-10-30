@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Desafíos</title>
+  <link rel="stylesheet" href="{% static 'css/estilo_desafios.css' %}">
+</head>
+<body>
+  <main class="selector-container" role="main" aria-labelledby="page-title">
+    <header class="header">
+      <h1 id="page-title">{{ theme.title|default:slug|title }}</h1>
+      <p class="subtitle">{{ theme.hero }}</p>
+    </header>
+
+    <section class="challenges-grid" aria-label="Desafíos disponibles">
+      {% for challenge in theme.challenges %}
+      <article class="challenge-card" tabindex="0"
+               data-id="{{ challenge.id }}"
+               data-url="{% url 'market' %}">
+        <div class="content">
+          <h2 class="title">{{ challenge.name }}</h2>
+          <p class="desc">{{ challenge.desc }}</p>
+        </div>
+        <div class="actions">
+          <button class="btn select" onclick="guardarDesafio('{{ challenge.id }}')">Elegir</button>
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+
+    <footer class="footer-actions">
+      <button id="btnContinuar" class="btn primary" disabled>Comenzar desafío</button>
+    </footer>
+  </main>
+
+  <script>
+    // === Función principal para seleccionar un desafío ===
+    function guardarDesafio(id) {
+      localStorage.setItem('desafioSeleccionado', id);
+
+      // Quita selección previa
+      document.querySelectorAll('.challenge-card').forEach(c => c.classList.remove('selected'));
+
+      // Marca la nueva selección
+      const selected = document.querySelector(`[data-id="${id}"]`);
+      if (selected) selected.classList.add('selected');
+
+      // Actualiza botones visualmente
+      updateSelectButtons(selected);
+
+      // Habilita el botón principal
+      document.getElementById('btnContinuar').disabled = false;
+    }
+
+    // === Función que cambia el texto y estado de los botones ===
+    function updateSelectButtons(selectedCard) {
+      const allButtons = document.querySelectorAll('.challenge-card .btn.select');
+      allButtons.forEach(btn => {
+        btn.textContent = 'Elegir';
+        btn.disabled = false;
+        btn.classList.remove('selected');
+      });
+
+      const btn = selectedCard.querySelector('.btn.select');
+      if (btn) {
+        btn.textContent = 'Seleccionado ✅';
+        btn.disabled = true;
+        btn.classList.add('selected');
+      }
+    }
+
+    // === Navegación al presionar "Comenzar desafío" ===
+    document.getElementById('btnContinuar').addEventListener('click', () => {
+      const id = localStorage.getItem('desafioSeleccionado');
+      if (id) {
+        window.location.href = "{% url 'bubblemap' %}?desafio=" + encodeURIComponent(id);
+      }
+    });
+  </script>
+</body>
+</html>

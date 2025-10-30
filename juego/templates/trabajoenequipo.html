@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Trabajo en Equipo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_trabajoenequipo.css' %}" />
+</head>
+<body>
+  <main class="team-container" role="region" aria-label="Introducción a trabajo en equipo">
+    <section class="team-section">
+      <h1 class="title">Trabajo en Equipo 🤝</h1>
+      <p class="subtitle">
+        En el emprendimiento, nadie llega lejos solo.  
+        Las mejores ideas surgen cuando diferentes perspectivas se unen,  
+        y cada miembro aporta su talento al grupo.
+      </p>
+
+      <div class="image-area">
+        <img src="{% static 'images/teamwork.png' %}" alt="Ilustración de trabajo en equipo" class="team-image">
+      </div>
+
+      <div class="next-step">
+        <p>Haz click en <strong>Comenzar</strong> y adéntrate en tu primera misión.</p>
+        <button class="btn primary" id="btnComenzar">Comenzar</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('btnComenzar').addEventListener('click', () => {
+      // Redirige a la siguiente vista del juego
+      window.location.href = "{% url 'minijuego1' %}";
+    });
+  </script>
+</body>
+</html>

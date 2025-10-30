@@ -4,14 +4,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SparkApp UDD — LEGO</title>
+  <title>Misión Emprende UDD — Modo de juego</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/estilo_promptconocidos.css' %}" />
 </head>
+
 <body>
-  <main class="phone" role="region" aria-label="Pantalla de bienvenida">
-    <h1 class="title">Se conocen?</h1>
-    <a href="{% url 'introducciones' %}" class="btn primary" style='margin-top:16px'>No, no nos conocemos</a>
-    <a href="{% url 'conocidos' %}" class="btn primary" style='margin-top:16px'>Si, nos conocemos</a>
+  <main class="mode-container" role="region" aria-label="Elegir modo de juego">
+    <header class="mode-header">
+      <h1 class="mode-title">Para empezar, vamos a elejir el modo de juego</h1>
+      <p class="mode-subtitle">
+        ¡Es momento de decidir cómo jugar!
+        Ninguna misión tiene éxito sin confianza.
+        Conocerse y trabajar juntos es el primer paso para formar un gran equipo.
+        Elijan el modo que mejor los represente: ¿ya se conocen o es su primera vez juntos?
+      </p>
+    </header>
+
+    <section class="mode-grid">
+      <!-- MODO 1: No se conocen -->
+      <a href="{% url 'introducciones' %}" class="mode-card mode-intro">
+        <div class="overlay"></div>
+        <div class="mode-content">
+          <h2 class="mode-name">"Primera vez juntos"</h2>
+          <p class="mode-desc">
+            Rompe el hielo, preséntense y activen la energía del equipo.
+          </p>
+        </div>
+      </a>
+
+      <!-- MODO 2: Ya se conocen -->
+      <a href="{% url 'conocidos' %}" class="mode-card mode-known">
+        <div class="overlay"></div>
+        <div class="mode-content">
+          <h2 class="mode-name">"Viejos conocidos"</h2>
+          <p class="mode-desc">
+            Este modo está pensado para equipos con experiencia previa.
+          </p>
+        </div>
+      </a>
+    </section>
   </main>
 </body>
+</html>

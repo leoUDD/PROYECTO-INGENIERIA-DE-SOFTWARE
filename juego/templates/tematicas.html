@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Misión Emprende UDD — Elige la temática</title>
+  <link rel="stylesheet" href="{% static 'css/estilo_tematicas.css' %}">
+</head>
+<body>
+  <main class="selector-container" role="main" aria-labelledby="page-title">
+    <header class="header">
+      <h1 id="page-title">Elige la temática del desafío</h1>
+      <p class="subtitle">Selecciona una categoría para continuar. Cada bloque explica de qué trata.</p>
+    </header>
+
+    <section class="themes-grid" aria-label="Temáticas disponibles">
+      <!-- Salud -->
+      <article class="theme-card" tabindex="-1"
+               data-slug="salud"
+               data-url="{% url 'desafios' %}">
+        <div class="thumb">
+          <img src="{% static 'images/tema_salud.png' %}" alt="Icono de salud">
+        </div>
+        <div class="content">
+          <h2 class="title">Salud</h2>
+          <div class="chips">
+            <span class="chip">🫶 Empatía</span>
+            <span class="chip">💡 Innovar</span>
+            <span class="chip">💪 Bienestar</span>
+          </div>
+          <p class="desc">Mejora hábitos y bienestar con soluciones prácticas.</p>
+        </div>
+        <div class="actions">
+          <button class="btn select" type="button" onclick="guardarTema('salud')">Elegir</button>
+        </div>
+      </article>
+
+      <!-- Sustentabilidad -->
+      <article class="theme-card" tabindex="-1"
+               data-slug="sustentabilidad"
+               data-url="{% url 'desafios' %}">
+        <div class="thumb">
+          <img src="{% static 'images/tema_sustentabilidad.png' %}" alt="Icono de sustentabilidad">
+        </div>
+        <div class="content">
+          <h2 class="title">Sustentabilidad</h2>
+          <div class="chips">
+            <span class="chip">🌱 Ambiental</span>
+            <span class="chip">♻️ Reciclaje</span>
+            <span class="chip">⚙️ Creativo</span>
+          </div>
+          <p class="desc">Impacto ambiental positivo con ideas circulares.</p>
+        </div>
+        <div class="actions">
+          <button class="btn select" type="button" onclick="guardarTema('sustentabilidad')">Elegir</button>
+        </div>
+      </article>
+
+      <!-- Educación -->
+      <article class="theme-card" tabindex="-1"
+               data-slug="educacion"
+               data-url="{% url 'desafios' %}">
+        <div class="thumb">
+          <img src="{% static 'images/tema_educacion.png' %}" alt="Icono de educación">
+        </div>
+        <div class="content">
+          <h2 class="title">Educación</h2>
+          <div class="chips">
+            <span class="chip">🗣️ Comunicar</span>
+            <span class="chip">🎓 Liderazgo</span>
+            <span class="chip">💭 Ideas</span>
+          </div>
+          <p class="desc">Aprendizaje inclusivo con propuestas innovadoras.</p>
+        </div>
+        <div class="actions">
+          <button class="btn select" type="button" onclick="guardarTema('educacion')">Elegir</button>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer-actions">
+      <button id="btnContinuar" class="btn primary" type="button" disabled>
+        Comenzar desafío
+      </button>
+    </footer>
+  </main>
+
+  <!-- Tu JS de selección (solo botón “Elegir”, sin navegar) -->
+  <script src="{% static 'js/tematica.js' %}" defer></script>
+
+  <!-- CTA que redirige con ?tema= -->
+  <script>
+    (function () {
+      const cta = document.getElementById('btnContinuar');
+
+      function updateCTAState() {
+        const tema = localStorage.getItem('temaSeleccionado');
+        cta.disabled = !tema;
+      }
+
+      // Redirección al pulsar “Comenzar desafío”
+      cta.addEventListener('click', function () {
+        const tema = localStorage.getItem('temaSeleccionado');
+        if (!tema) return alert('Selecciona una temática antes de continuar.');
+        window.location.href = "{% url 'desafios' %}?tema=" + encodeURIComponent(tema);
+      });
+
+      // Estado inicial del CTA (sin preseleccionar)
+      try { updateCTAState(); } catch (e) {}
+
+      // Si cambias la selección en otra pestaña/ventana
+      window.addEventListener('storage', updateCTAState);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+/* ========== VARIABLES ========== */
+:root{
+  --bg: linear-gradient(rgba(255,255,255,0.25), rgba(245,247,250,0.25)),
+        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --card:#fff;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#4b74aa;
+  --primary-pressed:#3d618e;
+  --accent:#ec4899;
+  --radius:28px;
+  --shadow:0 12px 28px rgba(0,0,0,.08);
+
+  --cols:12;
+  --rows:12;
+  --gap:4px;
+  --cell-size:40px;
+
+  --fs-title:clamp(28px, 4vw, 44px);
+  --fs-body:clamp(15px, 1.8vw, 18px);
+}
+
+/* ========== RESET ========== */
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+
+/* Evita selección azul y resalte iOS al tocar */
+* { -webkit-tap-highlight-color: transparent; }
+::selection { background: transparent; }
+
+/* ========== BASE ========== */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:20px;
+
+  /* Evita selección azul general */
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.game-container{
+  width: clamp(360px, 94vw, 860px);
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:clamp(24px, 4vw, 48px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  transition:width 0.3s ease;
+
+  /* iOS: evita zoom/gestos que cambian layout al arrastrar */
+  touch-action:none;
+}
+
+/* ========== TITULOS ========== */
+h1{
+  font-size:var(--fs-title);
+  font-weight:800;
+  color:var(--primary);
+  margin-bottom:8px;
+}
+
+p{
+  font-size:var(--fs-body);
+  color:var(--muted);
+  margin-bottom:16px;
+}
+
+/* ========== TEMPORIZADOR ========== */
+#timer-container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  margin:10px 0 20px;
+  font-weight:600;
+  font-size:clamp(16px,2vw,20px);
+}
+
+#timer{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:clamp(100px,20vw,140px);
+  height:clamp(40px,10vw,60px);
+  background:#0a0a0a;
+  color:#fff;
+  font-weight:800;
+  font-size:clamp(20px,4vw,30px);
+  border-radius:12px;
+  border:3px solid #00d4ff;
+  box-shadow:0 0 20px #00d4ff, 0 0 40px #0077ff inset;
+  text-shadow:0 0 8px #00d4ff;
+}
+.low-time{
+  box-shadow:0 0 25px #ff2d55, 0 0 40px #ff0000 inset;
+  text-shadow:0 0 10px #ff2d55;
+}
+
+/* ========== GRILLA RESPONSIVA ========== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(var(--cols), var(--cell-size));
+  gap:var(--gap);
+  justify-content:center;
+  align-content:center;
+
+  background:#f9fafb;
+  border-radius:14px;
+  padding:var(--gap);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.05);
+  margin:0 auto 28px;
+
+  width:calc(var(--cols) * var(--cell-size) + (var(--cols) - 1) * var(--gap) + 2 * var(--gap));
+  height:calc(var(--rows) * var(--cell-size) + (var(--rows) - 1) * var(--gap) + 2 * var(--gap));
+
+  max-width:100%;   /* clave para no sobresalir del contenedor */
+  max-height:60vh;  /* limita alto en móviles */
+  overflow:hidden;  /* oculta 1px sobrante si lo hubiera */
+}
+
+.grid div{
+  width:var(--cell-size);
+  height:var(--cell-size);
+  background:#fff;
+  border-radius:8px;
+  font-weight:600;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:calc(var(--cell-size) * 0.45);
+  cursor:pointer;
+  transition:0.15s;
+
+  /* iOS: evita selección azul al arrastrar */
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+.grid div:hover{ background:#e0f2fe; transform:scale(1.06); }
+.grid div.selected{ background:#c7e7ff; }
+.grid div.found{ background:#e6ffe9; color:var(--primary); }
+
+/* ========== LISTA DE PALABRAS ========== */
+.words{
+  width:100%;
+  max-width:500px;
+  text-align:left;
+  background:#f9fafb;
+  border-radius:16px;
+  padding:18px 24px;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.05);
+}
+.words h3{
+  font-size:clamp(18px,3vw,22px);
+  color:var(--primary);
+  margin-bottom:10px;
+}
+.words ul{
+  list-style:none;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 20px;
+  margin-bottom:12px;
+}
+.words li{
+  font-weight:600;
+  font-size:clamp(14px,2vw,18px);
+  color:var(--text);
+  transition:0.2s;
+}
+.words li.found{
+  color:var(--accent);
+  text-decoration:line-through;
+}
+.status{
+  text-align:right;
+  font-size:clamp(14px,2vw,18px);
+  color:var(--muted);
+}
+
+/* ========== MODALES ========== */
+.modal{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(3px);
+  z-index:1000;
+  padding:16px;
+}
+.modal-content{
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.25);
+  padding:clamp(22px,4vw,40px);
+  text-align:center;
+  width:min(90%,400px);
+  animation:pop-in 0.4s ease;
+}
+.modal-content h2{
+  font-size:clamp(22px,4vw,28px);
+  color:var(--primary);
+  margin-bottom:10px;
+}
+.modal-content p{
+  color:var(--muted);
+  margin-bottom:25px;
+}
+.modal-content button{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  padding:12px 24px;
+  border-radius:12px;
+  font-size:clamp(14px,3vw,16px);
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+.modal-content button:hover{
+  background:var(--primary-pressed);
+  transform:scale(1.05);
+}
+@keyframes pop-in{
+  from{ transform:scale(0.85); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+
+/* ========== RESPONSIVIDAD ========== */
+@media (max-width:600px){
+  .game-container{ padding:24px 16px; border-radius:22px; }
+  .words{ padding:16px; }
+}
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none!important; transition:none!important; }
+}

@@ -14,8 +14,8 @@ Sigue estos pasos para ejecutar la app en tu entorno local:
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/usuario/SparkApp-UDD.git
-cd SparkApp-UDD
+git clone https://github.com/leoUDD/PROYECTO-INGENIERIA-DE-SOFTWARE.git
+cd PROYECTO-INGENIERIA-DE-SOFTWARE
 
 # 2. Crear y activar entorno virtual
 python -m venv venv

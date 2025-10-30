@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrar Profesor — Misión Emprende</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_registrarprofesor.css' %}" />
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2 class="sidebar-title">Dashboard Admin</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="{% url 'dashboardadmin' %}">Inicio</a></li>
+          <li><a href="{% url 'registrarprofesor' %}" class="active">Registrar profesor</a></li>
+          <li><a href="{% url 'agregardesafio' %}">Agregar desafío</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Contenido -->
+    <main class="main-content">
+      {% if messages %}
+        <div class="messages">
+          {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      <h1 class="title">Registrar nuevo profesor</h1>
+      <p class="subtitle">Completa los datos para añadir un profesor. <span style="color:#6b7280">(*campos obligatorios)</span></p>
+
+      <form method="POST" class="form-card">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="email">* Correo institucional</label>
+          <input type="email" id="email" name="email" placeholder="profesor@udd.cl" required>
+        </div>
+
+        <div class="form-group">
+          <label for="facultad">* Facultad</label>
+          <input type="text" id="facultad" name="facultad" placeholder="Ingeniería, Negocios..." required>
+        </div>
+
+        <button type="submit" class="btn-primary">Registrar profesor</button>
+      </form>
+    </main>
+  </div>
+</body>
+</html>
