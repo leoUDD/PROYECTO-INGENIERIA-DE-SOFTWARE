@@ -1,0 +1,38 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Misión Emprende — Transición</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_intro_desafios.css' %}">
+</head>
+<body>
+  <main class="team-container">
+    <h1 class="title">Es momento de los desafíos</h1>
+    <p class="subtitle">
+      Es importante tener un desafío o problemática en un emprendimiento porque 
+      proporciona un propósito claro, guía la creatividad y la innovación,
+      y ayuda a identificar oportunidades de negocio al resolver necesidades
+      reales del mercado.
+    </p>
+
+    <div class="image-area">
+      <img class="team-image" src="{% static 'images/desafio.png' %}" alt="Reflexión emprendedora">
+    </div>
+
+    <section class="next-step">
+      <p>A continuación vamos a elegir una temática para el desafío.</p>
+      <button class="btn primary" id="btnContinuar">¡Sigamos adelante!</button>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('btnContinuar').addEventListener('click', () => {
+      window.location.href = "{% url 'tematicas' %}";
+    });
+  </script>
+</body>
+</html>
