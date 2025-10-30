@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Creatividad</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_transicioncreatividad.css' %}" />
+</head>
+<body>
+  <main class="team-container" role="region" aria-label="Introducción a creatividad">
+    <section class="team-section">
+      <h1 class="title">Creatividad 💡</h1>
+      <p class="subtitle">
+        La creatividad es esencial en el emprendimiento, ya que
+        permite desarrollar soluciones innovadoras y diferenciarse en
+        un mercado competitivo.<hr> 
+        En el siguiente desafio, pondrás a prueba tu creatividad construyendo
+        a tu solucion con bloques de LEGO.<hr>
+      </p>
+
+      <div class="image-area">
+        <!-- Imagen opcional -->
+      </div>
+
+      <div class="next-step">
+        <p>Haz click en <strong>Continuar</strong> y deja fluir tus ideas.</p>
+        <button class="btn primary" id="btnContinuar">Continuar</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('btnContinuar').addEventListener('click', () => {
+      window.location.href = "{% url 'lego' %}";
+    });
+  </script>
+</body>
+</html>
