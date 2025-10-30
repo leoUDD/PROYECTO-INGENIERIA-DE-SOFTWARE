@@ -27,6 +27,10 @@ urlpatterns = [
     path('dashboardadmin/', views.dashboardadmin, name='dashboardadmin'),
     path('registrarprofesor/', views.registrarprofesor, name='registrarprofesor'),
     path('agregardesafio/', views.agregardesafio, name='agregardesafio'),
+    path('transicionempatia/', views.transicionempatia, name='transicion_empatia'),
+    path('transicioncreatividad/', views.transicioncreatividad, name='transicion_creatividad'),
+    path('transicioncomunicacion/', views.transicioncomunicacion, name='transicion_comunicacion'),
+    path('transiciondesafio/', views.transiciondesafio, name='transicion_desafio'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),

@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Desafíos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_transiciondesafio.css' %}" />
+</head>
+<body>
+  <main class="team-container" role="region" aria-label="Introducción a desafíos">
+    <section class="team-section">
+      <h1 class="title">Desafíos</h1>
+      <p class="subtitle">
+        Es importante tener un desafío o problemática en un emprendimiento
+        porque proporciona un propósito claro, guía la creatividad y la innovación,
+        y ayuda a identificar oportunidades de negocio al resolver necesidades
+        reales del mercado.<hr>
+        En el siguiente paso, exploraremos las temáticas disponibles para tu desafío.<hr>
+      </p>
+
+      <div class="image-area">
+        <!-- Imagen opcional -->
+      </div>
+
+      <div class="next-step">
+        <p>Haz click en <strong>Continuar</strong> para enfrentar tu siguiente reto.</p>
+        <button class="btn primary" id="btnContinuar">Continuar</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('btnContinuar').addEventListener('click', () => {
+      window.location.href = "{% url 'tematicas' %}";
+    });
+  </script>
+</body>
+</html>

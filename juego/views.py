@@ -106,6 +106,18 @@ def registrarprofesor(request):
 def agregardesafio(request):
     return render(request, 'agregardesafio.html')
 
+def transicionempatia(request):
+    return render(request, 'transicionempatia.html')
+
+def transicioncreatividad(request):
+    return render(request, 'transicioncreatividad.html')
+
+def transicioncomunicacion(request):
+    return render(request, 'transicioncomunicacion.html')
+
+def transiciondesafio(request):
+    return render(request, 'transiciondesafio.html')
+
 def cargar_alumnos(request):
     if request.method == "POST" and request.FILES.get("archivo_excel"):
         archivo = request.FILES["archivo_excel"]
