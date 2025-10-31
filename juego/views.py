@@ -127,9 +127,9 @@ def transiciondesafio(request):
     return render(request, 'transiciondesafio.html')
 
 def cargar_alumnos(request):
-    alumnos = []  # por si queremos mostrar los actuales al entrar a la página
+    alumnos = []  
 
-    # Obtener profesor (en el futuro puedes usar el usuario logueado)
+    # Obtener profesor ( por cambiar luego por el autenticado )
     profesor = Profesor.objects.first()
     if profesor:
         alumnos = Alumno.objects.filter(profesor_idprofesor=profesor)
@@ -138,23 +138,23 @@ def cargar_alumnos(request):
         archivo = request.FILES["archivo_excel"]
 
         try:
-            # Lee el archivo (Excel o CSV)
+            # Leer archivo, xlsx o csv
             if archivo.name.endswith('.xlsx'):
                 df = pd.read_excel(archivo)
             else:
                 df = pd.read_csv(archivo)
 
-            # Inserta los alumnos
+            # Insertar alumnos
             with transaction.atomic():
                 for _, row in df.iterrows():
-                    Alumno.objects.create(
+                    Alumno.objects.create( # crea objeto alumno en la BDD
                         profesor_idprofesor=profesor,
                         emailalumno=row['Correo'],
                         rutalumno=row['RUT'],
                         nombrealumno=row['Nombre'],
                         apellidopaternoalumno=row['Apellido Paterno'],
                         apellidomaternoalumno=row['Apellido Materno'],
-                        carreraalumno=''
+                        carreraalumno='' # cambiar eventualmente
                     )
 
             messages.success(request, "Alumnos cargados correctamente.")
@@ -162,8 +162,7 @@ def cargar_alumnos(request):
 
         except Exception as e:
             messages.error(request, f"Error al leer el archivo: {e}")
-
-    # Renderizamos la misma plantilla con la lista actualizada
+            
     return render(request, "registraralumnos.html", {"alumnos": alumnos})
 
 def agregar_alumno_manual(request):
