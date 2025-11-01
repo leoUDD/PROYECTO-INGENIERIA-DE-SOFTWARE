@@ -1,0 +1,22 @@
+{% load static %}
+<div class="db-badge" role="region" aria-label="Desafío seleccionado">
+  <button class="db-chip" id="dbToggle" type="button" aria-expanded="false" aria-controls="dbDrawer">
+    <span class="db-chip-icon" aria-hidden="true">🎯</span>
+    <span class="db-chip-text">
+      <strong id="dbTitle">Desafío no seleccionado</strong>
+      <small id="dbShort" class="db-ellipsis">Elige un desafío para verlo aquí.</small>
+    </span>
+    <span class="db-chip-cta">Detalles</span>
+  </button>
+
+  <!-- Drawer interno, dentro del mismo contenedor -->
+  <div class="db-drawer" id="dbDrawer" hidden>
+    <p id="dbDesc" class="db-desc">Aquí verás la descripción completa del desafío.</p>
+    <div class="db-actions">
+      <button class="btn-mini" id="dbClose" type="button">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/estilo_desafio_badge.css' %}">
+<script src="{% static 'js/desafio_badge.js' %}"></script>

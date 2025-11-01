@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Presentar Pitch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_presentar_pitch.css' %}">
+</head>
+<body>
+  <main class="pitch-container" role="main" aria-labelledby="page-title">
+    <header class="header">
+      <div>
+        <h1 id="page-title" class="title">Pitch del equipo</h1>
+        <p class="subtitle">Presenten su solución usando el texto que prepararon.</p>
+      </div>
+      <button class="btn ghost" onclick="window.history.back()">⟵ Volver</button>
+    </header>
+
+    <section class="content-grid">
+      <!-- Panel del pitch guardado -->
+      <article class="panel">
+        <h3>Pitch guardado</h3>
+        <div id="textoGuardado" class="pitch-text" aria-live="polite">
+          <em>Buscando contenido guardado…</em>
+        </div>
+      </article>
+
+      <!-- Temporizador -->
+      <aside class="timer-card" aria-label="Temporizador de Pitch">
+        <h3>Temporizador</h3>
+        <div id="timer" class="timer-display" data-seconds="180">03:00</div>
+        <div class="timer-controls">
+          <button id="btnStart" class="btn">Iniciar</button>
+          <button id="btnPause" class="btn ghost" disabled>Pausar</button>
+          <button id="btnReset" class="btn ghost">Reiniciar</button>
+        </div>
+        <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+      </aside>
+    </section>
+
+    <footer class="footer-actions">
+      <div class="left-actions">
+        <span class="subtitle">Consejo: enfoquen problema, solución, impacto y próximos pasos.</span>
+      </div>
+      <div class="right-actions">
+        <button class="btn ghost" id="btnCopiar">Copiar texto</button>
+        <a class="btn" href="{% url 'market' %}">Continuar</a>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Modal fin de tiempo -->
+  <div id="timeModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h4>⏰ ¡Tiempo terminado!</h4>
+      <p>Concluyan la idea principal en una frase. ¿Listos para compartir?</p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="btnCerrarModal">Cerrar</button>
+        <a class="btn" href="{% url 'market' %}">Ir a la siguiente etapa</a>
+      </div>
+    </div>
+  </div>
+
+  <script>const ALARM_URL = "{% static 'sounds/alarma.mp3' %}";</script>
+  <script src="{% static 'js/presentar_pitch.js' %}"></script>
+</body>
+</html>

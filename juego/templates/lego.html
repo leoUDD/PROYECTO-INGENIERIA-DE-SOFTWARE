@@ -13,6 +13,7 @@
   <main class="phone" role="region" aria-label="Actividad Lego">
       <img src="{% static 'images/Lego-logo.png' %}" alt="Logo lego" class="logo">
     <h1 class="title">Construye tu solución!</h1>
+        {% include "desafio_badge.html" %}
     <p class="subtitle">Tu profesor te entregará una caja con LEGOS.</p>
     <p class="body">Usa los LEGOS para construir una representación física de tu solución al desafío.</p>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>

@@ -10,23 +10,38 @@
   <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}" />
 </head>
 <body>
-    <main class="phone" role="region" aria-label="Actividad Pitch">
+  <main class="pitch-editor" role="region" aria-label="Editor de Pitch">
+    
+    <!-- Imagen superior -->
+    <div class="header-image">
       <img src="{% static 'images/pitch-logo.png' %}" alt="Logo Pitch" class="logo">
-    <h1 class="title">Crea tu pitch!</h1>
-    <p class="subtitle">Escribe un pitch, o simplemente prepara algunas notas para tu presentacion.</p>
-
+    </div>
+    <h1 class="title">¡Crea tu pitch!</h1>
+    <p class="subtitle">Escribe un pitch, o simplemente prepara algunas notas para tu presentación.</p>
+        {% include "desafio_badge.html" %}
     <section class="tips">
       <h2>Consejos para un buen pitch</h2>
       <ul>
         <li>Comienza explicando claramente tu problema.</li>
         <li>Explica brevemente tu solución construida con LEGOs.</li>
-        <li>Explica por qué tu solución es especial: ¿Qué la hace única? ¿Cuáles son sus beneficios?</li>
-        <li>Manténlo corto (menos de 2 minutos)</li>
+        <li>Destaca por qué tu solución es especial y sus beneficios.</li>
+        <li>Manténlo breve (menos de 2 minutos).</li>
       </ul>
     </section>
-    <form class="pitch-form">
-      <textarea id="pitch-text" name="pitch-text" placeholder="Escribe tu pitch, o simplemente unas notas!" rows="8"></textarea>
+
+    <form class="pitch-form" onsubmit="return false;">
+      <textarea id="pitch-text" name="pitch-text" placeholder="Escribe tu pitch, o simplemente unas notas…" rows="10"></textarea>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="btnLimpiar">Limpiar</button>
+        <button type="button" class="btn primary" id="btnPresentar">Presentar</button>
+      </div>
+      <p id="saveHint" class="save-hint" aria-live="polite">Los cambios se guardan automáticamente.</p>
     </form>
-</main>
+  </main>
+
+  <script>
+    const PRESENTAR_URL = "{% url 'presentar_pitch' %}";
+  </script>
+  <script src="{% static 'js/pitch_edit.js' %}"></script>
 </body>
 </html>
