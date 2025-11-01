@@ -76,7 +76,7 @@
     document.getElementById('btnContinuar').addEventListener('click', () => {
       const id = localStorage.getItem('desafioSeleccionado');
       if (id) {
-        window.location.href = "{% url 'bubblemap' %}?desafio=" + encodeURIComponent(id);
+        window.location.href = "{% url 'transicionempatia' %}";
       }
     });
   </script>
