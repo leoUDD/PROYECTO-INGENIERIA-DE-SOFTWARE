@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Comunicación</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_transicioncomunicacion.css' %}" />
+</head>
+<body>
+  <main class="team-container" role="region" aria-label="Introducción a comunicación">
+    <section class="team-section">
+      <h1 class="title">Comunicación 🗣️</h1>
+      <p class="subtitle">
+        Comunicar bien una idea es crucial ya que asegura que todos los
+        involucrados comprendan y apoyen la visión y los objetivos del proyecto. En
+        emprendimiento se utiliza el concepto de hacer un "pitch", que significa
+        presentar de manera concisa y persuasiva una propuesta o proyecto.<hr>
+        En el siguiente minijuego, pondrás a prueba tus habilidades de comunicación
+        para convencer a otros de tu idea por medio de un pitch. Construiras tu pitch
+        con tips entregados por el juego.<hr>
+      </p>
+
+      <div class="image-area">
+        <!-- Imagen opcional -->
+      </div>
+
+      <div class="next-step">
+        <p>Haz click en <strong>Continuar</strong> para compartir tu visión.</p>
+        <button class="btn primary" id="btnContinuar">Continuar</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('btnContinuar').addEventListener('click', () => {
+      window.location.href = "{% url 'pitch' %}";
+    });
+  </script>
+</body>
+</html>
