@@ -21,6 +21,7 @@ urlpatterns = [
     path('desafios/', views.desafios, name='desafios'),
     path('bubblemap/', views.bubblemap, name='bubblemap'),
     path('pitch/', views.pitch, name='pitch'),
+    path('presentar_pitch/', views.presentar_pitch, name='presentar_pitch'),
     path('dashboardprofesor/', views.dashboardprofesor, name='dashboardprofesor'),
     path('registraralumnos/', views.registraralumnos, name='registraralumnos'),
     path('cargar-alumnos/', views.cargar_alumnos, name='cargar_alumnos'),

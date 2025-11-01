@@ -1,0 +1,146 @@
+:root{
+  --bg: linear-gradient(rgba(255,255,255,0.25), rgba(245,247,250,0.25)),
+        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --card:#fff;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#4b74aa;
+  --primary-pressed:#3d618e;
+  --radius:24px;
+  --shadow:0 12px 28px rgba(0,0,0,.10);
+}
+
+/* Reset */
+*{ box-sizing:border-box; }
+html,body{ height:100%; margin:0; }
+
+/* ✅ SIN centrado vertical global */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  padding:20px;              /* respiración alrededor de la tarjeta */
+}
+
+/* Contenedor principal */
+.pitch-container{
+  width:clamp(360px, 96vw, 1100px);
+  background:var(--card);
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  padding:clamp(24px, 4vw, 44px);
+  margin:24px auto;          /* ✅ centrado horizontal, flujo vertical natural */
+}
+
+/* Header */
+.header{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:16px;
+}
+.title{
+  margin:0; font-size:clamp(24px,4vw,36px); font-weight:800; color:var(--primary);
+}
+.subtitle{
+  margin:6px 0 0; color:var(--muted);
+}
+
+/* Botones base */
+.btn{
+  appearance:none; border:none; cursor:pointer; font-weight:700;
+  border-radius:12px; padding:12px 18px; transition:.15s ease;
+}
+
+/* fantasma */
+.btn.ghost{ background:#eef2ff; color:#24316a; }
+.btn.ghost:hover{ transform:translateY(-1px); box-shadow:0 8px 16px rgba(36,49,106,.15); }
+
+/* primario */
+.btn.primary{ background:var(--primary); color:#fff; box-shadow:0 8px 18px rgba(75,116,170,.25); }
+.btn.primary:hover{ background:var(--primary-pressed); transform:translateY(-1px); }
+
+/* si usas <a class="btn"> sin .primary, dale primario por defecto */
+a.btn:not(.ghost){ background:var(--primary); color:#fff; box-shadow:0 8px 18px rgba(75,116,170,.25); }
+a.btn:not(.ghost):hover{ background:var(--primary-pressed); transform:translateY(-1px); }
+
+/* Grid de contenido */
+.content-grid{
+  display:grid; gap:16px; grid-template-columns: minmax(0,1fr); margin-top:12px;
+}
+@media (min-width: 900px){
+  .content-grid{ grid-template-columns: minmax(0,1.4fr) minmax(260px,0.8fr); }
+}
+
+/* Panel de texto */
+.panel{
+  border:1px solid #e5e7eb; border-radius:16px; padding:16px; background:#fff;
+}
+.panel h3{ margin:0 0 8px; color:#1f2a44; font-size:18px; }
+.pitch-text{
+  white-space:pre-wrap; line-height:1.6; color:#111827;
+  overflow-wrap:anywhere;       /* ✅ rompe palabras largas */
+  min-height:180px;
+}
+
+/* Temporizador */
+.timer-card{
+  border:1px solid #e5e7eb; border-radius:16px; padding:16px; background:#fff;
+}
+.timer-card h3{ margin:0 0 8px; }
+.timer-display{
+  font-weight:800; font-size:42px; text-align:center; padding:14px 0; color:#1f2a44;
+  border-radius:14px; background:#f6f8ff; border:1px solid #e6eaff; margin-bottom:10px;
+}
+.timer-controls{ display:flex; gap:10px; justify-content:center; margin-bottom:8px; }
+.hint{ font-size:12px; color:var(--muted); text-align:center; }
+
+/* Footer */
+.footer-actions{
+  margin-top:16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+}
+.right-actions{ display:flex; gap:10px; }
+
+/* Modal */
+.modal{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.35); padding:16px;
+}
+.modal[aria-hidden="false"]{ display:flex; }
+.modal-card{
+  width:min(520px, 94vw); background:#fff; border-radius:16px; padding:18px; text-align:center;
+  box-shadow:var(--shadow);
+}
+.modal-card h4{ margin:0 0 8px; font-size:20px; }
+.modal-card p{ margin:0 0 12px; color:#334155; }
+.modal-actions{ display:flex; gap:10px; justify-content:center; }
+
+/* Opcional: que el temporizador permanezca visible al hacer scroll de texto largo */
+@media (min-width: 900px){
+  .timer-card{ position: sticky; top: 8px; }
+}
+
+/* === COLORES PERSONALIZADOS PARA LOS BOTONES DEL TEMPORIZADOR === */
+.timer-controls #btnStart {
+  background: #22c55e;        /* Verde: iniciar */
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(34,197,94,.25);
+}
+.timer-controls #btnStart:hover {
+  background: #16a34a;
+}
+
+.timer-controls #btnPause {
+  background: #facc15;        /* Amarillo: pausar */
+  color: #111827;
+  box-shadow: 0 6px 14px rgba(250,204,21,.25);
+}
+.timer-controls #btnPause:hover {
+  background: #eab308;
+}
+
+.timer-controls #btnReset {
+  background: #ef4444;        /* Rojo: reiniciar */
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(239,68,68,.25);
+}
+.timer-controls #btnReset:hover {
+  background: #dc2626;
+}
