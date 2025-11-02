@@ -33,12 +33,14 @@ urlpatterns = [
     path('transicioncreatividad/', views.transicioncreatividad, name='transicioncreatividad'),
     path('transicioncomunicacion/', views.transicioncomunicacion, name='transicioncomunicacion'),
     path('transiciondesafio/', views.transiciondesafio, name='transiciondesafio'),
+    path('transicionapoyo/', views.transicionapoyo, name='transicionapoyo'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),
     path('market/issue/<int:challenge_id>/', views.issue_challenge_view, name='issue_challenge'),
 
     # Peer review (usa la función definida en views.py)
-    path('<int:session_id>/peer-review/', views.peer_review_view, name='peer_review'),
+    path('peer-review/', views.peer_review_view, name='peer_review'),
+    path('rank_reflexion/', views.rank_reflexion, name='rank_reflexion')
 ]
 

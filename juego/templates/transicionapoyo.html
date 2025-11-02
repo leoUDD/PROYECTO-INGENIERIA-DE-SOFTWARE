@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Apoyo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_transicionapoyo.css' %}">
+</head>
+<body>
+  <main class="apoyo-container" role="region" aria-label="Concepto: Apoyo">
+    <header class="apoyo-header">
+      <h1 class="title">Apoyo 🤝</h1>
+      <p class="subtitle">El apoyo convierte ideas en movimiento: acelera el aprendizaje, reparte responsabilidades y mantiene la motivación del equipo.</p>
+    </header>
+
+    <section class="apoyo-card">
+      <div class="apoyo-text">
+        <p>
+          En el emprendimiento, nadie avanza solo. El apoyo del equipo se nota
+          cuando compartimos conocimientos, escuchamos con empatía y colaboramos
+          para superar obstáculos.
+        </p>
+      </div>
+
+      <!-- Instrucción solicitada (texto literal) -->
+      <div class="token-instruction" role="note" aria-label="Instrucción sobre tokens">
+        <div class="token-icon" aria-hidden="true">🪙</div>
+        <div>
+          <p class="token-title">Instrucción</p>
+          <p class="token-body">
+            Cada grupo deberá evaluar a los demás equipos según los criterios de su rúbrica.
+            El equipo que, a su juicio, haya demostrado el mejor desempeño recibirá un <strong>TOKEN</strong> como reconocimiento, simbolizando el apoyo y valoración hacia su emprendimiento.
+          </p>
+        </div>
+      </div>
+
+      <div class="next-step">
+        <!-- Ajusta la URL al siguiente paso de tu flujo -->
+        <button class="btn primary" id="btnContinuar">Continuar</button>
+      </div>
+    </section>
+  </main>
+  <script>
+  document.getElementById("btnContinuar").addEventListener("click", () => {
+    window.location.href = "{% url 'peer_review' %}";
+  });
+</script>
+</body>
+</html>

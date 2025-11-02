@@ -126,6 +126,9 @@ def transicioncomunicacion(request):
 def transiciondesafio(request):
     return render(request, 'transiciondesafio.html')
 
+def transicionapoyo(request):
+    return render(request, 'transicionapoyo.html')
+
 def cargar_alumnos(request):
     alumnos = []  
 
@@ -280,7 +283,7 @@ def issue_challenge_view(request, challenge_id):
 # 🧩 EVALUACIÓN (Peer Review)
 # ===========================
 
-def peer_review_view(request, session_id):
+def peer_review_view(request, session_id=None):
     # Datos MOCK para que funcione sin BD (luego lo conectan a sus modelos)
     class Obj:
         pass
@@ -304,7 +307,7 @@ def peer_review_view(request, session_id):
         {"key": "creatividad", "label": "Creatividad/Innovación"},
         {"key": "viabilidad", "label": "Viabilidad"},
         {"key": "equipo", "label": "Trabajo en equipo"},
-        {"key": "presentacion", "label": "Presentación (TED)"},
+        {"key": "presentacion", "label": "Presentación"},
     ]
 
     context = {
@@ -319,4 +322,7 @@ def peer_review_view(request, session_id):
         # Aquí podrías procesar y guardar; por ahora solo mostramos "enviado"
         context["submitted"] = True
 
-    return render(request, "evaluation/peer_review.html", context)
+    return render(request, "peer_review.html", context)
+
+def rank_reflexion(request):
+    return render(request, 'rank_reflexion.html')
