@@ -46,7 +46,7 @@
       </div>
       <div class="right-actions">
         <button class="btn ghost" id="btnCopiar">Copiar texto</button>
-        <a class="btn" href="{% url 'market' %}">Continuar</a>
+        <button class="btn primary" id="btnContinuar">Continuar</button>
       </div>
     </footer>
   </main>
@@ -58,12 +58,17 @@
       <p>Concluyan la idea principal en una frase. ¿Listos para compartir?</p>
       <div class="modal-actions">
         <button class="btn ghost" id="btnCerrarModal">Cerrar</button>
-        <a class="btn" href="{% url 'market' %}">Ir a la siguiente etapa</a>
+        <a class="btn" href="{% url 'transicionapoyo' %}">Ir a la siguiente etapa</a>
       </div>
     </div>
   </div>
 
   <script>const ALARM_URL = "{% static 'sounds/alarma.mp3' %}";</script>
   <script src="{% static 'js/presentar_pitch.js' %}"></script>
+  <script>
+  document.getElementById("btnContinuar").addEventListener("click", () => {
+    window.location.href = "{% url 'transicionapoyo' %}";
+  });
+</script>
 </body>
 </html>
