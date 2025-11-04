@@ -24,11 +24,11 @@ ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'misionemprende',  # 👈 Debe existir en phpMyAdmin
-        'USER': 'root',            # Usuario por defecto en XAMPP
-        'PASSWORD': '',            # 👈 SIN contraseña (deja vacío)
-        'HOST': 'localhost',       # Servidor local
-        'PORT': '3306',            # Puerto MySQL por defecto
+        'NAME': 'misionemprende',  
+        'USER': 'root',           
+        'PASSWORD': 'pass123',            
+        'HOST': 'localhost',       
+        'PORT': '3306',           
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
