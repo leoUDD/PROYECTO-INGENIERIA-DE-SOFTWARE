@@ -69,8 +69,10 @@ def registro(request):
             return render(request, 'registro.html', {'error': error})
     return render(request, 'registro.html')
 
+
 def trabajoenequipo(request):
     return render(request, 'trabajoenequipo.html')
+
 
 def lego(request):
     return render(request, 'lego.html')
@@ -83,8 +85,10 @@ def crearequipo(request):
 def introducciones(request):
     return render(request, 'introducciones.html')
 
+
 def pantalla_inicio(request):
     return render(request, 'pantalla_inicio.html')
+
 
 def promptconocidos(request):
     return render(request, 'promptconocidos.html')
@@ -93,44 +97,57 @@ def promptconocidos(request):
 def conocidos(request):
     return render(request, 'conocidos.html')
 
+
 def minijuego1(request):
     return render(request, 'minijuego1.html')
+
 
 def intro_desafios(request):
     return render(request, 'intro_desafios.html')
 
+
 def tematicas(request):
     return render(request, 'tematicas.html')
+
 
 def dashboardprofesor(request):
     return render(request, 'dashboardprofesor.html')
 
+
 def dashboardadmin(request):
     return render(request, 'dashboardadmin.html')
+
 
 def registrarprofesor(request):
     return render(request, 'registrarprofesor.html')
 
+
 def agregardesafio(request):
     return render(request, 'agregardesafio.html')
+
 
 def transicionempatia(request):
     return render(request, 'transicionempatia.html')
 
+
 def transicioncreatividad(request):
     return render(request, 'transicioncreatividad.html')
+
 
 def transicioncomunicacion(request):
     return render(request, 'transicioncomunicacion.html')
 
+
 def transiciondesafio(request):
     return render(request, 'transiciondesafio.html')
+
 
 def transicionapoyo(request):
     return render(request, 'transicionapoyo.html')
 
+
 def cargar_alumnos(request):
-    alumnos = []  
+    alumnos = []
 
     # Obtener profesor ( por cambiar luego por el autenticado )
     profesor = Profesor.objects.first()
@@ -150,14 +167,14 @@ def cargar_alumnos(request):
             # Insertar alumnos
             with transaction.atomic():
                 for _, row in df.iterrows():
-                    Alumno.objects.create( # crea objeto alumno en la BDD
+                    Alumno.objects.create(  # crea objeto alumno en la BDD
                         profesor_idprofesor=profesor,
                         emailalumno=row['Correo'],
                         rutalumno=row['RUT'],
                         nombrealumno=row['Nombre'],
                         apellidopaternoalumno=row['Apellido Paterno'],
                         apellidomaternoalumno=row['Apellido Materno'],
-                        carreraalumno='' # cambiar eventualmente
+                        carreraalumno=''  # cambiar eventualmente
                     )
 
             messages.success(request, "Alumnos cargados correctamente.")
@@ -165,8 +182,9 @@ def cargar_alumnos(request):
 
         except Exception as e:
             messages.error(request, f"Error al leer el archivo: {e}")
-            
+
     return render(request, "registraralumnos.html", {"alumnos": alumnos})
+
 
 def agregar_alumno_manual(request):
     if request.method == "POST":
@@ -197,6 +215,7 @@ def agregar_alumno_manual(request):
 
     return redirect("dashboardprofesor")
 
+
 def desafios(request):
     slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
     theme = get_theme(slug)
@@ -205,33 +224,66 @@ def desafios(request):
     request.session['tema'] = slug
     return render(request, 'desafios.html', {'theme': theme, 'slug': slug})
 
+
 def bubblemap(request):
     return render(request, 'bubblemap.html')
+
 
 def pitch(request):
     return render(request, 'pitch.html')
 
+
 def presentar_pitch(request):
     return render(request, 'presentar_pitch.html')
 
+
 def registraralumnos(request):
-    return render(request, 'registraralumnos.html') 
+    return render(request, 'registraralumnos.html')
+
+
 # ===========================
-# 🛒 MERCADO DE RETOS
+# 🛒 MERCADO DE RETOS (100% mock, tokens en sesión)
 # ===========================
+
+def _get_challenge_catalog():
+    """
+    Catálogo mock de retos para el Market.
+    NO toca la base de datos.
+    """
+    return {
+        1: {
+            "id": 1,
+            "title": "Problema matemático",
+            "description": "Dos integrantes resuelven un problema en 3 minutos.",
+            "cost": 5,
+        },
+        2: {
+            "id": 2,
+            "title": "LEGO exprés",
+            "description": "Prototipo con LEGO en 5 minutos.",
+            "cost": 8,
+        },
+        3: {
+            "id": 3,
+            "title": "Pitch relámpago",
+            "description": "Presentación de 60 segundos con idea clave.",
+            "cost": 6,
+        },
+    }
+
 
 def market_view(request):
-    # Saldo temporal (luego se conectará con la BD)
-    user_tokens = 12
+    """
+    Market que:
+    - Usa retos definidos en código (no BD).
+    - Maneja los tokens en la sesión del usuario.
+    """
+    # Saldo de tokens en la sesión (por navegador/usuario)
+    user_tokens = request.session.get("user_tokens", 12)
 
-    # Catálogo de retos disponibles
-    challenges = [
-        {"id": 1, "title": "Problema matemático", "description": "Dos integrantes resuelven un problema en 3 minutos.", "cost": 5},
-        {"id": 2, "title": "LEGO exprés", "description": "Prototipo con LEGO en 5 minutos.", "cost": 8},
-        {"id": 3, "title": "Pitch relámpago", "description": "Presentación de 60 segundos con idea clave.", "cost": 6},
-    ]
+    catalog = _get_challenge_catalog()
+    challenges = list(catalog.values())
 
-    # Equipos a los que se puede retar (de ejemplo)
     other_teams = [
         {"id": 2, "name": "Equipo Beta"},
         {"id": 3, "name": "Equipo Gamma"},
@@ -242,39 +294,44 @@ def market_view(request):
         "challenges": challenges,
         "other_teams": other_teams,
     }
-
     return render(request, "market.html", context)
 
 
 @require_http_methods(["POST"])
 def issue_challenge_view(request, challenge_id):
-    target_team_id = request.POST.get("target_team_id")
+    """
+    Procesa la compra de un reto:
+    - Usa el catálogo mock.
+    - Descuenta tokens de la sesión.
+    """
+    catalog = _get_challenge_catalog()
+    challenge_id = int(challenge_id)
 
-    # Catálogo temporal
-    challenge_catalog = {
-        1: {"title": "Problema matemático", "cost": 5},
-        2: {"title": "LEGO exprés", "cost": 8},
-        3: {"title": "Pitch relámpago", "cost": 6},
-    }
-
-    challenge = challenge_catalog.get(int(challenge_id))
+    challenge = catalog.get(challenge_id)
     if not challenge:
         messages.error(request, "Reto no encontrado.")
         return redirect("market")
 
-    # Simular validación de saldo
-    user_tokens = 12  # se reemplazará por el saldo real en BD
+    target_team_id = request.POST.get("target_team_id")
     if not target_team_id:
         messages.error(request, "Selecciona un equipo objetivo.")
         return redirect("market")
-    if user_tokens < challenge["cost"]:
+
+    user_tokens = request.session.get("user_tokens", 12)
+    cost = int(challenge["cost"])
+
+    if user_tokens < cost:
         messages.error(request, "No tienes tokens suficientes.")
         return redirect("market")
 
-    # Mensaje de éxito
+    # Descontar y guardar en sesión
+    user_tokens -= cost
+    request.session["user_tokens"] = max(0, user_tokens)
+
     messages.success(
         request,
-        f"Has retado al equipo {target_team_id} con “{challenge['title']}” por {challenge['cost']} tokens."
+        f"Has retado al equipo {target_team_id} con “{challenge['title']}” por {cost} tokens. "
+        f"Te quedan ahora {user_tokens} tokens."
     )
     return redirect("market")
 
@@ -324,5 +381,7 @@ def peer_review_view(request, session_id=None):
 
     return render(request, "peer_review.html", context)
 
+
 def rank_reflexion(request):
     return render(request, 'rank_reflexion.html')
+
