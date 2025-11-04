@@ -6,8 +6,12 @@ import openpyxl
 from . import models
 import pandas as pd
 from .forms import UploadExcelForm
-from .models import Alumno, Profesor
+from .models import Alumno, Profesor, Usuario
 from django.db import transaction
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+import secrets
+from django.shortcuts import get_object_or_404
 
 
 # ===========================
@@ -118,10 +122,6 @@ def dashboardadmin(request):
     return render(request, 'dashboardadmin.html')
 
 
-def registrarprofesor(request):
-    return render(request, 'registrarprofesor.html')
-
-
 def agregardesafio(request):
     return render(request, 'agregardesafio.html')
 
@@ -147,38 +147,46 @@ def transicionapoyo(request):
 
 
 def cargar_alumnos(request):
-    alumnos = []
-
-    # Obtener profesor ( por cambiar luego por el autenticado )
+    # Filtro por profesor, con fallback para no dejar vacío
     profesor = Profesor.objects.first()
     if profesor:
-        alumnos = Alumno.objects.filter(profesor_idprofesor=profesor)
+        alumnos = Alumno.objects.filter(profesor_idprofesor=profesor).order_by('idalumno')
+    else:
+        alumnos = Alumno.objects.all().order_by('idalumno')
 
     if request.method == "POST" and request.FILES.get("archivo_excel"):
         archivo = request.FILES["archivo_excel"]
 
         try:
             # Leer archivo, xlsx o csv
-            if archivo.name.endswith('.xlsx'):
+            if archivo.name.lower().endswith('.xlsx'):
                 df = pd.read_excel(archivo)
-            else:
+            elif archivo.name.lower().endswith('.csv'):
                 df = pd.read_csv(archivo)
+            else:
+                messages.error(request, "Formato no soportado. Usa .xlsx o .csv")
+                return render(request, "registraralumnos.html", {"alumnos": alumnos})
 
             # Insertar alumnos
             with transaction.atomic():
                 for _, row in df.iterrows():
-                    Alumno.objects.create(  # crea objeto alumno en la BDD
+                    Alumno.objects.create(
                         profesor_idprofesor=profesor,
-                        emailalumno=row['Correo'],
-                        rutalumno=row['RUT'],
-                        nombrealumno=row['Nombre'],
-                        apellidopaternoalumno=row['Apellido Paterno'],
-                        apellidomaternoalumno=row['Apellido Materno'],
+                        emailalumno=row.get('Correo'),
+                        rutalumno=row.get('RUT'),
+                        nombrealumno=row.get('Nombre'),
+                        apellidopaternoalumno=row.get('Apellido Paterno'),
+                        apellidomaternoalumno=row.get('Apellido Materno'),
                         carreraalumno=''  # cambiar eventualmente
                     )
 
             messages.success(request, "Alumnos cargados correctamente.")
-            alumnos = Alumno.objects.filter(profesor_idprofesor=profesor)  # refrescar lista
+
+            # refrescar lista
+            if profesor:
+                alumnos = Alumno.objects.filter(profesor_idprofesor=profesor).order_by('idalumno')
+            else:
+                alumnos = Alumno.objects.all().order_by('idalumno')
 
         except Exception as e:
             messages.error(request, f"Error al leer el archivo: {e}")
@@ -186,35 +194,37 @@ def cargar_alumnos(request):
     return render(request, "registraralumnos.html", {"alumnos": alumnos})
 
 
+@require_http_methods(["POST"])
 def agregar_alumno_manual(request):
-    if request.method == "POST":
-        correo = request.POST.get("email", "").strip()
-        nombre = request.POST.get("nombre", "").strip()
-        ap_paterno = request.POST.get("apellido_paterno", "").strip()
-        ap_materno = request.POST.get("apellido_materno", "").strip()
-        carrera = request.POST.get("carrera", "").strip()
+    correo = (request.POST.get("email") or "").strip()
+    nombre = (request.POST.get("nombre") or "").strip()
+    ap_paterno = (request.POST.get("apellido_paterno") or "").strip()
+    ap_materno = (request.POST.get("apellido_materno") or "").strip()
+    carrera = (request.POST.get("carrera") or "").strip()
 
-        if not correo or not nombre:
-            messages.warning(request, "Correo y Nombre son obligatorios.")
-            return redirect("dashboardprofesor")
+    if not correo or not nombre:
+        messages.warning(request, "Correo y Nombre son obligatorios.")
+        return redirect("registraralumnos")
 
-        profesor = models.Profesor.objects.first()  # TODO: usar el profesor autenticado
+    profesor = Profesor.objects.first()  # TODO: profesor autenticado
 
-        if models.Alumno.objects.filter(emailalumno=correo).exists():
-            messages.warning(request, "⚠️ Ya existe un alumno con ese correo.")
-            return redirect("dashboardprofesor")
+    if Alumno.objects.filter(emailalumno=correo).exists():
+        messages.warning(request, "⚠️ Ya existe un alumno con ese correo.")
+        return redirect("registraralumnos")
 
-        models.Alumno.objects.create(
-            profesor_idprofesor=profesor,
-            emailalumno=correo,
-            nombrealumno=f"{nombre} {ap_paterno} {ap_materno}".strip(),
-            carreraalumno=carrera or "No especificada",
-        )
+    try:
+        with transaction.atomic():
+            Alumno.objects.create(
+                profesor_idprofesor=profesor,
+                emailalumno=correo,
+                nombrealumno=f"{nombre} {ap_paterno} {ap_materno}".strip(),
+                carreraalumno=carrera or "No especificada",
+            )
         messages.success(request, "✅ Alumno agregado correctamente.")
-        return redirect("dashboardprofesor")
+    except Exception as e:
+        messages.error(request, f"Ocurrió un error al agregar: {e}")
 
-    return redirect("dashboardprofesor")
-
+    return redirect("registraralumnos")
 
 def desafios(request):
     slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
@@ -238,7 +248,7 @@ def presentar_pitch(request):
 
 
 def registraralumnos(request):
-    return render(request, 'registraralumnos.html')
+    return cargar_alumnos(request)
 
 
 # ===========================
@@ -385,3 +395,94 @@ def peer_review_view(request, session_id=None):
 def rank_reflexion(request):
     return render(request, 'rank_reflexion.html')
 
+def registrarprofesor(request):
+    if request.method == "POST":
+        email = (request.POST.get("email") or "").strip()
+        facultad = (request.POST.get("facultad") or "").strip()
+
+        # Validaciones básicas
+        if not email or not facultad:
+            messages.error(request, "Completa todos los campos obligatorios.")
+            return render(request, "registrarprofesor.html")
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, "El correo no es válido.")
+            return render(request, "registrarprofesor.html")
+
+        # (Opcional) Forzar dominio UDD
+        # if not email.lower().endswith("@udd.cl"):
+        #     messages.error(request, "El correo debe ser institucional (@udd.cl).")
+        #     return render(request, "registrarprofesor.html")
+
+        # ¿Ya existe un profesor con ese email?
+        if Profesor.objects.filter(emailprofesor=email).exists():
+            messages.warning(request, "Ya existe un profesor con ese correo.")
+            return render(request, "registrarprofesor.html")
+
+        try:
+            with transaction.atomic():
+                # 1) Crear Usuario con password temporal (solo si tu diseño lo requiere)
+                tmp_password = secrets.token_urlsafe(8)  # p.ej. 'V8Qx3r...'
+                usuario = Usuario.objects.create(password=tmp_password)
+
+                # 2) Crear Profesor asociado
+                profesor = Profesor.objects.create(
+                    usuario_idusuario=usuario,
+                    emailprofesor=email,
+                    facultad=facultad
+                )
+
+            messages.success(
+                request,
+                f"Profesor creado (ID {profesor.idprofesor}). Usuario ID {usuario.idusuario} asignado."
+            )
+            return redirect("dashboardadmin")  # o vuelve a la misma página si prefieres
+
+        except Exception as e:
+            messages.error(request, f"Ocurrió un error al guardar: {e}")
+            return render(request, "registrarprofesor.html")
+
+    # GET
+    return render(request, "registrarprofesor.html")
+
+
+def listar_profesores(request):
+    profesores = Profesor.objects.all().order_by('-idprofesor')
+    return render(request, 'listar_profesores.html', {'profesores': profesores})
+
+@require_http_methods(["POST"])
+def eliminar_profesor(request, idprofesor):
+    profesor = get_object_or_404(Profesor, idprofesor=idprofesor)
+
+    # Si tiene alumnos asociados, NO permitir borrar (FK bloquearía)
+    if Alumno.objects.filter(profesor_idprofesor=profesor).exists():
+        messages.error(request, "No se puede eliminar: el profesor tiene alumnos asociados.")
+        return redirect('listar_profesores')
+
+    try:
+        with transaction.atomic():
+            # Si quieres además eliminar el Usuario asociado (si no lo usa nadie más):
+            usuario = profesor.usuario_idusuario
+            profesor.delete()
+            # Solo borra usuario si no hay otro profesor/relación apuntándolo
+            if not Profesor.objects.filter(usuario_idusuario=usuario).exists():
+                usuario.delete()
+
+        messages.success(request, "Profesor eliminado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Error al eliminar: {e}")
+
+    return redirect('listar_profesores')
+
+@require_http_methods(["POST"])
+def eliminar_alumno(request, idalumno):
+    alumno = get_object_or_404(Alumno, idalumno=idalumno)
+    try:
+        with transaction.atomic():
+            alumno.delete()
+        messages.success(request, f"Alumno '{alumno.nombrealumno}' eliminado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Ocurrió un error al eliminar: {e}")
+    return redirect("registraralumnos")
