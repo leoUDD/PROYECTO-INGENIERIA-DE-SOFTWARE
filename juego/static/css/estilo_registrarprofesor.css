@@ -51,3 +51,19 @@ button {
 button:hover {
   background: var(--primary-dark);
 }
+
+
+.btn-secondary {
+  background-color: var(--primary, #4b74aa);
+  color: #fff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-pressed, #3d618e);
+}
