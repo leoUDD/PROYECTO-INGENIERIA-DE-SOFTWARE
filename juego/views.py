@@ -252,6 +252,7 @@ def market_view(request):
     return render(request, "market.html", context)
 
 
+
 @require_http_methods(["POST"])
 def issue_challenge_view(request, challenge_id):
     target_team_id = request.POST.get("target_team_id")
