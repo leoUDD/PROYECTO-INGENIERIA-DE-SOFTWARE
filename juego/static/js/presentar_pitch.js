@@ -21,7 +21,7 @@
   const btnReset = document.getElementById('btnReset');
   const alarm = document.getElementById('alarmAudio');
 
-  let total = parseInt(timerEl?.dataset.seconds || '180', 10);
+  let total = parseInt(timerEl?.dataset.seconds || '90', 10);
   let remaining = total;
   let intId = null;
 
