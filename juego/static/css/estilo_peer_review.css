@@ -1,0 +1,149 @@
+:root {
+  /* === COLORES Y VARIABLES === */
+  --bg: linear-gradient(rgba(255,255,255,0.25), rgba(245,247,250,0.25)),
+        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --color-card: #ffffff;
+  --color-primary: #4b74aa;
+  --color-primary-dark: #4b74aa;
+  --color-text: #212529;
+  --color-muted: #6c757d;
+  --color-border: #e5e7eb;
+  --radius: 20px;
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+  --transition: all 0.2s ease-in-out;
+}
+
+/* === BASE === */
+body {
+  background: var(--bg);
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+/* === CONTENEDOR === */
+.container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* === CARD === */
+.card {
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background-color: var(--color-card);
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 2.5rem;
+}
+
+/* === TITULOS === */
+h1.h4 {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+h2.h6 {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* === FORMULARIO === */
+.form-label {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.form-control,
+.form-select {
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: 0.75rem;
+  transition: var(--transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
+}
+
+/* === RADIO BUTTONS === */
+.form-check-input[type="radio"] {
+  accent-color: var(--color-primary);
+}
+
+.form-check-inline .form-check-label {
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.form-check-inline input:checked + .form-check-label {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+/* === BOTONES === */
+.btn-primary {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+  border-radius: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+  border-color: var(--color-border);
+  background-color: #fff;
+}
+
+.btn-outline-secondary:hover {
+  color: var(--color-text);
+  border-color: var(--color-primary);
+}
+
+/* === ALERTA DE ÉXITO === */
+.alert-success {
+  background-color: rgba(255, 122, 0, 0.1);
+  border-left: 4px solid var(--color-primary);
+  color: var(--color-primary-dark);
+  font-weight: 500;
+}
+
+/* === REGLAS === */
+.small.text-muted {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  background: rgba(255,255,255,0.8);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+/* === RESPONSIVO === */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  h1.h4 {
+    font-size: 1.25rem;
+  }
+}

@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Resultados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_rank_reflexion.css' %}">
+</head>
+<body>
+  <main class="results-wrap" role="main" aria-labelledby="page-title">
+
+    <!-- ===== ENCABEZADO ===== -->
+    <section class="results-hero">
+      <header class="page-header">
+        <div class="head-text">
+          <h1 id="page-title">Resultados del Juego</h1>
+          <p class="subtitle">Ranking por cantidad de <strong>TOKENS</strong> obtenidos</p>
+        </div>
+      </header>
+    </section>
+
+    <!-- ===== TABLA DE RESULTADOS ===== -->
+    <section class="card card-ranking" aria-label="Tabla de equipos y tokens">
+      <div class="table-wrap">
+        <table id="tablaResultados" class="results-table">
+          <thead>
+            <tr>
+              <th scope="col" class="col-rank">#</th>
+              <th scope="col">Equipo</th>
+              <th scope="col" class="col-tokens">Tokens</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in teams %}
+            <tr>
+              <td class="rank" data-rank="{{ forloop.counter }}">{{ forloop.counter }}</td>
+              <td class="team">{{ t.name }}</td>
+              <td class="tokens" data-tokens="{{ t.tokens }}">{{ t.tokens }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="empty">Aún no hay resultados para mostrar.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="note">* En caso de empate en tokens, se comparte la misma medalla.</p>
+    </section>
+
+    <!-- ===== REFLEXIÓN FINAL ===== -->
+    <section class="card card-reflexion" aria-label="Reflexión final">
+      <h2 class="h2">Reflexión final del juego</h2>
+      <p class="reflection">
+        {{ reflexion_final|default:"El emprendimiento se fortalece cuando el equipo comparte una visión, se apoya con feedback honesto y convierte los aprendizajes en próximos pasos concretos. ¿Qué se llevan de esta experiencia?" }}
+      </p>
+    </section>
+
+    <!-- ===== CÓDIGOS QR ===== -->
+    <section class="qr-grid" aria-label="Códigos QR finales">
+      <article class="card card-instagram qr-card">
+        <h3 class="h3">Instagram</h3>
+        <div class="qr-box">
+          <img src="{% static 'images/qr_insta.png' %}" alt="Código QR Instagram Misión Emprende" />
+        </div>
+        <p class="qr-hint">Síguenos en instagram</p>
+      </article>
+
+      <article class="card card-evaluacion qr-card">
+        <h3 class="h3">Evaluación de la Actividad</h3>
+        <div class="qr-box">
+          <img src="{% static 'images/qr_evaluacion.png' %}" alt="Código QR Evaluación de la actividad" />
+        </div>
+        <p class="qr-hint">Tu opinión nos ayuda a mejorar futuras misiones.</p>
+      </article>
+    </section>
+  </main>
+
+  <!-- ===== SCRIPT: Ordenar y asignar medallas ===== -->
+  <script>
+  (function() {
+    const table = document.getElementById('tablaResultados');
+    if (!table) return;
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.querySelector('.tokens'));
+    if (!rows.length) return;
+
+    // Ordenar por tokens (desc)
+    rows.sort((a, b) => {
+      const ta = parseInt(a.querySelector('.tokens')?.dataset.tokens || '0', 10);
+      const tb = parseInt(b.querySelector('.tokens')?.dataset.tokens || '0', 10);
+      return tb - ta;
+    });
+
+    const tokensPerRow = rows.map(r => parseInt(r.querySelector('.tokens').dataset.tokens || '0', 10));
+    const uniqueTokens = [...new Set(tokensPerRow)];
+
+    const medalForTokens = new Map();
+    let rank = 1;
+    let idx = 0;
+
+    for (let i = 0; i < uniqueTokens.length; i++) {
+      const tok = uniqueTokens[i];
+      let countSame = 0;
+      while (idx + countSame < tokensPerRow.length && tokensPerRow[idx + countSame] === tok) {
+        countSame++;
+      }
+
+      let medalClass = null, medalEmoji = null, rowClass = null;
+      if (rank === 1) { medalClass = 'medal medal-1'; medalEmoji = '🥇'; rowClass = 'top1'; }
+      else if (rank === 2) { medalClass = 'medal medal-2'; medalEmoji = '🥈'; rowClass = 'top2'; }
+      else if (rank === 3) { medalClass = 'medal medal-3'; medalEmoji = '🥉'; rowClass = 'top3'; }
+
+      medalForTokens.set(tok, { rank, medalClass, medalEmoji, rowClass });
+
+      idx += countSame;
+      rank += countSame;
+    }
+
+    rows.forEach(r => {
+      const rankCell = r.querySelector('.rank');
+      const tok = parseInt(r.querySelector('.tokens').dataset.tokens || '0', 10);
+      const info = medalForTokens.get(tok);
+      if (!rankCell) return;
+      rankCell.textContent = '';
+
+      const num = document.createElement('span');
+      num.textContent = info ? String(info.rank) : String(uniqueTokens.indexOf(tok) + 1);
+
+      if (info && info.medalClass) {
+        const medal = document.createElement('span');
+        medal.className = info.medalClass;
+        medal.textContent = info.medalEmoji;
+        rankCell.appendChild(medal);
+        if (info.rowClass) r.classList.add(info.rowClass);
+      }
+
+      rankCell.appendChild(num);
+      tbody.appendChild(r);
+    });
+  })();
+  </script>
+</body>
+</html>

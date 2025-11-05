@@ -83,14 +83,29 @@ body {
   animation: shine 4s infinite;
 }
 
-
-/* TEXTOS */
 h1 {
-  color: var(--primary);
-  font-size: clamp(26px, 4vw, 36px);
-  font-weight: 800;
-  margin-bottom: 12px;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #ff7700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(255, 119, 0, 0.6);
+  opacity: 0;
+  animation: digital 1.5s steps(20, end) forwards;
 }
+
+@keyframes digital {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+
 
 .intro-comic {
   position: relative;
