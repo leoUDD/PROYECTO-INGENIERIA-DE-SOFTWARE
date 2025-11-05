@@ -283,20 +283,31 @@ def _get_challenge_catalog():
 
 
 def market_view(request):
-    """
-    Market que:
-    - Usa retos definidos en código (no BD).
-    - Maneja los tokens en la sesión del usuario.
-    """
-    # Saldo de tokens en la sesión (por navegador/usuario)
-    user_tokens = request.session.get("user_tokens", 12)
+    # Saldo temporal (luego se conectará con la BD)
+    user_tokens = 12
+    '''
+    nota para el futuro
+    para incorporar el saldo de tokens, tenemos que agarrar el grupo defininiendolo:
+    grupo = (models.Grupo.objects.get(idgrupo=ID_DEL_GRUPO)), para esto sacamos el id del grupo tambien, lo podemos sacar con url
+    si tenemos el id del grupo, cambiamos other_teams para que no muestre el mismo grupo
+    (also asi)
+    luego, usamos grupo.tokensgrupo en vez de 12 en user_tokens
+    ya esta la logica de no dejar que se haga el reto de no tener suficientes tokens pero deberiamos integrar que reste los tokens al hacer el reto
+    eso seria ! 
+    - Sebastian (probablemente programara esto el pero documento esto por si alguien mas lo quiere hacer/para mi propio uso)
+    '''
 
-    catalog = _get_challenge_catalog()
-    challenges = list(catalog.values())
+    # Catálogo de retos disponibles
+    challenges = [
+        {"id": 1, "title": "Problema matemático", "description": "Dos integrantes resuelven un problema en 3 minutos.", "cost": 5},
+        {"id": 2, "title": "LEGO exprés", "description": "Prototipo con LEGO en 5 minutos.", "cost": 8},
+        {"id": 3, "title": "Pitch relámpago", "description": "Presentación de 60 segundos con idea clave.", "cost": 6},
+    ]
 
     other_teams = [
-        {"id": 2, "name": "Equipo Beta"},
-        {"id": 3, "name": "Equipo Gamma"},
+        {"id": 2, "name": "Equipo 2"},
+        {"id": 3, "name": "Equipo 3"},
+        {"id": 3, "name": "Equipo 4"},
     ]
 
     context = {
