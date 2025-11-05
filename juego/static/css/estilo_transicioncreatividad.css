@@ -48,11 +48,19 @@ body {
   margin:0 auto 32px;
 }
 
-.image-area {
-  margin: 24px auto 36px;
+.image-area{
+  margin: 22px auto 30px;
   display:flex;
   justify-content:center;
 }
+.team-image{
+  width:clamp(220px, 55vw, 420px);
+  height:auto;
+  border-radius:24px;
+  box-shadow:0 8px 20px rgba(0,0,0,.1);
+  object-fit:cover;
+}
+
 
 .next-step {
   background:#fffbea;
