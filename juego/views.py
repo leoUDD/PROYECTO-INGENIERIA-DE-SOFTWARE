@@ -6,8 +6,12 @@ import openpyxl
 from . import models
 import pandas as pd
 from .forms import UploadExcelForm
-from .models import Alumno, Profesor
+from .models import Alumno, Profesor, Usuario
 from django.db import transaction
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+import secrets
+from django.shortcuts import get_object_or_404
 
 
 # ===========================
@@ -69,8 +73,10 @@ def registro(request):
             return render(request, 'registro.html', {'error': error})
     return render(request, 'registro.html')
 
+
 def trabajoenequipo(request):
     return render(request, 'trabajoenequipo.html')
+
 
 def lego(request):
     return render(request, 'lego.html')
@@ -83,8 +89,10 @@ def crearequipo(request):
 def introducciones(request):
     return render(request, 'introducciones.html')
 
+
 def pantalla_inicio(request):
     return render(request, 'pantalla_inicio.html')
+
 
 def promptconocidos(request):
     return render(request, 'promptconocidos.html')
@@ -93,106 +101,130 @@ def promptconocidos(request):
 def conocidos(request):
     return render(request, 'conocidos.html')
 
+
 def minijuego1(request):
     return render(request, 'minijuego1.html')
+
 
 def intro_desafios(request):
     return render(request, 'intro_desafios.html')
 
+
 def tematicas(request):
     return render(request, 'tematicas.html')
+
 
 def dashboardprofesor(request):
     return render(request, 'dashboardprofesor.html')
 
+
 def dashboardadmin(request):
     return render(request, 'dashboardadmin.html')
 
-def registrarprofesor(request):
-    return render(request, 'registrarprofesor.html')
 
 def agregardesafio(request):
     return render(request, 'agregardesafio.html')
 
+
 def transicionempatia(request):
     return render(request, 'transicionempatia.html')
+
 
 def transicioncreatividad(request):
     return render(request, 'transicioncreatividad.html')
 
+
 def transicioncomunicacion(request):
     return render(request, 'transicioncomunicacion.html')
+
 
 def transiciondesafio(request):
     return render(request, 'transiciondesafio.html')
 
-def cargar_alumnos(request):
-    alumnos = []  
 
-    # Obtener profesor ( por cambiar luego por el autenticado )
+def transicionapoyo(request):
+    return render(request, 'transicionapoyo.html')
+
+
+def cargar_alumnos(request):
+    # Filtro por profesor, con fallback para no dejar vacío
     profesor = Profesor.objects.first()
     if profesor:
-        alumnos = Alumno.objects.filter(profesor_idprofesor=profesor)
+        alumnos = Alumno.objects.filter(profesor_idprofesor=profesor).order_by('idalumno')
+    else:
+        alumnos = Alumno.objects.all().order_by('idalumno')
 
     if request.method == "POST" and request.FILES.get("archivo_excel"):
         archivo = request.FILES["archivo_excel"]
 
         try:
             # Leer archivo, xlsx o csv
-            if archivo.name.endswith('.xlsx'):
+            if archivo.name.lower().endswith('.xlsx'):
                 df = pd.read_excel(archivo)
-            else:
+            elif archivo.name.lower().endswith('.csv'):
                 df = pd.read_csv(archivo)
+            else:
+                messages.error(request, "Formato no soportado. Usa .xlsx o .csv")
+                return render(request, "registraralumnos.html", {"alumnos": alumnos})
 
             # Insertar alumnos
             with transaction.atomic():
                 for _, row in df.iterrows():
-                    Alumno.objects.create( # crea objeto alumno en la BDD
+                    Alumno.objects.create(
                         profesor_idprofesor=profesor,
-                        emailalumno=row['Correo'],
-                        rutalumno=row['RUT'],
-                        nombrealumno=row['Nombre'],
-                        apellidopaternoalumno=row['Apellido Paterno'],
-                        apellidomaternoalumno=row['Apellido Materno'],
-                        carreraalumno='' # cambiar eventualmente
+                        emailalumno=row.get('Correo'),
+                        rutalumno=row.get('RUT'),
+                        nombrealumno=row.get('Nombre'),
+                        apellidopaternoalumno=row.get('Apellido Paterno'),
+                        apellidomaternoalumno=row.get('Apellido Materno'),
+                        carreraalumno=''  # cambiar eventualmente
                     )
 
             messages.success(request, "Alumnos cargados correctamente.")
-            alumnos = Alumno.objects.filter(profesor_idprofesor=profesor)  # refrescar lista
+
+            # refrescar lista
+            if profesor:
+                alumnos = Alumno.objects.filter(profesor_idprofesor=profesor).order_by('idalumno')
+            else:
+                alumnos = Alumno.objects.all().order_by('idalumno')
 
         except Exception as e:
             messages.error(request, f"Error al leer el archivo: {e}")
-            
+
     return render(request, "registraralumnos.html", {"alumnos": alumnos})
 
+
+@require_http_methods(["POST"])
 def agregar_alumno_manual(request):
-    if request.method == "POST":
-        correo = request.POST.get("email", "").strip()
-        nombre = request.POST.get("nombre", "").strip()
-        ap_paterno = request.POST.get("apellido_paterno", "").strip()
-        ap_materno = request.POST.get("apellido_materno", "").strip()
-        carrera = request.POST.get("carrera", "").strip()
+    correo = (request.POST.get("email") or "").strip()
+    nombre = (request.POST.get("nombre") or "").strip()
+    ap_paterno = (request.POST.get("apellido_paterno") or "").strip()
+    ap_materno = (request.POST.get("apellido_materno") or "").strip()
+    carrera = (request.POST.get("carrera") or "").strip()
 
-        if not correo or not nombre:
-            messages.warning(request, "Correo y Nombre son obligatorios.")
-            return redirect("dashboardprofesor")
+    if not correo or not nombre:
+        messages.warning(request, "Correo y Nombre son obligatorios.")
+        return redirect("registraralumnos")
 
-        profesor = models.Profesor.objects.first()  # TODO: usar el profesor autenticado
+    profesor = Profesor.objects.first()  # TODO: profesor autenticado
 
-        if models.Alumno.objects.filter(emailalumno=correo).exists():
-            messages.warning(request, "⚠️ Ya existe un alumno con ese correo.")
-            return redirect("dashboardprofesor")
+    if Alumno.objects.filter(emailalumno=correo).exists():
+        messages.warning(request, "⚠️ Ya existe un alumno con ese correo.")
+        return redirect("registraralumnos")
 
-        models.Alumno.objects.create(
-            profesor_idprofesor=profesor,
-            emailalumno=correo,
-            nombrealumno=f"{nombre} {ap_paterno} {ap_materno}".strip(),
-            carreraalumno=carrera or "No especificada",
-        )
+    try:
+        with transaction.atomic():
+            Alumno.objects.create(
+                profesor_idprofesor=profesor,
+                emailalumno=correo,
+                nombrealumno=f"{nombre} {ap_paterno} {ap_materno}".strip(),
+                carreraalumno=carrera or "No especificada",
+            )
         messages.success(request, "✅ Alumno agregado correctamente.")
-        return redirect("dashboardprofesor")
+    except Exception as e:
+        messages.error(request, f"Ocurrió un error al agregar: {e}")
 
-    return redirect("dashboardprofesor")
+    return redirect("registraralumnos")
 
 def desafios(request):
     slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
@@ -202,17 +234,53 @@ def desafios(request):
     request.session['tema'] = slug
     return render(request, 'desafios.html', {'theme': theme, 'slug': slug})
 
+
 def bubblemap(request):
     return render(request, 'bubblemap.html')
+
 
 def pitch(request):
     return render(request, 'pitch.html')
 
+
+def presentar_pitch(request):
+    return render(request, 'presentar_pitch.html')
+
+
 def registraralumnos(request):
-    return render(request, 'registraralumnos.html') 
+    return cargar_alumnos(request)
+
+
 # ===========================
-# 🛒 MERCADO DE RETOS
+# 🛒 MERCADO DE RETOS (100% mock, tokens en sesión)
 # ===========================
+
+def _get_challenge_catalog():
+    """
+    Catálogo mock de retos para el Market.
+    NO toca la base de datos.
+    """
+    return {
+        1: {
+            "id": 1,
+            "title": "Problema matemático",
+            "description": "Dos integrantes resuelven un problema en 3 minutos.",
+            "cost": 5,
+        },
+        2: {
+            "id": 2,
+            "title": "LEGO exprés",
+            "description": "Prototipo con LEGO en 5 minutos.",
+            "cost": 8,
+        },
+        3: {
+            "id": 3,
+            "title": "Pitch relámpago",
+            "description": "Presentación de 60 segundos con idea clave.",
+            "cost": 6,
+        },
+    }
+
 
 def market_view(request):
     # Saldo temporal (luego se conectará con la BD)
@@ -236,7 +304,6 @@ def market_view(request):
         {"id": 3, "title": "Pitch relámpago", "description": "Presentación de 60 segundos con idea clave.", "cost": 6},
     ]
 
-    # Equipos a los que se puede retar (de ejemplo)
     other_teams = [
         {"id": 2, "name": "Equipo 2"},
         {"id": 3, "name": "Equipo 3"},
@@ -248,39 +315,44 @@ def market_view(request):
         "challenges": challenges,
         "other_teams": other_teams,
     }
-
     return render(request, "market.html", context)
 
 
 @require_http_methods(["POST"])
 def issue_challenge_view(request, challenge_id):
-    target_team_id = request.POST.get("target_team_id")
+    """
+    Procesa la compra de un reto:
+    - Usa el catálogo mock.
+    - Descuenta tokens de la sesión.
+    """
+    catalog = _get_challenge_catalog()
+    challenge_id = int(challenge_id)
 
-    # Catálogo temporal
-    challenge_catalog = {
-        1: {"title": "Problema matemático", "cost": 5},
-        2: {"title": "LEGO exprés", "cost": 8},
-        3: {"title": "Pitch relámpago", "cost": 6},
-    }
-
-    challenge = challenge_catalog.get(int(challenge_id))
+    challenge = catalog.get(challenge_id)
     if not challenge:
         messages.error(request, "Reto no encontrado.")
         return redirect("market")
 
-    # Simular validación de saldo
-    user_tokens = 12  # se reemplazará por el saldo real en BD
+    target_team_id = request.POST.get("target_team_id")
     if not target_team_id:
         messages.error(request, "Selecciona un equipo objetivo.")
         return redirect("market")
-    if user_tokens < challenge["cost"]:
+
+    user_tokens = request.session.get("user_tokens", 12)
+    cost = int(challenge["cost"])
+
+    if user_tokens < cost:
         messages.error(request, "No tienes tokens suficientes.")
         return redirect("market")
 
-    # Mensaje de éxito
+    # Descontar y guardar en sesión
+    user_tokens -= cost
+    request.session["user_tokens"] = max(0, user_tokens)
+
     messages.success(
         request,
-        f"Has retado al equipo {target_team_id} con “{challenge['title']}” por {challenge['cost']} tokens."
+        f"Has retado al equipo {target_team_id} con “{challenge['title']}” por {cost} tokens. "
+        f"Te quedan ahora {user_tokens} tokens."
     )
     return redirect("market")
 
@@ -289,7 +361,7 @@ def issue_challenge_view(request, challenge_id):
 # 🧩 EVALUACIÓN (Peer Review)
 # ===========================
 
-def peer_review_view(request, session_id):
+def peer_review_view(request, session_id=None):
     # Datos MOCK para que funcione sin BD (luego lo conectan a sus modelos)
     class Obj:
         pass
@@ -313,7 +385,7 @@ def peer_review_view(request, session_id):
         {"key": "creatividad", "label": "Creatividad/Innovación"},
         {"key": "viabilidad", "label": "Viabilidad"},
         {"key": "equipo", "label": "Trabajo en equipo"},
-        {"key": "presentacion", "label": "Presentación (TED)"},
+        {"key": "presentacion", "label": "Presentación"},
     ]
 
     context = {
@@ -329,3 +401,99 @@ def peer_review_view(request, session_id):
         context["submitted"] = True
 
     return render(request, "peer_review.html", context)
+
+
+def rank_reflexion(request):
+    return render(request, 'rank_reflexion.html')
+
+def registrarprofesor(request):
+    if request.method == "POST":
+        email = (request.POST.get("email") or "").strip()
+        facultad = (request.POST.get("facultad") or "").strip()
+
+        # Validaciones básicas
+        if not email or not facultad:
+            messages.error(request, "Completa todos los campos obligatorios.")
+            return render(request, "registrarprofesor.html")
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, "El correo no es válido.")
+            return render(request, "registrarprofesor.html")
+
+        # (Opcional) Forzar dominio UDD
+        # if not email.lower().endswith("@udd.cl"):
+        #     messages.error(request, "El correo debe ser institucional (@udd.cl).")
+        #     return render(request, "registrarprofesor.html")
+
+        # ¿Ya existe un profesor con ese email?
+        if Profesor.objects.filter(emailprofesor=email).exists():
+            messages.warning(request, "Ya existe un profesor con ese correo.")
+            return render(request, "registrarprofesor.html")
+
+        try:
+            with transaction.atomic():
+                # 1) Crear Usuario con password temporal (solo si tu diseño lo requiere)
+                tmp_password = secrets.token_urlsafe(8)  # p.ej. 'V8Qx3r...'
+                usuario = Usuario.objects.create(password=tmp_password)
+
+                # 2) Crear Profesor asociado
+                profesor = Profesor.objects.create(
+                    usuario_idusuario=usuario,
+                    emailprofesor=email,
+                    facultad=facultad
+                )
+
+            messages.success(
+                request,
+                f"Profesor creado (ID {profesor.idprofesor}). Usuario ID {usuario.idusuario} asignado."
+            )
+            return redirect("dashboardadmin")  # o vuelve a la misma página si prefieres
+
+        except Exception as e:
+            messages.error(request, f"Ocurrió un error al guardar: {e}")
+            return render(request, "registrarprofesor.html")
+
+    # GET
+    return render(request, "registrarprofesor.html")
+
+
+def listar_profesores(request):
+    profesores = Profesor.objects.all().order_by('-idprofesor')
+    return render(request, 'listar_profesores.html', {'profesores': profesores})
+
+@require_http_methods(["POST"])
+def eliminar_profesor(request, idprofesor):
+    profesor = get_object_or_404(Profesor, idprofesor=idprofesor)
+
+    # Si tiene alumnos asociados, NO permitir borrar (FK bloquearía)
+    if Alumno.objects.filter(profesor_idprofesor=profesor).exists():
+        messages.error(request, "No se puede eliminar: el profesor tiene alumnos asociados.")
+        return redirect('listar_profesores')
+
+    try:
+        with transaction.atomic():
+            # Si quieres además eliminar el Usuario asociado (si no lo usa nadie más):
+            usuario = profesor.usuario_idusuario
+            profesor.delete()
+            # Solo borra usuario si no hay otro profesor/relación apuntándolo
+            if not Profesor.objects.filter(usuario_idusuario=usuario).exists():
+                usuario.delete()
+
+        messages.success(request, "Profesor eliminado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Error al eliminar: {e}")
+
+    return redirect('listar_profesores')
+
+@require_http_methods(["POST"])
+def eliminar_alumno(request, idalumno):
+    alumno = get_object_or_404(Alumno, idalumno=idalumno)
+    try:
+        with transaction.atomic():
+            alumno.delete()
+        messages.success(request, f"Alumno '{alumno.nombrealumno}' eliminado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Ocurrió un error al eliminar: {e}")
+    return redirect("registraralumnos")
