@@ -217,6 +217,17 @@ def registraralumnos(request):
 def market_view(request):
     # Saldo temporal (luego se conectará con la BD)
     user_tokens = 12
+    '''
+    nota para el futuro
+    para incorporar el saldo de tokens, tenemos que agarrar el grupo defininiendolo:
+    grupo = (models.Grupo.objects.get(idgrupo=ID_DEL_GRUPO)), para esto sacamos el id del grupo tambien, lo podemos sacar con url
+    si tenemos el id del grupo, cambiamos other_teams para que no muestre el mismo grupo
+    (also asi)
+    luego, usamos grupo.tokensgrupo en vez de 12 en user_tokens
+    ya esta la logica de no dejar que se haga el reto de no tener suficientes tokens pero deberiamos integrar que reste los tokens al hacer el reto
+    eso seria ! 
+    - Sebastian (probablemente programara esto el pero documento esto por si alguien mas lo quiere hacer/para mi propio uso)
+    '''
 
     # Catálogo de retos disponibles
     challenges = [
@@ -227,8 +238,9 @@ def market_view(request):
 
     # Equipos a los que se puede retar (de ejemplo)
     other_teams = [
-        {"id": 2, "name": "Equipo Beta"},
-        {"id": 3, "name": "Equipo Gamma"},
+        {"id": 2, "name": "Equipo 2"},
+        {"id": 3, "name": "Equipo 3"},
+        {"id": 3, "name": "Equipo 4"},
     ]
 
     context = {
@@ -316,4 +328,4 @@ def peer_review_view(request, session_id):
         # Aquí podrías procesar y guardar; por ahora solo mostramos "enviado"
         context["submitted"] = True
 
-    return render(request, "evaluation/peer_review.html", context)
+    return render(request, "peer_review.html", context)

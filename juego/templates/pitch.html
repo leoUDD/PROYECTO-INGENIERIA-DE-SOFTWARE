@@ -27,6 +27,16 @@
     <form class="pitch-form">
       <textarea id="pitch-text" name="pitch-text" placeholder="Escribe tu pitch, o simplemente unas notas!" rows="8"></textarea>
     </form>
+    <div class="next-step">
+      <p>Luego de haber realizado tu pitch, presiona <strong>Finalizar Pitch</strong> para completar el desafío.</p>
+      <button class="btn primary" id="btnFinalizarPitch">Finalizar Pitch</button>
+    </div>
+    <script>
+     document.getElementById('btnFinalizarPitch').addEventListener('click', () => {
+        window.location.href = "{% url 'peer_review' 1 %}";
+      });
+    </script>
+
 </main>
 </body>
 </html>
