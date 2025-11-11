@@ -1,0 +1,24 @@
+# Python / venv
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# VCS / IDE
+.git/
+.vscode/
+.idea/
+.gitignore
+.gitattributes
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build/Static
+staticfiles/
+media/
+
+# Other
+*.sqlite3
+
