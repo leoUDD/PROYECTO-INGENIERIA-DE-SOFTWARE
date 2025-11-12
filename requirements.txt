@@ -11,3 +11,5 @@ pytz==2025.2
 six==1.17.0
 sqlparse==0.5.3
 tzdata==2025.2
+pymysql==1.1.0
+cryptography==41.0.4

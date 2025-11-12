@@ -1,34 +1,22 @@
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    DEBIAN_FRONTEND=noninteractive
+    PYTHONUNBUFFERED=1
 
-# Dependencias del sistema
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    default-libmysqlclient-dev \
-    default-mysql-client \
-    pkg-config \
-    netcat-traditional \
- && rm -rf /var/lib/apt/lists/*
-
-# Carpeta de trabajo
 WORKDIR /app
 
-# Instalar dependencias
+# Dependencias para mysqlclient
+RUN apt-get update && \
+    apt-get install -y build-essential default-libmysqlclient-dev pkg-config && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements e instalarlos
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto del código
+# Copiar todo el proyecto dentro del contenedor
 COPY . /app/
-
-# Entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["/entrypoint.sh"]
-
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
