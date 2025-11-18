@@ -247,3 +247,10 @@ p{
 @media (prefers-reduced-motion:reduce){
   *{ animation:none!important; transition:none!important; }
 }
+
+.token-animado {
+  width: 200px;
+  height: 200px;
+  display: block;
+  margin: 0 auto 1rem auto;
+}
