@@ -38,7 +38,10 @@
       <button id="btnContinuar" class="btn primary" disabled>Comenzar desafío</button>
     </footer>
   </main>
-
+  <form id="formDesafio" method="post" action="{% url 'transicionempatia' %}">
+    {% csrf_token %}
+    <input type="hidden" name="desafio_id" id="desafio_id">
+  </form>
   <script>
     const KEY = 'desafioSeleccionado';
 
@@ -58,7 +61,8 @@
         b.disabled = true;
         b.classList.add('selected');
       }
-      document.getElementById('btnContinuar').disabled = false;
+      const btnContinuar = document.getElementById('btnContinuar');
+      if (btnContinuar) btnContinuar.disabled = false;
     }
 
     // Guarda en sessionStorage con la estructura usada por el badge
@@ -71,7 +75,15 @@
         url: card.dataset.url || '#',
         id: card.dataset.id || null
       };
-      try { sessionStorage.setItem(KEY, JSON.stringify(data)); } catch {}
+      try { sessionStorage.setItem(KEY, JSON.stringify(data)); 
+      } catch (e) {
+        console.warn('No se pudo guardar el desafío seleccionado en sessionStorage', e);
+      }
+
+      const hidden = document.getElementById('desafio_id');
+      if (hidden) {
+        hidden.value = data.id;
+      }
       marcarSeleccion(card);
     }
 
@@ -79,7 +91,9 @@
     document.querySelectorAll('.challenge-card .btn.select').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const card = e.currentTarget.closest('.challenge-card');
-        guardarDesafioDesdeCard(card);
+        if (card) {
+          guardarDesafioDesdeCard(card);
+        }
       });
     });
 
@@ -101,20 +115,27 @@
     // Restaurar selección previa (si recargas esta vista)
     (function restoreSelection(){
       let saved = null;
-      try { saved = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch {}
+      try { saved = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+       } catch (_) {
+        saved = null;
+       }
       if (!saved || !saved.id) return;
       const card = document.querySelector(`.challenge-card[data-id="${saved.id}"]`);
-      if (card) marcarSeleccion(card);
+      if (card) {
+        marcarSeleccion(card);
+        const hidden = document.getElementById('desafio_id');
+        if (hidden) hidden.value = saved.id;
+      }
     })();
 
     // Navegar al siguiente paso
     document.getElementById('btnContinuar').addEventListener('click', () => {
-      let saved = null;
-      try { saved = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch {}
-      if (saved) {
-        // Si quieres sobreescribir la URL del siguiente paso, hazlo aquí:
-        window.location.href = "{% url 'transicionempatia' %}";
+      const hidden = document.getElementById('desafio_id');
+      if (hidden && !hidden.value) {
+        alert('Por favor, selecciona un desafío antes de continuar.');
+        return;
       }
+      document.getElementById('formDesafio').submit();
     });
   </script>
 </body>

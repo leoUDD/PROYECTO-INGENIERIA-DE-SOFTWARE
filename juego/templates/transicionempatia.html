@@ -34,13 +34,16 @@
 
   <script>
     document.getElementById('btnContinuar').addEventListener('click', () => {
-      // Obtener el desafío previamente guardado
-      const desafioId = localStorage.getItem('desafioSeleccionado');
+      let data = null;
+      try {
+        data = JSON.parse(sessionStorage.getItem('desafioSeleccionado') || 'null');
+      } catch (_) {}
 
-      if (!desafioId) {
+      if (!data || !data.id) {
         alert('Por favor selecciona un desafío antes de continuar.');
         return;
       }
+      const desafioId = data.id;
 
       // Redirigir a la página bubblemap con el parámetro del desafío
       window.location.href = "{% url 'bubblemap' %}?desafio=" + encodeURIComponent(desafioId);
