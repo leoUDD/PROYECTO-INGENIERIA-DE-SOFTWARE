@@ -250,6 +250,8 @@ def presentar_pitch(request):
 def registraralumnos(request):
     return cargar_alumnos(request)
 
+def registrargrupos(request):
+    return render(request, 'registrargrupos.html')
 
 # ===========================
 # 🛒 MERCADO DE RETOS (100% mock, tokens en sesión)
@@ -498,3 +500,5 @@ def eliminar_alumno(request, idalumno):
     except Exception as e:
         messages.error(request, f"Ocurrió un error al eliminar: {e}")
     return redirect("registraralumnos")
+
+

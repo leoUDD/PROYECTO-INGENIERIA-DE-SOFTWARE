@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Dashboard Profesor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_registraralumnos.css' %}" />
+  <style>
+    /* Estilos mínimos para la tabla/botón eliminar por si tu CSS no los incluye */
+    .btn-danger{background:#ef4444;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
+    .btn-danger:hover{background:#dc2626}
+    .table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .table th,.table td{padding:12px 14px;border-bottom:1px solid #eef1f5;text-align:left;font-size:14px}
+    .table th{background:#fafbff;font-weight:600;color:#111827}
+    .table tr:last-child td{border-bottom:0}
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2 class="sidebar-title">Dashboard Profesor</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
+          <li><a href="{% url 'registraralumnos' %}" class="active">Registrar alumnos</a></li>
+          <li><a href="{% url 'registrargrupos' %}" class="active">Registrar grupos</a></li>
+        </ul>
+      </nav>
+    </aside>

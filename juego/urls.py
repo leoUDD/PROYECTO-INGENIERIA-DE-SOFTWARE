@@ -37,6 +37,7 @@ urlpatterns = [
     path('transicioncomunicacion/', views.transicioncomunicacion, name='transicioncomunicacion'),
     path('transiciondesafio/', views.transiciondesafio, name='transiciondesafio'),
     path('transicionapoyo/', views.transicionapoyo, name='transicionapoyo'),
+    path('registrargrupos/', views.registrargrupos, name='registrargrupos'),
 
     # Mercado de retos
     path('market/', views.market_view, name='market'),
