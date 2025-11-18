@@ -7,6 +7,8 @@
   const shortEl = document.getElementById('dbShort');
   const descEl  = document.getElementById('dbDesc');
 
+  const KEY = 'desafioSeleccionado';
+
   // Quita emojis y espacios iniciales si vinieron pegados en el título
   const stripLeadingEmoji = (s) =>
     (s || '').replace(/^\p{Extended_Pictographic}+\s*/u, '');
@@ -14,7 +16,7 @@
   // 1) Lee el formato actual (sessionStorage)
   let data = null;
   try {
-    const raw = sessionStorage.getItem('desafioSeleccionado');
+    const raw = sessionStorage.getItem(KEY);
     data = raw ? JSON.parse(raw) : null;
   } catch (_) { data = null; }
 
@@ -64,13 +66,14 @@
   // 4) Toggle del drawer
   function openDrawer(){
     drawer.hidden = false;
-    toggle.setAttribute('aria-expanded', 'true');
+    toggle?.setAttribute('aria-expanded', 'true');
   }
   function closeDrawer(){
     drawer.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-expanded', 'false');
   }
   toggle?.addEventListener('click', () => {
+    if (!drawer) return;
     if (drawer.hidden) { openDrawer(); } else { closeDrawer(); }
   });
   closeBtn?.addEventListener('click', closeDrawer);
