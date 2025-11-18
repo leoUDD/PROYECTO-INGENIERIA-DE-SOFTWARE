@@ -12,7 +12,6 @@ class Alumno(models.Model):
     carreraalumno = models.CharField(db_column='carreraAlumno', max_length=100, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'alumno'
 
 
@@ -24,7 +23,6 @@ class Desafio(models.Model):
     descripciondesafio = models.CharField(db_column='descripcionDesafio', max_length=300, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'desafio'
 
 
@@ -34,7 +32,6 @@ class Desafiolego(models.Model):
     grupo_idgrupo = models.ForeignKey('Grupo', models.DO_NOTHING, db_column='grupo_idGrupo')
 
     class Meta:
-        managed = False
         db_table = 'desafiolego'
 
 
@@ -44,7 +41,6 @@ class Encuesta(models.Model):
     fecha = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'encuesta'
 
 
@@ -55,7 +51,6 @@ class Evaluacion(models.Model):
     grupoevaluado = models.IntegerField(db_column='grupoEvaluado', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'evaluacion'
 
 
@@ -66,7 +61,6 @@ class Grupo(models.Model):
     etapa = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'grupo'
 
     # 🪙 método auxiliar para modificar tokens
@@ -86,7 +80,6 @@ class Idadministrador(models.Model):
     email = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'idadministrador'
 
 
@@ -101,7 +94,6 @@ class Mapaempatia(models.Model):
     motivaciones = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'mapaempatia'
 
 
@@ -112,7 +104,6 @@ class Profesor(models.Model):
     facultad = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'profesor'
 
 
@@ -125,7 +116,6 @@ class Reto(models.Model):
     costoreto = models.IntegerField(db_column='costoReto', blank=True, null=True)  # 👈 cambio a Integer
 
     class Meta:
-        managed = False
         db_table = 'reto'
 
 
@@ -135,7 +125,6 @@ class Tokens(models.Model):
     numtokens = models.IntegerField(db_column='numTokens', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'tokens'
 
 
@@ -144,7 +133,6 @@ class Usuario(models.Model):
     password = models.CharField(max_length=45, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'usuario'
 
 

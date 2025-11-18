@@ -30,6 +30,11 @@
     <div id="grid" class="grid" aria-label="Tablero de sopa de letras"></div>
     <div id="winModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="winTitle">
       <div class="modal-content">
+
+        <img src="{% static 'gifs/token_dorado_clean_grande.gif' %}"
+          alt="Token de recompensa"
+          class="token-animado">
+
         <h2 id="winTitle">Felicitaciones, tu equipo recibió 3 tokens!</h2>
         <p>Se han encontrado todas las palabras. ¡Impresionante!</p>
         <button id="btnNext" type="button">Avanzar</button>
