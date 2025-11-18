@@ -6,7 +6,7 @@ import openpyxl
 from . import models
 import pandas as pd
 from .forms import UploadExcelForm
-from .models import Alumno, Profesor, Usuario
+from .models import Alumno, Profesor, Usuario, Grupo
 from django.db import transaction
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -145,6 +145,43 @@ def transiciondesafio(request):
 def transicionapoyo(request):
     return render(request, 'transicionapoyo.html')
 
+def asignar_alumnos_a_grupos():
+    alumnos = Alumno.objects.filter(grupo__isnull=True).order_by('idalumno')
+    grupos = list(Grupo.objects.all())
+
+    # Si no existen grupos → crear 4 grupos automáticamente
+    if len(grupos) == 0:
+        print("No habían grupos, creando 4...")
+        for i in range(4):
+            Grupo.objects.create(usuario_idusuario=None, tokensgrupo=12, etapa=1)
+        grupos = list(Grupo.objects.all())
+
+    print("Alumnos sin grupo:", alumnos.count())
+    print("Grupos disponibles:", len(grupos))
+
+    index_grupo = 0
+    capacidad = 8
+
+    for i, alumno in enumerate(alumnos):
+        grupo_actual = grupos[index_grupo]
+        alumno.grupo = grupo_actual
+        alumno.save()
+
+        if (i + 1) % capacidad == 0:
+            index_grupo += 1
+            if index_grupo >= len(grupos):
+                break
+
+
+def registrargrupos(request):
+    if request.method == "POST":
+        asignar_alumnos_a_grupos()
+        messages.success(request, "Alumnos auto-asignados correctamente.")
+
+    grupos = Grupo.objects.all().prefetch_related("alumno_set")
+
+    return render(request, "registrargrupos.html", {"grupos": grupos})
+
 
 def cargar_alumnos(request):
     # Filtro por profesor, con fallback para no dejar vacío
@@ -250,8 +287,6 @@ def presentar_pitch(request):
 def registraralumnos(request):
     return cargar_alumnos(request)
 
-def registrargrupos(request):
-    return render(request, 'registrargrupos.html')
 
 # ===========================
 # 🛒 MERCADO DE RETOS (100% mock, tokens en sesión)

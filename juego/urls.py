@@ -39,6 +39,7 @@ urlpatterns = [
     path('transicionapoyo/', views.transicionapoyo, name='transicionapoyo'),
     path('registrargrupos/', views.registrargrupos, name='registrargrupos'),
 
+
     # Mercado de retos
     path('market/', views.market_view, name='market'),
     path('market/issue/<int:challenge_id>/', views.issue_challenge_view, name='issue_challenge'),
