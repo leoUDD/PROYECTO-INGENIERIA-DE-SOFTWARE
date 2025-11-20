@@ -80,6 +80,7 @@ body{
 /* imágenes por tarjeta */
 .mode-intro{
   background-image:url("/static/images/desconocidos.png");
+  
 }
 .mode-known{
   background-image:url("/static/images/conocidoos.png");
