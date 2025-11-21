@@ -146,6 +146,9 @@ def transicionapoyo(request):
     return render(request, 'transicionapoyo.html')
 
 def asignar_alumnos_a_grupos():
+    # que hacer?
+    # en vez de 4 grupos, ver cuantos alumnos hay
+    # dividir los alumnos igualmente en la cantidad de grupos
     alumnos = Alumno.objects.filter(grupo__isnull=True).order_by('idalumno')
     grupos = list(Grupo.objects.all())
 
@@ -160,7 +163,7 @@ def asignar_alumnos_a_grupos():
     print("Grupos disponibles:", len(grupos))
 
     index_grupo = 0
-    capacidad = 8
+    capacidad = enumerate(alumnos)
 
     for i, alumno in enumerate(alumnos):
         grupo_actual = grupos[index_grupo]
@@ -168,6 +171,7 @@ def asignar_alumnos_a_grupos():
         alumno.save()
 
         if (i + 1) % capacidad == 0:
+            print((i +1) % capacidad)
             index_grupo += 1
             if index_grupo >= len(grupos):
                 break
