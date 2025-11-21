@@ -8,6 +8,8 @@ from pathlib import Path
 import os
 import pymysql
 pymysql.install_as_MySQLdb()
+from dotenv import load_dotenv
+
 
 
 
@@ -22,11 +24,11 @@ ALLOWED_HOSTS = [h.strip() for h in os.getenv('DJANGO_ALLOWED_HOSTS', '*').split
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'misionemprende',  
-        'USER': 'root',           
-        'PASSWORD': 'pass123',            
-        'HOST': 'localhost',       
-        'PORT': '3306',           
+        'NAME': os.environ.get('DB_NAME', 'misionemprende'), 
+        'USER': os.environ.get('DB_USER', 'root'),           
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'pass123'),            
+        'HOST': os.environ.get('DB_HOST', 'localhost'),       
+        'PORT': os.environ.get('DB_PORT', '3306'),           
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
