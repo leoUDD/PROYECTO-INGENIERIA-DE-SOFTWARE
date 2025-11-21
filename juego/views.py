@@ -149,6 +149,7 @@ def asignar_alumnos_a_grupos():
     # que hacer?
     # en vez de 4 grupos, ver cuantos alumnos hay
     # dividir los alumnos igualmente en la cantidad de grupos
+
     alumnos = Alumno.objects.filter(grupo__isnull=True).order_by('idalumno')
     grupos = list(Grupo.objects.all())
 
@@ -161,20 +162,28 @@ def asignar_alumnos_a_grupos():
 
     print("Alumnos sin grupo:", alumnos.count())
     print("Grupos disponibles:", len(grupos))
-
+    print(alumnos.count())
     index_grupo = 0
-    capacidad = enumerate(alumnos)
+    capacidad = len(alumnos) // len(grupos)
+    sobrantes = len(alumnos) % len(grupos)
 
-    for i, alumno in enumerate(alumnos):
-        grupo_actual = grupos[index_grupo]
-        alumno.grupo = grupo_actual
-        alumno.save()
+    index_alumno = 0
 
-        if (i + 1) % capacidad == 0:
-            print((i +1) % capacidad)
-            index_grupo += 1
-            if index_grupo >= len(grupos):
+    for i, grupo in enumerate(grupos):
+        cantidad = capacidad
+
+        if i < sobrantes:
+            cantidad += 1
+
+        # Asignar alumnos a este grupo
+        for _ in range(cantidad):
+            if index_alumno >= len(alumnos):
                 break
+
+            alumno = alumnos[index_alumno]
+            alumno.grupo = grupo
+            alumno.save()
+            index_alumno += 1
 
 
 def registrargrupos(request):
