@@ -4,156 +4,147 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Misión Emprende UDD — Dashboard Profesor</title>
+  <title>Misión Emprende UDD — Grupos</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_registraralumnos.css' %}" />
+
   <style>
-    /* Estilos mínimos para la tabla/botón eliminar por si tu CSS no los incluye */
-    .btn-danger{background:#ef4444;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
-    .btn-danger:hover{background:#dc2626}
-    .table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.06)}
-    .table th,.table td{padding:12px 14px;border-bottom:1px solid #eef1f5;text-align:left;font-size:14px}
-    .table th{background:#fafbff;font-weight:600;color:#111827}
-    .table tr:last-child td{border-bottom:0}
+    .btn-primary {
+      background:#2563eb;
+      color:#fff;
+      border:0;
+      border-radius:8px;
+      padding:10px 16px;
+      cursor:pointer;
+      font-size:14px;
+      margin-bottom:20px;
+    }
+    .btn-primary:hover { background:#1d4ed8 }
+
+    .card {
+      background:#fff;
+      padding:20px;
+      border-radius:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+      margin-bottom:30px;
+    }
+
+    .group-title {
+      font-size:20px;
+      font-weight:600;
+      margin-bottom:12px;
+      color:#111827;
+    }
+
+    .table {
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+    }
+    .table th, .table td {
+      padding:12px 14px;
+      border-bottom:1px solid #eef1f5;
+      font-size:14px;
+      text-align:left;
+    }
+    .table th {
+      background:#fafbff;
+      font-weight:600;
+      color:#111827;
+    }
+    .table tr:last-child td { border-bottom:0 }
+
+    .messages li {
+      background:#e0ffe0;
+      padding:10px;
+      border-radius:6px;
+      margin:8px 0;
+      list-style:none;
+      border-left:4px solid #16a34a;
+    }
   </style>
 </head>
+
 <body>
-  <div class="dashboard">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <h2 class="sidebar-title">Dashboard Profesor</h2>
-      </div>
-      <nav class="sidebar-nav">
-        <ul>
-          <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
-          <!-- 👉 Ahora apunta a esta misma pantalla -->
-          <li><a href="{% url 'registraralumnos' %}" class="active">Registrar alumnos</a></li>
-        </ul>
-      </nav>
-    </aside>
+<div class="dashboard">
 
-    <!-- Main -->
-    <main class="main-content">
-      <h1 class="title">Registro de Alumnos</h1>
-      <p class="subtitle">Cargue un Excel/CSV con la lista completa o ingrese un alumno manualmente.</p>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h2 class="sidebar-title">Dashboard Profesor</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
+        <li><a href="{% url 'registraralumnos' %}">Registrar alumnos</a></li>
+        <li><a href="{% url 'registrargrupos' %}" class="active">Registrar grupos</a></li>
+      </ul>
+    </nav>
+  </aside>
 
-      <!-- Mensajes Django -->
-      {% if messages %}
-        <ul class="messages" role="status" aria-live="polite">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+  <!-- MAIN -->
+  <main class="main-content">
 
-      <!-- ========== SECCIÓN 1: CARGA DESDE EXCEL/CSV ========== -->
-      <section class="upload-section card" aria-labelledby="titulo-excel">
-        <h2 id="titulo-excel">📂 Cargar lista desde archivo</h2>
+    <h1 class="title">Registrar Grupos</h1>
 
-        <form method="post" action="{% url 'cargar_alumnos' %}" enctype="multipart/form-data" class="upload-form">
-          {% csrf_token %}
-  
-          <input type="file" name="archivo_excel" id="archivo_excel" accept=".xlsx,.csv" required>
-          <label for="archivo_excel" class="file-label">Elegir archivo</label>
+    <!-- botón auto-asignar -->
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn-primary" type="submit">Auto-asignar alumnos</button>
+    </form>
 
-          <span id="file-name" class="file-name">Ningún archivo seleccionado</span>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
-          <button type="submit" class="btn primary">Subir archivo</button>
-        </form>
+    <!-- LISTADO DE GRUPOS -->
+    {% for grupo in grupos %}
+      <section class="card">
 
-        <p class="note">
-          Encabezados esperados: <b>Correo</b>, <b>RUT</b>, <b>Nombre</b>, <b>Apellido Paterno</b>, <b>Apellido Materno</b>.
-        </p>
-      </section>
+        <h2 class="group-title">Grupo {{ grupo.idgrupo }}</h2>
 
-      <!-- ========== SECCIÓN 2: ALTA MANUAL ========== -->
-      <section class="manual-section card" aria-labelledby="titulo-manual">
-        <h2 id="titulo-manual">👤 Ingresar un alumno</h2>
-
-        <form method="post" action="{% url 'agregar_alumno_manual' %}" class="manual-form">
-          {% csrf_token %}
-
-          <table aria-label="Ingreso manual de un alumno">
+        {% if grupo.alumno_set.all %}
+          <table class="table">
             <thead>
               <tr>
-                <th scope="col">Correo</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Apellido Paterno</th>
-                <th scope="col">Apellido Materno</th>
-                <th scope="col">Carrera</th>
-                <th scope="col" aria-label="Acciones"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><input type="email" name="email" placeholder="correo@ejemplo.com" required></td>
-                <td><input type="text" name="nombre" placeholder="Nombre" required></td>
-                <td><input type="text" name="apellido_paterno" placeholder="Apellido Paterno"></td>
-                <td><input type="text" name="apellido_materno" placeholder="Apellido Materno"></td>
-                <td><input type="text" name="carrera" placeholder="Carrera"></td>
-                <td>
-                  <button type="submit" class="btn add" title="Agregar alumno">+</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </form>
-      </section>
-
-      <!-- ========== SECCIÓN 3: LISTADO + ELIMINAR ========== -->
-      <section class="list-section card" aria-labelledby="titulo-lista" style="margin-top:24px">
-        <h2 id="titulo-lista">📋 Alumnos registrados</h2>
-
-        {% if alumnos %}
-          <table class="table" aria-describedby="titulo-lista">
-            <thead>
-              <tr>
-                <th>ID</th>
+                <th>ID Alumno</th>
                 <th>Nombre</th>
-                <th>Email</th>
-                <th>RUT</th>
+                <th>Apellido</th>
+                <th>Correo</th>
                 <th>Carrera</th>
-                <th style="width:120px">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {% for a in alumnos %}
+              {% for alu in grupo.alumno_set.all %}
                 <tr>
-                  <td>{{ a.idalumno }}</td>
-                  <td>{{ a.nombrealumno }}</td>
-                  <td>{{ a.emailalumno }}</td>
-                  <td>{{ a.rutalumno }}</td>
-                  <td>{{ a.carreraalumno|default:"—" }}</td>
-                  <td>
-                    <form method="post" action="{% url 'eliminar_alumno' a.idalumno %}"
-                          onsubmit="return confirm('¿Eliminar al alumno {{ a.nombrealumno }}?');"
-                          style="display:inline;">
-                      {% csrf_token %}
-                      <button type="submit" class="btn-danger">Eliminar</button>
-                    </form>
-                  </td>
+                  <td>{{ alu.idalumno }}</td>
+                  <td>{{ alu.nombrealumno }}</td>
+                  <td>{{ alu.apellidopaternoalumno }}</td>
+                  <td>{{ alu.emailalumno }}</td>
+                  <td>{{ alu.carreraalumno }}</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         {% else %}
-          <p>No hay alumnos registrados todavía.</p>
+          <p>No hay alumnos asignados a este grupo.</p>
         {% endif %}
+
       </section>
-    </main>
-  </div>
+    {% endfor %}
 
-  <script>
-  const fileInput = document.getElementById('archivo_excel');
-  const fileName = document.getElementById('file-name');
+  </main>
 
-  if (fileInput) {
-    fileInput.addEventListener('change', function() {
-      fileName.textContent = this.files.length > 0 ? this.files[0].name : "Ningún archivo seleccionado";
-    });
-  }
-  </script>
+</div>
+
 </body>
 </html>
