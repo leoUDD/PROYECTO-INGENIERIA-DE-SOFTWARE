@@ -1,8 +1,7 @@
 :root {
   --primary: #4b74aa;
   --primary-dark: #3d618e;
-  --bg: linear-gradient(rgba(255, 255, 255, 0.25), rgba(245, 247, 250, 0.25)),
-    url("/static/images/fondo_bienvenida.jpeg") center/cover no-repeat fixed;
+  --bg: url("/static/images/fondo_bienvenida.png") center/cover no-repeat fixed;
   --card: #fff;
   --text: #111827;
   --muted: #6b7280;
