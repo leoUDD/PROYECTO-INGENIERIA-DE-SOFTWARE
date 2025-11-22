@@ -1,7 +1,6 @@
 :root {
   /* === COLORES Y VARIABLES === */
-  --bg: linear-gradient(rgba(255,255,255,0.25), rgba(245,247,250,0.25)),
-        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
+  --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
   --color-card: #ffffff;
   --color-primary: #4b74aa;
   --color-primary-dark: #4b74aa;

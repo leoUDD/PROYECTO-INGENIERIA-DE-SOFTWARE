@@ -12,9 +12,11 @@
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
     <h1 class="title">¡Introdúcete!</h1>
-    <p class="subtitle">Tienen dos minutos como grupo para introducirse.</p>
-    <p class="body">Digan su nombre, carrera y algo curioso sobre ustedes!</p>
-    <img class="phone-image" src="{% static 'images/intro.png' %}" alt="Imagen de introducción" />
+    <div class="speech-bubble">
+      <p class="subtitle">Tienen dos minutos como grupo para introducirse.</p>
+      <p class="body">Digan su nombre, carrera y algo curioso sobre ustedes!</p>
+    </div>
+  
 
     <div id="timer" class="timer">00:45</div>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>

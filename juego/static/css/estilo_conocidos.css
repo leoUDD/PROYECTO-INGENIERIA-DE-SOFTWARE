@@ -1,16 +1,15 @@
 /* ================== Variables ================== */
 :root{
-  --bg: linear-gradient(rgba(255,255,255,0.2), rgba(245,247,250,0.2)),
-        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
-  --card:#fff;
-  --text:#111827;
-  --muted:#6b7280;
-  --primary:#4b74aa;
-  --primary-pressed:#3d618e;
+  --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
+  --card:#081A2D;
+  --text:#fff;
+  --muted:#E6EEF8;
+  --primary:#FF7A1A;
+  --accent:#FF7A1A;
   --radius:28px;
-  --shadow:0 12px 28px rgba(0,0,0,.08);
-
-  /* escalas fluidas similares al ejemplo */
+  --shadow:0 18px 40px rgba(0,0,0,.6);
+  --glow:0 0 25px rgba(0,200,255,.35);
+  --pos-y: 130px;
   --fs-title:   clamp(28px, 4vw, 44px);
   --fs-sub:     clamp(15px, 2vw, 20px);
   --fs-body:    clamp(15px, 1.9vw, 18px);
@@ -19,12 +18,11 @@
 
 /* ================== Reset ================== */
 *{ box-sizing:border-box; }
-html,body{ height:100%; }
+html,body{ height:100%; margin:0; }
 img,video{ max-width:100%; height:auto; display:block; }
 
-/* ================== Base (centrado como el ejemplo) ================== */
+/* ================== Fondo general ================== */
 body{
-  margin:0;
   background:var(--bg);
   color:var(--text);
   font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -36,22 +34,51 @@ body{
   padding:20px;
 }
 
-/* ================== Card ================== */
+/* ================== CARD PRINCIPAL ================== */
 .phone{
-  width: clamp(380px, 94vw, 800px); /* mismo patrón de ancho fluido */
-  background:var(--card);
+  width: clamp(320px, 90vw, 1100px);
+  background: url('/static/images/fondo_card.png') center/cover no-repeat;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   padding:40px 30px;
   margin:auto;
+  min-height: clamp(480px, 75vh, 640px);
 
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap: 10px; /* aire entre elementos */
+  gap:14px;
+
+  position:relative;
+  overflow:hidden;
 }
 
-/* ================== Tipografías ================== */
+/* Asegura que el contenido esté sobre el personaje */
+.phone > *{
+  position:relative;
+  z-index:2;
+}
+
+/* ================== PERSONAJE ================== */
+.phone::after{
+  content:"";
+  position:absolute;
+  right:-1%;
+  bottom:0;
+  width:40%;
+  max-width:360px;
+  aspect-ratio: 3 / 5;
+
+  background:url('/static/images/intro.png') no-repeat;
+  background-size: contain;
+  background-position: right var(--pos-y);
+
+  opacity:1;
+  z-index:1;
+  pointer-events:none;
+}
+
+/* ================== TIPOGRAFÍAS ================== */
 .title{
   margin:14px 0 8px;
   text-align:center;
@@ -62,39 +89,30 @@ body{
 }
 
 .subtitle{
-  text-align:center;
+  text-align:left;
   color:var(--muted);
   font-size: var(--fs-sub);
   margin: 0 12px 8px;
 }
 
 .body{
-  text-align:center;
+  text-align:left;
   font-size: var(--fs-body);
   margin: 0 12px 16px;
 }
 
-/* ================== Imagen (mismo estilo que "video" del ejemplo) ================== */
-.phone-image{
-  width:100%;
-  max-width: clamp(360px, 88vw, 780px);
-  aspect-ratio: 16/9;      /* mantiene formato banner */
-  object-fit: cover;
-  border-radius:20px;
-  margin:20px auto 22px;
-  box-shadow:0 10px 25px rgba(0,0,0,.15);
-}
-
-/* ================== Temporizador (centrado y fluido) ================== */
+/* ================== TIMER RESPONSIVE ================== */
 #timer{
   display:flex;
   justify-content:center;
   align-items:center;
   text-align:center;
 
+  margin-top:auto;
+  margin-bottom: clamp(18px, 4vh, 26px);
+
   width: clamp(180px, 36vw, 260px);
   height: clamp(72px, 12vw, 98px);
-  margin: 6px auto 0 auto;
 
   background:#0a0a0a;
   color:#fff;
@@ -110,17 +128,12 @@ body{
   animation: neonPulse 1.2s ease-in-out infinite;
 }
 
-/* Estados opcionales (si los activas desde JS) */
-#timer.ok{ background:#ecfdf5; color:#16a34a; text-shadow:none; box-shadow:none; border-color:#34d399; }
-#timer.warn{ background:#fff7ed; color:#ea580c; text-shadow:none; box-shadow:none; border-color:#fdba74; }
-#timer.danger{ background:#fef2f2; color:#ef4444; text-shadow:none; box-shadow:none; border-color:#fca5a5; }
-
 @keyframes neonPulse{
   0%,100%{ box-shadow:0 0 20px #00d4ff, 0 0 40px #0077ff inset; }
   50%{    box-shadow:0 0 40px #00ffff, 0 0 60px #00aaff inset; }
 }
 
-/* ================== Modal (sin cambios, coherente con card) ================== */
+/* ================== MODAL ================== */
 .modal{
   position:fixed; inset:0;
   display:none;
@@ -130,8 +143,9 @@ body{
   z-index:999;
   padding:16px;
 }
+
 .modal-content{
-  background:white;
+  background:#081A2D;
   border-radius:20px;
   box-shadow:0 12px 30px rgba(0,0,0,.3);
   padding: clamp(22px, 4vw, 40px) clamp(18px, 4vw, 30px);
@@ -139,8 +153,17 @@ body{
   width:min(100%, 400px);
   animation: pop-in .4s ease;
 }
-.modal-content h2{ font-size: clamp(20px, 4.8vw, 28px); color:var(--primary); margin:0 0 10px; }
-.modal-content p{ color:var(--muted); margin:0 0 20px; line-height:1.45; }
+
+.modal-content h2{
+  font-size: clamp(20px, 4.8vw, 28px);
+  color:var(--primary);
+  margin:0 0 10px;
+}
+.modal-content p{
+  color:var(--muted);
+  margin:0 0 20px;
+  line-height:1.45;
+}
 .modal-content button{
   background:var(--primary);
   color:#fff;
@@ -150,28 +173,146 @@ body{
   font-size: clamp(14px, 3.6vw, 16px);
   font-weight:700;
   cursor:pointer;
-  transition:.2s transform,.2s background-color;
 }
-.modal-content button:hover{ background:var(--primary-pressed); transform:scale(1.05); }
+.modal-content button:hover{ transform:scale(1.05); }
 
-@keyframes pop-in{ from{ transform:scale(.92); opacity:0; } to{ transform:scale(1); opacity:1; } }
+/* ================== GLOBO HOLOGRÁFICO ================== */
+.speech-bubble{
+  position:absolute;
+  right: 30%;
+  bottom: 48%;
+  width: clamp(260px, 40vw, 420px);
 
-/* ================== Flash final ================== */
-@keyframes flashScreen{ 0%,100%{ background-color:transparent; } 50%{ background-color:rgba(255,255,255,.8); } }
-.flash{ animation:flashScreen .8s ease-in-out; }
+  padding: 22px 26px;
+  border-radius: 14px;
 
-/* ================== Media Queries (fino) ================== */
-@media (min-width: 600px){
-  .title{    font-size: clamp(28px, 3.6vw, 40px); }
-  .subtitle{ font-size: clamp(15px, 2vw, 18px); }
+  background: rgba(0, 140, 255, 0.12);
+  border: 1.6px solid rgba(0, 180, 255, 0.8);
+
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    0 0 20px rgba(0, 180, 255, .4),
+    0 0 60px rgba(0, 100, 255, .3);
+
+  transition: 0.25s ease;
+  z-index: 10;
 }
 
-@media (max-width: 420px){
-  .phone{ padding:28px 20px; border-radius:22px; }
-  #timer{ animation:none; box-shadow:0 0 14px #00d4ff, 0 0 22px #0077ff inset; }
+.speech-bubble .subtitle,
+.speech-bubble .body{
+  margin:0 0 10px;
+  color:#E8F6FF;
+  font-size: clamp(14px, 1.4vw, 18px);
+  text-align:left;
+  text-shadow: 0 0 6px rgba(0, 220, 255, 0.6);
 }
 
-/* Accesibilidad: respeta reducción de movimiento */
+/* colita holográfica */
+.speech-bubble::after{
+  content:"";
+  position:absolute;
+  right:-18px;
+  bottom:24px;
+
+  border-style: solid;
+  border-width: 14px 0 14px 20px;
+  border-color: transparent transparent transparent rgba(0, 180, 255, 0.7);
+  
+  filter: drop-shadow(-2px 0 8px rgba(0, 180, 255, 0.8));
+}
+
+/* ============================= */
+/*           TABLET              */
+/* ============================= */
+@media (max-width: 900px){
+  .phone{
+    min-height: clamp(480px, 80vh, 640px);
+    padding: 32px 24px;
+  }
+
+  .speech-bubble{
+    right: 50%;
+    bottom: 55%;
+    transform: translateX(50%);
+    width: min(90%, 420px);
+  }
+
+  .speech-bubble::after{
+    right: 14%;
+    bottom: 18px;
+  }
+
+  .phone::after{
+    width: 45%;
+    opacity: 0.9;
+  }
+}
+
+/* ============================= */
+/*            MÓVIL / IPHONE     */
+/* ============================= */
+@media (max-width: 600px){
+
+  .phone{
+    padding: 26px 18px;
+    border-radius:22px;
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+  }
+
+  .title{
+    margin-top: 90px;
+    font-size: clamp(40px, 10vw, 50px);
+  }
+
+  /* Globo más arriba */
+  .speech-bubble{
+    right: 50%;
+    bottom: 60%;
+    transform: translateX(50%);
+    width: 94%;
+    padding: 22px 24px;
+  }
+
+  .speech-bubble::after{
+    display:none;
+  }
+
+  /* 🔥 Personaje más grande y sin bajar tanto */
+  .phone::after{
+    width: 85%;
+    left: 50%;   
+    transform: translateX(-50%); /* más grande en móvil */
+    bottom: 105px;           /* ya no se hunde hacia abajo */
+    opacity: 1;
+    background-position: center 60px;
+  }
+
+  #timer{
+    width: 82%;
+    height: clamp(80px, 16vw, 110px);
+    margin-bottom: 60px;
+    font-size: clamp(30px, 9vw, 40px);
+  }
+}
+
+/* ============================= */
+/*    EXTRA: iPhone SE / mini    */
+/* ============================= */
+@media (max-width: 380px){
+  .speech-bubble{
+    bottom: 66%;
+    width: 92%;
+  }
+  .phone::after{
+    width: 72%;
+    right: -22%;
+  }
+}
+
+/* Accesibilidad: reducir movimiento */
 @media (prefers-reduced-motion: reduce){
   *{ animation:none !important; transition:none !important; }
 }

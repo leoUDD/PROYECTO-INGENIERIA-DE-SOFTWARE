@@ -1,12 +1,13 @@
 :root{
-  --bg: linear-gradient(rgba(255,255,255,.2), rgba(245,247,250,.2)),
-        url('/static/images/fondo_bienvenida.jpeg') center/cover no-repeat fixed;
-  --card:#fff;
-  --text:#111827;
-  --muted:#6b7280;
-  --primary:#4b74aa;
+  --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
+  --card:#081A2D;
+  --text:#E6EEF8;
+  --muted:#AAB7C8;
+  --primary:#00C8FF;
+  --accent:#FF7A1A;
   --radius:28px;
-  --shadow:0 12px 28px rgba(0,0,0,.08);
+  --shadow:0 18px 40px rgba(0,0,0,.6);
+  --glow:0 0 25px rgba(0,200,255,.35);
 }
 
 /* Reset básico */
@@ -57,15 +58,15 @@ h1{ margin: 8px 0; font-size: clamp(26px, 4vw, 40px); font-weight:800 }
   overflow: hidden;                 /* recorta la imagen dentro del círculo */
   border: 6px solid #fff;           /* borde blanco como en tu referencia */
   box-shadow: 0 8px 20px rgba(0,0,0,.15);
-  background: #eef3fb;              /* color de fondo mientras carga la imagen */
+  background: var(--card);              /* color de fondo mientras carga la imagen */
   display: inline-flex; align-items:center; justify-content:center;
   text-decoration: none;
   transition: transform .2s, box-shadow .2s, border-color .2s;
 }
 .perfil > a:hover{
   transform: translateY(-4px);
-  box-shadow: 0 14px 28px rgba(0,0,0,.18);
-  border-color: rgba(75,116,170,.35);
+  box-shadow: 0 14px 32px rgba(0,0,0,.6), 0 0 18px rgba(0,200,255,.45);
+  border-color: var(--primary);
 }
 .perfil > a:active{ transform: translateY(-1px); }
 
