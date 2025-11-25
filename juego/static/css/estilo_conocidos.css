@@ -9,217 +9,308 @@
   --radius:28px;
   --shadow:0 18px 40px rgba(0,0,0,.6);
   --glow:0 0 25px rgba(0,200,255,.35);
-
-  --fs-title: clamp(28px, 4vw, 42px);
-  --fs-sub: clamp(15px, 2vw, 20px);
-  --fs-body: clamp(14px, 2vw, 18px);
-  --fs-timer: clamp(36px, 7vw, 54px);
+  --pos-y: 130px;
+  --fs-title:   clamp(28px, 4vw, 44px);
+  --fs-sub:     clamp(15px, 2vw, 20px);
+  --fs-body:    clamp(15px, 1.9vw, 18px);
+  --fs-timer:   clamp(28px, 6vw, 40px);
 }
 
-/* Reset */
-*{ box-sizing:border-box; margin:0; padding:0; }
-html,body{ height:100%; }
+/* ================== Reset ================== */
+*{ box-sizing:border-box; }
+html,body{ height:100%; margin:0; }
+img,video{ max-width:100%; height:auto; display:block; }
 
 /* ================== Fondo general ================== */
 body{
   background:var(--bg);
-  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   color:var(--text);
+  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 
   min-height:100vh;
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
   padding:20px;
 }
 
-/* ================== Phone Container ================== */
+/* ================== CARD PRINCIPAL ================== */
 .phone{
-  width: clamp(350px, 90vw, 850px);
-  min-height: clamp(520px, 85vh, 700px);
-
-  /* antes tenía imagen de fondo, ahora solo color sólido */
-  background: var(--card);
+  width: clamp(320px, 90vw, 1100px);
+  background: url('/static/images/fondo_card.png') center/cover no-repeat;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
+  padding:40px 30px;
+  margin:auto;
+  min-height: clamp(480px, 75vh, 640px);
 
-  padding:40px 32px 50px;
-  position:relative;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:18px;
+  gap:14px;
+
+  position:relative;
   overflow:hidden;
 }
 
-/* Todo dentro centrado y por encima del fondo */
+/* Asegura que el contenido esté sobre el personaje */
 .phone > *{
   position:relative;
   z-index:2;
 }
 
 /* ================== PERSONAJE ================== */
-/* Eliminado: ya no usamos personaje pegado a la card */
-/*
 .phone::after{
-  ...
+  content:"";
+  position:absolute;
+  right:-3%;
+  bottom: -170px;
+  width:40%;
+  max-width:450px;
+  aspect-ratio: 3 / 5;
+  background:url('/static/images/foto2.png') no-repeat;
+  background-size: contain;
+  background-position: right var(--pos-y);
+  opacity:1;
+  z-index:1;
+  pointer-events:none;
 }
-*/
 
-/* ================== Textos ================== */
+/* ================== TIPOGRAFÍAS ================== */
 .title{
-  font-size:var(--fs-title);
+  margin:40px 0 8px;
   text-align:center;
-  font-weight:800;
-  color:var(--primary);
   line-height:1.15;
+  font-size: var(--fs-title);
+  font-weight:800;
+  color: var(--primary);
 }
 
 .subtitle{
-  text-align:center;
+  text-align:left;
   color:var(--muted);
-  font-size:var(--fs-sub);
-  line-height:1.3;
+  font-size: var(--fs-sub);
+  margin: 0 12px 8px;
 }
 
 .body{
-  margin-top:6px;
-  text-align:center;
-  color:#f2f6ff;
-  font-size:var(--fs-body);
-  line-height:1.45;
-  background:rgba(255,255,255,0.05);
-  padding:12px 18px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.1);
-  backdrop-filter:blur(6px);
-  max-width: 640px;
+  text-align:left;
+  font-size: var(--fs-body);
+  margin: 0 12px 16px;
 }
 
-/* ================== IMAGEN CENTRAL ================== */
-.phone-image{
-  width: 100%;
-  max-width: 320px; /* la deja tipo foto central */
-  border-radius:20px;
-  box-shadow:0 10px 28px rgba(0,0,0,.25);
-  margin:16px auto 18px;
-}
-
-/* ================== TIMER ABAJO ================== */
+/* ================== TIMER RESPONSIVE ================== */
 #timer{
-  align-self:center;
-  margin-top:auto;           /* empuja el timer hacia abajo */
-  margin-bottom:10px;
-
   display:flex;
   justify-content:center;
   align-items:center;
+  text-align:center;
 
-  width: clamp(180px, 40vw, 260px);
-  height: clamp(70px, 14vw, 100px);
+  margin-top:auto;
+  margin-bottom: clamp(18px, 4vh, 26px);
+
+  width: clamp(180px, 36vw, 260px);
+  height: clamp(72px, 12vw, 98px);
 
   background:#0a0a0a;
-  border-radius:22px;
-
   color:#fff;
-  font-size:var(--fs-timer);
   font-weight:800;
+  font-size: var(--fs-timer);
+  font-variant-numeric: tabular-nums;
+  letter-spacing:.04em;
 
-  border:4px solid #00d4ff;
-  text-shadow:0 0 8px #00d4ff;
-  box-shadow:0 0 22px #00d4ff, inset 0 0 42px #0077ff;
-
-  animation: neonPulse 1.4s ease-in-out infinite;
+  border: clamp(3px, .8vw, 6px) solid #00d4ff;
+  border-radius:24px;
+  box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset;
+  text-shadow: 0 0 8px #00d4ff;
+  animation: neonPulse 1.2s ease-in-out infinite;
 }
 
 @keyframes neonPulse{
-  0%,100%{
-    box-shadow:0 0 22px #00d4ff, inset 0 0 42px #0077ff;
-  }
-  50%{
-    box-shadow:0 0 36px #00ffff, inset 0 0 60px #00aaff;
-  }
+  0%,100%{ box-shadow:0 0 20px #00d4ff, 0 0 40px #0077ff inset; }
+  50%{    box-shadow:0 0 40px #00ffff, 0 0 60px #00aaff inset; }
 }
 
 /* ================== MODAL ================== */
 .modal{
   position:fixed; inset:0;
   display:none;
-  justify-content:center;
-  align-items:center;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(4px);
+  justify-content:center; align-items:center;
+  background:rgba(0,0,0,.5);
+  backdrop-filter: blur(3px);
   z-index:999;
+  padding:16px;
 }
 
 .modal-content{
   background:#081A2D;
-  width:min(90%, 400px);
   border-radius:20px;
-
-  padding:30px 26px;
-  box-shadow:0 12px 30px rgba(0,0,0,.4);
-  animation: pop-in .35s ease;
-}
-
-@keyframes pop-in{
-  from{ transform:scale(.8); opacity:0; }
-  to{ transform:scale(1); opacity:1; }
+  box-shadow:0 12px 30px rgba(0,0,0,.3);
+  padding: clamp(22px, 4vw, 40px) clamp(18px, 4vw, 30px);
+  text-align:center;
+  width:min(100%, 400px);
+  animation: pop-in .4s ease;
 }
 
 .modal-content h2{
-  font-size:clamp(22px, 5vw, 30px);
-  margin-bottom:10px;
+  font-size: clamp(20px, 4.8vw, 28px);
   color:var(--primary);
+  margin:0 0 10px;
 }
 .modal-content p{
-  font-size:clamp(14px, 4vw, 18px);
   color:var(--muted);
-  margin-bottom:20px;
+  margin:0 0 20px;
+  line-height:1.45;
 }
 .modal-content button{
-  padding:12px 24px;
-  border:none;
-  border-radius:14px;
   background:var(--primary);
   color:#fff;
-  font-size:clamp(15px, 4vw, 17px);
-  font-weight:800;
+  border:none;
+  padding:12px 24px;
+  border-radius:12px;
+  font-size: clamp(14px, 3.6vw, 16px);
+  font-weight:700;
   cursor:pointer;
-  transition:.2s;
 }
-.modal-content button:hover{
-  transform:scale(1.05);
+.modal-content button:hover{ transform:scale(1.05); }
+
+/* ================== GLOBO HOLOGRÁFICO ================== */
+.speech-bubble{
+  position:absolute;
+  right: 30%;
+  bottom: 45%;
+  width: clamp(260px, 40vw, 420px);
+
+  padding: 22px 26px;
+  border-radius: 14px;
+
+  background: rgba(0, 140, 255, 0.12);
+  border: 1.6px solid rgba(0, 180, 255, 0.8);
+
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    0 0 20px rgba(0, 180, 255, .4),
+    0 0 60px rgba(0, 100, 255, .3);
+
+  transition: 0.25s ease;
+  z-index: 10;
 }
 
-/* ================== FLASH ALARMA ================== */
-.flash{
-  animation: alarmFlash .7s ease;
+.speech-bubble .subtitle,
+.speech-bubble .body{
+  margin:0 0 10px;
+  color:#E8F6FF;
+  font-size: clamp(14px, 1.4vw, 18px);
+  text-align:left;
+  text-shadow: 0 0 6px rgba(0, 220, 255, 0.6);
 }
 
-@keyframes alarmFlash{
-  0%{ background:#ff000055; }
-  100%{ background:transparent; }
+/* colita holográfica */
+.speech-bubble::after{
+  content:"";
+  position:absolute;
+  right:-18px;
+  bottom:24px;
+
+  border-style: solid;
+  border-width: 14px 0 14px 20px;
+  border-color: transparent transparent transparent rgba(0, 180, 255, 0.7);
+  
+  filter: drop-shadow(-2px 0 8px rgba(0, 180, 255, 0.8));
 }
 
-/* ================== MEDIA QUERIES ================== */
-@media(max-width:700px){
+/* ============================= */
+/*           TABLET              */
+/* ============================= */
+@media (max-width: 900px){
   .phone{
-    min-height:90vh;
-    padding:32px 20px;
+    min-height: clamp(480px, 80vh, 640px);
+    padding: 32px 24px;
+  }
+
+  .speech-bubble{
+    right: 50%;
+    bottom: 55%;
+    transform: translateX(50%);
+    width: min(90%, 420px);
+  }
+
+  .speech-bubble::after{
+    right: 14%;
+    bottom: 18px;
+  }
+
+  .phone::after{
+    width: 45%;
+    opacity: 0.9;
   }
 }
 
-@media(max-width:520px){
+/* ============================= */
+/*            MÓVIL / IPHONE     */
+/* ============================= */
+@media (max-width: 600px){
+
   .phone{
-    width:100%;
+    padding: 26px 18px;
     border-radius:22px;
-    padding:26px 18px;
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+  }
+
+  .title{
+    margin-top: 90px;
+    font-size: clamp(40px, 10vw, 50px);
+  }
+
+  /* Globo más arriba */
+  .speech-bubble{
+    right: 50%;
+    bottom: 60%;
+    transform: translateX(50%);
+    width: 94%;
+    padding: 22px 24px;
+  }
+
+  .speech-bubble::after{
+    display:none;
+  }
+
+  /* 🔥 Personaje más grande y sin bajar tanto */
+  .phone::after{
+    width: 85%;
+    left: 50%;   
+    transform: translateX(-50%); /* más grande en móvil */
+    bottom: 105px;           /* ya no se hunde hacia abajo */
+    opacity: 1;
+    background-position: center 60px;
   }
 
   #timer{
-    width:82%;
-    margin-top:auto;
-    margin-bottom:30px;
+    width: 82%;
+    height: clamp(80px, 16vw, 110px);
+    margin-bottom: 60px;
+    font-size: clamp(30px, 9vw, 40px);
   }
+}
+
+/* ============================= */
+/*    EXTRA: iPhone SE / mini    */
+/* ============================= */
+@media (max-width: 380px){
+  .speech-bubble{
+    bottom: 66%;
+    width: 92%;
+  }
+  .phone::after{
+    width: 72%;
+    right: -22%;
+  }
+}
+
+/* Accesibilidad: reducir movimiento */
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
 }

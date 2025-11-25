@@ -72,7 +72,7 @@ body{
   color:#fff;
   box-shadow:0 10px 22px rgba(0,0,0,.14);
   transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
-  background-position:center;
+  background-position:center -15px;
   background-size:cover;
   background-repeat:no-repeat;
 

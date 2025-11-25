@@ -153,6 +153,7 @@ body {
 .content .title {
   font-size: clamp(18px, 2.4vw, 22px);
   font-weight: 800;
+  color: #000712;
 }
 .chips {
   display: flex;
@@ -168,7 +169,7 @@ body {
   color: #374151;
 }
 .desc {
-  color: var(--muted);
+  color: black;
   font-size: clamp(13px, 1.8vw, 15px);
   line-height: 1.45;
 }

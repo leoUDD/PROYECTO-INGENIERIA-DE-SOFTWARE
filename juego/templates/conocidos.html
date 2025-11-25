@@ -12,12 +12,10 @@
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
     <h1 class="title">Es momento de fortalecer lazos!</h1>
-    <p class="subtitle">Tienen dos minutos como grupo para conocerse mejor para esta dinámica..</p>
-    <p class="body">¿Cuáles son sus habilidades? (Liderazgo, perseverancia, trabajo en equipo...)
-      Nombra una habilidad que tenga uno de los integrantes del equipo y cuenta una anécdota donde hayas visto esa habilidad en acción.
-    </p>
-    <img class="phone-image" src="{% static 'images/conocidosss.png' %}" alt="Imagen de conocerse" />
-    <h2 id="timer">00:45</h2>
+    <div class="speech-bubble">
+      <p class="body">Nombra una habilidad que tenga uno de los integrantes del equipo y cuenta una anécdota donde hayas visto esa habilidad en acción.</p>
+    </div>
+      <h2 id="timer">00:45</h2>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
     <div id="modal-fin" class="modal">
       <div class="modal-content">
