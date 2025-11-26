@@ -25,7 +25,7 @@
                data-slug="{{ slug }}">
         <div class="content">
           <h2 class="title">{{ challenge.name }}</h2>
-          <p class="desc">{{ challenge.desc }}</p>
+          <p class="desc">{{ challenge.summary|default:challenge.desc }}</p>
         </div>
         <div class="actions">
           <button class="btn select" type="button">Elegir</button>

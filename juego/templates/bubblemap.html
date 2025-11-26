@@ -4,26 +4,28 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Bubble Map</title>
   <link rel="stylesheet" href="{% static 'css/estilo_bubblemap.css' %}">
 </head>
 <body>
   <main class="bubblemap-container">
     <h1>💭 Bubble Map — Genera tus ideas</h1>
-    <p class="subtitle">Escribe en los círculos tus conceptos o palabras clave relacionadas con las características de la persona.</p>
+    <p class="subtitle">Escribe palabras clave relacionadas con tu persona del desafío.</p>
+
     {% include "desafio_badge.html" %}
+
     <section class="bubbles">
       <div class="bubble central">
-        <img src="{% static 'images/persona3.png' %}" alt="Persona" />
+        <img src="{% static 'images/personas.png' %}" alt="Persona" />
       </div>
 
-      <div class="bubble"><textarea placeholder="¿Qué le gusta y qué no le gusta?"></textarea></div>
-      <div class="bubble"><textarea placeholder="¿Qué siente respecto a lo que le está pasando?"></textarea></div>
-      <div class="bubble"><textarea placeholder="¿Qué obstáculos enfrenta?"></textarea></div>
-      <div class="bubble"><textarea placeholder="¿Qué le dicen los demás?"></textarea></div>
-      <div class="bubble"><textarea placeholder="¿Cuáles son sus hobbies?"></textarea></div>
-      <div class="bubble"><textarea placeholder="Otras"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Qué le gusta?"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Qué siente?"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Qué obstáculos tiene?"></textarea></div>
+      <div class="bubble"><textarea placeholder="¿Qué dicen los demás?"></textarea></div>
+      <div class="bubble"><textarea placeholder="Hobbies"></textarea></div>
+      <div class="bubble"><textarea placeholder="Otros"></textarea></div>
     </section>
 
     <footer class="footer-actions">
@@ -31,19 +33,53 @@
     </footer>
   </main>
 
+  <!-- ===========================
+       SISTEMA DE GUARDADO + BORRADO
+       =========================== -->
   <script>
-    // Ajusta tamaño del texto según largo
-    document.querySelectorAll('.bubble textarea').forEach(area => {
-      area.addEventListener('input', () => {
-        area.style.height = 'auto';
-        area.style.height = area.scrollHeight + 'px';
+    const STORAGE_KEY = "bubblemap_data";
+    const SESSION_KEY = "browser_session_id";
+
+    // 1) Generamos un ID único por pestaña
+    const currentSession = sessionStorage.getItem("my_session_id") ||
+                           crypto.randomUUID();
+    sessionStorage.setItem("my_session_id", currentSession);
+
+    // 2) Leemos el último ID guardado en localStorage
+    const lastSession = localStorage.getItem(SESSION_KEY);
+
+    // 3) Si NO coincide → el navegador fue cerrado → Borrar data
+    if (lastSession && lastSession !== currentSession) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // 4) Guardamos esta sesión como "última sesión activa"
+    localStorage.setItem(SESSION_KEY, currentSession);
+
+
+    /* ========= GUARDAR DATOS ========= */
+
+    const bubbles = document.querySelectorAll(".bubble textarea");
+
+    // Restaurar si existe
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    bubbles.forEach((area, i) => {
+      if (saved[i]) area.value = saved[i];
+    });
+
+    // Guardar al escribir
+    bubbles.forEach((area, i) => {
+      area.addEventListener("input", () => {
+        const data = {};
+        bubbles.forEach((a, idx) => data[idx] = a.value.trim());
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       });
+    });
+
+    // Botón siguiente
+    document.getElementById("btnContinuar").addEventListener("click", () => {
+      window.location.href = "{% url 'transicioncreatividad' %}";
     });
   </script>
 </body>
-<script>
-  document.getElementById("btnContinuar").addEventListener("click", () => {
-    window.location.href = "{% url 'transicioncreatividad' %}";
-  });
-</script>
 </html>

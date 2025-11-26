@@ -16,7 +16,7 @@ html,body{ height:100%; }
 body {
   font-family:"Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background:var(--bg);
-  color:#111827;
+  color: var(--accent);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -33,7 +33,7 @@ body {
 }
 
 .subtitle {
-  color:#6b7280;
+  color:#fff;
   margin-bottom: 24px;
 }
 
@@ -109,7 +109,7 @@ body {
   width: 100%;                      /* Ajusta tamaño de la imagen dentro del círculo */
   height: 100%;
   transform: translate(-50%, -50%);
-  object-fit: contain;             /* Mantiene proporción de la imagen */
+  object-fit: cover;            /* Mantiene proporción de la imagen */
   object-position: center;
   pointer-events: none;            /* Evita bloquear clics o escritura */
 }

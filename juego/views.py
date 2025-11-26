@@ -106,10 +106,6 @@ def minijuego1(request):
     return render(request, 'minijuego1.html')
 
 
-def intro_desafios(request):
-    return render(request, 'intro_desafios.html')
-
-
 def tematicas(request):
     return render(request, 'tematicas.html')
 
