@@ -9,46 +9,32 @@
   <link rel="stylesheet" href="{% static 'css/estilo_transicionapoyo.css' %}">
 </head>
 <body>
-  <main class="apoyo-container" role="region" aria-label="Concepto: Apoyo">
-    <header class="apoyo-header">
-      <h1 class="title">Apoyo 🤝</h1>
-      <p class="subtitle">El apoyo convierte ideas en movimiento: acelera el aprendizaje, reparte responsabilidades y mantiene la motivación del equipo.</p>
-    </header>
+  <main class="team-container" role="region" aria-label="Introducción a apoyo">
+    <section class="team-section">
+      <div class="title">
+        <h1>Apoyo</h1>
+      </div>
 
-    <section class="apoyo-card">
-      <div class="apoyo-text">
+      <div class="speech-bubble">
         <p>
-          En el emprendimiento, nadie avanza solo. El apoyo del equipo se nota
-          cuando compartimos conocimientos, escuchamos con empatía y colaboramos
-          para superar obstáculos.
+         En esta misión evaluarán a otros equipos y entregarán un TOKEN al que tenga el mejor desempeño según su rúbrica.
         </p>
-      </div>
-      <div class="image-area">
-        <img class="team-image" src="{% static 'images/apoyo.png' %}" alt="Reflexión emprendedora">
-      </div>
-
-      <!-- Instrucción solicitada (texto literal) -->
-      <div class="token-instruction" role="note" aria-label="Instrucción sobre tokens">
-        <div class="token-icon" aria-hidden="true">🪙</div>
-        <div>
-          <p class="token-title">Instrucción</p>
-          <p class="token-body">
-            Cada grupo deberá evaluar a los demás equipos según los criterios de su rúbrica.
-            El equipo que, a su juicio, haya demostrado el mejor desempeño recibirá un <strong>TOKEN</strong> como reconocimiento, simbolizando el apoyo y valoración hacia su emprendimiento.
-          </p>
-        </div>
       </div>
 
       <div class="next-step">
-        <!-- Ajusta la URL al siguiente paso de tu flujo -->
+        <p>
+          Haz click en <strong>Continuar</strong> para apoyar a otros equipos con tu evaluación.
+        </p>
         <button class="btn primary" id="btnContinuar">Continuar</button>
       </div>
     </section>
   </main>
+
   <script>
-  document.getElementById("btnContinuar").addEventListener("click", () => {
-    window.location.href = "{% url 'peer_review' %}";
-  });
-</script>
+    document.getElementById('btnContinuar').addEventListener('click', () => {
+      // Redirige al paso de peer review
+      window.location.href = "{% url 'peer_review' %}";
+    });
+  </script>
 </body>
 </html>

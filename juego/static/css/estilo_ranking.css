@@ -1,0 +1,182 @@
+/* ===== VARIABLES ===== */
+:root{
+  --bg: #000712 url("/static/images/fondo_bienvenida.png") center/cover no-repeat fixed;
+  --card:#081A2D;
+  --text:#E6EEF8;
+  --muted:#AAB7C8;
+  --primary:#00C8FF;
+  --accent:#FF7A1A;
+  --radius:28px;
+  --shadow:0 18px 40px rgba(0,0,0,.6);
+}
+
+/* ===== RESET ===== */
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+
+body{
+  font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  padding:20px;
+}
+
+/* ===== WRAP GENERAL ===== */
+.results-wrap{
+  width:min(1100px, 100%);
+  margin:0 auto;
+}
+
+/* ===== ENCABEZADO ===== */
+.results-hero{
+  margin-bottom:24px;
+}
+
+.page-header{
+  text-align:center;
+  padding:18px 14px 10px;
+}
+
+.page-header .head-text h1{
+  font-size:clamp(28px,4vw,40px);
+  font-weight:800;
+  color:var(--primary);
+  text-shadow:0 0 10px rgba(0,200,255,.45);
+  margin-bottom:8px;
+}
+
+.page-header .subtitle{
+  font-size:clamp(14px,1.8vw,18px);
+  color:var(--muted);
+}
+
+/* ===== CARD BASE ===== */
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:clamp(20px,3vw,30px);
+}
+
+/* ===== CARD RANKING ===== */
+.card-ranking{
+  margin:0 auto;
+}
+
+.card-header-row{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:8px;
+  margin-bottom:16px;
+}
+
+.card-ranking .h2{
+  font-size:clamp(20px,2.4vw,26px);
+  font-weight:700;
+  color:#fff;
+}
+
+.session-name{
+  font-size:clamp(13px,1.6vw,16px);
+  color:var(--muted);
+}
+
+/* ===== TABLA ===== */
+.table-wrapper{
+  overflow-x:auto;
+}
+
+.ranking-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:4px;
+  font-size:clamp(14px,1.7vw,16px);
+}
+
+.ranking-table thead{
+  background:rgba(0,0,0,.35);
+}
+
+.ranking-table th,
+.ranking-table td{
+  padding:10px 14px;
+  text-align:left;
+}
+
+.ranking-table th{
+  font-weight:700;
+  color:#f9fafb;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.ranking-table tbody tr:nth-child(even){
+  background:rgba(255,255,255,.02);
+}
+
+.ranking-table tbody tr:hover{
+  background:rgba(0,200,255,.08);
+}
+
+.ranking-table td:first-child{
+  font-weight:700;
+  color:var(--accent);
+}
+
+/* ===== ESTADO VACÍO ===== */
+.empty-state{
+  margin-top:8px;
+  font-size:clamp(14px,1.8vw,16px);
+  color:var(--muted);
+}
+
+/* ===== CTA FINAL ===== */
+.final-cta{
+  margin-top:22px;
+  display:flex;
+  justify-content:center;
+}
+
+.btn-primary{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px 26px;
+  border-radius:16px;
+  border:none;
+  background:var(--primary);
+  color:#fff;
+  font-weight:700;
+  font-size:clamp(15px,1.9vw,18px);
+  text-decoration:none;
+  box-shadow:0 10px 22px rgba(0,0,0,.35);
+  transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 28px rgba(0,0,0,.5);
+  background:#08b8f0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:700px){
+  body{
+    align-items:flex-start;
+  }
+  .results-wrap{
+    margin-top:10px;
+  }
+  .card{
+    padding:18px 14px;
+  }
+  .card-header-row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}

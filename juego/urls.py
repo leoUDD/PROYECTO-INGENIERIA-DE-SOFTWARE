@@ -43,6 +43,7 @@ urlpatterns = [
 
     # Peer review (usa la función definida en views.py)
     path('peer-review/', views.peer_review_view, name='peer_review'),
-    path('rank_reflexion/', views.rank_reflexion, name='rank_reflexion')
+    path('ranking/', views.ranking, name='ranking'),
+    path('reflexion/', views.reflexion, name='reflexion'),
 ]
 

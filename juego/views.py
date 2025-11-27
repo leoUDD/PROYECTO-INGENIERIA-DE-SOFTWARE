@@ -388,8 +388,8 @@ def peer_review_view(request, session_id=None):
     return render(request, "peer_review.html", context)
 
 
-def rank_reflexion(request):
-    return render(request, 'rank_reflexion.html')
+def ranking(request):
+    return render(request, 'ranking.html')
 
 def registrarprofesor(request):
     if request.method == "POST":
@@ -482,3 +482,6 @@ def eliminar_alumno(request, idalumno):
     except Exception as e:
         messages.error(request, f"Ocurrió un error al eliminar: {e}")
     return redirect("registraralumnos")
+
+def reflexion(request):
+    return render(request, 'reflexion.html')

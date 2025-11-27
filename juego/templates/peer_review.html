@@ -15,7 +15,7 @@
     <div class="col-lg-10">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h1 class="h4 mb-2">Evaluación de Proyectos (Peer Review)</h1>
+          <h1 class="h4 mb-2">Evaluación de Proyectos</h1>
           <p class="text-muted mb-3">
             Sesión: <strong>{{ session.name }}</strong> · Tu equipo: <strong>{{ evaluator_team.name }}</strong><br>
             Evalúa a otros equipos de forma honesta y respetuosa. No evalúes a tu propio equipo.
@@ -23,7 +23,7 @@
 
           {% if submitted %}
             <div class="alert alert-success">¡Evaluación enviada! Gracias por tu aporte.</div>
-            <a href="{% url 'rank_reflexion' %}" class="btn btn-primary">Finalizar</a>
+            <a href="{% url 'ranking' %}" class="btn btn-primary">Finalizar</a>
           {% else %}
             <form method="post">
               {% csrf_token %}

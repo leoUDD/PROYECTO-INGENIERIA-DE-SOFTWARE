@@ -6,7 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — LEGO</title>
-  <link rel="stylesheet" href="{% static 'css/estilo_conocidos.css' %}">
+  <link rel="stylesheet" href="{% static 'css/estilo_lego.css' %}">
 </head>
 <body>
   <main class="phone">
@@ -21,9 +21,11 @@
 
     <ul id="ideasList" class="ideas-list"></ul>
 
-    <p class="body">Ahora construye tu solución con LEGOs según estas ideas.</p>
+    <p class="body">Ahora usa las piezas de LEGO para construir tu solución.</p>
 
+    <!-- 🔊 AUDIO DE ALARMA -->
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+
     <div id="timer" class="timer">00:15</div>
 
     <div id="modal-fin" class="modal">
@@ -57,8 +59,11 @@
     }
   </script>
 
-  <!-- tu timer original -->
+  <!-- ===========================
+       TIMER + ALARMA
+       =========================== -->
   <script>
+    const alarmAudio = document.getElementById("alarm-audio");
     let timeLeft = 15;
     const timerElement = document.getElementById('timer');
 
@@ -68,9 +73,20 @@
       timerElement.textContent =
         `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
 
-      if (timeLeft > 0) { timeLeft--; }
-      else {
+      if (timeLeft > 0) {
+        timeLeft--;
+      } else {
         clearInterval(timerInterval);
+
+        // 🔊 Reproducir alarma al terminar
+        try {
+          alarmAudio.currentTime = 0;
+          alarmAudio.play();
+        } catch (e) {
+          console.warn("No se pudo reproducir la alarma:", e);
+        }
+
+        // Mostrar modal
         document.getElementById("modal-fin").style.display = "flex";
       }
     }
