@@ -1,148 +1,218 @@
+/* ============================
+   VARIABLES Misión Emprende
+============================ */
 :root {
-  /* === COLORES Y VARIABLES === */
   --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
-  --color-card: #ffffff;
-  --color-primary: #4b74aa;
-  --color-primary-dark: #4b74aa;
-  --color-text: #212529;
-  --color-muted: #6c757d;
-  --color-border: #e5e7eb;
-  --radius: 20px;
-  --shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
-  --transition: all 0.2s ease-in-out;
+  --card: rgba(4, 20, 40, 0.96);
+  --text: #E6EEF8;
+  --muted: #AAB7C8;
+  --primary: #00C8FF;
+  --primary-pressed: #0091cc;
+  --accent: #FF7A1A;
+  --radius: 24px;
+  --shadow: 0 18px 40px rgba(0,0,0,.7);
 }
 
-/* === BASE === */
+/* ============================
+   RESET BÁSICO
+============================ */
+* {
+  box-sizing: border-box;
+}
+
+/* ============================
+   BODY / FONDO
+============================ */
 body {
-  background: var(--bg);
-  font-family: "Poppins", "Segoe UI", sans-serif;
-  color: var(--color-text);
+  min-height: 100vh;
   margin: 0;
-  padding: 0;
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============================
+   LAYOUT CONTENEDOR
+============================ */
+/* ============================
+   CENTRADO PERFECTO DEL CONTENEDOR PRINCIPAL
+============================ */
+.container.py-4 {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  justify-content: center;   /* centro horizontal */
+  align-items: center;       /* centro vertical */
+  padding-top: 40px;         /* pequeño respiro para evitar corte en mobile */
+  padding-bottom: 40px;      /* idem */
 }
 
-/* === CONTENEDOR === */
-.container {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-}
-
-/* === CARD === */
-.card {
-  border: none;
+/* ============================
+   CARD PRINCIPAL
+============================ */
+.card.shadow-sm {
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  background-color: var(--color-card);
-  overflow: hidden;
+  border: 1px solid rgba(0, 200, 255, 0.28) !important;
+  background: var(--card) !important;
+  box-shadow: var(--shadow) !important;
+
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
 }
 
 .card-body {
-  padding: 2.5rem;
+  padding: clamp(20px, 3vw, 32px);
 }
 
-/* === TITULOS === */
-h1.h4 {
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  text-align: center;
-  margin-bottom: 1rem;
+/* ============================
+   TITULOS / TEXTOS
+============================ */
+.h4.mb-2 {
+  font-size: clamp(22px, 3.2vw, 28px);
+  font-weight: 800;
+  color: var(--primary);
+  text-shadow: 0 0 16px rgba(0,200,255,.45);
 }
 
-h2.h6 {
-  font-weight: 600;
-  color: var(--color-text);
+.text-muted.mb-3 {
+  color: var(--muted) !important;
+  font-size: 0.95rem;
 }
 
-/* === FORMULARIO === */
+/* ============================
+   ALERTAS
+============================ */
+.alert-success {
+  border-radius: 16px;
+  border: 1px solid rgba(34,197,94,0.6);
+  background: rgba(22,163,74,0.12);
+  color: #bbf7d0;
+}
+
+/* ============================
+   FORMULARIO
+============================ */
 .form-label {
-  color: var(--color-text);
-  font-weight: 500;
+  color: var(--text);
 }
 
+.form-text {
+  color: var(--muted) !important;
+}
+
+/* Campos de texto / select */
 .form-control,
 .form-select {
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  padding: 0.75rem;
-  transition: var(--transition);
+  background-color: rgba(3, 14, 30, 0.95);
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,.7);
+  color: var(--text);
+  padding: 0.55rem 0.75rem;
 }
 
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
+  background-color: rgba(3, 14, 30, 0.98);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 .15rem rgba(0,200,255,.35);
+  color: var(--text);
 }
 
-/* === RADIO BUTTONS === */
-.form-check-input[type="radio"] {
-  accent-color: var(--color-primary);
+/* Radio buttons */
+.form-check-input {
+  background-color: transparent;
+  border: 1px solid rgba(148,163,184,.8);
 }
 
-.form-check-inline .form-check-label {
-  font-weight: 500;
-  color: var(--color-muted);
+.form-check-input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 .15rem rgba(0,200,255,.35);
 }
 
-.form-check-inline input:checked + .form-check-label {
-  color: var(--color-primary-dark);
-  font-weight: 600;
+.form-check-label {
+  color: var(--text);
 }
 
-/* === BOTONES === */
+/* ============================
+   CONTENEDOR DE CRITERIOS
+============================ */
+.border.rounded.p-3.mb-3 {
+  border-radius: 18px !important;
+  border: 1px solid rgba(148,163,184,.55) !important;
+  background: rgba(3, 14, 30, 0.96);
+}
+
+.border.rounded.p-3.mb-3 h2.h6 {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* ============================
+   BOTONES
+============================ */
+.btn {
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.55rem 1.3rem;
+}
+
+/* Primario (Enviar / Finalizar) */
 .btn-primary {
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  padding: 0.6rem 1.2rem;
-  transition: var(--transition);
+  background: var(--primary) !important;
+  border-color: transparent !important;
+  color: #001824 !important;
+  box-shadow: 0 0 18px rgba(0,200,255,.55);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-dark);
-  transform: translateY(-2px);
+  background: var(--primary-pressed) !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 26px rgba(0,200,255,.75);
 }
 
+/* Secundario (Cancelar) */
 .btn-outline-secondary {
-  border-radius: 12px;
-  font-weight: 500;
-  color: var(--color-muted);
-  border-color: var(--color-border);
-  background-color: #fff;
+  border-color: rgba(148,163,184,.7) !important;
+  color: var(--muted) !important;
+  background: transparent !important;
 }
 
 .btn-outline-secondary:hover {
-  color: var(--color-text);
-  border-color: var(--color-primary);
+  background: rgba(148,163,184,.12) !important;
+  border-color: rgba(148,163,184,.9) !important;
+  color: var(--text) !important;
 }
 
-/* === ALERTA DE ÉXITO === */
-.alert-success {
-  background-color: rgba(255, 122, 0, 0.1);
-  border-left: 4px solid var(--color-primary);
-  color: var(--color-primary-dark);
-  font-weight: 500;
+/* ============================
+   HR / REGLAS FINALES
+============================ */
+hr.my-4 {
+  border-color: rgba(148,163,184,.35);
 }
 
-/* === REGLAS === */
 .small.text-muted {
-  font-size: 0.9rem;
-  color: var(--color-muted);
-  background: rgba(255,255,255,0.8);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  color: var(--muted) !important;
+  font-size: 0.8rem;
 }
 
-/* === RESPONSIVO === */
-@media (max-width: 768px) {
+/* ============================
+   RESPONSIVE
+============================ */
+@media (max-width: 576px) {
   .card-body {
-    padding: 1.5rem;
+    padding: 1.15rem;
   }
 
-  h1.h4 {
-    font-size: 1.25rem;
+  .h4.mb-2 {
+    text-align: center;
+  }
+
+  .text-muted.mb-3 {
+    text-align: center;
+  }
+
+  .d-flex.gap-2 {
+    flex-wrap: wrap;
   }
 }

@@ -71,16 +71,26 @@ body{
   text-decoration:none;
   color:#fff;
   box-shadow:0 10px 22px rgba(0,0,0,.14);
-  transition:transform .18s ease, box-shadow .18s ease;
-  background-position:center;
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  background-position:center -15px;
   background-size:cover;
   background-repeat:no-repeat;
+
+  /* ✨ Animación suave de “respiración” / glow */
+  animation: cardGlow 5.2s ease-in-out infinite;
+}
+
+/* Desfase entre cada card para que no se animen igual */
+.mode-grid .mode-card:nth-child(1){
+  animation-delay: 0s;
+}
+.mode-grid .mode-card:nth-child(2){
+  animation-delay: 1.3s;
 }
 
 /* imágenes por tarjeta */
 .mode-intro{
   background-image:url("/static/images/desconocidos.png");
-  
 }
 .mode-known{
   background-image:url("/static/images/conocidoos.png");
@@ -153,11 +163,30 @@ body{
   transition:transform .15s ease, background .15s ease;
   user-select:none;
 }
-.mode-card:hover { transform:translateY(-3px); box-shadow:0 16px 32px rgba(0,0,0,.2); }
-.mode-card:hover .mode-cta{ transform:translateY(-1px); background:#eaf0ff; }
+
+.mode-card:hover {
+  transform:translateY(-3px);
+  box-shadow:0 16px 32px rgba(0,0,0,.23);
+  filter:brightness(1.03);
+}
+.mode-card:hover .mode-cta{
+  transform:translateY(-1px);
+  background:#eaf0ff;
+}
 
 /* Accesibilidad */
 .mode-card:focus-visible{
   outline:none;
   box-shadow:0 0 0 4px rgba(255,255,255,.9), 0 0 0 8px rgba(75,116,170,.45);
+}
+
+@keyframes cardGlow{
+  0%,100%{
+    box-shadow:0 10px 22px rgba(0,0,0,.14);
+    filter:brightness(1);
+  }
+  50%{
+    box-shadow:0 18px 40px rgba(0,0,0,.28);
+    filter:brightness(1.04);
+  }
 }

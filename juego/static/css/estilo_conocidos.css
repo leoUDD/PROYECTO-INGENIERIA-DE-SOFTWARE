@@ -63,16 +63,14 @@ body{
 .phone::after{
   content:"";
   position:absolute;
-  right:-1%;
-  bottom:0;
+  right:-3%;
+  bottom: -170px;
   width:40%;
-  max-width:360px;
+  max-width:450px;
   aspect-ratio: 3 / 5;
-
-  background:url('/static/images/intro.png') no-repeat;
+  background:url('/static/images/foto2.png') no-repeat;
   background-size: contain;
   background-position: right var(--pos-y);
-
   opacity:1;
   z-index:1;
   pointer-events:none;
@@ -80,7 +78,7 @@ body{
 
 /* ================== TIPOGRAFÍAS ================== */
 .title{
-  margin:14px 0 8px;
+  margin:40px 0 8px;
   text-align:center;
   line-height:1.15;
   font-size: var(--fs-title);
@@ -180,7 +178,7 @@ body{
 .speech-bubble{
   position:absolute;
   right: 30%;
-  bottom: 48%;
+  bottom: 45%;
   width: clamp(260px, 40vw, 420px);
 
   padding: 22px 26px;

@@ -32,17 +32,17 @@ body {
 }
 
 .card {
-  background: #081A2D;
+  background: url('/static/images/fondo_tar.png') center/contain no-repeat;
+  background-size: cover;
   border-radius: 28px;
   box-shadow: 0 18px 40px rgba(0,0,0,.6);
   text-align: center;
-  padding: 40px 30px;
-  width: clamp(320px, 80vw, 600px);
+  padding: 60px 30px;
+  width: clamp(500px, 80vw, 540px);
   animation: fadeIn 1s ease;
 }
 
-/* LOGO EN CÍRCULO BRILLANTE */
-/* LOGO EN CÍRCULO BRILLANTE */
+/* LOGO */
 .logo {
   width: clamp(160px, 30vw, 260px);
   aspect-ratio: 1 / 1;
@@ -56,20 +56,18 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
   position: relative;
   animation: float 3s ease-in-out infinite;
+  border: 3px solid #4b74aa;
 }
 
-/* Imagen del logo — se recorta dentro del círculo */
 .logo img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  object-position: center;
-  z-index: 2;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
 }
 
-/* Brillo animado sobre el círculo */
+/* Brillo animado */
 .logo::after {
   content: "";
   position: absolute;
@@ -82,83 +80,40 @@ body {
   animation: shine 4s infinite;
 }
 
+/* TÍTULO */
 h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 900;
   color: #ff7700;
   letter-spacing: 2px;
   text-transform: uppercase;
   text-shadow: 0 0 8px rgba(255, 119, 0, 0.6);
-  opacity: 0;
-  animation: digital 1.5s steps(20, end) forwards;
+  white-space: normal;
+  overflow: hidden;
+  border-right: 3px solid #ff7700;
+  animation:
+    typing 4s steps(40, end) forwards,
+    blink .75s step-end infinite;
 }
 
-@keyframes digital {
-  from {
-    opacity: 0;
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    opacity: 1;
-    clip-path: inset(0 0 0 0);
-  }
+@keyframes typing {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 
-
-
-.intro-comic {
-  position: relative;
-  background: #fff;
-  border: 3px solid #4b74aa;
-  border-radius: 22px;
-  padding: 26px 28px;
-  color: #0f172a;
-  font-size: 1.1rem;
-  font-weight: 500;
-  box-shadow: 8px 8px 0 #60a5fa;
-  text-align: center;
-  width: clamp(300px, 80%, 650px);
-  margin: 30px auto;
-}
-.intro-comic::before {
-  position: absolute;
-  top: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.6rem;
-  background: white;
-  border-radius: 50%;
-  padding: 6px;
+@keyframes blink {
+  0% { border-color: transparent; }
+  100% { border-color: #ff7700; }
 }
 
-
-
+/* SECCIÓN FINAL */
 .next-step p {
   font-size: 18px;
-  color: var(--primary);
+  color: #ffffff;
   margin-bottom: 36px;
 }
 
-/* BOTÓN PRINCIPAL */
-.btn.primary {
-  background: var(--primary);
-  color: white;
-  font-size: 18px;
-  padding: 14px 28px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
-}
-
-.btn.primary:hover {
-  background: #3d618e;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-}
-
-/* ANIMACIONES */
+/* ANIMACIONES GENERALES */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -174,22 +129,158 @@ h1 {
   100% { left: 125%; }
 }
 
+/* ================================ */
+/*   CONSOLA COMPACTA + TYPEWRITER   */
+/* ================================ */
+
+.console-card {
+  width: 100%;
+  padding: 18px 20px;
+  background: rgba(0, 10, 20, 0.75);
+  border: 2px solid #4b74aa;
+  border-radius: 18px;
+  color: #dbeafe;
+  font-family: "Courier New", monospace;
+  text-align: left;
+  margin: 22px auto 30px auto;
+  max-width: 420px;
+  backdrop-filter: blur(6px);
+  position: relative;
+}
+
+.console-line {
+  width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: typingConsole 1.8s steps(40, end) forwards;
+}
+
+.console-line:nth-child(1) { animation-delay: 0.2s; }
+.console-line:nth-child(2) { animation-delay: 2s; }
+.console-line:nth-child(3) { animation-delay: 3.5s; }
+.console-line:nth-child(4) { animation-delay: 5s; }
+.console-line:nth-child(5) { animation-delay: 6.5s; }
+
+@keyframes typingConsole {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+.console-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #ff7700;
+  margin-bottom: 8px;
+}
+
+.console-label {
+  color: #4b9dff;
+  font-weight: 600;
+}
+
+.console-prompt {
+  margin-top: 14px;
+  font-weight: 700;
+}
+
+.console-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.015) 0px,
+    rgba(255,255,255,0.015) 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ================================ */
+/*   BOTÓN ESTILO CHIP ELECTRÓNICO  */
+/* ================================ */
+
+.btn-chip {
+  position: relative;
+  padding: 14px 34px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #0b1220;
+  border: 2px solid #4b74aa;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform .2s ease, box-shadow .2s ease;
+  overflow: hidden;
+}
+
+/* Líneas tipo circuito */
+.btn-chip::before,
+.btn-chip::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, #4b74aa, transparent);
+  top: 0;
+  left: 30%;
+  opacity: 0.6;
+}
+
+.btn-chip::after {
+  top: auto;
+  bottom: 0;
+}
+
+/* Animación hover */
+.btn-chip:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 14px rgba(75, 116, 170, 0.7);
+}
+
+/* Corriente eléctrica */
+@keyframes electricFlow {
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(150%); }
+}
+
+.btn-chip::before {
+  animation: electricFlow 2.2s linear infinite;
+}
+
+.btn-chip::after {
+  animation: electricFlow 2.2s linear infinite reverse;
+}
+
+/* ================================ */
+/*  EFECTO FLASH / ENCENDIDO CLICK   */
+/* ================================ */
+
+.btn-chip:active::after,
+.btn-chip:active::before {
+  animation: none;
+}
+
+.btn-chip:active {
+  animation: flashOn 0.15s ease-out;
+  box-shadow: 0 0 22px rgba(118, 168, 255, 0.9);
+}
+
+@keyframes flashOn {
+  0%   { background: #0b1220; }
+  50%  { background: #1a2d4d; }
+  100% { background: #0b1220; }
+}
+
+/* ================================ */
 /* RESPONSIVO */
+/* ================================ */
+
 @media (max-width: 480px) {
-  .card {
-    padding: 30px 20px;
-  }
-
-  .logo {
-    width: clamp(140px, 50vw, 200px);
-  }
-
-  h1 {
-    font-size: 24px;
-  }
-
-  .btn.primary {
-    font-size: 16px;
-    padding: 12px 24px;
-  }
+  .card { padding: 28px 18px; }
+  h1 { font-size: 22px; }
+  .console-card { max-width: 100%; padding: 16px; }
 }

@@ -50,10 +50,6 @@
     }
   }
 
-  // Sin listeners en las cards: solo el botón "Elegir" selecciona
-  // Mantén tu script del template para que el CTA navegue con ?tema=...
-  // (ver tematicas.html que ya te pasé)
-
   // Sincroniza si se cambiara en otra pestaña
   window.addEventListener('storage', () => {
     const saved = localStorage.getItem('temaSeleccionado');

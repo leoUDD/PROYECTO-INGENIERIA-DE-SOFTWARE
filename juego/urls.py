@@ -16,7 +16,6 @@ urlpatterns = [
     path('conocidos/', views.conocidos, name='conocidos'),
     path('trabajoenequipo/', views.trabajoenequipo, name='trabajoenequipo'),
     path('minijuego1/', views.minijuego1, name='minijuego1'),
-    path('intro_desafios/', views.intro_desafios, name='intro_desafios'),
     path('tematicas/', views.tematicas, name='tematicas'),
     path('desafios/', views.desafios, name='desafios'),
     path('bubblemap/', views.bubblemap, name='bubblemap'),
@@ -46,6 +45,7 @@ urlpatterns = [
 
     # Peer review (usa la función definida en views.py)
     path('peer-review/', views.peer_review_view, name='peer_review'),
-    path('rank_reflexion/', views.rank_reflexion, name='rank_reflexion')
+    path('ranking/', views.ranking, name='ranking'),
+    path('reflexion/', views.reflexion, name='reflexion'),
 ]
 

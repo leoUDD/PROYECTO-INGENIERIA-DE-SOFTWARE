@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Reflexión Final</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_reflexion.css' %}">
+</head>
+<body>
+  <main class="results-wrap" role="main" aria-labelledby="page-title">
+
+    <section class="results-hero">
+      <header class="page-header">
+        <div class="head-text">
+          <h1 id="page-title">Reflexión final del juego</h1>
+          <p class="subtitle">
+            Cierra la misión compartiendo qué se llevan como equipo.
+          </p>
+        </div>
+      </header>
+    </section>
+
+    <section class="card card-reflexion" aria-label="Reflexión final">
+      <h2 class="h2">Reflexión final del juego</h2>
+      <p class="reflection">
+        {{ reflexion_final|default:"El emprendimiento se fortalece cuando el equipo comparte una visión, se apoya con feedback honesto y convierte los aprendizajes en próximos pasos concretos. ¿Qué se llevan de esta experiencia?" }}
+      </p>
+    </section>
+
+    <section class="qr-grid" aria-label="Códigos QR finales">
+      <article class="card card-instagram qr-card">
+        <h3 class="h3">Instagram</h3>
+        <div class="qr-box">
+          <img src="{% static 'images/qr_insta.png' %}" alt="Código QR Instagram Misión Emprende" />
+        </div>
+        <p class="qr-hint">Síguenos en Instagram para nuevas misiones.</p>
+      </article>
+
+      <article class="card card-evaluacion qr-card">
+        <h3 class="h3">Evaluación de la Actividad</h3>
+        <div class="qr-box">
+          <img src="{% static 'images/qr_evaluacion.png' %}" alt="Código QR Evaluación de la actividad" />
+        </div>
+        <p class="qr-hint">Tu opinión nos ayuda a mejorar futuras misiones.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

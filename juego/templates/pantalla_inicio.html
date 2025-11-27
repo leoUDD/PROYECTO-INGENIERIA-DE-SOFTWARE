@@ -12,29 +12,36 @@
 <body>
   <main class="transition-container">
     <section class="card">
+
       <div class="logo">
-        <img src="{% static 'images/logo2.png' %}" alt="Logo Misión Emprende">
+        <img src="{% static 'images/logo.gif' %}" alt="Logo Misión Emprende">
       </div>
 
       <h1>¡Has sido reclutado para la misión!</h1>
-      <p class="intro-comic">
-        ¡Tu misión está por comenzar!  
-        <br> Prepárate para una experiencia donde el <strong>trabajo en equipo, la empatía</strong> 
-        y <strong>la creatividad</strong> serán tus mejores herramientas.
-      </p>
+
+      <!-- CONSOLA FUTURISTA -->
+       <div class="console-card">
+        <p class="console-title console-line">RECLUTAMIENTO CONFIRMADO</p>
+
+        <p class="console-line"><span class="console-label">Rol asignado:</span> Agente en entrenamiento</p>
+        <p class="console-line"><span class="console-label">Fase actual:</span>Activación</p>
+        <p class="console-line"><span class="console-label">Estado:</span> Preparado para iniciar</p>
+
+        <p class="console-prompt console-line">¿Aceptar misión?</p>
+      </div>
 
       <div class="next-step">
-        <p>Haz click en Comenzar y adéntrate en tu primera misión.</p>
-        <button class="btn primary" id="btnComenzar">Comenzar</button>
+        <button class="btn-chip" id="btnComenzar">¡Estoy listo!</button>
       </div>
+
     </section>
   </main>
 
   <script>
     document.getElementById('btnComenzar').addEventListener('click', () => {
-      // Redirige a la siguiente vista del juego (ajusta el nombre de la URL según tu proyecto)
       window.location.href = "{% url 'promptconocidos' %}";
     });
   </script>
+
 </body>
 </html>

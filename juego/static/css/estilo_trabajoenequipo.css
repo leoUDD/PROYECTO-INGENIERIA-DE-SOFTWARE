@@ -23,21 +23,63 @@ body {
   padding:20px;
 }
 
+/* ================== CARD PRINCIPAL ================== */
 .team-container {
   width:clamp(360px, 90vw, 900px);
-  background:var(--card);
+  background:url('/static/images/fondo2.png') center/cover no-repeat;
   border-radius:28px;
   box-shadow:var(--shadow);
   padding:clamp(30px, 5vw, 60px);
   text-align:center;
   animation: fadeIn 0.6s ease-in-out;
+  padding-top: 120px;
+  position: relative;   /* necesario para ::after y globo */
+  overflow: hidden;
 }
 
+/* todo el contenido por encima del personaje */
+.team-container > *{
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== PERSONAJE CON ::after ===== */
+.team-container::before,
+.team-container::after{
+  content:"";
+  position:absolute;
+  bottom: -40px;
+  width:38%;
+  max-width:320px;
+  aspect-ratio: 3/5;
+  background-repeat:no-repeat;
+  background-size:contain;
+  pointer-events:none;
+  z-index:1;
+  opacity:1;
+}
+
+/* IMAGEN 1 */
+.team-container::after{
+  right:-5%;
+  bottom: -55px;
+  background-image:url('/static/images/foto5.png');
+}
+
+/* IMAGEN 2 */
+.team-container::before{
+  right:70%;            /* ← ajustas la posición */
+  bottom:-55px;         /* ← ajustas altura */
+  background-image:url('/static/images/foto6.png');
+}
+
+
+/* ================== TEXTOS ================== */
 .title {
-  color:var(--primary);
+  color:var(--accent);
   font-size:clamp(28px, 4vw, 42px);
   font-weight:800;
-  margin-bottom:16px;
+  margin-top: -60px;
 }
 
 .subtitle {
@@ -46,8 +88,10 @@ body {
   line-height:1.6;
   max-width:650px;
   margin:0 auto 32px;
+  margin-bottom: 60px;
 }
 
+/* ================== IMAGEN CENTRAL ================== */
 .image-area {
   margin: 24px auto 36px;
   display:flex;
@@ -62,12 +106,14 @@ body {
   object-fit:cover;
 }
 
+/* ================== BLOQUE SIGUIENTE PASO ================== */
 .next-step {
   background:#081A2D;
   border-radius:20px;
   padding:20px;
   box-shadow:inset 0 0 0 2px #e8edf9;
-  margin-top: 30px;
+  margin-top: 300px;
+  margin-bottom: -30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -79,6 +125,7 @@ body {
   color:var(--text);
 }
 
+/* ================== BOTÓN ================== */
 .btn.primary {
   background:var(--primary);
   color:#fff;
@@ -97,7 +144,83 @@ body {
   transform:translateY(-2px);
 }
 
+/* ================== GLOBO DE DIÁLOGO ================== */
+.speech-bubble{
+  position:absolute;
+  left: 27%;
+  top: 24%;
+  width: clamp(240px, 40vw, 360px);
+
+  padding: 18px 22px;
+  border-radius: 16px;
+
+  background: rgba(0, 140, 255, 0.12);
+  border: 1.6px solid rgba(0, 180, 255, 0.8);
+
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    0 0 20px rgba(0, 180, 255, .4),
+    0 0 60px rgba(0, 100, 255, .3);
+
+  z-index: 3;
+  text-align:left;
+}
+
+/* texto dentro del globo */
+.speech-bubble p{
+  margin:0;
+  color:#E8F6FF;
+  font-size:clamp(14px, 1.6vw, 18px);
+  line-height:1.5;
+}
+
+/* colita del globo hacia el personaje */
+.speech-bubble::after{
+  content:"";
+  position:absolute;
+  right:-20px;
+  top: 50%;
+  transform: translateY(-20%);
+
+  border-style: solid;
+  border-width: 14px 0 14px 20px;
+  border-color: transparent transparent transparent rgba(0, 180, 255, 0.7);
+
+  filter: drop-shadow(-2px 0 8px rgba(0, 180, 255, 0.8));
+}
+
+/* ================== ANIMACIÓN ENTRADA ================== */
 @keyframes fadeIn {
   from { opacity:0; transform:translateY(10px); }
   to { opacity:1; transform:translateY(0); }
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 768px){
+  .team-container{
+    width:100%;
+    max-width:480px;
+    padding:26px 18px;
+    border-radius:22px;
+    min-height:100vh;
+  }
+
+  .team-container::after{
+    width:60%;
+    right:-10%;
+    bottom:-10px;
+    opacity:0.9;
+  }
+
+  .speech-bubble{
+    left: 50%;
+    top: 12%;
+    transform: translateX(-50%);
+    width: 86%;
+  }
+  
+  .speech-bubble::after{
+    display:none;
+  }
 }
