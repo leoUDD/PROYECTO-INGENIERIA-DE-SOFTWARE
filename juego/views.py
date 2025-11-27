@@ -6,7 +6,7 @@ import openpyxl
 from . import models
 import pandas as pd
 from .forms import UploadExcelForm
-from .models import Alumno, Profesor, Usuario
+from .models import Alumno, Profesor, Usuario, Grupo
 from django.db import transaction
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -140,6 +140,56 @@ def transiciondesafio(request):
 
 def transicionapoyo(request):
     return render(request, 'transicionapoyo.html')
+
+def asignar_alumnos_a_grupos():
+    # que hacer?
+    # en vez de 4 grupos, ver cuantos alumnos hay
+    # dividir los alumnos igualmente en la cantidad de grupos
+
+    alumnos = Alumno.objects.filter(grupo__isnull=True).order_by('idalumno')
+    grupos = list(Grupo.objects.all())
+
+    # Si no existen grupos → crear 4 grupos automáticamente
+    if len(grupos) == 0:
+        print("No habían grupos, creando 4...")
+        for i in range(4):
+            Grupo.objects.create(usuario_idusuario=None, tokensgrupo=12, etapa=1)
+        grupos = list(Grupo.objects.all())
+
+    print("Alumnos sin grupo:", alumnos.count())
+    print("Grupos disponibles:", len(grupos))
+    print(alumnos.count())
+    index_grupo = 0
+    capacidad = len(alumnos) // len(grupos)
+    sobrantes = len(alumnos) % len(grupos)
+
+    index_alumno = 0
+
+    for i, grupo in enumerate(grupos):
+        cantidad = capacidad
+
+        if i < sobrantes:
+            cantidad += 1
+
+        # Asignar alumnos a este grupo
+        for _ in range(cantidad):
+            if index_alumno >= len(alumnos):
+                break
+
+            alumno = alumnos[index_alumno]
+            alumno.grupo = grupo
+            alumno.save()
+            index_alumno += 1
+
+
+def registrargrupos(request):
+    if request.method == "POST":
+        asignar_alumnos_a_grupos()
+        messages.success(request, "Alumnos auto-asignados correctamente.")
+
+    grupos = Grupo.objects.all().prefetch_related("alumno_set")
+
+    return render(request, "registrargrupos.html", {"grupos": grupos})
 
 
 def cargar_alumnos(request):
@@ -279,20 +329,31 @@ def _get_challenge_catalog():
 
 
 def market_view(request):
-    """
-    Market que:
-    - Usa retos definidos en código (no BD).
-    - Maneja los tokens en la sesión del usuario.
-    """
-    # Saldo de tokens en la sesión (por navegador/usuario)
-    user_tokens = request.session.get("user_tokens", 12)
+    # Saldo temporal (luego se conectará con la BD)
+    user_tokens = 12
+    '''
+    nota para el futuro
+    para incorporar el saldo de tokens, tenemos que agarrar el grupo defininiendolo:
+    grupo = (models.Grupo.objects.get(idgrupo=ID_DEL_GRUPO)), para esto sacamos el id del grupo tambien, lo podemos sacar con url
+    si tenemos el id del grupo, cambiamos other_teams para que no muestre el mismo grupo
+    (also asi)
+    luego, usamos grupo.tokensgrupo en vez de 12 en user_tokens
+    ya esta la logica de no dejar que se haga el reto de no tener suficientes tokens pero deberiamos integrar que reste los tokens al hacer el reto
+    eso seria ! 
+    - Sebastian (probablemente programara esto el pero documento esto por si alguien mas lo quiere hacer/para mi propio uso)
+    '''
 
-    catalog = _get_challenge_catalog()
-    challenges = list(catalog.values())
+    # Catálogo de retos disponibles
+    challenges = [
+        {"id": 1, "title": "Problema matemático", "description": "Dos integrantes resuelven un problema en 3 minutos.", "cost": 5},
+        {"id": 2, "title": "LEGO exprés", "description": "Prototipo con LEGO en 5 minutos.", "cost": 8},
+        {"id": 3, "title": "Pitch relámpago", "description": "Presentación de 60 segundos con idea clave.", "cost": 6},
+    ]
 
     other_teams = [
-        {"id": 2, "name": "Equipo Beta"},
-        {"id": 3, "name": "Equipo Gamma"},
+        {"id": 2, "name": "Equipo 2"},
+        {"id": 3, "name": "Equipo 3"},
+        {"id": 3, "name": "Equipo 4"},
     ]
 
     context = {
@@ -301,6 +362,7 @@ def market_view(request):
         "other_teams": other_teams,
     }
     return render(request, "market.html", context)
+
 
 
 @require_http_methods(["POST"])

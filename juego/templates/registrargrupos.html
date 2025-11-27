@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Misión Emprende UDD — Grupos</title>
+
+  <link rel="stylesheet" href="{% static 'css/estilo_registraralumnos.css' %}">
+  <style>
+    .card { background:#fff; padding:20px; border-radius:12px; margin-bottom:28px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+    .table { width:100%; border-collapse:collapse; }
+    .table th, .table td {
+      padding:10px;
+      border-bottom:1px solid #e5e7eb;
+      text-align:left;
+      font-size:14px;
+    }
+    .table th { background:#f9fafb; font-weight:600; }
+  </style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h2 class="sidebar-title">Dashboard Profesor</h2></div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
+        <li><a href="{% url 'registraralumnos' %}">Registrar alumnos</a></li>
+        <li><a class="active" href="{% url 'registrargrupos' %}">Registrar grupos</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <h1 class="title">Listado de Grupos</h1>
+
+    <!-- BOTÓN AUTO-ASIGNAR -->
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit">Auto-asignar alumnos</button>
+    </form>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <!-- LISTADO COMPLETO DE GRUPOS -->
+    {% for grupo in grupos %}
+      <section class="card">
+        <h2>Grupo {{ grupo.idgrupo }}</h2>
+
+        <p><strong>Usuario asignado:</strong> 
+          {{ grupo.usuario_idusuario.nombreusuario|default:"—" }}
+        </p>
+        <p><strong>Tokens:</strong> {{ grupo.tokensgrupo }}</p>
+        <p><strong>Etapa:</strong> {{ grupo.etapa|default:"—" }}</p>
+
+        <h3 style="margin-top:20px;">Alumnos en este grupo</h3>
+
+        {% with alumnos=grupo.alumno_set.all %}
+          {% if alumnos %}
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>RUT</th>
+                  <th>Carrera</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for a in alumnos %}
+                  <tr>
+                    <td>{{ a.idalumno }}</td>
+                    <td>{{ a.nombrealumno }} {{ a.apellidopaternoalumno }}</td>
+                    <td>{{ a.emailalumno }}</td>
+                    <td>{{ a.rutalumno }}</td>
+                    <td>{{ a.carreraalumno }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p>No hay alumnos en este grupo.</p>
+          {% endif %}
+        {% endwith %}
+
+      </section>
+    {% endfor %}
+
+  </main>
+
+</div>
+
+</body>
+</html>

@@ -34,11 +34,16 @@
       </div>
       <p id="saveHint" class="save-hint" aria-live="polite">Los cambios se guardan automáticamente.</p>
     </form>
-  </main>
+    <div class="next-step">
+      <p>Luego de haber realizado tu pitch, presiona <strong>Finalizar Pitch</strong> para completar el desafío.</p>
+      <button class="btn primary" id="btnFinalizarPitch">Finalizar Pitch</button>
+    </div>
+    <script>
+     document.getElementById('btnFinalizarPitch').addEventListener('click', () => {
+        window.location.href = "{% url 'presentar_pitch' %}";
+      });
+    </script>
 
-  <script>
-    const PRESENTAR_URL = "{% url 'presentar_pitch' %}";
-  </script>
-  <script src="{% static 'js/pitch_edit.js' %}"></script>
+</main>
 </body>
 </html>

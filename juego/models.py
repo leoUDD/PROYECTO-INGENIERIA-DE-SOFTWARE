@@ -10,7 +10,7 @@ class Alumno(models.Model):
     apellidopaternoalumno = models.CharField(db_column='apellidoPaternoAlumno', max_length=100, blank=True, null=True)
     apellidomaternoalumno = models.CharField(db_column='apellidoMaternoAlumno', max_length=100, blank=True, null=True)
     carreraalumno = models.CharField(db_column='carreraAlumno', max_length=100, blank=True, null=True)
-
+    grupo = models.ForeignKey('Grupo', models.DO_NOTHING, db_column='grupo_idGrupo', null=True, blank=True)
     class Meta:
         db_table = 'alumno'
 
@@ -56,7 +56,7 @@ class Evaluacion(models.Model):
 
 class Grupo(models.Model):
     idgrupo = models.AutoField(db_column='idGrupo', primary_key=True)
-    usuario_idusuario = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='usuario_idUsuario')
+    usuario_idusuario = models.ForeignKey('Usuario',models.DO_NOTHING,db_column='usuario_idUsuario',null=True,blank=True)
     tokensgrupo = models.IntegerField(blank=True, null=True, default=12)  # 👈 valor inicial
     etapa = models.IntegerField(blank=True, null=True)
 
