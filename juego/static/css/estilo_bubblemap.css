@@ -10,26 +10,35 @@
   --glow:0 0 25px rgba(0,200,255,.35);
 }
 
+/* RESET */
 *{ box-sizing:border-box; margin:0; padding:0; }
-html,body{ height:100%; }
+html,body{ min-height:100vh; }
 
+/* =========================
+      BODY / FONDO
+   ========================= */
 body {
   font-family:"Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background:var(--bg);
   color: var(--accent);
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:flex-start;       /* <-- evita que se corte arriba */
   padding:20px;
+  overflow-y:auto;              /* <-- permite scroll */
 }
 
+/* =========================
+      CONTENEDOR PRINCIPAL
+   ========================= */
 .bubblemap-container {
-  width: clamp(360px, 94vw, 1100px); /* un poco más ancho */
-  background:var(--card);
+  width: clamp(360px, 94vw, 1100px);
+  background:url('/static/images/fondo_card.png') center/cover no-repeat fixed;
   border-radius:28px;
   box-shadow:var(--shadow);
   padding: 40px;
   text-align:center;
+  margin: 20px 0 40px;          /* <-- margen para que no quede pegado arriba */
 }
 
 .subtitle {
@@ -43,7 +52,7 @@ body {
 .bubbles {
   position:relative;
   width:100%;
-  height:640px; /* MÁS ALTO */
+  height:640px;        
   display:flex;
   align-items:center;
   justify-content:center;
@@ -70,8 +79,8 @@ body {
 .bubble textarea {
   width: 85%;
   height: 60%;
-  max-height: 70%;           /* impide que crezca demasiado */
-  resize: none;              /* no permite expandir manualmente */
+  max-height: 70%;
+  resize: none;
   border: none;
   outline: none;
   text-align: center;
@@ -81,23 +90,23 @@ body {
   font-family: inherit;
   font-size: 14px;
   line-height: 1.3;
-  overflow-y: auto;          /* aparece scroll si se pasa del límite */
-  overflow-wrap: break-word; /* mantiene el texto dentro */
-  word-break: break-word;    /* corta palabras largas si es necesario */
-  scrollbar-width: none;     /* oculta scrollbars en Firefox */
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  scrollbar-width: none;
 }
-.bubble textarea::-webkit-scrollbar { display: none; } /* oculta scrollbars en Chrome/Safari */
+.bubble textarea::-webkit-scrollbar { display:none; }
 
-/* Central */
+/* CENTRAL */
 .bubble.central {
   width: clamp(180px, 24vw, 240px);
   height: clamp(180px, 24vw, 240px);
   background: var(--primary);
   color: white;
   position: relative;
-  border-radius: 50%;              /* Asegura forma circular */
-  overflow: hidden;                /* Evita que la imagen se salga del borde */
-  display: flex;                   /* Centra texto si lo hay */
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -106,25 +115,25 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100%;                      /* Ajusta tamaño de la imagen dentro del círculo */
+  width: 100%;
   height: 100%;
   transform: translate(-50%, -50%);
-  object-fit: cover;            /* Mantiene proporción de la imagen */
+  object-fit: cover;
   object-position: center;
-  pointer-events: none;            /* Evita bloquear clics o escritura */
+  pointer-events: none;
 }
 .bubble.central textarea { color:white; }
 
-/* Posiciones radiales (más separadas) */
-.bubbles .bubble:nth-child(2) { top: 2%;  left: 50%; transform: translate(-50%, 0); background: orange; }
-.bubbles .bubble:nth-child(3) { top: 18%;  right: 18%; background: greenyellow; }
+/* Posiciones radiales */
+.bubbles .bubble:nth-child(2) { top: 2%;  left: 50%; transform: translateX(-50%); background: orange; }
+.bubbles .bubble:nth-child(3) { top: 18%; right: 18%; background: greenyellow; }
 .bubbles .bubble:nth-child(4) { bottom: 18%; right: 18%; background: lightblue; }
 .bubbles .bubble:nth-child(5) { bottom: 18%; left: 18%; background: lightcoral; }
-.bubbles .bubble:nth-child(6) { top: 18%;  left: 18%; background: lightgreen; }
-.bubbles .bubble:nth-child(7) { bottom: 2%; left: 50%; transform: translate(-50%, 0); background: lightsalmon; }
+.bubbles .bubble:nth-child(6) { top: 18%; left: 18%; background: lightgreen; }
+.bubbles .bubble:nth-child(7) { bottom: 2%; left: 50%; transform: translateX(-50%); background: lightsalmon; }
 
 /* =========================
-   FOOTER / BOTÓN
+      FOOTER
    ========================= */
 .footer-actions {
   margin-top: 10px;
@@ -150,14 +159,16 @@ body {
 .btn.primary:hover { background:#3d618e; }
 
 /* =========================
-   TABLET TUNING
+      TABLET
    ========================= */
 @media (min-width: 641px) and (max-width: 900px) {
   .bubbles { height: 580px; }
+
   .bubble {
     width: clamp(110px, 16vw, 165px);
     height: clamp(110px, 16vw, 165px);
   }
+
   .bubble.central {
     width: clamp(160px, 22vw, 220px);
     height: clamp(160px, 22vw, 220px);
@@ -170,7 +181,7 @@ body {
 }
 
 /* =========================
-   📱 MÓVILES (≤ 640px)
+      📱 MÓVILES
    ========================= */
 @media (max-width: 640px) {
   .bubbles {
