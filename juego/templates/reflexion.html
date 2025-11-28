@@ -8,9 +8,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_reflexion.css' %}">
 </head>
+
 <body>
   <main class="results-wrap" role="main" aria-labelledby="page-title">
 
+    <!-- ========================================= -->
+    <!--                ENCABEZADO                -->
+    <!-- ========================================= -->
     <section class="results-hero">
       <header class="page-header">
         <div class="head-text">
@@ -22,30 +26,52 @@
       </header>
     </section>
 
+    <!-- ========================================= -->
+    <!--        REFLEXIÓN PRINCIPAL               -->
+    <!-- ========================================= -->
     <section class="card card-reflexion" aria-label="Reflexión final">
-      <h2 class="h2">Reflexión final del juego</h2>
+      <h2 class="h2">Reflexión:</h2>
       <p class="reflection">
-        {{ reflexion_final|default:"El emprendimiento se fortalece cuando el equipo comparte una visión, se apoya con feedback honesto y convierte los aprendizajes en próximos pasos concretos. ¿Qué se llevan de esta experiencia?" }}
+        {{ reflexion_final|default:"El emprendimiento se fortalece cuando el equipo comparte una visión, se apoya con feedback honesto y convierte los aprendizajes en próximos pasos concretos." }}
       </p>
+
+      <ul class="reflection-prompts">
+        <li>¿Qué fue lo más valioso que aprendimos como equipo?</li>
+        <li>¿Qué haríamos distinto en nuestra próxima misión?</li>
+        <li>¿Qué habilidad nueva descubrimos?</li>
+      </ul>
     </section>
 
+    <!-- ========================================= -->
+    <!--                  QR AREA                  -->
+    <!-- ========================================= -->
     <section class="qr-grid" aria-label="Códigos QR finales">
-      <article class="card card-instagram qr-card">
+      <article class="card-instagram">
         <h3 class="h3">Instagram</h3>
         <div class="qr-box">
           <img src="{% static 'images/qr_insta.png' %}" alt="Código QR Instagram Misión Emprende" />
         </div>
-        <p class="qr-hint">Síguenos en Instagram para nuevas misiones.</p>
+        <p class="qr-hint">Síguenos para nuevas misiones.</p>
       </article>
 
-      <article class="card card-evaluacion qr-card">
+      <article class="card-evaluacion">
         <h3 class="h3">Evaluación de la Actividad</h3>
         <div class="qr-box">
           <img src="{% static 'images/qr_evaluacion.png' %}" alt="Código QR Evaluación de la actividad" />
         </div>
-        <p class="qr-hint">Tu opinión nos ayuda a mejorar futuras misiones.</p>
+        <p class="qr-hint">Tu opinión nos ayuda a mejorar.</p>
       </article>
     </section>
+
+    <!-- ========================================= -->
+    <!--               FINALIZAR MISIÓN           -->
+    <!-- ========================================= -->
+     <section class="final-cta">
+      <a href="{% url 'perfiles' %}" class="btn-primary">
+        Finalizar misión
+      </a>
+    </section>
+
   </main>
 </body>
 </html>

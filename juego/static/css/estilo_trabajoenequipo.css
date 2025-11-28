@@ -43,7 +43,7 @@ body {
   z-index: 2;
 }
 
-/* ===== PERSONAJE CON ::after ===== */
+/* ===== PERSONAJES CON ::before / ::after ===== */
 .team-container::before,
 .team-container::after{
   content:"";
@@ -68,11 +68,10 @@ body {
 
 /* IMAGEN 2 */
 .team-container::before{
-  right:70%;            /* ← ajustas la posición */
-  bottom:-55px;         /* ← ajustas altura */
+  right:70%;
+  bottom:-55px;
   background-image:url('/static/images/foto6.png');
 }
-
 
 /* ================== TEXTOS ================== */
 .title {
@@ -87,8 +86,7 @@ body {
   font-size:clamp(16px, 2vw, 20px);
   line-height:1.6;
   max-width:650px;
-  margin:0 auto 32px;
-  margin-bottom: 60px;
+  margin:0 auto 60px;
 }
 
 /* ================== IMAGEN CENTRAL ================== */
@@ -112,8 +110,8 @@ body {
   border-radius:20px;
   padding:20px;
   box-shadow:inset 0 0 0 2px #e8edf9;
-  margin-top: 300px;
-  margin-bottom: -30px;
+  margin-top: 260px;       /* un poco menos agresivo */
+  margin-bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -150,7 +148,6 @@ body {
   left: 27%;
   top: 24%;
   width: clamp(240px, 40vw, 360px);
-
   padding: 18px 22px;
   border-radius: 16px;
 
@@ -167,10 +164,9 @@ body {
   text-align:left;
 }
 
-/* texto dentro del globo */
 .speech-bubble p{
   margin:0;
-  color:#E8F6FF;
+  color:var(--text);
   font-size:clamp(14px, 1.6vw, 18px);
   line-height:1.5;
 }
@@ -196,31 +192,242 @@ body {
   to { opacity:1; transform:translateY(0); }
 }
 
-/* ================== RESPONSIVE ================== */
+/* =====================================================
+   📱 RESPONSIVE TABLET Y MÓVIL (≤ 768px)
+   ===================================================== */
 @media (max-width: 768px){
-  .team-container{
-    width:100%;
-    max-width:480px;
-    padding:26px 18px;
-    border-radius:22px;
-    min-height:100vh;
+  body{
+    padding:16px;
+    align-items:flex-start;
   }
 
-  .team-container::after{
-    width:60%;
-    right:-10%;
-    bottom:-10px;
-    opacity:0.9;
+  .team-container{
+    width:100%;
+    max-width:520px;
+    padding:26px 18px 32px;
+    padding-top: 90px;
+    border-radius:22px;
+    min-height:auto;
+  }
+
+  .team-container::after,
+  .team-container::before{
+    width:42%;
+    bottom:-40px;
+  }
+
+  .next-step{
+    margin-top: 180px;
   }
 
   .speech-bubble{
     left: 50%;
-    top: 12%;
+    top: 10%;
     transform: translateX(-50%);
-    width: 86%;
+    width: 88%;
   }
   
   .speech-bubble::after{
     display:none;
+  }
+}
+
+/* =====================================================
+   📱 RESPONSIVE MÓVIL PEQUEÑO (≤ 480px)
+   ===================================================== */
+@media (max-width: 480px){
+
+  body{
+    padding:12px;
+  }
+
+  .team-container{
+    max-width:420px;
+    padding:22px 14px 26px;
+    padding-top: 80px;
+  }
+
+  /* personaje derecho visible, el izquierdo más discreto
+     (o se puede ocultar si molesta) */
+  .team-container::after{
+    width:55%;
+    right:-18%;
+    bottom:-30px;
+  }
+
+  .team-container::before{
+    width:45%;
+    right:65%;
+    bottom:-30px;
+    opacity:0.7;
+  }
+
+  .speech-bubble{
+    top: 8%;
+    width: 92%;
+  }
+
+  .speech-bubble p{
+    font-size: 13px;
+  }
+
+  .next-step{
+    margin-top: 140px;
+    padding:16px 14px;
+  }
+}
+@media (max-width: 480px){
+
+  /* Centrar todo en pantalla */
+  body{
+    padding: 12px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;   /* centro horizontal */
+    align-items: center;       /* centro vertical */
+  }
+
+  /* ⭐ Contenedor principal "iPhone" optimizado */
+  .team-container{
+    max-width: 400px;          /* ancho óptimo */
+    width: 100%;
+    
+    padding: 32px 18px 26px;
+    padding-top: 120px;
+
+    border-radius: 20px;
+
+    /* ⭐ Altura correcta — se ajusta al contenido */
+    min-height: 70vh;
+    height: auto;
+
+    /* ⭐ Para que quede realmente centrado */
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    overflow: hidden;
+  }
+
+  /* Texto */
+  .title{
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: clamp(22px, 5.5vw, 26px);
+    text-align: center;
+  }
+
+  .subtitle{
+    margin-top: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  /* ⭐ Speech bien abajo SIN mover next-step */
+  .speech-bubble{
+    position: static;
+    width: 100%;
+    margin-top: 60px;      /* lo baja */
+    margin-bottom: 16px;
+    transform: none;
+  }
+
+  .speech-bubble::after{
+    display:none;
+  }
+
+  /* Next-step no se toca salvo ajuste fino */
+  .next-step{
+    margin-top: 180px;
+    width: 100%;
+  }
+
+  /* Personajes mantienen tamaño estable */
+  .team-container::before,
+  .team-container::after{
+    opacity: 1;
+    width: 40%;
+    bottom: -10px;
+  }
+
+  .team-container::after{
+    right: -4%;
+    top: 50%;
+  }
+
+  .team-container::before{
+    right: 65%;
+    top: 50%;
+  }
+}
+
+
+/* =====================================================
+   🎯 FIX exclusivo para iPad Mini (ANCHO EXACTO 768px)
+   Contenedor rectangular: más ancho que alto
+   ===================================================== */
+@media (width: 768px) {
+
+  body{
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .team-container{
+    max-width: 680px;       /* 🔥 más ancho */
+    min-height: 60vh;       /* 🔥 más bajo → forma rectangular */
+    padding-top: 60px;      /* baja un poco el contenido */
+    padding-bottom: 40px;
+
+    border-radius: 26px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    background-size: cover; 
+    background-position: center;
+  }
+
+  /* Globo más abajo */
+  .speech-bubble{
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;             /* más angosto para verse mejor en contenedor ancho */
+  }
+
+  /* Bloque del botón más abajo */
+  .next-step{
+    margin-top: 380px;
+    width: 80%;
+    top: 22%;
+    transform: translateX(15%);
+
+  }
+
+  /* Ajuste de personajes */
+  .team-container::after,
+  .team-container::before{
+    width: 35%;
+    bottom: -30px;
+  }
+
+  .team-container::after{
+    right: -2%;
+    bottom: -40px;
+  }
+
+  .team-container::before{
+    right: 64%;
+    bottom: -40px;
   }
 }
