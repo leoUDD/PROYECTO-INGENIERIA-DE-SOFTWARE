@@ -64,13 +64,15 @@ body{
   content:"";
   position:absolute;
   right:-3%;
-  bottom: -170px;
+  bottom:-170px;
   width:40%;
   max-width:450px;
   aspect-ratio: 3 / 5;
+
   background:url('/static/images/foto2.png') no-repeat;
   background-size: contain;
   background-position: right var(--pos-y);
+
   opacity:1;
   z-index:1;
   pointer-events:none;
@@ -99,7 +101,7 @@ body{
   margin: 0 12px 16px;
 }
 
-/* ================== TIMER RESPONSIVE ================== */
+/* ================== TIMER ================== */
 #timer{
   display:flex;
   justify-content:center;
@@ -174,11 +176,11 @@ body{
 }
 .modal-content button:hover{ transform:scale(1.05); }
 
-/* ================== GLOBO HOLOGRÁFICO ================== */
+/* ================== SPEECH BUBBLE ================== */
 .speech-bubble{
   position:absolute;
   right: 30%;
-  bottom: 45%;
+  bottom: 45%; /* valor base */
   width: clamp(260px, 40vw, 420px);
 
   padding: 22px 26px;
@@ -188,7 +190,6 @@ body{
   border: 1.6px solid rgba(0, 180, 255, 0.8);
 
   backdrop-filter: blur(10px) saturate(150%);
-  -webkit-backdrop-filter: blur(10px) saturate(150%);
   box-shadow:
     0 0 20px rgba(0, 180, 255, .4),
     0 0 60px rgba(0, 100, 255, .3);
@@ -206,7 +207,7 @@ body{
   text-shadow: 0 0 6px rgba(0, 220, 255, 0.6);
 }
 
-/* colita holográfica */
+/* flecha */
 .speech-bubble::after{
   content:"";
   position:absolute;
@@ -216,8 +217,6 @@ body{
   border-style: solid;
   border-width: 14px 0 14px 20px;
   border-color: transparent transparent transparent rgba(0, 180, 255, 0.7);
-  
-  filter: drop-shadow(-2px 0 8px rgba(0, 180, 255, 0.8));
 }
 
 /* ============================= */
@@ -248,7 +247,7 @@ body{
 }
 
 /* ============================= */
-/*            MÓVIL / IPHONE     */
+/*            MÓVIL              */
 /* ============================= */
 @media (max-width: 600px){
 
@@ -265,7 +264,6 @@ body{
     font-size: clamp(40px, 10vw, 50px);
   }
 
-  /* Globo más arriba */
   .speech-bubble{
     right: 50%;
     bottom: 60%;
@@ -278,13 +276,11 @@ body{
     display:none;
   }
 
-  /* 🔥 Personaje más grande y sin bajar tanto */
   .phone::after{
     width: 85%;
     left: 50%;   
-    transform: translateX(-50%); /* más grande en móvil */
-    bottom: 105px;           /* ya no se hunde hacia abajo */
-    opacity: 1;
+    transform: translateX(-50%);
+    bottom: 105px;
     background-position: center 60px;
   }
 
@@ -297,7 +293,7 @@ body{
 }
 
 /* ============================= */
-/*    EXTRA: iPhone SE / mini    */
+/*   EXTRA SMALL – iPhone mini   */
 /* ============================= */
 @media (max-width: 380px){
   .speech-bubble{
@@ -310,7 +306,16 @@ body{
   }
 }
 
-/* Accesibilidad: reducir movimiento */
+/* ======================================= */
+/* ⭐ FIX SOLO NOTEBOOK / DESKTOP GRANDE   */
+/* ======================================= */
+@media (min-width: 1100px) and (max-width: 1900px){
+  .speech-bubble{
+    bottom: 35% !important;  /* 🔥 Ajuste real según tu captura */
+  }
+}
+
+/* Accesibilidad */
 @media (prefers-reduced-motion: reduce){
   *{ animation:none !important; transition:none !important; }
 }

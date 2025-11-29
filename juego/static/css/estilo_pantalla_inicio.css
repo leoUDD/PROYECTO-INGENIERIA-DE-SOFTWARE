@@ -19,8 +19,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100vh;     /* se sobreescribe más abajo */
   padding: 20px;
+  overflow-x: hidden;
 }
 
 /* CONTENEDOR PRINCIPAL */
@@ -40,6 +41,9 @@ body {
   padding: 60px 30px;
   width: clamp(500px, 80vw, 540px);
   animation: fadeIn 1s ease;
+
+  /* 🔥 SEPARACIÓN REAL DEL BORDE SUPERIOR */
+  margin-top: 60px;
 }
 
 /* LOGO */
@@ -67,7 +71,6 @@ body {
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
 }
 
-/* Brillo animado */
 .logo::after {
   content: "";
   position: absolute;
@@ -98,11 +101,11 @@ h1 {
 
 @keyframes typing {
   from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
 }
 
 @keyframes blink {
-  0% { border-color: transparent; }
+  0%   { border-color: transparent; }
   100% { border-color: #ff7700; }
 }
 
@@ -116,21 +119,21 @@ h1 {
 /* ANIMACIONES GENERALES */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50%      { transform: translateY(-8px); }
 }
 
 @keyframes shine {
-  0% { left: -75%; }
+  0%   { left: -75%; }
   100% { left: 125%; }
 }
 
 /* ================================ */
-/*   CONSOLA COMPACTA + TYPEWRITER   */
+/* CONSOLA + TYPEWRITER             */
 /* ================================ */
 
 .console-card {
@@ -198,7 +201,7 @@ h1 {
 }
 
 /* ================================ */
-/*   BOTÓN ESTILO CHIP ELECTRÓNICO  */
+/* BOTÓN CHIP ELECTRÓNICO          */
 /* ================================ */
 
 .btn-chip {
@@ -217,7 +220,6 @@ h1 {
   overflow: hidden;
 }
 
-/* Líneas tipo circuito */
 .btn-chip::before,
 .btn-chip::after {
   content: "";
@@ -235,13 +237,11 @@ h1 {
   bottom: 0;
 }
 
-/* Animación hover */
 .btn-chip:hover {
   transform: translateY(-3px);
   box-shadow: 0 0 14px rgba(75, 116, 170, 0.7);
 }
 
-/* Corriente eléctrica */
 @keyframes electricFlow {
   0%   { transform: translateX(-150%); }
   100% { transform: translateX(150%); }
@@ -254,10 +254,6 @@ h1 {
 .btn-chip::after {
   animation: electricFlow 2.2s linear infinite reverse;
 }
-
-/* ================================ */
-/*  EFECTO FLASH / ENCENDIDO CLICK   */
-/* ================================ */
 
 .btn-chip:active::after,
 .btn-chip:active::before {
@@ -275,12 +271,21 @@ h1 {
   100% { background: #0b1220; }
 }
 
-/* ================================ */
-/* RESPONSIVO */
-/* ================================ */
+/* =============================================== */
+/* RESPONSIVO + SEPARACIÓN SUPERIOR EN MÓVILES     */
+/* =============================================== */
 
-@media (max-width: 480px) {
-  .card { padding: 28px 18px; }
-  h1 { font-size: 22px; }
-  .console-card { max-width: 100%; padding: 16px; }
+/* Fija que la tarjeta se vea SIEMPRE separada arriba */
+@media (max-width: 480px){
+
+  body{
+    height: auto !important;
+    min-height: 100vh;
+    display: block !important;     /* anula centrado vertical */
+    padding-top: 80px !important;  /* 🔥 MÁS margen superior en iPhone */
+  }
+
+  .card{
+    margin-top: 0 !important;      /* evitamos doble margen */
+  }
 }

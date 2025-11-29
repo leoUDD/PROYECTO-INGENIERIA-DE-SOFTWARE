@@ -180,7 +180,7 @@ body{
 .speech-bubble{
   position:absolute;
   right: 30%;
-  bottom: 48%;
+  bottom: 48%;                  /* valor base */
   width: clamp(260px, 40vw, 420px);
 
   padding: 22px 26px;
@@ -267,7 +267,7 @@ body{
     font-size: clamp(40px, 10vw, 50px);
   }
 
-  /* Globo más arriba */
+  /* Globo más arriba para no chocar con el timer */
   .speech-bubble{
     right: 50%;
     bottom: 60%;
@@ -280,12 +280,12 @@ body{
     display:none;
   }
 
-  /* 🔥 Personaje más grande y sin bajar tanto */
+  /* Personaje centrado abajo */
   .phone::after{
     width: 85%;
     left: 50%;   
-    transform: translateX(-50%); /* más grande en móvil */
-    bottom: 105px;           /* ya no se hunde hacia abajo */
+    transform: translateX(-50%);
+    bottom: 105px;
     opacity: 1;
     background-position: center 60px;
   }
@@ -299,7 +299,7 @@ body{
 }
 
 /* ============================= */
-/*    EXTRA: iPhone SE / mini    */
+/* iPhone SE / pantallas mini    */
 /* ============================= */
 @media (max-width: 380px){
   .speech-bubble{
@@ -312,7 +312,58 @@ body{
   }
 }
 
+/* ============================= */
+/* 📌 FIX MARGEN ARRIBA EN PANTALLAS CHICAS */
+/* (si ya te funcionaba bien, puedes dejarlo tal cual) */
+/* ============================= */
+
+@media (max-width: 900px){
+
+  body{
+    display: block !important;
+    padding-top: 60px !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    justify-content:flex-start !important;
+    align-items:flex-start !important;
+  }
+
+  .phone{
+    margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 600px){
+
+  body{
+    padding-top: 80px !important;
+  }
+
+  .phone{
+    margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 380px){
+
+  body{
+    padding-top: 95px !important;
+  }
+}
+
+/* ============================= */
+/* 🎯 AJUSTE SOLO PARA NOTEBOOK  */
+/*    (globo más abajo en desktop) */
+/* ============================= */
+@media (min-width: 1200px) and (max-width: 1700px){
+  .speech-bubble{
+    bottom: 40% !important;   /* 🔥 antes ~48% → ahora más abajo */
+  }
+}
+
+/* ============================= */
 /* Accesibilidad: reducir movimiento */
+/* ============================= */
 @media (prefers-reduced-motion: reduce){
   *{ animation:none !important; transition:none !important; }
 }

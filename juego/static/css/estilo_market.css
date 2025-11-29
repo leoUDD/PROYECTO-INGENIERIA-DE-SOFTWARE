@@ -27,6 +27,7 @@ html, body {
   height: 100%;
 }
 
+/* ================== Fondo base ================== */
 body {
   font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   background: var(--bg);
@@ -52,7 +53,6 @@ body {
   overflow: hidden;
 }
 
-/* Borde sutil tipo “marco de dispositivo” */
 .phone::before {
   content: "";
   position: absolute;
@@ -62,13 +62,12 @@ body {
   pointer-events: none;
 }
 
-/* Para que el contenido no quede pegado al borde interior */
 .phone > * {
   position: relative;
   z-index: 1;
 }
 
-/* ================== Tipografía principal ================== */
+/* ================== Textos ================== */
 .title {
   font-size: var(--fs-title);
   font-weight: 700;
@@ -91,7 +90,7 @@ body {
   margin-bottom: 14px;
 }
 
-/* ================== Badge de tokens ================== */
+/* ================== Badge ================== */
 .badge.bg-warning.text-dark {
   display: inline-flex;
   align-items: center;
@@ -110,7 +109,7 @@ body {
   color: #fff;
 }
 
-/* ================== Mensajes (alerts) ================== */
+/* ================== Alerts ================== */
 .mb-3 .alert {
   font-size: var(--fs-body);
   padding: 8px 10px;
@@ -118,18 +117,16 @@ body {
   margin-bottom: 6px;
 }
 
-/* ================== Layout de tarjetas de retos ================== */
+/* ================== Cards ================== */
 .row.mt-4 {
   margin-top: 16px !important;
 }
 
-/* Forzamos que en mobile se vea tipo columna */
 .row.mt-4 > [class^="col-"],
 .row.mt-4 > [class*=" col-"] {
   width: 100%;
 }
 
-/* Card de cada reto */
 .card {
   background: var(--card-soft);
   border-radius: 18px;
@@ -153,13 +150,13 @@ body {
   color: var(--muted);
 }
 
-/* Badge del costo dentro de la card */
+/* Badge dentro de card */
 .card .badge.bg-warning.text-dark {
   margin-bottom: 0;
   box-shadow: none;
 }
 
-/* ================== Select y formulario de compra ================== */
+/* ================== Formulario ================== */
 form.d-flex.gap-2 {
   gap: 6px !important;
 }
@@ -187,7 +184,7 @@ form.d-flex.gap-2 .form-select.form-select-sm:focus {
   background: linear-gradient(135deg, var(--primary), #37e0ff);
   border: none;
   box-shadow: 0 0 14px rgba(0, 200, 255, 0.6);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
 
 .buy-btn.btn.btn-primary.btn-sm:hover {
@@ -196,7 +193,7 @@ form.d-flex.gap-2 .form-select.form-select-sm:focus {
   filter: brightness(1.05);
 }
 
-/* Estado “sin saldo” */
+/* Estado sin saldo */
 .btn-disabled {
   background: #3a4250 !important;
   border: none !important;
@@ -206,7 +203,7 @@ form.d-flex.gap-2 .form-select.form-select-sm:focus {
   pointer-events: none;
 }
 
-/* ================== Separador y siguiente paso ================== */
+/* ================== Separador y continuar ================== */
 hr.my-4 {
   border-color: rgba(255, 255, 255, 0.06);
   margin: 18px 0;
@@ -223,7 +220,6 @@ hr.my-4 {
   color: var(--muted);
 }
 
-/* Botón “Continuar” con estilo propio */
 .btn.primary {
   display: inline-flex;
   align-items: center;
@@ -281,5 +277,13 @@ hr.my-4 {
   .buy-btn.btn.btn-primary.btn-sm {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* ================== FIX MARGEN SUPERIOR (NOTEBOOK) ================== */
+@media (min-width: 600px) {
+  body {
+    align-items: flex-start !important;
+    padding-top: 60px !important; /* 🔥 margen superior visible */
   }
 }

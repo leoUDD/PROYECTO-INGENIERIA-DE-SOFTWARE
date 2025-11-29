@@ -27,8 +27,9 @@ body{
   font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:center;   /* 🔥 Se sobrescribe en móviles/tablets */
   padding:20px;
+  overflow-x:hidden;
 }
 
 /* CONTENEDOR PRINCIPAL */
@@ -46,7 +47,6 @@ body{
   flex-direction:column;
   align-items:center;
 }
-
 
 /* VIDEO */
 .video-wrap{
@@ -78,4 +78,101 @@ body{
 }
 .btn:active{
   transform:translateY(1px);
+}
+
+/* =========================================================
+   📱 MÓVILES GENERALES (< 768px)
+   ========================================================= */
+@media (max-width: 767px){
+
+  body{
+    align-items: flex-start !important;     /* 🔥 CLAVE: evita corte arriba */
+    padding-top: 40px !important;           /* 🔥 margen superior real */
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .phone{
+    width: 100%;
+    max-width: 480px;
+    min-height: auto;
+    padding: 30px 18px 36px;
+    background-position: center -80px !important;
+  }
+
+  .video-wrap{
+    margin-top: 200px;
+    margin-bottom: 24px;
+  }
+
+  .btn{
+    padding: 16px;
+    font-size: 17px;
+    border-radius: 16px;
+  }
+}
+
+/* 📱 iPhone 12/13/14/15 — 375–390px */
+@media (max-width: 390px){
+
+  body{
+    align-items: flex-start !important;
+    padding-top: 55px !important;         /* 🔥 un poco más para iPhone mini */
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .phone{
+    width: 100%;
+    max-width: 400px;
+    min-height: 680px;
+    padding: 28px 18px 34px;
+    background-position: center -60px !important;
+  }
+
+  .video-wrap{
+    margin-top: 140px;                 /* 🔽 sube el video */
+    margin-bottom: 22px;
+  }
+
+  .btn{
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 14px;
+  }
+}
+
+/* 📱 móviles medianos (iPhone 11–XR / Android 400–430px) */
+@media (min-width: 391px) and (max-width: 430px){
+
+  body{
+    align-items: flex-start !important;
+    padding-top: 50px !important;
+  }
+
+  .phone{
+    max-width: 430px;
+    min-height: 720px;
+    padding: 32px 20px 38px;
+    background-position: center -90px !important;
+  }
+
+  .video-wrap{
+    margin-top: 180px;
+  }
+}
+
+/* =========================================================
+   💻 TABLETS / NOTEBOOKS (≥ 768px)
+   ========================================================= */
+@media (min-width: 768px){
+
+  body{
+    align-items: flex-start !important;    /* 🔥 MISMO FIX PARA TABLETS */
+    padding-top: 60px !important;          /* 🔥 más margen superior */
+  }
+
+  .phone{
+    margin-top: 0 !important;
+  }
 }

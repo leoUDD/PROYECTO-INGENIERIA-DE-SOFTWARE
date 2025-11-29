@@ -10,11 +10,12 @@
   --shadow:0 18px 40px rgba(0,0,0,.6);
   --glow:0 0 25px rgba(0,200,255,.35);
 
-
   --cols:12;
   --rows:12;
   --gap:4px;
-  --cell-size:40px;
+
+  /* 🔥 sopa de letras más grande */
+  --cell-size:48px;
 
   --fs-title:clamp(28px, 4vw, 44px);
   --fs-body:clamp(15px, 1.8vw, 18px);
@@ -24,7 +25,6 @@
 *{ box-sizing:border-box; margin:0; padding:0; }
 html,body{ height:100%; }
 
-/* Evita selección azul y resalte iOS al tocar */
 * { -webkit-tap-highlight-color: transparent; }
 ::selection { background: transparent; }
 
@@ -33,34 +33,32 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:flex-start;          /* 🔥 ya no centrado vertical */
   min-height:100vh;
-  padding:20px;
+  padding:60px 20px 20px;          /* 🔥 margen superior visible en notebook */
 
-  /* Evita selección azul general */
   user-select:none;
   -webkit-user-select:none;
 }
 
 /* ========== CONTENEDOR PRINCIPAL ========== */
 .game-container{
-  width: min(100%, 860px);                     /* 🔹 nunca más ancho que la pantalla */
+  width: min(100%, 860px);
   background:url('/static/images/fondoo.png') center/cover no-repeat;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  padding:clamp(24px, 4vw, 32px);              /* un pelín menos padding ayuda en móvil */
+  padding:clamp(24px, 4vw, 32px);
   display:flex;
   flex-direction:column;
   align-items:center;
   text-align:center;
   transition:width 0.3s ease;
 
-  /* No bloquees todos los gestos, solo los innecesarios */
   touch-action: pan-y;
 }
-
 
 /* ========== TITULOS ========== */
 h1{
@@ -124,11 +122,12 @@ p{
   width:calc(var(--cols) * var(--cell-size) + (var(--cols) - 1) * var(--gap) + 2 * var(--gap));
   height:calc(var(--rows) * var(--cell-size) + (var(--rows) - 1) * var(--gap) + 2 * var(--gap));
 
-  max-width:100%;   /* clave para no sobresalir del contenedor */
-  max-height:60vh;  /* limita alto en móviles */
-  overflow:hidden;  /* oculta 1px sobrante si lo hubiera */
+  max-width:100%;
+  max-height:70vh;   /* un poco más alta para que quepa todo */
+  overflow:hidden;
 }
 
+/* 🔥 celdas y letras más grandes */
 .grid div{
   width:var(--cell-size);
   height:var(--cell-size);
@@ -136,14 +135,15 @@ p{
   color:#000;
   border-radius:8px;
   font-weight:600;
+
   display:flex;
   justify-content:center;
   align-items:center;
-  font-size:calc(var(--cell-size) * 0.45);
+
+  font-size:calc(var(--cell-size) * 0.55);  /* antes 0.45 */
+
   cursor:pointer;
   transition:0.15s;
-
-  /* iOS: evita selección azul al arrastrar */
   user-select:none;
   -webkit-user-select:none;
 }
@@ -243,9 +243,20 @@ p{
 
 /* ========== RESPONSIVIDAD ========== */
 @media (max-width:600px){
+  body{
+    align-items:center;         /* en móvil vuelve a centrarse */
+    padding:24px 12px;          /* menos margen arriba en pantallas chicas */
+  }
+
   .game-container{ padding:24px 16px; border-radius:22px; }
   .words{ padding:16px; }
+
+  /* celdas un pelín más chicas para caber en móviles */
+  :root{
+    --cell-size:40px;
+  }
 }
+
 @media (prefers-reduced-motion:reduce){
   *{ animation:none!important; transition:none!important; }
 }
