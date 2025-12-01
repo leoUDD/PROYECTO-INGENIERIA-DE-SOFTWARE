@@ -114,6 +114,24 @@ body {
   object-fit: cover;
 }
 
+
+/* en tu CSS de dashboard admin */
+.sidebar-separator {
+  height: 1px;
+  margin: 10px 0;
+  background: rgba(255,255,255,.06);
+  list-style: none;
+}
+
+.sidebar-nav .back-link {
+  opacity: 0.85;
+  font-size: 0.9rem;
+}
+
+.sidebar-nav .back-link:hover {
+  opacity: 1;
+}
+
 /* Responsivo */
 @media (max-width: 800px) {
   .dashboard {

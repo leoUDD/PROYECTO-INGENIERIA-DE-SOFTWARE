@@ -18,7 +18,7 @@
     </div>
     {% endif %}
     <form method="post" action="{% url 'registro' %}">
-      <label for="id_grupo">ID del grupo</label>
+      <label for="id_grupo">Código del grupo</label>
       <input type="text" id="id_grupo" name="id_grupo" required>
       {% csrf_token %}  
       <button type="submit" class="btn primary">Continuar</button>
