@@ -4,6 +4,7 @@ from django.db import models
 class Alumno(models.Model):
     idalumno = models.AutoField(db_column='idAlumno', primary_key=True)
     profesor_idprofesor = models.ForeignKey('Profesor', models.DO_NOTHING, db_column='profesor_idProfesor')
+    sesion = models.ForeignKey('Sesion', models.CASCADE, db_column='sesion_idSesion', null=True)
     emailalumno = models.CharField(db_column='emailAlumno', max_length=100, blank=True, null=True)
     rutalumno = models.CharField(db_column='rutAlumno', max_length=100, blank=True, null=True)
     nombrealumno = models.CharField(db_column='nombreAlumno', max_length=200, blank=True, null=True)
@@ -56,10 +57,12 @@ class Evaluacion(models.Model):
 
 class Grupo(models.Model):
     idgrupo = models.AutoField(db_column='idGrupo', primary_key=True)
+    sesion = models.ForeignKey('Sesion', models.CASCADE, db_column='sesion_idSesion', null=True)
+    nombregrupo = models.CharField(max_length=100, blank=True, null=True)
     usuario_idusuario = models.ForeignKey('Usuario',models.DO_NOTHING,db_column='usuario_idUsuario',null=True,blank=True)
     tokensgrupo = models.IntegerField(blank=True, null=True, default=12)  # 👈 valor inicial
-    etapa = models.IntegerField(blank=True, null=True)
-
+    etapa = models.IntegerField(blank=True, null=True, default=1)
+    codigoacceso = models.CharField(db_column='codigoAcceso', max_length=8, unique=True, blank=True, null=True)
     class Meta:
         db_table = 'grupo'
 
@@ -135,4 +138,14 @@ class Usuario(models.Model):
     class Meta:
         db_table = 'usuario'
 
+class Sesion(models.Model):
+    idsesion = models.AutoField(primary_key=True)
+    profesor = models.ForeignKey('Profesor', on_delete=models.CASCADE, db_column='profesor_idProfesor')
+    nombre = models.CharField(max_length=120)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'sesion'
+
+    def __str__(self):
+        return self.nombre

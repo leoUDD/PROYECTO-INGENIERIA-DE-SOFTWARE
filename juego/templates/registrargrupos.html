@@ -7,7 +7,13 @@
 
   <link rel="stylesheet" href="{% static 'css/estilo_registraralumnos.css' %}">
   <style>
-    .card { background:#fff; padding:20px; border-radius:12px; margin-bottom:28px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+    .card {
+      background:#fff;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:28px;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+    }
     .table { width:100%; border-collapse:collapse; }
     .table th, .table td {
       padding:10px;
@@ -16,6 +22,51 @@
       font-size:14px;
     }
     .table th { background:#f9fafb; font-weight:600; }
+
+    .btn-auto{
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:999px;
+      border:none;
+      background:#2563eb;
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      margin-bottom:20px;
+    }
+    .btn-auto:hover{
+      filter:brightness(1.05);
+      transform:translateY(-1px);
+    }
+
+    .messages{ list-style:none; padding:0; margin:10px 0 20px; }
+    .messages li{ margin-bottom:4px; font-size:14px; }
+
+    /* Bloque resumen de códigos */
+    .codes-summary{
+      background:#f9fafb;
+      border-radius:12px;
+      padding:14px 16px;
+      margin-bottom:24px;
+      border:1px solid #e5e7eb;
+      font-size:14px;
+    }
+    .codes-summary h2{
+      font-size:16px;
+      margin-bottom:8px;
+      font-weight:600;
+    }
+    .codes-summary ul{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px 18px;
+    }
+    .codes-summary li strong{
+      font-weight:700;
+    }
   </style>
 </head>
 
@@ -38,12 +89,16 @@
   <!-- MAIN -->
   <main class="main-content">
 
-    <h1 class="title">Listado de Grupos</h1>
+    <h1 class="title">Grupos / Salas</h1>
+    <p class="subtitle">
+      Desde aquí puedes auto-asignar a los alumnos sin grupo y ver los códigos
+      que deben usar para ingresar a cada grupo.
+    </p>
 
     <!-- BOTÓN AUTO-ASIGNAR -->
     <form method="post">
       {% csrf_token %}
-      <button type="submit">Auto-asignar alumnos</button>
+      <button type="submit" class="btn-auto">Auto-asignar alumnos sin grupo</button>
     </form>
 
     {% if messages %}
@@ -54,10 +109,29 @@
       </ul>
     {% endif %}
 
+    <!-- RESUMEN RÁPIDO DE CÓDIGOS -->
+    {% if grupos %}
+      <section class="codes-summary">
+        <h2>Códigos para entregar a los grupos</h2>
+        <ul>
+          {% for grupo in grupos %}
+            <li>
+              <strong>Grupo {{ grupo.idgrupo }}:</strong>
+              {{ grupo.codigoacceso|default:"(sin código)" }}
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
     <!-- LISTADO COMPLETO DE GRUPOS -->
     {% for grupo in grupos %}
       <section class="card">
         <h2>Grupo {{ grupo.idgrupo }}</h2>
+
+        <p><strong>Código de ingreso:</strong>
+          {{ grupo.codigoacceso|default:"(sin código)" }}
+        </p>
 
         <p><strong>Usuario asignado:</strong> 
           {{ grupo.usuario_idusuario.nombreusuario|default:"—" }}
@@ -99,6 +173,10 @@
 
       </section>
     {% endfor %}
+
+    {% if not grupos %}
+      <p>No hay grupos creados todavía. Presiona “Auto-asignar alumnos sin grupo” para crearlos.</p>
+    {% endif %}
 
   </main>
 

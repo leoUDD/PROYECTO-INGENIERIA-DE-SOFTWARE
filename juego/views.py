@@ -3,16 +3,16 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .tematicas_data import get_theme
 import openpyxl
-from . import models
 import pandas as pd
-from .forms import UploadExcelForm
-from .models import Alumno, Profesor, Usuario, Grupo
+from .models import Alumno, Profesor, Usuario, Grupo, Desafio, Idadministrador, Sesion
 from django.db import transaction
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import secrets
 from django.shortcuts import get_object_or_404
-
+import string
+import random
+from math import ceil
 
 # ===========================
 # 📋 Vistas principales
@@ -22,56 +22,42 @@ def perfiles(request):
     return render(request, 'perfiles.html')
 
 
-def registrarse(request):
-    if request.method == 'POST':
-        # Lógica de registro (ejemplo)
-        user_name = request.POST.get('user_name')
-        email = request.POST.get('email')
-        carrera = request.POST.get('carrera')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-
-        # Validación de contraseñas
-        if password != confirm_password:
-            error = 'Las contraseñas no coinciden'
-            return render(request, 'registrarse.html', {'error': error})
-
-        return redirect('login')
-    return render(request, 'registrarse.html')
-
-
-def login(request):
-    if request.method == 'POST':
-        # Lógica de autenticación (demo)
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        if email == 'leo@udd.cl' and password == '1234':
-            return render(request, 'bienvenida.html', {'email': email})
-        if email == 'seba@udd.cl' and password == '1234':
-            return render(request, 'bienvenida.html', {'email': email})
-        if email == 'jesus@udd.cl' and password == '1234':
-            return render(request, 'bienvenida.html', {'email': email})
-        else:
-            error = 'Credenciales inválidas'
-            return render(request, 'login.html', {'error': error})
-
-    return render(request, 'login.html')
-
-
 def bienvenida(request):
     return render(request, 'bienvenida.html')
 
 
 def registro(request):
+    error = None
+
     if request.method == 'POST':
-        # Lógica para manejar el registro (ejemplo)
-        id_grupo = request.POST.get('id_grupo')
-        if id_grupo == '1234':
-            return render(request, 'pantalla_inicio.html', {'id_grupo': id_grupo})
-        else:
-            error = 'ID de grupo inválido'
+        codigo = request.POST.get('id_grupo', '').strip()
+
+        if not codigo:
+            error = "Debes ingresar un código."
             return render(request, 'registro.html', {'error': error})
-    return render(request, 'registro.html')
+
+        try:
+            # 👇 ajusta el nombre del campo según tu modelo:
+            # si en models.py pusiste `codigoacceso = models.CharField(...)`
+            grupo = Grupo.objects.get(codigoacceso=codigo)
+        except Grupo.DoesNotExist:
+            error = 'Código de grupo inválido'
+            return render(request, 'registro.html', {'error': error})
+
+        # ✅ Si llegó hasta acá, el código es válido
+        # Aquí puedes:
+        #  - guardar en sesión el id del grupo
+        #  - redirigir al inicio del juego
+        request.session['grupo_id'] = grupo.idgrupo  # opcional
+
+        return render(request, 'pantalla_inicio.html', {
+            'grupo': grupo,
+            'id_grupo': grupo.idgrupo,
+            'codigo': codigo,
+        })
+
+    # GET
+    return render(request, 'registro.html', {'error': error})
 
 
 def trabajoenequipo(request):
@@ -80,10 +66,6 @@ def trabajoenequipo(request):
 
 def lego(request):
     return render(request, 'lego.html')
-
-
-def crearequipo(request):
-    return render(request, 'crearequipo.html')
 
 
 def introducciones(request):
@@ -119,8 +101,51 @@ def dashboardadmin(request):
 
 
 def agregardesafio(request):
+    # ⚠️ Como no usas login, obtenemos el primer administrador
+    # Si tienes más de uno, me dices cómo elegirlo
+    admin = Idadministrador.objects.first()
+
+    if request.method == "POST":
+        nombre = request.POST.get("nombre")
+        descripcion = request.POST.get("descripcion")
+        tokens = request.POST.get("tokens")
+
+        # Validación básica
+        if not nombre or not tokens:
+            messages.error(request, "Debes ingresar nombre y tokens.")
+            return redirect("agregardesafio")
+
+        # Crear desafío
+        Desafio.objects.create(
+            idadministrador_idadministrador=admin,
+            nombredesafio=nombre,
+            descripciondesafio=descripcion,
+            tokensdesafio=int(tokens)
+        )
+
+        messages.success(request, "Desafío creado correctamente")
+        return redirect("agregardesafio")
+    
     return render(request, 'agregardesafio.html')
 
+def lista_desafios(request):
+    desafios = Desafio.objects.all().order_by('iddesafio')
+    return render(request, 'listadesafios.html', {
+        'desafios': desafios,
+    })
+
+
+# 🔹 ELIMINAR DESAFÍO
+def eliminar_desafio(request, iddesafio):
+    desafio = get_object_or_404(Desafio, pk=iddesafio)
+
+    if request.method == "POST":
+        desafio.delete()
+        messages.success(request, "Desafío eliminado correctamente 🗑️")
+        return redirect('lista_desafios')
+
+    # Si entran por GET, redirijo a la lista
+    return redirect('lista_desafios')
 
 def transicionempatia(request):
     return render(request, 'transicionempatia.html')
@@ -141,39 +166,65 @@ def transiciondesafio(request):
 def transicionapoyo(request):
     return render(request, 'transicionapoyo.html')
 
-def asignar_alumnos_a_grupos():
-    # que hacer?
-    # en vez de 4 grupos, ver cuantos alumnos hay
-    # dividir los alumnos igualmente en la cantidad de grupos
+@transaction.atomic
+def asignar_alumnos_a_grupos(sesion: Sesion):
+    """
+    Auto-asigna alumnos SIN grupo de una sesión a grupos de ESA sesión.
+    Máximo 8 alumnos por grupo, repartidos lo más equitativamente posible.
+    Si no hay grupos, se crean los necesarios.
+    También se asegura de que cada grupo tenga un codigoacceso.
+    """
 
-    alumnos = Alumno.objects.filter(grupo__isnull=True).order_by('idalumno')
-    grupos = list(Grupo.objects.all())
+    # 1) Alumnos de esta sesión sin grupo
+    alumnos = list(
+        Alumno.objects.filter(sesion=sesion, grupo__isnull=True)
+        .order_by('idalumno')
+    )
 
-    # Si no existen grupos → crear 4 grupos automáticamente
-    if len(grupos) == 0:
-        print("No habían grupos, creando 4...")
-        for i in range(4):
-            Grupo.objects.create(usuario_idusuario=None, tokensgrupo=12, etapa=1)
-        grupos = list(Grupo.objects.all())
+    if not alumnos:
+        print("No hay alumnos sin grupo en esta sesión.")
+        return 0
 
-    print("Alumnos sin grupo:", alumnos.count())
-    print("Grupos disponibles:", len(grupos))
-    print(alumnos.count())
-    index_grupo = 0
-    capacidad = len(alumnos) // len(grupos)
-    sobrantes = len(alumnos) % len(grupos)
+    # 2) Grupos existentes de esta sesión
+    grupos = list(Grupo.objects.filter(sesion=sesion).order_by('idgrupo'))
+
+    # 3) Si no hay grupos → crear los necesarios con máx 8 alumnos c/u
+    if not grupos:
+        n_alumnos = len(alumnos)
+        num_grupos = ceil(n_alumnos / 8)  # 👉 máximo 8 alumnos por grupo
+
+        for i in range(num_grupos):
+            grupos.append(
+                Grupo.objects.create(
+                    sesion=sesion,
+                    nombregrupo=f"Grupo {i+1}",
+                    usuario_idusuario=None,
+                    tokensgrupo=12,
+                    etapa=1,
+                    codigoacceso=generar_codigo_acceso(),
+                )
+            )
+    else:
+        # Asegurar que todos los grupos existentes tengan código
+        for g in grupos:
+            if not g.codigoacceso:
+                g.codigoacceso = generar_codigo_acceso()
+                g.save()
+
+    # 4) Repartir alumnos equitativamente entre los grupos
+    n_alumnos = len(alumnos)
+    n_grupos = len(grupos)
+
+    capacidad_base = n_alumnos // n_grupos   # cantidad mínima por grupo
+    sobrantes = n_alumnos % n_grupos        # grupos que tendrán 1 alumno extra
 
     index_alumno = 0
 
     for i, grupo in enumerate(grupos):
-        cantidad = capacidad
+        cantidad = capacidad_base + (1 if i < sobrantes else 0)
 
-        if i < sobrantes:
-            cantidad += 1
-
-        # Asignar alumnos a este grupo
         for _ in range(cantidad):
-            if index_alumno >= len(alumnos):
+            if index_alumno >= n_alumnos:
                 break
 
             alumno = alumnos[index_alumno]
@@ -181,24 +232,94 @@ def asignar_alumnos_a_grupos():
             alumno.save()
             index_alumno += 1
 
+    print(f"Asignados {index_alumno} alumnos en sesión {sesion.idsesion}")
+    return index_alumno
+
 
 def registrargrupos(request):
+    profesor = Profesor.objects.first()
+
+    if not profesor:
+        messages.warning(
+            request,
+            "Primero debes registrar un profesor."
+        )
+        return redirect("registrarprofesor")
+
+    sesion_activa = (
+        Sesion.objects.filter(profesor=profesor)
+        .order_by('-fecha_creacion')
+        .first()
+    )
+
+    if not sesion_activa:
+        messages.warning(
+            request,
+            "Aún no tienes sesiones creadas. Primero crea una sesión."
+        )
+        return redirect('crear_sesion')
+
     if request.method == "POST":
-        asignar_alumnos_a_grupos()
-        messages.success(request, "Alumnos auto-asignados correctamente.")
+        cantidad = asignar_alumnos_a_grupos(sesion_activa)
+        if cantidad == 0:
+            messages.info(request, "No había alumnos sin grupo en esta sesión.")
+        else:
+            messages.success(
+                request,
+                f"Alumnos auto-asignados correctamente en la sesión '{sesion_activa.nombre}'."
+            )
+        return redirect("registrargrupos")
 
-    grupos = Grupo.objects.all().prefetch_related("alumno_set")
+    grupos = (
+        Grupo.objects
+        .filter(sesion=sesion_activa)
+        .prefetch_related("alumno_set")
+        .order_by('idgrupo')
+    )
 
-    return render(request, "registrargrupos.html", {"grupos": grupos})
+    context = {
+        "grupos": grupos,
+        "sesion_activa": sesion_activa,
+    }
+    return render(request, "registrargrupos.html", context)
 
+
+def generar_codigo_acceso(longitud=6):
+    caracteres = string.ascii_uppercase + string.digits
+    while True:
+        codigo = ''.join(random.choices(caracteres, k=longitud))
+        # Verificamos que no exista ya
+        if not Grupo.objects.filter(codigoacceso=codigo).exists():
+            return codigo
 
 def cargar_alumnos(request):
-    # Filtro por profesor, con fallback para no dejar vacío
+    """
+    Carga alumnos (Excel/CSV) para la sesión ACTIVA del profesor.
+    - Profesor: por ahora el primero (luego se cambia por el logueado).
+    - Sesión activa: la última sesión creada por ese profesor.
+    """
     profesor = Profesor.objects.first()
-    if profesor:
-        alumnos = Alumno.objects.filter(profesor_idprofesor=profesor).order_by('idalumno')
-    else:
-        alumnos = Alumno.objects.all().order_by('idalumno')
+
+    if not profesor:
+        messages.warning(request, "Primero debes registrar un profesor.")
+        return redirect("registrarprofesor")
+
+    # 👉 Sesión activa del profesor (la última creada)
+    sesion_activa = (
+        Sesion.objects.filter(profesor=profesor)
+        .order_by('-fecha_creacion')
+        .first()
+    )
+
+    if not sesion_activa:
+        messages.warning(request, "Primero crea una sesión antes de cargar alumnos.")
+        return redirect("crear_sesion")
+
+    # Alumnos SOLO de esa sesión y ese profe
+    alumnos = (
+        Alumno.objects.filter(profesor_idprofesor=profesor, sesion=sesion_activa)
+        .order_by('idalumno')
+    )
 
     if request.method == "POST" and request.FILES.get("archivo_excel"):
         archivo = request.FILES["archivo_excel"]
@@ -210,38 +331,53 @@ def cargar_alumnos(request):
             elif archivo.name.lower().endswith('.csv'):
                 df = pd.read_csv(archivo)
             else:
-                messages.error(request, "Formato no soportado. Usa .xlsx o .csv")
-                return render(request, "registraralumnos.html", {"alumnos": alumnos})
+                messages.error(request, "Formato no soportado. Usa .xlsx o .csv.")
+                return render(
+                    request,
+                    "registraralumnos.html",
+                    {"alumnos": alumnos, "sesion_activa": sesion_activa},
+                )
 
-            # Insertar alumnos
+            # Insertar alumnos para ESTA sesión
             with transaction.atomic():
                 for _, row in df.iterrows():
                     Alumno.objects.create(
                         profesor_idprofesor=profesor,
+                        sesion=sesion_activa,
                         emailalumno=row.get('Correo'),
                         rutalumno=row.get('RUT'),
                         nombrealumno=row.get('Nombre'),
                         apellidopaternoalumno=row.get('Apellido Paterno'),
                         apellidomaternoalumno=row.get('Apellido Materno'),
-                        carreraalumno=''  # cambiar eventualmente
+                        carreraalumno=row.get('Carrera', ''),  # opcional
                     )
 
-            messages.success(request, "Alumnos cargados correctamente.")
+            messages.success(
+                request,
+                f"Alumnos cargados correctamente para la sesión '{sesion_activa.nombre}'."
+            )
 
             # refrescar lista
-            if profesor:
-                alumnos = Alumno.objects.filter(profesor_idprofesor=profesor).order_by('idalumno')
-            else:
-                alumnos = Alumno.objects.all().order_by('idalumno')
+            alumnos = (
+                Alumno.objects.filter(profesor_idprofesor=profesor, sesion=sesion_activa)
+                .order_by('idalumno')
+            )
 
         except Exception as e:
             messages.error(request, f"Error al leer el archivo: {e}")
 
-    return render(request, "registraralumnos.html", {"alumnos": alumnos})
+    return render(
+        request,
+        "registraralumnos.html",
+        {"alumnos": alumnos, "sesion_activa": sesion_activa},
+    )
 
 
 @require_http_methods(["POST"])
 def agregar_alumno_manual(request):
+    """
+    Agrega un alumno manualmente a la SESIÓN ACTIVA del profesor.
+    """
     correo = (request.POST.get("email") or "").strip()
     nombre = (request.POST.get("nombre") or "").strip()
     ap_paterno = (request.POST.get("apellido_paterno") or "").strip()
@@ -252,21 +388,48 @@ def agregar_alumno_manual(request):
         messages.warning(request, "Correo y Nombre son obligatorios.")
         return redirect("registraralumnos")
 
-    profesor = Profesor.objects.first()  # TODO: profesor autenticado
+    # Validar correo
+    try:
+        validate_email(correo)
+    except ValidationError:
+        messages.error(request, "El correo no es válido.")
+        return redirect("registraralumnos")
 
-    if Alumno.objects.filter(emailalumno=correo).exists():
-        messages.warning(request, "⚠️ Ya existe un alumno con ese correo.")
+    profesor = Profesor.objects.first()
+    if not profesor:
+        messages.warning(request, "Primero debes registrar un profesor.")
+        return redirect("registrarprofesor")
+
+    # Sesión activa
+    sesion_activa = (
+        Sesion.objects.filter(profesor=profesor)
+        .order_by('-fecha_creacion')
+        .first()
+    )
+    if not sesion_activa:
+        messages.warning(request, "Primero crea una sesión antes de agregar alumnos.")
+        return redirect("crear_sesion")
+
+    # Evitar duplicados de correo dentro del mismo profesor (o sesión)
+    if Alumno.objects.filter(emailalumno=correo, profesor_idprofesor=profesor, sesion=sesion_activa).exists():
+        messages.warning(request, "⚠️ Ya existe un alumno con ese correo en esta sesión.")
         return redirect("registraralumnos")
 
     try:
         with transaction.atomic():
             Alumno.objects.create(
                 profesor_idprofesor=profesor,
+                sesion=sesion_activa,
                 emailalumno=correo,
-                nombrealumno=f"{nombre} {ap_paterno} {ap_materno}".strip(),
+                nombrealumno=nombre,
+                apellidopaternoalumno=ap_paterno,
+                apellidomaternoalumno=ap_materno,
                 carreraalumno=carrera or "No especificada",
             )
-        messages.success(request, "✅ Alumno agregado correctamente.")
+        messages.success(
+            request,
+            f"✅ Alumno agregado correctamente a la sesión '{sesion_activa.nombre}'."
+        )
     except Exception as e:
         messages.error(request, f"Ocurrió un error al agregar: {e}")
 
@@ -547,3 +710,38 @@ def eliminar_alumno(request, idalumno):
 
 def reflexion(request):
     return render(request, 'reflexion.html')
+
+def crear_sesion(request):
+    profesor = Profesor.objects.first()  # reemplazar con profesor autenticado
+
+    if not profesor:
+        messages.warning(request, "Primero debes registrar un profesor.")
+        return redirect("registrarprofesor")
+
+    if request.method == "POST":
+        nombre = (request.POST.get("nombre") or "").strip()
+
+        if not nombre:
+            messages.error(request, "Debes darle un nombre a la sesión.")
+            return render(request, "crear_sesion.html")
+
+        Sesion.objects.create(
+            profesor=profesor,
+            nombre=nombre
+        )
+
+        messages.success(request, "Sesión creada correctamente.")
+        return redirect('listar_sesiones')
+
+    return render(request, "crear_sesion.html")
+
+
+def listar_sesiones(request):
+    profesor = Profesor.objects.first()  # luego cambiar por login
+
+    if not profesor:
+        messages.warning(request, "Aún no hay profesores registrados.")
+        return redirect("registrarprofesor")
+
+    sesiones = Sesion.objects.filter(profesor=profesor).order_by('-fecha_creacion')
+    return render(request, "listar_sesiones.html", {"sesiones": sesiones})

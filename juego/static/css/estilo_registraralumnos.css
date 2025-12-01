@@ -79,7 +79,7 @@ html, body {
 
 .subtitle {
   font-size: 16px;
-  color: var(--muted);
+  color: var(--card);
 }
 
 /* === Card containers === */

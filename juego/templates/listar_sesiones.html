@@ -1,0 +1,142 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Misión Emprende UDD — Mis sesiones</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardprofesor.css' %}">
+
+  <style>
+    /* ===== Estilos propios ===== */
+
+    .header-actions{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+
+    .btn-primary{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 20px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#00C8FF,#4be4ff);
+      color:#00151f;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-size:14px;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 0 14px rgba(0,200,255,0.6);
+      text-decoration:none;
+      transition:0.15s ease;
+    }
+    .btn-primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 0 18px rgba(0,200,255,0.8);
+    }
+
+    .sessions-list{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:20px;
+    }
+
+    .session-card{
+      background:#0a1a2a;
+      border-radius:20px;
+      padding:18px 20px;
+      border:1px solid rgba(0,200,255,.18);
+      box-shadow:0 10px 26px rgba(0,0,0,.45);
+    }
+
+    .session-title{
+      font-size:16px;
+      font-weight:600;
+      color:#E6EEF8;
+      margin-bottom:6px;
+    }
+
+    .session-meta{
+      font-size:13px;
+      color:#AAB7C8;
+    }
+
+    .empty-state{
+      margin-top:22px;
+      padding:22px;
+      background:rgba(4,20,40,.7);
+      border-radius:16px;
+      border:1px dashed rgba(0,200,255,.35);
+      font-size:14px;
+      color:#AAB7C8;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2 class="sidebar-title">Dashboard Profesor</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
+          <li><a href="{% url 'registraralumnos' %}">Registrar alumnos</a></li>
+          <li><a href="{% url 'registrargrupos' %}">Registrar grupos</a></li>
+          <li><a class="active" href="{% url 'listar_sesiones' %}">Ver sesiones</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+
+      <div class="header-actions">
+        <div>
+          <h1 class="title">Mis sesiones</h1>
+          <p class="subtitle">Cada sesión representa una clase o sección diferente.</p>
+        </div>
+
+        <a href="{% url 'crear_sesion' %}" class="btn-primary">
+          + Crear sesión
+        </a>
+      </div>
+
+      {% if sesiones %}
+        <div class="sessions-list">
+          {% for s in sesiones %}
+            <div class="session-card">
+              <div class="session-title">{{ s.nombre }}</div>
+              <div class="session-meta">
+                Creada el {{ s.fecha_creacion|date:"d/m/Y H:i" }} <br>
+                ID sesión: {{ s.idsesion }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          No has creado ninguna sesión todavía.  
+          Presiona el botón <strong>“Crear sesión”</strong> para comenzar.
+        </div>
+      {% endif %}
+
+    </main>
+  </div>
+</body>
+</html>
