@@ -46,7 +46,7 @@ textarea {
 
 button {
   background: var(--primary);
-  color: #fff;
+  color: white;
   font-weight: 600;
   border: none;
   border-radius: 8px;
@@ -56,5 +56,5 @@ button {
 }
 
 button:hover {
-  background: var(--primary-dark);
+  background: var(--primary);
 }
