@@ -8,38 +8,50 @@
   <title>Misión Emprende UDD — Sopa de Letras</title>
   <link rel="stylesheet" href="{% static 'css/estilo_sopadeletras.css' %}">
 </head>
+
 <body>
   <main class="game-container">
+
     <h1>Sopa de Letras</h1>
     <p>Encuentra las palabras ocultas relacionadas con el emprendimiento</p>
+
+    <!-- TIMER -->
     <div id="timer-container">
-        <span>Tiempo restante: </span>
+        <span>Tiempo restante:</span>
         <span id="timer" class="timer">00:45</span>
     </div>
+
+    <!-- AUDIOS -->
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
     <audio id="victory-sound" src="{% static 'sounds/victory.mp3' %}" preload="auto"></audio>
+
+    <!-- MODAL TIEMPO TERMINADO -->
     <div id="timeModal" class="modal" aria-hidden="true" role="dialog">
-        <div class="modal-content">
-            <h2>⏰ ¡Tiempo terminado!</h2>
-            <p>Se acabó el tiempo para completar la sopa de letras.</p>
-            <button id="btnRetry" type="button">Continuar</button>
-        </div>
+      <div class="modal-content lose">
+        <h2>❌ ¡Tiempo agotado!</h2>
+        <p>Tu equipo falló esta misión. Reagrúpense y sigan avanzando.</p>
+        <button id="btnRetry" type="button">Continuar</button>
+      </div>
     </div>
 
-
+    <!-- TABLERO -->
     <div id="grid" class="grid" aria-label="Tablero de sopa de letras"></div>
+
+    <!-- MODAL VICTORIA -->
     <div id="winModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="winTitle">
-      <div class="modal-content">
+      <div class="modal-content win">
 
         <img src="{% static 'gifs/token_dorado_clean_grande.gif' %}"
-          alt="Token de recompensa"
-          class="token-animado">
+             alt="Token de recompensa"
+             class="token-animado">
 
-        <h2 id="winTitle">Felicitaciones, tu equipo recibió 3 tokens!</h2>
-        <p>Se han encontrado todas las palabras. ¡Impresionante!</p>
+        <h2 id="winTitle">🎉 ¡Misión completada!</h2>
+        <p>Impresionante trabajo en equipo. Obtuvieron 3 tokens.</p>
         <button id="btnNext" type="button">Avanzar</button>
       </div>
     </div>
+
+    <!-- LISTA DE PALABRAS -->
     <div class="words">
       <h3>Palabras a encontrar:</h3>
       <ul id="word-list">
@@ -49,12 +61,13 @@
         <li>CREATIVIDAD</li>
         <li>LIDERAZGO</li>
       </ul>
-      <div id="status" class="status">0/5</div>
+      <div id="status" class="status">0/5 encontradas</div>
     </div>
-    <div id="routes"
-          data-tematicas-url="{% url 'transiciondesafio' %}">
-    </div>
+
+    <div id="routes" data-tematicas-url="{% url 'transiciondesafio' %}"></div>
   </main>
-  <script src="{% static 'js/sopadeletras.js' %}?v=3" defer></script>
+
+  <script src="{% static 'js/sopadeletras.js' %}?v=10" defer></script>
 </body>
 </html>
+

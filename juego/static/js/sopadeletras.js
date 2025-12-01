@@ -4,28 +4,30 @@ const words = ["IDEA", "EQUIPO", "NEGOCIO", "CREATIVIDAD", "LIDERAZGO"];
 const gridEl = document.getElementById("grid");
 const statusEl = document.getElementById("status");
 
-// sincroniza columnas/filas con el CSS
+// Sincroniza columnas/filas en CSS
 document.documentElement.style.setProperty('--cols', gridSize);
 document.documentElement.style.setProperty('--rows', gridSize);
 
-// 8 direcciones: horizontales, verticales y diagonales
+// Direcciones permitidas (líneas rectas)
 const DIRS = [
-  [1, 0],  [-1, 0],  [0, 1],  [0, -1],
-  [1, 1],  [-1, -1], [1, -1], [-1, 1]
+  [1, 0], [-1, 0], [0, 1], [0, -1],
+  [1, 1], [-1, -1], [1, -1], [-1, 1]
 ];
 
 let board = [];
 let mouseDown = false;
 let selection = [];
 
-// === Estado global del juego/temporizador ===
+// === ESTADO GLOBAL ===
 let timerInterval = null;
 let gameEnded = false;
-let timeLeft = 45; // <— 45 segundos
+let timeLeft = 45; // segundos
 
-console.log("Sopa de Letras — build v3 • timeLeft =", timeLeft);
+console.log("Sopa de Letras — JS v10 — timeLeft =", timeLeft);
 
-/* ===== Tablero fijo: 12x12. Las 'X' se rellenan con letras al azar ===== */
+/* ============================================================
+   TABLERO FIJO + LETRAS RANDOM
+   ============================================================ */
 function createFixedBoard() {
   const gridTemplate = [
     "IDEAXXXXXXXX",
@@ -44,7 +46,6 @@ function createFixedBoard() {
   board = gridTemplate.map(row => row.split(""));
 }
 
-// Rellena las X con letras aleatorias
 function fillRandom() {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   for (let r = 0; r < gridSize; r++) {
@@ -56,49 +57,52 @@ function fillRandom() {
   }
 }
 
-// Dibuja la grilla y conecta eventos
+/* ============================================================
+   RENDERIZADO
+   ============================================================ */
 function render() {
   gridEl.innerHTML = "";
   for (let r = 0; r < gridSize; r++) {
     for (let c = 0; c < gridSize; c++) {
+
       const cell = document.createElement("div");
       cell.className = "cell";
       cell.textContent = board[r][c];
       cell.dataset.r = r;
       cell.dataset.c = c;
 
-      // Evita selección azul y gestos por defecto
-      cell.addEventListener("mousedown", (e)=>{ e.preventDefault(); handleDown(e); });
-      cell.addEventListener("mouseover", (e)=>{ e.preventDefault(); handleOver(e); });
-      cell.addEventListener("mouseup",   (e)=>{ e.preventDefault(); handleUp(e); });
+      // Eventos mouse
+      cell.addEventListener("mousedown", (e) => { e.preventDefault(); handleDown(e); });
+      cell.addEventListener("mouseover", (e) => { e.preventDefault(); handleOver(e); });
+      cell.addEventListener("mouseup",     (e) => { e.preventDefault(); handleUp(); });
 
-      // Soporte táctil básico
-      cell.addEventListener("touchstart", (e)=>{ e.preventDefault(); handleDown(convertTouch(e)); }, {passive:false});
-      cell.addEventListener("touchmove",  (e)=>{ e.preventDefault(); handleOver(convertTouch(e)); }, {passive:false});
-      cell.addEventListener("touchend",   (e)=>{ e.preventDefault(); handleUp(); }, {passive:false});
+      // Eventos tactiles
+      cell.addEventListener("touchstart", (e) => { e.preventDefault(); handleDown(convertTouch(e)); }, { passive:false });
+      cell.addEventListener("touchmove",  (e) => { e.preventDefault(); handleOver(convertTouch(e)); }, { passive:false });
+      cell.addEventListener("touchend",   (e) => { e.preventDefault(); handleUp(); }, { passive:false });
 
       gridEl.appendChild(cell);
     }
   }
 
-  // Evita arrastres no deseados
-  gridEl.addEventListener('dragstart', (e)=> e.preventDefault());
+  gridEl.addEventListener('dragstart', e => e.preventDefault());
   document.addEventListener("mouseup", cancelDragOutside);
-  document.addEventListener("touchend", cancelDragOutside, {passive:false});
+  document.addEventListener("touchend", cancelDragOutside, { passive:false });
 }
 
 function convertTouch(e){
-  const t = e.touches && e.touches[0] ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : null);
+  const t = e.touches?.[0] || e.changedTouches?.[0];
   if (!t) return e;
   const el = document.elementFromPoint(t.clientX, t.clientY);
   return { currentTarget: el, button: 0 };
 }
 
-// ===== Manejo de selección (click/drag en línea recta) =====
+/* ============================================================
+   MANEJO DE SELECCIÓN
+   ============================================================ */
 function handleDown(e) {
-  if (e.button !== 0) return; // solo click izquierdo
-  if (!e.currentTarget || !e.currentTarget.dataset) return;
-  if (gameEnded) return;
+  if (e.button !== 0 || gameEnded) return;
+  if (!e.currentTarget.dataset) return;
   mouseDown = true;
   clearTempSelection();
   addToSelection(e.currentTarget);
@@ -106,7 +110,7 @@ function handleDown(e) {
 
 function handleOver(e) {
   if (!mouseDown || gameEnded) return;
-  if (!e.currentTarget || !e.currentTarget.dataset) return;
+  if (!e.currentTarget.dataset) return;
   addToSelection(e.currentTarget, true);
 }
 
@@ -123,23 +127,20 @@ function cancelDragOutside() {
 }
 
 function addToSelection(el, validateLine = false) {
-  if (!el || !el.dataset) return;
-  const r = parseInt(el.dataset.r, 10);
-  const c = parseInt(el.dataset.c, 10);
-  if (Number.isNaN(r) || Number.isNaN(c)) return;
+  const r = parseInt(el.dataset.r);
+  const c = parseInt(el.dataset.c);
 
-  // evitar duplicar celdas
   if (selection.some(s => s.r === r && s.c === c)) return;
 
-  // Mantener línea recta (8 direcciones)
+  // Validar línea recta
   if (validateLine && selection.length >= 1) {
     const r0 = selection[0].r, c0 = selection[0].c;
     const dr = r - r0, dc = c - c0;
     const gcd = (a, b) => b ? gcd(b, a % b) : Math.abs(a);
     const g = gcd(Math.abs(dr), Math.abs(dc)) || 1;
     const udr = dr / g, udc = dc / g;
-    const isValidDir = DIRS.some(([dx, dy]) => dx === udc && dy === udr);
-    if (!isValidDir) return; // no permitir quiebres
+    const isValid = DIRS.some(([dx, dy]) => dx === udc && dy === udr);
+    if (!isValid) return;
   }
 
   el.classList.add("selected");
@@ -147,146 +148,147 @@ function addToSelection(el, validateLine = false) {
 }
 
 function clearTempSelection() {
-  selection.forEach(s => s.el && s.el.classList.remove("selected"));
+  selection.forEach(s => s.el.classList.remove("selected"));
   selection = [];
 }
 
-// Convierte la selección en texto (ordenada a lo largo de la línea)
 function textFromSelection() {
-  if (selection.length <= 1) return selection.map(s => board[s.r][s.c]).join("");
+  if (selection.length <= 1)
+    return selection.map(s => board[s.r][s.c]).join("");
+
   const s0 = selection[0];
   const s1 = selection[1];
   const dr = Math.sign(s1.r - s0.r);
   const dc = Math.sign(s1.c - s0.c);
+
   selection.sort((a, b) =>
-    ((a.r - s0.r) * dr + (a.c - s0.c) * dc) - ((b.r - s0.r) * dr + (b.c - s0.c) * dc)
+    ((a.r - s0.r) * dr + (a.c - s0.c) * dc) -
+    ((b.r - s0.r) * dr + (b.c - s0.c) * dc)
   );
+
   return selection.map(s => board[s.r][s.c]).join("");
 }
 
-// Verifica si la selección coincide con una palabra (normal o al revés)
 function checkSelection() {
   if (selection.length === 0 || gameEnded) return;
 
   const str = textFromSelection();
   const rev = [...str].reverse().join("");
+
   const candidates = words.filter(w => !isWordFound(w));
   const match = candidates.find(w => w === str || w === rev);
 
   if (match) {
     selection.forEach(s => {
-      if (!s.el) return;
       s.el.classList.remove("selected");
       s.el.classList.add("found");
       s.el.style.pointerEvents = "none";
     });
+
     markWordAsFound(match);
     clearTempSelection();
     updateStatus();
 
     if (allFound()) {
-      endGame(true); // victoria
-      return;
+      endGame(true);
     }
+
   } else {
     clearTempSelection();
   }
 }
 
-// ===== Utilidades para la lista =====
-function getWordListItem(word) {
-  let li = document.querySelector(`#word-list li[data-word="${word}"]`);
-  if (li) return li;
-  const items = document.querySelectorAll('#word-list li');
-  for (const item of items) {
-    if (item.textContent.trim().toUpperCase() === word) return item;
+/* ============================================================
+   LISTA DE PALABRAS
+   ============================================================ */
+function getWordListItem(word){
+  const items = document.querySelectorAll("#word-list li");
+  for (const li of items){
+    if (li.textContent.trim().toUpperCase() === word)
+      return li;
   }
   return null;
 }
-
-function isWordFound(word) {
+function isWordFound(word){
   const li = getWordListItem(word);
-  return li ? li.classList.contains("found") : false;
+  return li?.classList.contains("found");
 }
-
-function markWordAsFound(word) {
+function markWordAsFound(word){
   const li = getWordListItem(word);
   if (li) li.classList.add("found");
 }
-
-function updateStatus() {
-  if (!statusEl) return;
+function allFound(){
+  return [...document.querySelectorAll("#word-list li")]
+    .every(li => li.classList.contains("found"));
+}
+function updateStatus(){
   const total = words.length;
-  const items = document.querySelectorAll('#word-list li.found');
-  const found = items ? items.length : 0;
+  const found = document.querySelectorAll('#word-list li.found').length;
   statusEl.textContent = `${found}/${total} encontradas`;
 }
 
-function allFound() {
-  const list = document.querySelectorAll('#word-list li');
-  if (!list.length) return false;
-  return [...list].every(li => li.classList.contains("found"));
-}
+/* ============================================================
+   CIERRE DEL JUEGO
+   ============================================================ */
+function endGame(won){
+  if (gameEnded) return;
+  gameEnded = true;
+  clearInterval(timerInterval);
 
-/* ===== Cierre unificado del juego ===== */
-function endGame(won, alarmAudio = null) {
-  if (gameEnded) return;          // idempotente
-  gameEnded = true;               // marca fin del juego
-  clearInterval(timerInterval);   // **DETENER** el tiempo
-
-  // si venía de tiempo agotado y estaba sonando la alarma
-  if (alarmAudio && !won) {
-    try { alarmAudio.pause(); alarmAudio.currentTime = 0; } catch(_) {}
-  }
-
-  if (won) {
-    setTimeout(showWinModal, 200);
+  if (won){
+    showWinModal();
   } else {
-    setTimeout(showTimeUpModal, 0);
+    const alarm = document.getElementById("alarm-audio");
+    if (alarm){
+      alarm.currentTime = 0;
+      alarm.play();
+    }
+    showTimeUpModal();
   }
 }
 
-/* ===== Modales ===== */
+/* ============================================================
+   MODALES
+   ============================================================ */
 function showWinModal(){
-  if (!gameEnded) return;
-  const modal = document.getElementById('winModal');
-  const btn = document.getElementById('btnNext');
-  if (!modal || !btn) return;
+  const modal = document.getElementById("winModal");
+  const btn = document.getElementById("btnNext");
+  const audio = document.getElementById("victory-sound");
 
-  modal.style.display = 'flex';
-  modal.setAttribute('aria-hidden', 'false');
+  modal.style.display = "flex";
+  modal.setAttribute("aria-hidden","false");
 
-  const victoryAudio = document.getElementById('victory-sound');
-  if (victoryAudio){ victoryAudio.currentTime = 0; victoryAudio.play(); }
+  if (audio){
+    audio.currentTime = 0;
+    audio.play();
+  }
+  btn.addEventListener("click", goNext, { once:true });
+}
 
-  setTimeout(() => btn.focus(), 50);
-  btn.addEventListener('click', goNext, { once: true });
+function showTimeUpModal(){
+  const modal = document.getElementById("timeModal");
+  const btn = document.getElementById("btnRetry");
+
+  modal.style.display = "flex";
+  modal.setAttribute("aria-hidden","false");
+
+  btn.addEventListener("click", goNext, { once:true });
 }
 
 function goNext(){
-  const routes = document.getElementById('routes');
-  const url = routes?.dataset.tematicasUrl;
+  const url = document.getElementById("routes").dataset.tematicasUrl;
   if (url) window.location.href = url;
 }
 
-function showTimeUpModal() {
-  if (!gameEnded) return;
-  const modal = document.getElementById('timeModal');
-  const btn = document.getElementById('btnRetry');
-  if (!modal || !btn) return;
+/* ============================================================
+   TEMPORIZADOR
+   ============================================================ */
+function startTimer(){
+  const timerEl = document.getElementById("timer");
+  const alarm = document.getElementById("alarm-audio");
 
-  modal.style.display = 'flex';
-  modal.setAttribute('aria-hidden', 'false');
-  btn.addEventListener('click', goNext, { once: true });
-}
-
-/* ===== Temporizador (45s) ===== */
-function startTimer() {
-  const timerEl = document.getElementById('timer');
-  const alarmAudio = document.getElementById('alarm-audio');
-
-  function updateTimer() {
-    if (gameEnded) {
+  function tick(){
+    if (gameEnded){
       clearInterval(timerInterval);
       return;
     }
@@ -295,74 +297,76 @@ function startTimer() {
     const sec = timeLeft % 60;
     timerEl.textContent = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
 
-    if (timeLeft <= 10) timerEl.classList.add('low-time');
+    if (timeLeft <= 10)
+      timerEl.classList.add("low-time");
 
-    if (timeLeft <= 0) {
+    if (timeLeft <= 0){
       clearInterval(timerInterval);
-      endGame(false, alarmAudio); // tiempo agotado
+      endGame(false);
       return;
     }
+
     timeLeft--;
   }
 
-  // IMPORTANTE: usar la variable GLOBAL, no crear una local
-  timerInterval = setInterval(updateTimer, 1000);
-  updateTimer();
+  timerInterval = setInterval(tick, 1000);
+  tick();
 }
 
-/* ===== Ajuste de grilla 100% responsiva ===== */
+/* ============================================================
+   GRILLA RESPONSIVA
+   ============================================================ */
 (function makeGridResponsive(){
   const root = document.documentElement;
 
-  function adjustGrid(){
+  function adjust(){
     const cols = gridSize;
     const rows = gridSize;
     const gap = 4;
 
-    const container = document.querySelector('.game-container');
-    const wordsBox  = document.querySelector('.words');
-    const titleEl   = document.querySelector('h1');
-    const subEl     = document.querySelector('p');
-    const timerBox  = document.getElementById('timer-container');
+    const container = document.querySelector(".game-container");
+    const wordsBox  = document.querySelector(".words");
+    const titleEl   = document.querySelector("h1");
+    const subEl     = document.querySelector("p");
+    const timerBox  = document.getElementById("timer-container");
 
-    // Ancho interno real del card (sin padding)
     const cs = getComputedStyle(container);
     const innerW = container.clientWidth
-                 - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+                 - parseFloat(cs.paddingLeft)
+                 - parseFloat(cs.paddingRight);
 
-    // Por si el viewport es aún más chico (iPhone con safe areas)
     const maxWidth = Math.min(innerW, window.innerWidth * 0.94);
 
-    // Alto disponible aproximado dentro del viewport
-    const wordsH = wordsBox ? wordsBox.offsetHeight : 0;
-    const headerH = (titleEl?.offsetHeight || 0) + (subEl?.offsetHeight || 0) + (timerBox?.offsetHeight || 0);
-    const containerVPadding = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-    const verticalMargins = 40; // respiración
-    const availableH = window.innerHeight - headerH - wordsH - containerVPadding - verticalMargins;
+    const wordsH = wordsBox.offsetHeight;
+    const headerH = (titleEl?.offsetHeight || 0)
+                  + (subEl?.offsetHeight || 0)
+                  + (timerBox?.offsetHeight || 0);
 
-    // Tamaño de celda por ancho y por alto
+    const containerVPadding = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const availableH = window.innerHeight - headerH - wordsH - containerVPadding - 40;
+
     const cellByWidth  = (maxWidth  - (cols - 1) * gap - 2 * gap) / cols;
     const cellByHeight = (availableH - (rows - 1) * gap - 2 * gap) / rows;
 
-    // Celda final (con límites)
     const cell = Math.floor(Math.min(cellByWidth, cellByHeight));
     const finalSize = Math.max(22, Math.min(cell, 60));
 
-    root.style.setProperty('--cell-size', finalSize + 'px');
-    root.style.setProperty('--cols', cols);
-    root.style.setProperty('--rows', rows);
-    root.style.setProperty('--gap', gap + 'px');
+    root.style.setProperty("--cell-size", finalSize + "px");
+    root.style.setProperty("--gap", gap + "px");
   }
 
-  window.addEventListener('resize', adjustGrid);
-  adjustGrid();
+  window.addEventListener("resize", adjust);
+  adjust();
 })();
 
-/* ===== Inicio ===== */
-(function init() {
+/* ============================================================
+   INICIO
+   ============================================================ */
+(function init(){
   createFixedBoard();
   fillRandom();
   render();
   updateStatus();
   startTimer();
 })();
+

@@ -1,433 +1,151 @@
-:root{
-  --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
-  --card:#081A2D;
-  --text:#E6EEF8;
-  --muted:#AAB7C8;
-  --primary:#00C8FF;
-  --accent:#FF7A1A;
-  --radius:28px;
-  --shadow:0 18px 40px rgba(0,0,0,.6);
-  --glow:0 0 25px rgba(0,200,255,.35);
-}
-
-* { box-sizing:border-box; margin:0; padding:0; }
-
+/* ================== FONDO GENERAL ================== */
 body {
-  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-  padding:20px;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  background: url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-/* ================== CARD PRINCIPAL ================== */
+/* ================== TARJETA PRINCIPAL ================== */
 .team-container {
-  width:clamp(360px, 90vw, 900px);
-  background:url('/static/images/fondo2.png') center/cover no-repeat;
-  border-radius:28px;
-  box-shadow:var(--shadow);
-  padding:clamp(30px, 5vw, 60px);
-  text-align:center;
-  animation: fadeIn 0.6s ease-in-out;
-  padding-top: 120px;
-  position: relative;   /* necesario para ::after y globo */
-  overflow: hidden;
-}
+  width: clamp(360px, 90vw, 1100px);
+  min-height: 85vh;
 
-/* todo el contenido por encima del personaje */
-.team-container > *{
+  /* ⭐ AQUÍ VA LA IMAGEN QUE NO SE VEÍA */
+  background: url('/static/images/equipo.png') center/cover no-repeat;
+
+  border-radius: 25px;
   position: relative;
-  z-index: 2;
-}
+  padding: 40px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
 
-/* ===== PERSONAJES CON ::before / ::after ===== */
-.team-container::before,
-.team-container::after{
-  content:"";
-  position:absolute;
-  bottom: -40px;
-  width:38%;
-  max-width:320px;
-  aspect-ratio: 3/5;
-  background-repeat:no-repeat;
-  background-size:contain;
-  pointer-events:none;
-  z-index:1;
-  opacity:1;
-}
-
-/* IMAGEN 1 */
-.team-container::after{
-  right:-5%;
-  bottom: -55px;
-  background-image:url('/static/images/foto5.png');
-}
-
-/* IMAGEN 2 */
-.team-container::before{
-  right:70%;
-  bottom:-55px;
-  background-image:url('/static/images/foto6.png');
-}
-
-/* ================== TEXTOS ================== */
-.title {
-  color:var(--accent);
-  font-size:clamp(28px, 4vw, 42px);
-  font-weight:800;
-  margin-top: -60px;
-}
-
-.subtitle {
-  color:var(--muted);
-  font-size:clamp(16px, 2vw, 20px);
-  line-height:1.6;
-  max-width:650px;
-  margin:0 auto 60px;
-}
-
-/* ================== IMAGEN CENTRAL ================== */
-.image-area {
-  margin: 24px auto 36px;
-  display:flex;
-  justify-content:center;
-}
-
-.team-image {
-  width:clamp(220px, 55vw, 400px);
-  height:auto;
-  border-radius:24px;
-  box-shadow:0 8px 20px rgba(0,0,0,.1);
-  object-fit:cover;
-}
-
-/* ================== BLOQUE SIGUIENTE PASO ================== */
-.next-step {
-  background:#081A2D;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:inset 0 0 0 2px #e8edf9;
-  margin-top: 260px;       /* un poco menos agresivo */
-  margin-bottom: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 14px;
+  justify-content: space-between;
+}
+
+/* ================== TÍTULO ================== */
+.title {
+  color: #ff7a1a;
+  text-align: center;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+/* ================== BURBUJA DE DIÁLOGO ================== */
+.speech-bubble {
+  width: clamp(260px, 55%, 540px);
+  padding: 20px 28px;
+  background: rgba(0, 140, 255, 0.18);
+  border: 2px solid rgba(0, 180, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 0 18px rgba(0,180,255,0.35);
+
+  margin: 0 auto;
+  margin-top: 40px;
+  position: relative;
+}
+
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  transform: translateX(-50%);
+  border-width: 18px 18px 0 18px;
+  border-style: solid;
+  border-color: rgba(0,180,255,0.75) transparent transparent transparent;
+}
+
+.speech-bubble p {
+  color: white;
+  font-size: clamp(16px, 2vw, 20px);
+  line-height: 1.5;
+}
+
+/* ================== SECCIÓN BOTÓN ================== */
+.next-step {
+  width: 100%;
+  padding: 22px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 18px;
+  text-align: center;
+  margin-top: 40px;
 }
 
 .next-step p {
-  font-size:clamp(15px, 1.8vw, 18px);
-  color:var(--text);
+  color: white;
+  font-size: clamp(16px, 1.8vw, 20px);
+  margin-bottom: 12px;
 }
 
-/* ================== BOTÓN ================== */
 .btn.primary {
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  padding:14px 30px;
-  border-radius:14px;
-  font-size:clamp(15px, 1.8vw, 18px);
-  font-weight:700;
-  cursor:pointer;
-  box-shadow:0 8px 16px rgba(75,116,170,.25);
-  transition:background .25s ease, transform .2s ease;
+  background: #00c8ff;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 14px;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,200,255,0.4);
 }
 
 .btn.primary:hover {
-  background:var(--primary-pressed);
-  transform:translateY(-2px);
+  filter: brightness(1.1);
+}
+/* ===================== PANEL INFERIOR ===================== */
+.bottom-panel{
+  width: 100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  gap: 18px;
 }
 
-/* ================== GLOBO DE DIÁLOGO ================== */
-.speech-bubble{
-  position:absolute;
-  left: 27%;
-  top: 24%;
-  width: clamp(240px, 40vw, 360px);
-  padding: 18px 22px;
+/* ========= BURBUJA DEL TEXTO INFERIOR ========= */
+.instruction-bubble{
+  background: rgba(0, 140, 255, 0.18);
+  border: 1.8px solid rgba(0, 180, 255, 0.9);
+  padding: 14px 22px;
   border-radius: 16px;
-
-  background: rgba(0, 140, 255, 0.12);
-  border: 1.6px solid rgba(0, 180, 255, 0.8);
-
-  backdrop-filter: blur(10px) saturate(150%);
-  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: white;
+  font-size: clamp(14px, 1.6vw, 18px);
+  text-align: center;
+  max-width: 450px;
   box-shadow:
-    0 0 20px rgba(0, 180, 255, .4),
-    0 0 60px rgba(0, 100, 255, .3);
-
-  z-index: 3;
-  text-align:left;
+      0 0 25px rgba(0, 180, 255, .45),
+      0 0 70px rgba(0, 100, 255, .40);
 }
 
-.speech-bubble p{
-  margin:0;
-  color:var(--text);
-  font-size:clamp(14px, 1.6vw, 18px);
-  line-height:1.5;
+/* Botón centrado */
+.btn.primary{
+  background:#00C8FF;
+  color:#fff;
+  border:none;
+  padding: 16px 36px;
+  border-radius: 14px;
+  font-size: clamp(16px, 1.8vw, 20px);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(0,200,255,.45);
+  transition: transform .2s ease, background .2s ease;
 }
 
-/* colita del globo hacia el personaje */
-.speech-bubble::after{
-  content:"";
-  position:absolute;
-  right:-20px;
-  top: 50%;
-  transform: translateY(-20%);
-
-  border-style: solid;
-  border-width: 14px 0 14px 20px;
-  border-color: transparent transparent transparent rgba(0, 180, 255, 0.7);
-
-  filter: drop-shadow(-2px 0 8px rgba(0, 180, 255, 0.8));
-}
-
-/* ================== ANIMACIÓN ENTRADA ================== */
-@keyframes fadeIn {
-  from { opacity:0; transform:translateY(10px); }
-  to { opacity:1; transform:translateY(0); }
-}
-
-/* =====================================================
-   📱 RESPONSIVE TABLET Y MÓVIL (≤ 768px)
-   ===================================================== */
-@media (max-width: 768px){
-  body{
-    padding:16px;
-    align-items:flex-start;
-  }
-
-  .team-container{
-    width:100%;
-    max-width:520px;
-    padding:26px 18px 32px;
-    padding-top: 90px;
-    border-radius:22px;
-    min-height:auto;
-  }
-
-  .team-container::after,
-  .team-container::before{
-    width:42%;
-    bottom:-40px;
-  }
-
-  .next-step{
-    margin-top: 180px;
-  }
-
-  .speech-bubble{
-    left: 50%;
-    top: 10%;
-    transform: translateX(-50%);
-    width: 88%;
-  }
-  
-  .speech-bubble::after{
-    display:none;
-  }
-}
-
-/* =====================================================
-   📱 RESPONSIVE MÓVIL PEQUEÑO (≤ 480px)
-   ===================================================== */
-@media (max-width: 480px){
-
-  body{
-    padding:12px;
-  }
-
-  .team-container{
-    max-width:420px;
-    padding:22px 14px 26px;
-    padding-top: 80px;
-  }
-
-  /* personaje derecho visible, el izquierdo más discreto
-     (o se puede ocultar si molesta) */
-  .team-container::after{
-    width:55%;
-    right:-18%;
-    bottom:-30px;
-  }
-
-  .team-container::before{
-    width:45%;
-    right:65%;
-    bottom:-30px;
-    opacity:0.7;
-  }
-
-  .speech-bubble{
-    top: 8%;
-    width: 92%;
-  }
-
-  .speech-bubble p{
-    font-size: 13px;
-  }
-
-  .next-step{
-    margin-top: 140px;
-    padding:16px 14px;
-  }
-}
-@media (max-width: 480px){
-
-  /* Centrar todo en pantalla */
-  body{
-    padding: 12px;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;   /* centro horizontal */
-    align-items: center;       /* centro vertical */
-  }
-
-  /* ⭐ Contenedor principal "iPhone" optimizado */
-  .team-container{
-    max-width: 400px;          /* ancho óptimo */
-    width: 100%;
-    
-    padding: 32px 18px 26px;
-    padding-top: 120px;
-
-    border-radius: 20px;
-
-    /* ⭐ Altura correcta — se ajusta al contenido */
-    min-height: 70vh;
-    height: auto;
-
-    /* ⭐ Para que quede realmente centrado */
-    margin: auto;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-
-    overflow: hidden;
-  }
-
-  /* Texto */
-  .title{
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: clamp(22px, 5.5vw, 26px);
-    text-align: center;
-  }
-
-  .subtitle{
-    margin-top: 4px;
-    margin-bottom: 12px;
-    font-size: 14px;
-    max-width: 100%;
-  }
-
-  /* ⭐ Speech bien abajo SIN mover next-step */
-  .speech-bubble{
-    position: static;
-    width: 100%;
-    margin-top: 60px;      /* lo baja */
-    margin-bottom: 16px;
-    transform: none;
-  }
-
-  .speech-bubble::after{
-    display:none;
-  }
-
-  /* Next-step no se toca salvo ajuste fino */
-  .next-step{
-    margin-top: 180px;
-    width: 100%;
-  }
-
-  /* Personajes mantienen tamaño estable */
-  .team-container::before,
-  .team-container::after{
-    opacity: 1;
-    width: 40%;
-    bottom: -10px;
-  }
-
-  .team-container::after{
-    right: -4%;
-    top: 50%;
-  }
-
-  .team-container::before{
-    right: 65%;
-    top: 50%;
-  }
+.btn.primary:hover{
+  background:#00A7DD;
+  transform: translateY(-3px);
 }
 
 
-/* =====================================================
-   🎯 FIX exclusivo para iPad Mini (ANCHO EXACTO 768px)
-   Contenedor rectangular: más ancho que alto
-   ===================================================== */
-@media (width: 768px) {
-
-  body{
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .team-container{
-    max-width: 680px;       /* 🔥 más ancho */
-    min-height: 60vh;       /* 🔥 más bajo → forma rectangular */
-    padding-top: 60px;      /* baja un poco el contenido */
-    padding-bottom: 40px;
-
-    border-radius: 26px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-
-    background-size: cover; 
-    background-position: center;
-  }
-
-  /* Globo más abajo */
-  .speech-bubble{
-    top: 22%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70%;             /* más angosto para verse mejor en contenedor ancho */
-  }
-
-  /* Bloque del botón más abajo */
-  .next-step{
-    margin-top: 380px;
-    width: 80%;
-    top: 22%;
-    transform: translateX(15%);
-
-  }
-
-  /* Ajuste de personajes */
-  .team-container::after,
-  .team-container::before{
-    width: 35%;
-    bottom: -30px;
-  }
-
-  .team-container::after{
-    right: -2%;
-    bottom: -40px;
-  }
-
-  .team-container::before{
-    right: 64%;
-    bottom: -40px;
-  }
-}

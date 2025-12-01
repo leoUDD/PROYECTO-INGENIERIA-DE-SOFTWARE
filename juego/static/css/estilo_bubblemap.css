@@ -23,9 +23,9 @@ body {
   color: var(--accent);
   display:flex;
   justify-content:center;
-  align-items:flex-start;       /* <-- evita que se corte arriba */
+  align-items:flex-start;
   padding:20px;
-  overflow-y:auto;              /* <-- permite scroll */
+  overflow-y:auto;
 }
 
 /* =========================
@@ -38,7 +38,7 @@ body {
   box-shadow:var(--shadow);
   padding: 40px;
   text-align:center;
-  margin: 20px 0 40px;          /* <-- margen para que no quede pegado arriba */
+  margin: 20px 0 40px;
 }
 
 .subtitle {
@@ -52,7 +52,7 @@ body {
 .bubbles {
   position:relative;
   width:100%;
-  height:640px;        
+  height:640px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -111,17 +111,20 @@ body {
   justify-content: center;
 }
 
+/* ✅ FIX REAL para mostrar GIFs como triste.gif */
 .bubble.central img {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
   transform: translate(-50%, -50%);
-  object-fit: cover;
+  object-fit: contain;     /* ← ya no recorta el GIF */
   object-position: center;
   pointer-events: none;
+  z-index: 5;              /* ← siempre encima del fondo azul */
 }
+
 .bubble.central textarea { color:white; }
 
 /* Posiciones radiales */

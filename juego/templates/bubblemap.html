@@ -16,8 +16,10 @@
     {% include "desafio_badge.html" %}
 
     <section class="bubbles">
+
+      <!-- Bubble central con GIF funcionando -->
       <div class="bubble central">
-        <img src="{% static 'images/personas.png' %}" alt="Persona" />
+        <img src="{% static 'images/triste.gif' %}" alt="Persona">
       </div>
 
       <div class="bubble"><textarea placeholder="¿Qué le gusta?"></textarea></div>
@@ -26,6 +28,7 @@
       <div class="bubble"><textarea placeholder="¿Qué dicen los demás?"></textarea></div>
       <div class="bubble"><textarea placeholder="Hobbies"></textarea></div>
       <div class="bubble"><textarea placeholder="Otros"></textarea></div>
+
     </section>
 
     <footer class="footer-actions">
@@ -33,41 +36,24 @@
     </footer>
   </main>
 
-  <!-- ===========================
-       SISTEMA DE GUARDADO + BORRADO
-       =========================== -->
   <script>
     const STORAGE_KEY = "bubblemap_data";
     const SESSION_KEY = "browser_session_id";
 
-    // 1) Generamos un ID único por pestaña
     const currentSession = sessionStorage.getItem("my_session_id") ||
                            crypto.randomUUID();
     sessionStorage.setItem("my_session_id", currentSession);
 
-    // 2) Leemos el último ID guardado en localStorage
     const lastSession = localStorage.getItem(SESSION_KEY);
-
-    // 3) Si NO coincide → el navegador fue cerrado → Borrar data
     if (lastSession && lastSession !== currentSession) {
       localStorage.removeItem(STORAGE_KEY);
     }
-
-    // 4) Guardamos esta sesión como "última sesión activa"
     localStorage.setItem(SESSION_KEY, currentSession);
 
-
-    /* ========= GUARDAR DATOS ========= */
-
     const bubbles = document.querySelectorAll(".bubble textarea");
-
-    // Restaurar si existe
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    bubbles.forEach((area, i) => {
-      if (saved[i]) area.value = saved[i];
-    });
+    bubbles.forEach((area, i) => { if (saved[i]) area.value = saved[i]; });
 
-    // Guardar al escribir
     bubbles.forEach((area, i) => {
       area.addEventListener("input", () => {
         const data = {};
@@ -76,7 +62,6 @@
       });
     });
 
-    // Botón siguiente
     document.getElementById("btnContinuar").addEventListener("click", () => {
       window.location.href = "{% url 'transicioncreatividad' %}";
     });

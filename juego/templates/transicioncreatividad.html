@@ -9,9 +9,15 @@
   <link rel="stylesheet" href="{% static 'css/estilo_transicioncreatividad.css' %}" />
 </head>
 <body>
-  <main class="team-container" role="region" aria-label="Introducción a creatividad">
+
+  <!-- FONDO ÚNICO: creatividad.png -->
+  <main class="team-container"
+        style="background: url('{% static 'images/creatividad.png' %}') center/cover no-repeat !important;"
+        role="region" aria-label="Introducción a creatividad">
+
     <section class="team-section">
       <h1 class="title">Creatividad</h1>
+
       <p class="speech-bubble">
         La creatividad impulsa soluciones únicas. Ahora la pondrás a prueba construyendo con LEGO.
       </p>
@@ -21,6 +27,7 @@
         <button class="btn primary" id="btnContinuar">Continuar</button>
       </div>
     </section>
+
   </main>
 
   <script>
@@ -28,5 +35,6 @@
       window.location.href = "{% url 'market' %}";
     });
   </script>
+
 </body>
 </html>

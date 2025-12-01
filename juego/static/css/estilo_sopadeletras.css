@@ -8,9 +8,8 @@
   --accent:#FF7A1A;
   --radius:28px;
   --shadow:0 18px 40px rgba(0,0,0,.6);
-  --glow:0 0 25px rgba(0,200,255,.35);
 
-
+  /* Grid */
   --cols:12;
   --rows:12;
   --gap:4px;
@@ -23,8 +22,6 @@
 /* ========== RESET ========== */
 *{ box-sizing:border-box; margin:0; padding:0; }
 html,body{ height:100%; }
-
-/* Evita selección azul y resalte iOS al tocar */
 * { -webkit-tap-highlight-color: transparent; }
 ::selection { background: transparent; }
 
@@ -38,42 +35,36 @@ body{
   align-items:center;
   min-height:100vh;
   padding:20px;
-
-  /* Evita selección azul general */
   user-select:none;
   -webkit-user-select:none;
 }
 
 /* ========== CONTENEDOR PRINCIPAL ========== */
 .game-container{
-  width: min(100%, 860px);                     /* 🔹 nunca más ancho que la pantalla */
+  width: min(100%, 880px);
   background:url('/static/images/fondoo.png') center/cover no-repeat;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  padding:clamp(24px, 4vw, 32px);              /* un pelín menos padding ayuda en móvil */
+  padding:clamp(28px, 4vw, 36px);
   display:flex;
   flex-direction:column;
   align-items:center;
   text-align:center;
-  transition:width 0.3s ease;
-
-  /* No bloquees todos los gestos, solo los innecesarios */
   touch-action: pan-y;
 }
-
 
 /* ========== TITULOS ========== */
 h1{
   font-size:var(--fs-title);
   font-weight:800;
   color:var(--primary);
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 
 p{
   font-size:var(--fs-body);
   color:var(--text);
-  margin-bottom:16px;
+  margin-bottom:12px;
 }
 
 /* ========== TEMPORIZADOR ========== */
@@ -82,7 +73,7 @@ p{
   justify-content:center;
   align-items:center;
   gap:6px;
-  margin:10px 0 20px;
+  margin:10px 0 18px;
   font-weight:600;
   font-size:clamp(16px,2vw,20px);
 }
@@ -107,7 +98,7 @@ p{
   text-shadow:0 0 10px #ff2d55;
 }
 
-/* ========== GRILLA RESPONSIVA ========== */
+/* ========== GRILLA CUADRADA Y CENTRADA ========== */
 .grid{
   display:grid;
   grid-template-columns:repeat(var(--cols), var(--cell-size));
@@ -119,14 +110,14 @@ p{
   border-radius:14px;
   padding:var(--gap);
   box-shadow:inset 0 2px 6px rgba(0,0,0,0.05);
-  margin:0 auto 28px;
 
-  width:calc(var(--cols) * var(--cell-size) + (var(--cols) - 1) * var(--gap) + 2 * var(--gap));
-  height:calc(var(--rows) * var(--cell-size) + (var(--rows) - 1) * var(--gap) + 2 * var(--gap));
+  width:calc(var(--cols) * var(--cell-size) + (var(--cols) - 1) * var(--gap));
+  height:calc(var(--rows) * var(--cell-size) + (var(--rows) - 1) * var(--gap));
 
-  max-width:100%;   /* clave para no sobresalir del contenedor */
-  max-height:60vh;  /* limita alto en móviles */
-  overflow:hidden;  /* oculta 1px sobrante si lo hubiera */
+  max-width:100%;
+  max-height:60vh;
+  overflow:hidden;
+  margin-bottom:22px;
 }
 
 .grid div{
@@ -142,8 +133,6 @@ p{
   font-size:calc(var(--cell-size) * 0.45);
   cursor:pointer;
   transition:0.15s;
-
-  /* iOS: evita selección azul al arrastrar */
   user-select:none;
   -webkit-user-select:none;
 }
@@ -190,7 +179,7 @@ p{
   color:var(--muted);
 }
 
-/* ========== MODALES ========== */
+/* ========== MODALES GENERALES (BASE) ========== */
 .modal{
   position:fixed;
   top:0; left:0;
@@ -203,6 +192,7 @@ p{
   z-index:1000;
   padding:16px;
 }
+
 .modal-content{
   background:#FFF;
   border-radius:20px;
@@ -212,18 +202,21 @@ p{
   width:min(90%,400px);
   animation:pop-in 0.4s ease;
 }
+
 .modal-content h2{
   font-size:clamp(22px,4vw,28px);
-  color:var(--primary);
+  color:#222;
   margin-bottom:10px;
 }
+
 .modal-content p{
-  color:var(--muted);
+  color:#444;
   margin-bottom:25px;
 }
+
 .modal-content button{
   background:var(--primary);
-  color:#048ef7;
+  color:#fff;
   border:none;
   padding:12px 24px;
   border-radius:12px;
@@ -232,10 +225,48 @@ p{
   cursor:pointer;
   transition:all 0.2s ease;
 }
+
 .modal-content button:hover{
-  background:#00C8FF;
   transform:scale(1.05);
 }
+
+/* ========== ESTILO MILITAR — DERROTA ========== */
+#timeModal .modal-content{
+  background:#2a0000;
+  border:2px solid #ff3b3b;
+  box-shadow:0 0 35px rgba(255,0,0,0.45);
+  color:#ffe5e5;
+  text-shadow:0 0 6px rgba(255,0,0,0.4);
+}
+
+#timeModal h2{
+  color:#ff4d4d;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+#timeModal p{
+  color:#ffbdbd;
+}
+
+#timeModal button{
+  background:#ff4d4d;
+  color:#fff;
+  box-shadow:0 0 20px rgba(255,0,0,0.4);
+}
+#timeModal button:hover{
+  background:#ff2a2a;
+}
+
+/* ========== TOKEN ANIMADO ========== */
+.token-animado {
+  width: 200px;
+  height: 200px;
+  display: block;
+  margin: 0 auto 1rem auto;
+}
+
 @keyframes pop-in{
   from{ transform:scale(0.85); opacity:0; }
   to{ transform:scale(1); opacity:1; }
@@ -243,16 +274,10 @@ p{
 
 /* ========== RESPONSIVIDAD ========== */
 @media (max-width:600px){
-  .game-container{ padding:24px 16px; border-radius:22px; }
+  .game-container{ padding:22px 14px; border-radius:22px; }
   .words{ padding:16px; }
 }
 @media (prefers-reduced-motion:reduce){
   *{ animation:none!important; transition:none!important; }
 }
 
-.token-animado {
-  width: 200px;
-  height: 200px;
-  display: block;
-  margin: 0 auto 1rem auto;
-}

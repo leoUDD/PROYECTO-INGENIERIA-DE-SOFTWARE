@@ -25,12 +25,12 @@ body {
 
 /* ================== CARD PRINCIPAL ================== */
 .team-container {
-  width: clamp(600px, 80vw, 1100px);   /* ACHICADO */
-  background: url('/static/images/fondo3.png') center/cover no-repeat;
+  width: clamp(600px, 80vw, 1100px);
+  background: url('/static/images/creatividad.png') center/cover no-repeat !important;
   border-radius: 28px;
   box-shadow: var(--shadow);
 
-  min-height: clamp(500px, 65vh, 850px);   /* MÁS BAJO */
+  min-height: clamp(500px, 65vh, 850px);
   padding: clamp(30px, 4vw, 60px);
   padding-top: 110px;
   padding-bottom: 0;
@@ -46,44 +46,10 @@ body {
   justify-content: flex-start;
 }
 
-/* Todo el contenido va arriba de las imágenes */
-.team-container > *{
-  position: relative;
-  z-index: 2;
-}
-
-/* ================== PERSONAJES (foto5 y foto6) ================== */
+/* 🔥 ELIMINAMOS foto3.png y foto4.png COMPLETAMENTE */
 .team-container::before,
-.team-container::after{
-  content:"";
-  position:absolute;
-  width: 50%;                 /* AGRANDADO */
-  max-width: 420px;           /* AGRANDADO */
-  aspect-ratio: 3/5;
-  background-repeat:no-repeat;
-  background-size:contain;
-  pointer-events:none;
-  z-index:1;
-  opacity:1;
-  bottom:-70px;               /* BAJADO */
-}
-
-/* Derecha */
-.team-container::after{
-  right:-1%;
-  bottom: -350px;
-  background-image:url('/static/images/foto4.png');
-  width: 60%;            
-  max-width: 520px;          
-}
-
-/* Izquierda */
-.team-container::before{
-  right:58%;
-  bottom:-350px;
-  background-image:url('/static/images/foto3.png');
-  width: 60%;            
-  max-width: 520px;
+.team-container::after {
+  content: none !important;
 }
 
 /* ================== TEXTOS ================== */
@@ -104,28 +70,13 @@ body {
   margin:0 auto 60px;
 }
 
-/* ================== IMAGEN CENTRAL ================== */
-.image-area{
-  margin: 24px auto 36px;
-  display:flex;
-  justify-content:center;
-}
-
-.team-image{
-  width:clamp(220px, 55vw, 420px);
-  height:auto;
-  border-radius:24px;
-  box-shadow:0 8px 20px rgba(0,0,0,.1);
-  object-fit:cover;
-}
-
 /* ================== BLOQUE SIGUIENTE PASO ================== */
 .next-step {
   background: var(--card);
   border-radius:20px;
   padding:20px;
   box-shadow:inset 0 0 0 2px #e8edf9;
-  margin-top: 400px;     /* BAJADO */
+  margin-top: 400px;
   margin-bottom: 10px;
 
   display: flex;
@@ -161,7 +112,7 @@ body {
 /* ================== SPEECH BUBBLE ================== */
 .speech-bubble{
   position:absolute;
-  top: 50%;                 /* BAJADO */
+  top: 50%;
   left: 50%;
   transform: translateX(-50%);
   width: clamp(380px, 70vw, 500px);
@@ -218,18 +169,6 @@ body {
     min-height:100vh;
   }
 
-  .team-container::after{
-    width:70%;
-    right:-12%;
-    bottom:-20px;
-  }
-
-  .team-container::before{
-    width:70%;
-    right:35%;
-    bottom:-20px;
-  }
-
   .speech-bubble{
     left: 50%;
     top: 72%;
@@ -245,3 +184,4 @@ body {
     margin-top: 450px;
   }
 }
+

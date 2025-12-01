@@ -10,28 +10,38 @@
   <link rel="stylesheet" href="{% static 'css/estilo_trabajoenequipo.css' %}" />
 </head>
 <body>
+
+  <!-- ⭐ AQUI VA LA CLASE CORRECTA ⭐ -->
   <main class="team-container" role="region" aria-label="Introducción a trabajo en equipo">
-    <section class="team-section">
-      <h1 class="title">Trabajo en Equipo</h1>
-    
 
-      <div class="speech-bubble">
-        <p class="body">Agentes, una misión solo avanza si trabajan juntos.
-        Ahora pondrán a prueba su coordinación en un minijuego táctico.</p>
-      </div>
+    <h1 class="title">Trabajo en Equipo</h1>
 
-      <div class="next-step">
-        <p>Haz click en <strong>Comenzar</strong> y adéntrate en tu primera misión.</p>
-        <button class="btn primary" id="btnComenzar">Comenzar</button>
-      </div>
-    </section>
+    <div class="speech-bubble">
+      <p>
+        Agentes, una misión solo avanza si trabajan juntos.<br>
+        Ahora pondrán a prueba su coordinación en un minijuego táctico.
+      </p>
+    </div>
+
+    <div class="bottom-panel">
+
+    <div class="instruction-bubble">
+        <p>Haz click en <strong>Comenzar</strong> para iniciar tu misión.</p>
+    </div>
+
+    <button id="btnComenzar" class="btn primary">Comenzar</button>
+
+    </div>
+
+
   </main>
 
   <script>
     document.getElementById('btnComenzar').addEventListener('click', () => {
-      // Redirige a la siguiente vista del juego
       window.location.href = "{% url 'minijuego1' %}";
     });
   </script>
 </body>
 </html>
+
+
