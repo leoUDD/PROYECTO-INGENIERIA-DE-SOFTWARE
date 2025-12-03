@@ -13,9 +13,11 @@ urlpatterns = [
     path('conocidos/', views.conocidos, name='conocidos'),
     path('trabajoenequipo/', views.trabajoenequipo, name='trabajoenequipo'),
     path('minijuego1/', views.minijuego1, name='minijuego1'),
+    path("sopa/completada/", views.sopa_completada, name="sopa_completada"),
     path('tematicas/', views.tematicas, name='tematicas'),
     path('desafios/', views.desafios, name='desafios'),
     path('bubblemap/', views.bubblemap, name='bubblemap'),
+    path("orden-presentacion/", views.orden_presentacion_alumno, name="orden_presentacion_alumno"),
     path('pitch/', views.pitch, name='pitch'),
     path('presentar_pitch/', views.presentar_pitch, name='presentar_pitch'),
     path('dashboardprofesor/', views.dashboardprofesor, name='dashboardprofesor'),
@@ -46,7 +48,9 @@ urlpatterns = [
 
     # Peer review (usa la función definida en views.py)
     path('peer-review/', views.peer_review_view, name='peer_review'),
-    path('ranking/', views.ranking, name='ranking'),
+    path("ranking/", views.ranking_view, name="ranking"),
     path('reflexion/', views.reflexion, name='reflexion'),
+    path("mision-cumplida/", views.mision_cumplida_view, name="mision_cumplida"),
+
 ]
 

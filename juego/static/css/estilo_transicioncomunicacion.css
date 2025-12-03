@@ -138,3 +138,31 @@ body {
   font-size:clamp(18px, 1.6vw, 16px);
   line-height:1.5;
 }
+
+/* === Botón "Mercado" flotando dentro del contenedor === */
+.market-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 14px;
+    background: rgba(0, 200, 255, 0.15);
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--primary);
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    transition: 0.2s;
+    z-index: 20;
+}
+
+.market-button:hover {
+    background: var(--primary);
+    color: #081A2D;
+}
+
+/* Asegura que el botón flote dentro del bloque */
+.team-container {
+    position: relative;
+}

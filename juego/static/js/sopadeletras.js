@@ -265,7 +265,7 @@ function showWinModal(){
 
 function goNext(){
   const routes = document.getElementById('routes');
-  const url = routes?.dataset.tematicasUrl;
+  const url = routes?.dataset.sopaCompletadaUrl;
   if (url) window.location.href = url;
 }
 
