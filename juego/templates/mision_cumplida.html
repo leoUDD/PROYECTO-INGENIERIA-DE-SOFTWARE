@@ -9,12 +9,14 @@
 </head>
 <body>
 
+  <!-- Sonido de celebración -->
+  <audio id="celebration-sound" src="{% static 'sounds/victory2.mp3' %}" preload="auto"></audio>
+
   <!-- Confeti -->
   <div class="confetti-container"></div>
 
   <main class="mission-card">
     <p class="badge">MISIÓN COMPLETADA</p>
-
     <h1>¡Misión cumplida, agentes!</h1>
 
     <p class="intro">
@@ -37,36 +39,61 @@
   </main>
 
   <script>
-    // === CONFETI DINÁMICO 15s ===
+  const sound = document.getElementById("celebration-sound");
+  sound.volume = 0.6;
+
+  // 1) Intento inicial al cargar la página
+  function tryPlay() {
+    const promise = sound.play();
+    if (promise !== undefined) {
+      promise
+        .then(() => {
+          console.log("Sonido reproducido automáticamente.");
+        })
+        .catch(() => {
+          console.warn("Autoplay bloqueado. Esperando interacción…");
+          enableInteractionPlay();
+        });
+    }
+  }
+
+  // 2) Si autoplay falla, reproducir en primer gesto del usuario
+  function enableInteractionPlay() {
+    const handler = () => {
+      sound.play();
+      window.removeEventListener("click", handler);
+      window.removeEventListener("touchstart", handler);
+      window.removeEventListener("keydown", handler);
+      window.removeEventListener("scroll", handler);
+    };
+
+    window.addEventListener("click", handler, { once: true });
+    window.addEventListener("touchstart", handler, { once: true });
+    window.addEventListener("keydown", handler, { once: true });
+    window.addEventListener("scroll", handler, { once: true });
+  }
+
+  window.addEventListener("load", tryPlay);
+
+
+    /* ====== CONFETI ====== */
     const container = document.querySelector('.confetti-container');
     const colors = ["#FF7A1A", "#00C8FF", "#E6EEF8", "#8B5CF6", "#34D399"];
 
     function createConfetti(){
       const confetti = document.createElement("div");
       confetti.classList.add("confetti");
-
-      // tamaño aleatorio
       confetti.style.width = Math.random() * 8 + 6 + "px";
       confetti.style.height = Math.random() * 12 + 8 + "px";
-
-      // posición inicial
       confetti.style.left = Math.random() * 100 + "vw";
-
-      // color aleatorio
       confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-
-      // delay aleatorio para que no caigan todos juntos
       confetti.style.animationDelay = (Math.random() * 3) + "s";
 
       container.appendChild(confetti);
-
-      // Eliminar confeti después de 15 segundos
       setTimeout(() => confetti.remove(), 30000);
     }
 
-    // Crear muchos confetis durante los primeros 15s
     let confettiInterval = setInterval(createConfetti, 100);
-
     setTimeout(() => clearInterval(confettiInterval), 15000);
   </script>
 
