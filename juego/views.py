@@ -479,7 +479,7 @@ def orden_presentacion_alumno(request):
         # Si ya existe orden → NO permitir sortear de nuevo
         if orden_existente:
             messages.warning(request, "El orden ya fue sorteado y no puede modificarse.")
-            return redirect("orden_presentacion")
+            return redirect("orden_presentacion_alumno")
 
         # SORTEO SOLO UNA VEZ
         lista = list(grupos)
@@ -490,7 +490,7 @@ def orden_presentacion_alumno(request):
             g.save()
 
         messages.success(request, "Orden sorteado correctamente.")
-        return redirect("orden_presentacion")
+        return redirect("orden_presentacion_alumno")
 
     context = {
         "grupos": grupos.order_by('orden_presentacion'),
