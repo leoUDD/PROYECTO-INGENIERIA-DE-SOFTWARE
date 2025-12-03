@@ -1,289 +1,174 @@
-/* ============================
-   VARIABLES Misión Emprende
-============================ */
+/* ============================================
+   VARIABLES
+============================================ */
 :root {
-  /* Fondo global de la página (puedes cambiar la imagen si quieres) */
   --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
-  --card: rgba(4, 20, 40, 0.96);
+  --card: rgba(8, 26, 45, 0.92);
   --text: #E6EEF8;
   --muted: #AAB7C8;
   --primary: #00C8FF;
-  --primary-soft: rgba(0, 200, 255, 0.18);
   --accent: #FF7A1A;
-  --radius: 24px;
-  --shadow: 0 18px 40px rgba(0,0,0,.7);
+
+  --radius: 22px;
+  --shadow: 0 20px 40px rgba(0,0,0,.55);
 }
 
-/* ============================
-   RESET BÁSICO
-============================ */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-}
-
-/* ============================
-   BODY
-============================ */
+/* ============================================
+   RESET
+============================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: "Poppins", sans-serif;
   background: var(--bg);
   color: var(--text);
-}
-
-/* ============================
-   WRAP PRINCIPAL
-============================ */
-.results-wrap {
+  padding: 20px;
   min-height: 100vh;
-  max-width: 1100px;
+}
+
+/* ============================================
+   LAYOUT
+============================================ */
+.results-wrap {
+  max-width: 950px;
   margin: 0 auto;
-  padding: 32px 16px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
 }
 
-/* ============================
-   ENCABEZADO
-============================ */
+/* ============================================
+   HEADER / HERO
+============================================ */
 .results-hero {
-  display: flex;
-  justify-content: center;
-}
-
-.page-header {
-  background: linear-gradient(135deg, rgba(0,200,255,0.35), rgba(0,40,80,0.98));
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 24px 28px;
-  width: 100%;
-  max-width: 900px;
-}
-
-.head-text {
   text-align: center;
+  margin-bottom: 25px;
+  padding-top: 15px;
 }
 
-#page-title {
-  font-size: clamp(26px, 3vw, 32px);
+.page-header h1 {
+  font-size: clamp(26px, 4vw, 40px);
   font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   margin-bottom: 8px;
-  color: var(--accent);
+  color: var(--accent)
 }
 
 .subtitle {
-  font-size: clamp(14px, 1.5vw, 16px);
+  font-size: clamp(14px, 1.7vw, 18px);
   color: var(--text);
 }
 
-/* ============================
-   CARD DE RANKING
-============================ */
+/* ============================================
+   CARD
+============================================ */
 .card {
   background: var(--card);
   border-radius: var(--radius);
+  padding: 24px;
   box-shadow: var(--shadow);
-  padding: 24px 24px 28px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Glow decorativo */
-.card::before {
-  content: "";
-  position: absolute;
-  inset: -40%;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(0,200,255,0.18) 0, transparent 60%),
-    radial-gradient(circle at 90% 100%, rgba(0,200,255,0.12) 0, transparent 60%);
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-/* Contenido por encima del glow */
-.card * {
-  position: relative;
-  z-index: 1;
+  margin-bottom: 28px;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .card-header-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
   justify-content: space-between;
-  gap: 8px 16px;
+  align-items: center;
   margin-bottom: 18px;
 }
 
-.card-header-row .h2 {
-  font-size: clamp(20px, 2.2vw, 24px);
-  font-weight: 700;
-}
+.session-name { color: var(--muted); }
 
-.session-name {
-  font-size: 14px;
-  color: var(--muted);
-}
-
-/* ============================
-   TABLA DE RANKING
-============================ */
+/* ============================================
+   TABLA
+============================================ */
 .table-wrapper {
-  width: 100%;
   overflow-x: auto;
-  margin-top: 8px;
 }
 
 .ranking-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 15px;
-  min-width: 320px;
+  margin-top: 10px;
 }
 
 .ranking-table thead {
-  background: linear-gradient(135deg, rgba(0,200,255,0.25), rgba(0,70,120,0.85));
-}
-
-.ranking-table th,
-.ranking-table td {
-  padding: 10px 14px;
-  text-align: left;
-  white-space: nowrap;
+  background: rgba(255,255,255,0.06);
 }
 
 .ranking-table th {
+  text-align: left;
+  padding: 12px;
   font-weight: 600;
   font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.ranking-table td {
+  padding: 14px 12px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-size: 15px;
 }
 
-.ranking-table tbody tr {
-  background: rgba(0,8,20,0.65);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+/* ============================================
+   PODIO CLASSES
+============================================ */
+.podium-1 {
+  background: linear-gradient(90deg, rgba(255,215,0,0.25), rgba(255,215,0,0.05));
+}
+.podium-2 {
+  background: linear-gradient(90deg, rgba(192,192,192,0.25), rgba(192,192,192,0.05));
+}
+.podium-3 {
+  background: linear-gradient(90deg, rgba(205,127,50,0.25), rgba(205,127,50,0.05));
 }
 
-.ranking-table tbody tr:nth-child(even) {
-  background: rgba(0,16,32,0.85);
+/* ============================================
+   MEDALLAS
+============================================ */
+.medal {
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
 }
 
-.ranking-table tbody tr:hover {
-  background: rgba(0,40,80,0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 0 0 1px rgba(0,200,255,0.4);
+.team-col .badge-yo {
+  margin-left: 6px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
-/* Posición tipo “medalla” */
-.ranking-table tbody td:first-child {
-  font-weight: 600;
-}
-
-/* Oro / Plata / Bronce para los 3 primeros */
-.ranking-table tbody tr:nth-child(1) td:first-child {
-  color: #ffd700;
-}
-
-.ranking-table tbody tr:nth-child(2) td:first-child {
-  color: #c0c0c0;
-}
-
-.ranking-table tbody tr:nth-child(3) td:first-child {
-  color: #cd7f32;
-}
-
-/* Nombre de equipo */
-.ranking-table tbody td:nth-child(2) {
-  font-weight: 500;
-}
-
-/* Puntaje */
-.ranking-table tbody td:last-child {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ============================
-   ESTADOS VACÍOS
-============================ */
-.empty-state {
-  margin-top: 8px;
-  font-size: 14px;
-  color: var(--muted);
-}
-
-/* ============================
+/* ============================================
    CTA FINAL
-============================ */
+============================================ */
 .final-cta {
   display: flex;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 28px;
+  display: inline-block;
+  background: var(--primary);
+  color: #000;
+  font-weight: 700;
+  padding: 12px 28px;
   border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, var(--primary), #35e0ff);
-  color: #02121f;
-  font-weight: 600;
-  font-size: 15px;
   text-decoration: none;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 12px 26px rgba(0,0,0,0.7);
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  transition: 0.2s;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
-  box-shadow: 0 0 0 1px rgba(0,200,255,0.7), 0 14px 30px rgba(0,0,0,0.8);
+  background: #00a4d1;
+  transform: translateY(-2px);
 }
 
-.btn-primary:active {
-  transform: translateY(1px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.7);
-}
-
-/* ============================
-   RESPONSIVE
-============================ */
-@media (max-width: 720px) {
-  .results-wrap {
-    padding: 24px 12px 32px;
-  }
-
-  .page-header {
-    padding: 20px 18px;
-  }
-
-  .card {
-    padding: 20px 16px 24px;
-  }
-
-  .ranking-table th,
-  .ranking-table td {
-    padding: 8px 10px;
-  }
-
-  .btn-primary {
-    width: 100%;
-    max-width: 320px;
-  }
+/* ============================================
+   ESTADO VACÍO
+============================================ */
+.empty-state {
+  text-align: center;
+  padding: 25px 0;
+  font-size: 16px;
+  color: var(--muted);
 }

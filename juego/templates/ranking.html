@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{% static 'css/estilo_ranking.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <main class="results-wrap" role="main" aria-labelledby="page-title">
 
@@ -17,7 +18,7 @@
         <div class="head-text">
           <h1 id="page-title">Ranking de equipos</h1>
           <p class="subtitle">
-            Revisa los resultados de cada grupo.
+            Resultados finales según la cantidad de <strong>tokens</strong>.
           </p>
         </div>
       </header>
@@ -28,7 +29,7 @@
       <div class="card-header-row">
         <h2 class="h2">Resultados de la sesión</h2>
         {% if session %}
-          <p class="session-name">Sesión: <strong>{{ session.name }}</strong></p>
+          <p class="session-name">Sesión: <strong>{{ session.nombre }}</strong></p>
         {% endif %}
       </div>
 
@@ -37,33 +38,56 @@
           <table class="ranking-table">
             <thead>
               <tr>
-                <th>Posición</th>
+                <th>Puesto</th>
                 <th>Equipo</th>
-                <th>Puntaje promedio</th>
+                <th>Tokens</th>
               </tr>
             </thead>
+
             <tbody>
               {% for row in rankings %}
-              <tr>
-                <td>#{{ forloop.counter }}</td>
-                <td>{{ row.team_name }}</td>
-                <td>{{ row.avg_score|floatformat:1 }}</td>
+              <tr class="{{ row.podium_class }}">
+                
+                <!-- Puesto con medalla o número -->
+                <td class="rank-col">
+                  {% if row.medal %}
+                    <span class="medal">{{ row.medal }}</span>
+                  {% else %}
+                    #{{ row.rank }}
+                  {% endif %}
+                </td>
+
+                <!-- Nombre del equipo -->
+                <td class="team-col">
+                  {{ row.team_name }}
+                  {% if row.is_me %}
+                    <span class="badge-yo">(tu equipo)</span>
+                  {% endif %}
+                </td>
+
+                <!-- Tokens -->
+                <td class="tokens-col">
+                  {{ row.tokens }}
+                </td>
+
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
+
       {% else %}
         <p class="empty-state">Aún no hay resultados para mostrar.</p>
       {% endif %}
     </section>
 
-    <!-- ===== CTA A REFLEXIÓN FINAL ===== -->
+    <!-- ===== CTA final ===== -->
     <section class="final-cta">
       <a href="{% url 'reflexion' %}" class="btn-primary">
-        Finalizar
+        Continuar
       </a>
     </section>
+
   </main>
 </body>
 </html>

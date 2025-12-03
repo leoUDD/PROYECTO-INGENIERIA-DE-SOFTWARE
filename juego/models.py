@@ -45,24 +45,21 @@ class Encuesta(models.Model):
         db_table = 'encuesta'
 
 
-class Evaluacion(models.Model):
-    idevaluacion = models.AutoField(db_column='idEvaluacion', primary_key=True)
-    desafiolego_iddesafiolego = models.ForeignKey(Desafiolego, models.DO_NOTHING, db_column='desafioLego_idDesafioLego')
-    puntaje = models.IntegerField(blank=True, null=True)
-    grupoevaluado = models.IntegerField(db_column='grupoEvaluado', blank=True, null=True)
-
-    class Meta:
-        db_table = 'evaluacion'
-
 
 class Grupo(models.Model):
     idgrupo = models.AutoField(db_column='idGrupo', primary_key=True)
     sesion = models.ForeignKey('Sesion', models.CASCADE, db_column='sesion_idSesion', null=True)
     nombregrupo = models.CharField(max_length=100, blank=True, null=True)
     usuario_idusuario = models.ForeignKey('Usuario',models.DO_NOTHING,db_column='usuario_idUsuario',null=True,blank=True)
-    tokensgrupo = models.IntegerField(blank=True, null=True, default=12)  # 👈 valor inicial
+    tokensgrupo = models.IntegerField(blank=True, null=True, default=10)  # 👈 valor inicial
     etapa = models.IntegerField(blank=True, null=True, default=1)
     codigoacceso = models.CharField(db_column='codigoAcceso', max_length=8, unique=True, blank=True, null=True)
+    sopa_ganada = models.BooleanField(default=False)
+    orden_presentacion = models.PositiveIntegerField(null=True, blank=True)
+    recompensa_peer_otorgada = models.BooleanField(default=False)
+
+
+
     class Meta:
         db_table = 'grupo'
 
@@ -112,7 +109,7 @@ class Profesor(models.Model):
 
 class Reto(models.Model):
     idreto = models.AutoField(db_column='idReto', primary_key=True)
-    desafio_iddesafio = models.ForeignKey(Desafio, models.DO_NOTHING, db_column='desafio_idDesafio')
+    desafio_iddesafio = models.ForeignKey(Desafio, models.DO_NOTHING, db_column='desafio_idDesafio', null=True, blank=True)
     nombrereto = models.CharField(db_column='nombreReto', max_length=90, blank=True, null=True)
     descripcionreto = models.CharField(db_column='descripcionReto', max_length=200, blank=True, null=True)
     recompensareto = models.CharField(db_column='recompensaReto', max_length=100, blank=True, null=True)
@@ -120,6 +117,29 @@ class Reto(models.Model):
 
     class Meta:
         db_table = 'reto'
+
+class Retogrupo(models.Model):
+    ESTADOS = (
+        ('PEND', 'Pendiente'),
+        ('COMP', 'Completado'),
+        ('FALL', 'Fallado'),
+    )
+
+    idretogrupo = models.AutoField(primary_key=True)
+    reto = models.ForeignKey(Reto, models.DO_NOTHING)
+    grupo_emisor = models.ForeignKey(Grupo, models.DO_NOTHING, related_name='retos_enviados')
+    grupo_receptor = models.ForeignKey(Grupo, models.DO_NOTHING, related_name='retos_recibidos')
+
+    estado = models.CharField(max_length=4, choices=ESTADOS, default='PEND')
+    tokens_costo = models.IntegerField(default=0)
+    tokens_recompensa = models.IntegerField(default=0)
+    tokens_penalizacion = models.IntegerField(default=0)
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_resolucion = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'retogrupo'
 
 
 class Tokens(models.Model):
@@ -149,3 +169,49 @@ class Sesion(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class Evaluacion(models.Model):
+    idevaluacion = models.AutoField(primary_key=True)
+
+    # A qué sesión pertenece esta evaluación
+    sesion = models.ForeignKey(
+        Sesion,
+        on_delete=models.CASCADE,
+        related_name="evaluaciones"
+    )
+
+    # Quién evalúa
+    grupo_evaluador = models.ForeignKey(
+        Grupo,
+        on_delete=models.CASCADE,
+        related_name="evaluaciones_enviadas"
+    )
+
+    # A quién evalúa
+    grupo_evaluado = models.ForeignKey(
+        Grupo,
+        on_delete=models.CASCADE,
+        related_name="evaluaciones_recibidas"
+    )
+
+    # Criterios de 1 a 5
+    claridad = models.IntegerField()
+    creatividad = models.IntegerField()
+    viabilidad = models.IntegerField()
+    equipo = models.IntegerField()
+    presentacion = models.IntegerField()
+
+    # Texto obligatorio
+    comentario = models.TextField()
+
+    # Reflexión opcional
+    reflexion = models.TextField(null=True, blank=True)
+
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'evaluacion'
+        unique_together = ('sesion', 'grupo_evaluador', 'grupo_evaluado')
+
+    def puntaje_total(self):
+        return self.claridad + self.creatividad + self.viabilidad + self.equipo + self.presentacion

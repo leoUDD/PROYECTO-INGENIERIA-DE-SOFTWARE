@@ -6,20 +6,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Mercado de Retos</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_market.css' %}" />
-
 </head>
 <body>
+
   <main class="phone" role="region" aria-label="Mercado de Retos">
     <h1 class="title">Mercado de Retos</h1>
 
+    <!-- Saldo -->
     <span class="badge bg-warning text-dark fs-6">
       💰 Tus tokens: <strong id="balance">{{ user_tokens }}</strong>
     </span>
 
     <p class="subtitle">
-      Usa tus tokens para comprar retos y retar a otros equipos.  
+      Usa tus tokens para comprar retos y desafiar a otros equipos de tu sesión.
     </p>
 
     <!-- Mensajes -->
@@ -31,26 +33,35 @@
       </div>
     {% endif %}
 
+    <!-- Catálogo -->
     <div class="row mt-4">
       {% for c in challenges %}
         <div class="col-md-4 mb-3">
           <div class="card h-100 shadow-sm">
             <div class="card-body d-flex flex-column">
-              <h2 class="h6 mb-1">{{ c.title }}</h2>
-              <p class="small text-muted mb-2">{{ c.description }}</p>
+              <h2 class="h6 mb-1">{{ c.nombrereto }}</h2>
+              <p class="small text-muted mb-2">{{ c.descripcionreto }}</p>
 
               <div class="d-flex align-items-center justify-content-between mt-auto">
-                <span class="badge bg-warning text-dark">{{ c.cost }} tokens</span>
 
-                <form method="post" action="{% url 'issue_challenge' c.id %}" class="d-flex gap-2 align-items-center">
+                <span class="badge bg-warning text-dark">
+                  {{ c.costoreto|default:0 }} tokens
+                </span>
+
+                <form method="post" action="{% url 'issue_challenge' c.idreto %}" 
+                      class="d-flex gap-2 align-items-center">
                   {% csrf_token %}
+                  
                   <select class="form-select form-select-sm" name="target_team_id" required style="width:auto;">
-                    <option value="" selected disabled>Equipo objetivo</option>
+                    <option value="" disabled selected>Equipo objetivo</option>
                     {% for t in other_teams %}
-                      <option value="{{ t.id }}">{{ t.name }}</option>
+                      <option value="{{ t.idgrupo }}">{{ t.nombregrupo }}</option>
                     {% endfor %}
                   </select>
-                  <button class="btn btn-primary btn-sm buy-btn" data-cost="{{ c.cost }}" type="submit">
+
+                  <button class="btn btn-primary btn-sm buy-btn"
+                          data-cost="{{ c.costoreto|default:0 }}"
+                          type="submit">
                     Retar
                   </button>
                 </form>
@@ -58,34 +69,37 @@
             </div>
           </div>
         </div>
+
       {% empty %}
-        <div class="col-12">
-          <p class="text-muted">No hay retos disponibles.</p>
+        <div class="col-12 text-center">
+          <p class="text-muted">No hay retos disponibles por ahora.</p>
         </div>
       {% endfor %}
     </div>
 
     <hr class="my-4">
-      <div class="next-step">
-        <p>Haz click en <strong>Continuar</strong> para empezar el siguiente desafio.</p>
-        <button class="btn primary" id="btnContinuar">Continuar</button>
-      </div>
+
+    <!-- Volver a Comunicación -->
+    <div class="volver-comunicacion">
+      <a href="{% url 'transicioncomunicacion' %}" class="btn-volver">
+        Volver atrás
+      </a>
+    </div>
+
   </main>
 
   <script>
-    document.getElementById('btnContinuar').addEventListener('click', () => {
-      window.location.href = "{% url 'lego' %}";
-    });
-    // Deshabilita el botón si no alcanza el saldo
-    const balance = parseInt(document.getElementById('balance').textContent || '0', 10);
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-      const cost = parseInt(btn.dataset.cost, 10);
+    // Deshabilita botones según saldo
+    const balance = parseInt(document.getElementById("balance").textContent || "0", 10);
+    document.querySelectorAll(".buy-btn").forEach(btn => {
+      const cost = parseInt(btn.dataset.cost || "0", 10);
       if (balance < cost) {
-        btn.classList.add('btn-disabled');
-        btn.textContent = 'Sin saldo';
+        btn.classList.add("disabled-buy");
+        btn.textContent = "Sin saldo";
+        btn.disabled = true;
       }
     });
-    
   </script>
+
 </body>
 </html>

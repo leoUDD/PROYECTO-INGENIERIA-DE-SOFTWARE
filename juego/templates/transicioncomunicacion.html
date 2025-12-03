@@ -10,12 +10,18 @@
 </head>
 <body>
   <main class="team-container" role="region" aria-label="Introducción a comunicación">
+
+    <!-- Botón para ir al Market -->
+    <a href="{% url 'market' %}" class="market-button">🛒 Mercado</a>
+
     <section class="team-section">
       <h1 class="title">Comunicación</h1>
 
       <div class="speech-bubble">
-          <p>Comunicar bien asegura que tu idea se entienda.
-            En esta fase de la misión crearás un pitch claro y persuasivo usando los tips que recibirás.</p>
+        <p>
+          Comunicar bien asegura que tu idea se entienda.
+          En esta fase de la misión crearás un pitch claro y persuasivo usando los tips que recibirás.
+        </p>
       </div>
 
       <div class="next-step">
@@ -23,6 +29,7 @@
         <button class="btn primary" id="btnContinuar">Continuar</button>
       </div>
     </section>
+
   </main>
 
   <script>
@@ -30,5 +37,6 @@
       window.location.href = "{% url 'pitch' %}";
     });
   </script>
+
 </body>
 </html>

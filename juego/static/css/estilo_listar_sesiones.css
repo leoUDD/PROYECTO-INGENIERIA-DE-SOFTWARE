@@ -1,0 +1,122 @@
+/* ============================
+   TABLA DE SESIONES
+============================ */
+
+.table-sesiones{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:25px;
+  background:rgba(8, 22, 40, 0.72);
+  backdrop-filter: blur(8px);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 14px 28px rgba(0,0,0,.45);
+  border:1px solid rgba(0,200,255,0.15);
+}
+
+/* Cabecera */
+.table-sesiones thead{
+  background:linear-gradient(135deg, #00C8FF 0%, #0093c9 100%);
+}
+
+.table-sesiones thead th{
+  padding:14px 18px;
+  text-align:left;
+  color:#00151f;
+  font-weight:800;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  border:none;
+}
+
+/* Filas */
+.table-sesiones tbody tr{
+  transition:0.18s ease;
+  border-bottom:1px solid rgba(0,200,255,0.10);
+}
+
+.table-sesiones tbody tr:last-child{
+  border-bottom:none;
+}
+
+/* Hover */
+.table-sesiones tbody tr:hover{
+  background:rgba(0,200,255,0.08);
+  cursor:pointer;
+}
+
+/* Celdas */
+.table-sesiones td{
+  padding:14px 18px;
+  color:#E6EEF8;
+  font-size:15px;
+}
+
+/* Estado vacío */
+.empty-state{
+  margin-top:22px;
+  padding:22px;
+  background:rgba(4,20,40,.78);
+  border-radius:18px;
+  border:1px dashed rgba(0,200,255,.35);
+  font-size:14px;
+  color:#AAB7C8;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 26px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary), #4be4ff);
+  color: #00151f;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(0, 200, 255, 0.6);
+  text-decoration: none;
+  transition: 0.15s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(0, 200, 255, 0.8);
+}
+
+.btn-floating {
+  position: absolute;
+  top: 25px;
+  right: 40px;
+  z-index: 50;
+}
+/* Móvil */
+@media(max-width:700px){
+  .table-sesiones thead{
+    display:none;
+  }
+
+  .table-sesiones tr{
+    display:block;
+    border:1px solid rgba(0,200,255,0.15);
+    margin-bottom:14px;
+    border-radius:12px;
+    overflow:hidden;
+  }
+
+  .table-sesiones td{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 16px;
+    font-size:14px;
+  }
+
+  .table-sesiones td::before{
+    content:attr(data-label);
+    font-weight:600;
+    color:#76d9ff;
+  }
+}
