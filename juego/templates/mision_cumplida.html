@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Misión cumplida</title>
+  <link rel="stylesheet" href="{% static 'css/estilo_mision_cumplida.css' %}">
+</head>
+<body>
+
+  <!-- Confeti -->
+  <div class="confetti-container"></div>
+
+  <main class="mission-card">
+    <p class="badge">MISIÓN COMPLETADA</p>
+
+    <h1>¡Misión cumplida, agentes!</h1>
+
+    <p class="intro">
+      Han completado todos los objetivos de esta misión.<br>
+      Es momento de ver cómo quedó el <strong>ranking final de tokens</strong>.
+    </p>
+
+    <!-- LOGO ANIMADO -->
+    <div class="logo">
+      <img src="{% static 'images/logo.gif' %}" alt="Logo misión">
+    </div>
+
+    <ul class="highlights">
+      <li>✓ Superaron las pruebas de <strong>creatividad, comunicación y trabajo en equipo</strong>.</li>
+      <li>✓ Ya se registraron las evaluaciones entre equipos.</li>
+      <li>✓ Los equipos están listos para el podio final.</li>
+    </ul>
+
+    <a href="{% url 'ranking' %}" class="btn-ranking">Ver ranking final</a>
+  </main>
+
+  <script>
+    // === CONFETI DINÁMICO 15s ===
+    const container = document.querySelector('.confetti-container');
+    const colors = ["#FF7A1A", "#00C8FF", "#E6EEF8", "#8B5CF6", "#34D399"];
+
+    function createConfetti(){
+      const confetti = document.createElement("div");
+      confetti.classList.add("confetti");
+
+      // tamaño aleatorio
+      confetti.style.width = Math.random() * 8 + 6 + "px";
+      confetti.style.height = Math.random() * 12 + 8 + "px";
+
+      // posición inicial
+      confetti.style.left = Math.random() * 100 + "vw";
+
+      // color aleatorio
+      confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+
+      // delay aleatorio para que no caigan todos juntos
+      confetti.style.animationDelay = (Math.random() * 3) + "s";
+
+      container.appendChild(confetti);
+
+      // Eliminar confeti después de 15 segundos
+      setTimeout(() => confetti.remove(), 30000);
+    }
+
+    // Crear muchos confetis durante los primeros 15s
+    let confettiInterval = setInterval(createConfetti, 100);
+
+    setTimeout(() => clearInterval(confettiInterval), 15000);
+  </script>
+
+</body>
+</html>

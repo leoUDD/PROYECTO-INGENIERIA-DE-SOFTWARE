@@ -1,0 +1,77 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Misión Emprende UDD — Orden de presentación</title>
+
+  <link rel="stylesheet" href="{% static 'css/estilo_orden_presentacion.css' %}">
+</head>
+<body>
+  <main class="phone" role="region" aria-label="Orden de presentación">
+    <div class="order-wrap">
+
+      <h1 class="order-title">Orden de presentación</h1>
+      <p class="order-sub">
+        Aquí verás el orden en que los equipos saldrán a presentar su pitch.
+      </p>
+
+      {% if messages %}
+        <div class="msg">
+          {% for message in messages %}
+            • {{ message }}<br>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if not orden_existente %}
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn-sort">
+            Sortear orden de presentación
+          </button>
+        </form>
+      {% else %}
+        <p class="sorted-info">
+          ✔ El orden ya fue sorteado. Todos los equipos verán el mismo orden.
+        </p>
+      {% endif %}
+
+      {% if grupos %}
+        <ul class="list">
+          {% for g in grupos %}
+            <li>
+              <div class="group-info">
+                <strong>{{ g.nombregrupo|default:"Grupo" }}</strong>
+
+                {% if g.idgrupo == grupo_actual.idgrupo %}
+                  <span class="you-pill">Tu equipo</span>
+                {% endif %}
+              </div>
+
+              <span class="pos-pill">
+                {% if g.orden_presentacion %}
+                  {{ g.orden_presentacion }}
+                {% else %}
+                  —
+                {% endif %}
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="msg">Todavía no hay grupos en esta sesión.</p>
+      {% endif %}
+
+      <div class="next-wrap">
+        <a href="{% url 'presentar_pitch' %}" class="btn-next">
+          Continuar
+        </a>
+      </div>
+
+    </div>
+  </main>
+</body>
+</html>
