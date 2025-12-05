@@ -51,7 +51,7 @@ class Grupo(models.Model):
     sesion = models.ForeignKey('Sesion', models.CASCADE, db_column='sesion_idSesion', null=True)
     nombregrupo = models.CharField(max_length=100, blank=True, null=True)
     usuario_idusuario = models.ForeignKey('Usuario',models.DO_NOTHING,db_column='usuario_idUsuario',null=True,blank=True)
-    tokensgrupo = models.IntegerField(blank=True, null=True, default=10)  # 👈 valor inicial
+    tokensgrupo = models.IntegerField(blank=True, null=True, default=10)
     etapa = models.IntegerField(blank=True, null=True, default=1)
     codigoacceso = models.CharField(db_column='codigoAcceso', max_length=8, unique=True, blank=True, null=True)
     sopa_ganada = models.BooleanField(default=False)
@@ -63,14 +63,13 @@ class Grupo(models.Model):
     class Meta:
         db_table = 'grupo'
 
-    # 🪙 método auxiliar para modificar tokens
     def ajustar_tokens(self, cantidad):
         """Suma o resta tokens del grupo."""
         if self.tokensgrupo is None:
             self.tokensgrupo = 0
         self.tokensgrupo += cantidad
         if self.tokensgrupo < 0:
-            self.tokensgrupo = 0  # evita números negativos
+            self.tokensgrupo = 0
         self.save()
 
 
@@ -113,7 +112,7 @@ class Reto(models.Model):
     nombrereto = models.CharField(db_column='nombreReto', max_length=90, blank=True, null=True)
     descripcionreto = models.CharField(db_column='descripcionReto', max_length=200, blank=True, null=True)
     recompensareto = models.CharField(db_column='recompensaReto', max_length=100, blank=True, null=True)
-    costoreto = models.IntegerField(db_column='costoReto', blank=True, null=True)  # 👈 cambio a Integer
+    costoreto = models.IntegerField(db_column='costoReto', blank=True, null=True)
 
     class Meta:
         db_table = 'reto'
@@ -172,41 +171,28 @@ class Sesion(models.Model):
 
 class Evaluacion(models.Model):
     idevaluacion = models.AutoField(primary_key=True)
-
-    # A qué sesión pertenece esta evaluación
     sesion = models.ForeignKey(
         Sesion,
         on_delete=models.CASCADE,
         related_name="evaluaciones"
     )
-
-    # Quién evalúa
     grupo_evaluador = models.ForeignKey(
         Grupo,
         on_delete=models.CASCADE,
         related_name="evaluaciones_enviadas"
     )
-
-    # A quién evalúa
     grupo_evaluado = models.ForeignKey(
         Grupo,
         on_delete=models.CASCADE,
         related_name="evaluaciones_recibidas"
     )
-
-    # Criterios de 1 a 5
     claridad = models.IntegerField()
     creatividad = models.IntegerField()
     viabilidad = models.IntegerField()
     equipo = models.IntegerField()
     presentacion = models.IntegerField()
-
-    # Texto obligatorio
     comentario = models.TextField()
-
-    # Reflexión opcional
     reflexion = models.TextField(null=True, blank=True)
-
     fecha = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -1,10 +1,8 @@
-// === CONFIGURACIÓN (fija) ===
 const gridSize = 12;
 const words = ["IDEA", "EQUIPO", "NEGOCIO", "CREATIVIDAD", "LIDERAZGO"];
 const gridEl = document.getElementById("grid");
 const statusEl = document.getElementById("status");
 
-// sincroniza columnas/filas con el CSS
 document.documentElement.style.setProperty('--cols', gridSize);
 document.documentElement.style.setProperty('--rows', gridSize);
 
@@ -17,15 +15,12 @@ const DIRS = [
 let board = [];
 let mouseDown = false;
 let selection = [];
-
-// === Estado global del juego/temporizador ===
 let timerInterval = null;
 let gameEnded = false;
-let timeLeft = 45; // <— 45 segundos
+let timeLeft = 45;
 
 console.log("Sopa de Letras — build v3 • timeLeft =", timeLeft);
 
-/* ===== Tablero fijo: 12x12. Las 'X' se rellenan con letras al azar ===== */
 function createFixedBoard() {
   const gridTemplate = [
     "IDEAXXXXXXXX",
@@ -44,7 +39,6 @@ function createFixedBoard() {
   board = gridTemplate.map(row => row.split(""));
 }
 
-// Rellena las X con letras aleatorias
 function fillRandom() {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   for (let r = 0; r < gridSize; r++) {
@@ -56,7 +50,6 @@ function fillRandom() {
   }
 }
 
-// Dibuja la grilla y conecta eventos
 function render() {
   gridEl.innerHTML = "";
   for (let r = 0; r < gridSize; r++) {
@@ -81,7 +74,6 @@ function render() {
     }
   }
 
-  // Evita arrastres no deseados
   gridEl.addEventListener('dragstart', (e)=> e.preventDefault());
   document.addEventListener("mouseup", cancelDragOutside);
   document.addEventListener("touchend", cancelDragOutside, {passive:false});
@@ -94,9 +86,8 @@ function convertTouch(e){
   return { currentTarget: el, button: 0 };
 }
 
-// ===== Manejo de selección (click/drag en línea recta) =====
 function handleDown(e) {
-  if (e.button !== 0) return; // solo click izquierdo
+  if (e.button !== 0) return;
   if (!e.currentTarget || !e.currentTarget.dataset) return;
   if (gameEnded) return;
   mouseDown = true;
@@ -128,10 +119,8 @@ function addToSelection(el, validateLine = false) {
   const c = parseInt(el.dataset.c, 10);
   if (Number.isNaN(r) || Number.isNaN(c)) return;
 
-  // evitar duplicar celdas
   if (selection.some(s => s.r === r && s.c === c)) return;
 
-  // Mantener línea recta (8 direcciones)
   if (validateLine && selection.length >= 1) {
     const r0 = selection[0].r, c0 = selection[0].c;
     const dr = r - r0, dc = c - c0;
@@ -139,7 +128,7 @@ function addToSelection(el, validateLine = false) {
     const g = gcd(Math.abs(dr), Math.abs(dc)) || 1;
     const udr = dr / g, udc = dc / g;
     const isValidDir = DIRS.some(([dx, dy]) => dx === udc && dy === udr);
-    if (!isValidDir) return; // no permitir quiebres
+    if (!isValidDir) return;
   }
 
   el.classList.add("selected");
@@ -151,7 +140,6 @@ function clearTempSelection() {
   selection = [];
 }
 
-// Convierte la selección en texto (ordenada a lo largo de la línea)
 function textFromSelection() {
   if (selection.length <= 1) return selection.map(s => board[s.r][s.c]).join("");
   const s0 = selection[0];
@@ -164,7 +152,6 @@ function textFromSelection() {
   return selection.map(s => board[s.r][s.c]).join("");
 }
 
-// Verifica si la selección coincide con una palabra (normal o al revés)
 function checkSelection() {
   if (selection.length === 0 || gameEnded) return;
 
@@ -185,7 +172,7 @@ function checkSelection() {
     updateStatus();
 
     if (allFound()) {
-      endGame(true); // victoria
+      endGame(true);
       return;
     }
   } else {
@@ -230,9 +217,9 @@ function allFound() {
 
 /* ===== Cierre unificado del juego ===== */
 function endGame(won, alarmAudio = null) {
-  if (gameEnded) return;          // idempotente
-  gameEnded = true;               // marca fin del juego
-  clearInterval(timerInterval);   // **DETENER** el tiempo
+  if (gameEnded) return;
+  gameEnded = true;
+  clearInterval(timerInterval);
 
   // si venía de tiempo agotado y estaba sonando la alarma
   if (alarmAudio && !won) {
@@ -299,13 +286,12 @@ function startTimer() {
 
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      endGame(false, alarmAudio); // tiempo agotado
+      endGame(false, alarmAudio);
       return;
     }
     timeLeft--;
   }
 
-  // IMPORTANTE: usar la variable GLOBAL, no crear una local
   timerInterval = setInterval(updateTimer, 1000);
   updateTimer();
 }
@@ -325,26 +311,21 @@ function startTimer() {
     const subEl     = document.querySelector('p');
     const timerBox  = document.getElementById('timer-container');
 
-    // Ancho interno real del card (sin padding)
     const cs = getComputedStyle(container);
     const innerW = container.clientWidth
                  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
 
-    // Por si el viewport es aún más chico (iPhone con safe areas)
     const maxWidth = Math.min(innerW, window.innerWidth * 0.94);
 
-    // Alto disponible aproximado dentro del viewport
     const wordsH = wordsBox ? wordsBox.offsetHeight : 0;
     const headerH = (titleEl?.offsetHeight || 0) + (subEl?.offsetHeight || 0) + (timerBox?.offsetHeight || 0);
     const containerVPadding = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-    const verticalMargins = 40; // respiración
+    const verticalMargins = 40;
     const availableH = window.innerHeight - headerH - wordsH - containerVPadding - verticalMargins;
 
-    // Tamaño de celda por ancho y por alto
     const cellByWidth  = (maxWidth  - (cols - 1) * gap - 2 * gap) / cols;
     const cellByHeight = (availableH - (rows - 1) * gap - 2 * gap) / rows;
 
-    // Celda final (con límites)
     const cell = Math.floor(Math.min(cellByWidth, cellByHeight));
     const finalSize = Math.max(22, Math.min(cell, 60));
 

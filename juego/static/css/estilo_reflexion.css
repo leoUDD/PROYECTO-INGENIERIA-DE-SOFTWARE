@@ -126,7 +126,6 @@ body{
   gap:18px;
 }
 
-/* Cards de QR (heredan look de las cards) */
 .card-instagram {
   background:url('/static/images/fondo_insta.png');
   border-radius:var(--radius);
@@ -141,7 +140,6 @@ body{
   box-shadow:var(--shadow);
 }
 
-/* Caja del código QR */
 .qr-box{
   border-radius:16px;
   padding:12px;
@@ -162,9 +160,7 @@ body{
   color:var(--card);
 }
 
-/* =======================
-      CTA FINAL (BOTÓN)
-========================= */
+
 .final-cta{
   margin-top:28px;
   text-align:center;

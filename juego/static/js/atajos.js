@@ -2,7 +2,6 @@
 (function () {
   'use strict';
 
-  // --- Apaga timers antes de navegar ---
   function clearAllTimers() {
     try {
       let id = window.setTimeout(() => {}, 0);
@@ -37,7 +36,7 @@
     if (!flow.length) return;
     const p = currentPath();
     let i = flow.indexOf(p);
-    if (i < 0) i = 0; // si no está en el flujo, salta al primero
+    if (i < 0) i = 0;
     const next = flow[(i + 1) % flow.length];
     goto(next);
   }
@@ -53,7 +52,6 @@
   }
 
   function onKey(e) {
-    // Evita actuar si el usuario está escribiendo
     const el = document.activeElement;
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
 

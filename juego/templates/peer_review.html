@@ -35,7 +35,6 @@
           {% endif %}
 
           {% if submitted %}
-            <!-- Caso: ya evaluó a TODOS los equipos -->
             <div class="alert alert-success mb-3">
               ¡Listo! Tu equipo ya evaluó a todos los otros equipos de la sesión.
             </div>
@@ -53,7 +52,6 @@
             </a>
 
           {% else %}
-            <!-- Caso: aún quedan equipos pendientes -->
             <p class="text-muted small mb-3">
               Ya evaluaste a <strong>{{ evaluados_count }}</strong> de
               <strong>{{ total_targets }}</strong> equipos.
@@ -64,8 +62,6 @@
 
             <form method="post">
               {% csrf_token %}
-
-              <!-- Reflexión breve (opcional) -->
               <div class="mb-4">
                 <label class="form-label fw-semibold">
                   Reflexión final (opcional)
@@ -80,7 +76,6 @@
                 <div class="form-text">Máx. 500 caracteres.</div>
               </div>
 
-              <!-- Equipo a evaluar (solo los que faltan) -->
               <div class="mb-3">
                 <label class="form-label fw-semibold">Equipo a evaluar</label>
                 <select name="target_team_id" class="form-select" required>
@@ -96,7 +91,6 @@
                 </div>
               </div>
 
-              <!-- Criterios 1–5 -->
               <div class="border rounded p-3 mb-3">
                 <h2 class="h6 mb-3">
                   Criterios (1 = muy bajo, 5 = excelente)
@@ -131,7 +125,6 @@
                 {% endfor %}
               </div>
 
-              <!-- Comentario (obligatorio) -->
               <div class="mb-3">
                 <label class="form-label fw-semibold">
                   Comentario para el equipo

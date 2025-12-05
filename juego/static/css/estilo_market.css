@@ -282,7 +282,6 @@ hr.my-4 {
     cursor: not-allowed;
 }
 
-/* ================== Responsivo ================== */
 @media (max-width: 480px) {
   body {
     padding: 10px;
@@ -312,10 +311,9 @@ hr.my-4 {
   }
 }
 
-/* ================== FIX MARGEN SUPERIOR (NOTEBOOK) ================== */
 @media (min-width: 600px) {
   body {
     align-items: flex-start !important;
-    padding-top: 60px !important; /* 🔥 margen superior visible */
+    padding-top: 60px !important;
   }
 }

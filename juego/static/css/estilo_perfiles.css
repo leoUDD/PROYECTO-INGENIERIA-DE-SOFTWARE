@@ -24,11 +24,11 @@ body{
 
   display: flex;
   justify-content: center;
-  align-items: center;      /* 👈 la vamos a pisar en desktop/notebook */
+  align-items: center;
 
   padding: 20px;
-  overflow-x: hidden;        /* Evita scroll lateral accidental */
-  overflow-y: auto;          /* 👈 permite hacer scroll si el contenido es muy alto */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Card Principal */
@@ -41,7 +41,7 @@ body{
   box-shadow: var(--shadow);
   padding: 40px 30px;
   text-align: center;
-  min-height: 800px; /* Altura base para escritorio */
+  min-height: 800px;
 }
 
 /* Encabezado */
@@ -61,7 +61,6 @@ h1{
   max-width: 80%;
 }
 
-/* Contenedor Perfiles (Desktop - Horizontal) */
 .perfiles{
   display: flex; 
   flex-wrap: wrap; 
@@ -75,7 +74,7 @@ h1{
   flex-direction: column; 
   align-items: center; 
   gap: 12px;
-  margin-top: 400px;  /* tu empuje hacia abajo para escritorio */
+  margin-top: 400px;
   margin-bottom: -10px;
 }
 
@@ -109,27 +108,22 @@ h1{
   font-size: 18px; font-weight: 700; color: var(--text);
 }
 
-/* =========================================================
-   MEDIA QUERIES
-   ========================================================= */
 
-/* 💻 Desktop / Notebook: que se vea la parte de arriba */
 @media (min-width: 900px){
   body{
-    align-items: flex-start;   /* 👈 ya NO centrado vertical */
-    padding-top: 40px;         /* 👈 margen superior visible */
+    align-items: flex-start;
+    padding-top: 40px;
     padding-bottom: 40px;
   }
 
   .phone{
-    margin-top: 0;             /* por si acaso */
+    margin-top: 0;
   }
 
   .perfil > a{ width: 180px; height: 180px; }
   .perfil-texto{ font-size: 20px; }
 }
 
-/* Tablets Intermedias (iPad Mini / Air) */
 @media (min-width: 768px) and (max-width: 899px){
   .phone{
     min-height: 700px;
@@ -139,7 +133,6 @@ h1{
   .perfil > a{ width: 140px; height: 140px; }
 }
 
-/* 📱 MÓVILES (< 768px) – pirámide 1 arriba + 2 abajo */
 @media (max-width: 767px){
 
   body{
@@ -228,7 +221,7 @@ h1{
   .perfiles{
     margin-top: 12px;
     gap: 18px 12px;
-    transform: translateY(0); /* evita que queden muy abajo */
+    transform: translateY(0);
   }
 
   .perfil > a{

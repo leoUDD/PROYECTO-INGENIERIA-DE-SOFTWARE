@@ -25,12 +25,12 @@ body {
 
 /* ================== CARD PRINCIPAL ================== */
 .team-container {
-  width: clamp(600px, 80vw, 1100px);   /* ACHICADO */
+  width: clamp(600px, 80vw, 1100px);
   background: url('/static/images/fondo3.png') center/cover no-repeat;
   border-radius: 28px;
   box-shadow: var(--shadow);
 
-  min-height: clamp(500px, 65vh, 850px);   /* MÁS BAJO */
+  min-height: clamp(500px, 65vh, 850px);
   padding: clamp(30px, 4vw, 60px);
   padding-top: 110px;
   padding-bottom: 0;
@@ -52,20 +52,19 @@ body {
   z-index: 2;
 }
 
-/* ================== PERSONAJES (foto5 y foto6) ================== */
 .team-container::before,
 .team-container::after{
   content:"";
   position:absolute;
-  width: 50%;                 /* AGRANDADO */
-  max-width: 420px;           /* AGRANDADO */
+  width: 50%;
+  max-width: 420px;
   aspect-ratio: 3/5;
   background-repeat:no-repeat;
   background-size:contain;
   pointer-events:none;
   z-index:1;
   opacity:1;
-  bottom:-70px;               /* BAJADO */
+  bottom:-70px;
 }
 
 /* Derecha */
@@ -161,24 +160,19 @@ body {
 /* ================== SPEECH BUBBLE ================== */
 .speech-bubble{
   position:absolute;
-  top: 50%;                 /* BAJADO */
+  top: 50%;
   left: 50%;
   transform: translateX(-50%);
   width: clamp(380px, 70vw, 500px);
-
   padding: 18px 22px;
   border-radius: 16px;
-
   background: rgba(0, 140, 255, 0.12);
   border: 1.6px solid rgba(0, 180, 255, 0.8);
-
   backdrop-filter: blur(10px) saturate(150%);
   -webkit-backdrop-filter: blur(10px) saturate(150%);
-
   box-shadow:
     0 0 20px rgba(0, 180, 255, .4),
     0 0 60px rgba(0, 100, 255, .3);
-
   z-index: 3;
   text-align:left;
 }

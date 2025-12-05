@@ -33,7 +33,7 @@ body {
   text-align:center;
   animation: fadeIn 0.6s ease-in-out;
   padding-top: 120px;
-  position: relative;   /* necesario para ::after y globo */
+  position: relative;
   overflow: hidden;
 }
 
@@ -110,7 +110,7 @@ body {
   border-radius:20px;
   padding:20px;
   box-shadow:inset 0 0 0 2px #e8edf9;
-  margin-top: 260px;       /* un poco menos agresivo */
+  margin-top: 260px;
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
@@ -150,16 +150,13 @@ body {
   width: clamp(240px, 40vw, 360px);
   padding: 18px 22px;
   border-radius: 16px;
-
   background: rgba(0, 140, 255, 0.12);
   border: 1.6px solid rgba(0, 180, 255, 0.8);
-
   backdrop-filter: blur(10px) saturate(150%);
   -webkit-backdrop-filter: blur(10px) saturate(150%);
   box-shadow:
     0 0 20px rgba(0, 180, 255, .4),
     0 0 60px rgba(0, 100, 255, .3);
-
   z-index: 3;
   text-align:left;
 }
@@ -171,7 +168,6 @@ body {
   line-height:1.5;
 }
 
-/* colita del globo hacia el personaje */
 .speech-bubble::after{
   content:"";
   position:absolute;
@@ -192,9 +188,7 @@ body {
   to { opacity:1; transform:translateY(0); }
 }
 
-/* =====================================================
-   📱 RESPONSIVE TABLET Y MÓVIL (≤ 768px)
-   ===================================================== */
+
 @media (max-width: 768px){
   body{
     padding:16px;
@@ -232,9 +226,7 @@ body {
   }
 }
 
-/* =====================================================
-   📱 RESPONSIVE MÓVIL PEQUEÑO (≤ 480px)
-   ===================================================== */
+
 @media (max-width: 480px){
 
   body{
@@ -247,8 +239,7 @@ body {
     padding-top: 80px;
   }
 
-  /* personaje derecho visible, el izquierdo más discreto
-     (o se puede ocultar si molesta) */
+
   .team-container::after{
     width:55%;
     right:-18%;
@@ -283,32 +274,23 @@ body {
     padding: 12px;
     min-height: 100vh;
     display: flex;
-    justify-content: center;   /* centro horizontal */
-    align-items: center;       /* centro vertical */
+    justify-content: center;
+    align-items: center;
   }
 
-  /* ⭐ Contenedor principal "iPhone" optimizado */
   .team-container{
-    max-width: 400px;          /* ancho óptimo */
+    max-width: 400px;
     width: 100%;
-    
     padding: 32px 18px 26px;
     padding-top: 120px;
-
     border-radius: 20px;
-
-    /* ⭐ Altura correcta — se ajusta al contenido */
     min-height: 70vh;
     height: auto;
-
-    /* ⭐ Para que quede realmente centrado */
     margin: auto;
-
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-
     overflow: hidden;
   }
 
@@ -327,11 +309,10 @@ body {
     max-width: 100%;
   }
 
-  /* ⭐ Speech bien abajo SIN mover next-step */
   .speech-bubble{
     position: static;
     width: 100%;
-    margin-top: 60px;      /* lo baja */
+    margin-top: 60px;
     margin-bottom: 16px;
     transform: none;
   }
@@ -366,10 +347,6 @@ body {
 }
 
 
-/* =====================================================
-   🎯 FIX exclusivo para iPad Mini (ANCHO EXACTO 768px)
-   Contenedor rectangular: más ancho que alto
-   ===================================================== */
 @media (width: 768px) {
 
   body{
@@ -381,9 +358,9 @@ body {
   }
 
   .team-container{
-    max-width: 680px;       /* 🔥 más ancho */
-    min-height: 60vh;       /* 🔥 más bajo → forma rectangular */
-    padding-top: 60px;      /* baja un poco el contenido */
+    max-width: 680px;
+    min-height: 60vh;
+    padding-top: 60px;
     padding-bottom: 40px;
 
     border-radius: 26px;
@@ -402,7 +379,7 @@ body {
     top: 22%;
     left: 50%;
     transform: translateX(-50%);
-    width: 70%;             /* más angosto para verse mejor en contenedor ancho */
+    width: 70%;
   }
 
   /* Bloque del botón más abajo */

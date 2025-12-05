@@ -15,12 +15,12 @@
   border-radius:var(--db-radius);
   box-shadow:var(--db-shadow);
   padding:12px;
-  width:min(100%, 760px);     /* más ancho útil, pero responsivo */
-  margin:16px auto;           /* centra horizontalmente */
+  width:min(100%, 760px);
+  margin:16px auto;
   box-sizing:border-box;
 }
 
-/* Botón “chip” compacto (no es ventana) */
+
 .db-chip{
   width:100%;
   display:flex;
@@ -54,13 +54,13 @@
 }
 
 
-/* Texto del chip: sin recortes, envuelve bien */
+
 .db-chip-text{
   display:flex;
   flex-direction:column;
   min-width:0;
   flex:1;
-  overflow-wrap:anywhere;     /* evita desbordes en palabras largas */
+  overflow-wrap:anywhere;
   word-break:normal;
 }
 .db-chip-text strong{
@@ -72,10 +72,9 @@
   color:var(--db-muted);
   line-height:1.35;
   font-size:12.5px;
-  white-space:normal;         /* muestra todo el texto */
+  white-space:normal;
 }
 
-/* Si quieres truncar de forma opcional, usa estas utilidades: */
 .db-ellipsis--1line{
   display:block;
   overflow:hidden;
@@ -84,19 +83,18 @@
 }
 .db-ellipsis--2lines {
   display: -webkit-box;
-  display: box; /* fallback antiguo */
+  display: box;
   -webkit-box-orient: vertical;
-          box-orient: vertical; /* estandarizado */
+          box-orient: vertical;
   -webkit-line-clamp: 2;
-          line-clamp: 2; /* versión estándar */
+          line-clamp: 2;
   overflow: hidden;
   word-break: break-word;
   text-overflow: ellipsis;
-  max-height: 3em; /* opcional: aprox. 2 líneas */
+  max-height: 3em;
 }
 
 
-/* CTA a la derecha */
 .db-chip-cta{
   margin-left:auto;
   font-weight:700;
@@ -104,7 +102,6 @@
   flex-shrink:0;
 }
 
-/* Drawer interno (detalle dentro del mismo badge) */
 .db-drawer{
   margin-top:12px;
   border-top:1px dashed var(--db-border);
@@ -120,7 +117,7 @@
   margin:0 0 10px;
   color:#374151;
   line-height:1.5;
-  overflow-wrap:anywhere;     /* por si el detalle es largo */
+  overflow-wrap:anywhere;
 }
 
 /* Acciones */
@@ -154,7 +151,6 @@
   .db-chip-text small{ font-size:12px; }
 }
 
-/* Respeto a usuarios con “reducir movimiento” */
 @media (prefers-reduced-motion: reduce){
   .db-chip,
   .btn-mini,

@@ -45,7 +45,6 @@
   <script>
     const KEY = 'desafioSeleccionado';
 
-    // Marca visual un card como seleccionado y actualiza su botón
     function marcarSeleccion(card) {
       document.querySelectorAll('.challenge-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
@@ -65,7 +64,6 @@
       if (btnContinuar) btnContinuar.disabled = false;
     }
 
-    // Guarda en sessionStorage con la estructura usada por el badge
     function guardarDesafioDesdeCard(card) {
       const data = {
         slug: card.dataset.slug || '',
@@ -87,7 +85,6 @@
       marcarSeleccion(card);
     }
 
-    // Click en botón "Elegir"
     document.querySelectorAll('.challenge-card .btn.select').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const card = e.currentTarget.closest('.challenge-card');
@@ -97,14 +94,12 @@
       });
     });
 
-    // Selección con Enter sobre la tarjeta
     document.querySelectorAll('.challenge-card').forEach(card => {
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           guardarDesafioDesdeCard(card);
         }
       });
-      // También permite seleccionar haciendo click en cualquier parte de la tarjeta
       card.addEventListener('click', (e) => {
         if (!e.target.classList.contains('btn')) {
           guardarDesafioDesdeCard(card);
@@ -112,7 +107,6 @@
       });
     });
 
-    // Restaurar selección previa (si recargas esta vista)
     (function restoreSelection(){
       let saved = null;
       try { saved = JSON.parse(sessionStorage.getItem(KEY) || 'null');

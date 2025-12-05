@@ -4,13 +4,11 @@
   const btnPresentar = document.getElementById('btnPresentar');
   const btnLimpiar = document.getElementById('btnLimpiar');
 
-  // Cargar si existía algo guardado
   try {
     const prev = sessionStorage.getItem(KEY);
     if (prev) textarea.value = prev;
   } catch (_) {}
 
-  // Guardado en vivo
   let saveTimer;
   textarea.addEventListener('input', () => {
     try { sessionStorage.setItem(KEY, textarea.value); } catch (_) {}
@@ -33,8 +31,4 @@
   btnPresentar.addEventListener('click', () => {
     window.location.href = PRESENTAR_URL;
   });
-
-  // Inyecta la URL de destino desde el template sin mezclar lógica
-  // En templates, justo antes de incluir este archivo, puedes definir:
-  // <script>const PRESENTAR_URL = "{% url 'presentar_pitch' %}";</script>
 })();

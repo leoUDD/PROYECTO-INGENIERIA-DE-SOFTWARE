@@ -100,7 +100,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <script>
-    // Datos por defecto en 0 (puedes pasarlos desde la vista cuando estén listos)
     const KPI = {
       profesores: Number("{{ kpis.profesores|default:0 }}") || 0,
       alumnos: Number("{{ kpis.alumnos|default:0 }}") || 0,
@@ -137,7 +136,6 @@
       }
     });
 
-    // Alumnos por carrera (barra horizontal)
     new Chart(document.getElementById('chartAlumnosCarrera').getContext('2d'), {
       type: 'bar',
       data: {
@@ -152,7 +150,6 @@
       }
     });
 
-    // Evolución semanal (línea)
     new Chart(document.getElementById('chartLinea').getContext('2d'), {
       type: 'line',
       data: {

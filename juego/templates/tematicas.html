@@ -18,9 +18,6 @@
       <p class="subtitle">Selecciona una categoría para continuar. Cada bloque explica de qué trata.</p>
     </header>
 
-    <!-- ============================
-         CARRUSEL COMPLETO
-       ============================ -->
     <section class="themes-carousel" aria-label="Temáticas disponibles">
 
       <button class="carousel-btn prev" type="button" aria-label="Anterior">‹</button>
@@ -96,7 +93,6 @@
 
     </section>
 
-    <!-- BOTÓN FINAL -->
     <footer class="footer-actions">
       <button id="btnContinuar" class="btn primary" type="button" disabled>
         Comenzar desafío
@@ -107,7 +103,6 @@
 
   <script src="{% static 'js/tematica.js' %}" defer></script>
 
-  <!-- JS DEL CARRUSEL -->
 <script>
   (function(){
     const track = document.getElementById('themesTrack');
@@ -134,11 +129,6 @@
       const tema = localStorage.getItem('temaSeleccionado');
       cta.disabled = !tema;
     }
-
-    // 🔥 OJO: QUITAMOS estas dos líneas que rompen todo:
-    // if (prev) prev.addEventListener('click', () => move(-1));
-    // if (next) next.addEventListener('click', () => move(1));
-
     cta.addEventListener('click', function () {
       const tema = localStorage.getItem('temaSeleccionado');
       if (!tema) return alert('Selecciona una temática antes de continuar.');

@@ -65,7 +65,7 @@ body{
 .mode-card{
   position:relative;
   display:flex;
-  height:clamp(240px, 34vw, 320px); /* asegura altura y evita solaparse */
+  height:clamp(240px, 34vw, 320px);
   border-radius:20px;
   overflow:hidden;
   text-decoration:none;
@@ -76,7 +76,6 @@ body{
   background-size:cover;
   background-repeat:no-repeat;
 
-  /* ✨ Animación suave de “respiración” / glow */
   animation: cardGlow 5.2s ease-in-out infinite;
 }
 
@@ -109,12 +108,11 @@ body{
   pointer-events:none;
 }
 
-/* contenido en foreground */
 .mode-content{
-  position:relative; /* por encima del overlay */
+  position:relative;
   display:flex;
   flex-direction:column;
-  justify-content:flex-end; /* texto abajo, visualmente más limpio */
+  justify-content:flex-end;
   gap:8px;
   width:100%;
   padding:clamp(16px, 2.4vw, 22px);
@@ -149,7 +147,6 @@ body{
   text-shadow:0 2px 8px rgba(0,0,0,.35);
 }
 
-/* CTA fijo abajo a la derecha, sin solaparse */
 .mode-cta{
   margin-top:8px;
   align-self:flex-end;

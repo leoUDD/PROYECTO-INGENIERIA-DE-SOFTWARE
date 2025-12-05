@@ -86,7 +86,6 @@
     </nav>
   </aside>
 
-  <!-- MAIN -->
   <main class="main-content">
 
     <h1 class="title">Grupos / Salas</h1>
@@ -95,7 +94,6 @@
       que deben usar para ingresar a cada grupo.
     </p>
 
-    <!-- BOTÓN AUTO-ASIGNAR -->
     <form method="post">
       {% csrf_token %}
       <button type="submit" class="btn-auto">Auto-asignar alumnos sin grupo</button>
@@ -109,7 +107,6 @@
       </ul>
     {% endif %}
 
-    <!-- RESUMEN RÁPIDO DE CÓDIGOS -->
     {% if grupos %}
       <section class="codes-summary">
         <h2>Códigos para entregar a los grupos</h2>
@@ -124,7 +121,6 @@
       </section>
     {% endif %}
 
-    <!-- LISTADO COMPLETO DE GRUPOS -->
     {% for grupo in grupos %}
       <section class="card">
         <h2> {{ grupo.nombregrupo }}</h2>

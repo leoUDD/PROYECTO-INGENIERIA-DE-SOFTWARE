@@ -24,7 +24,7 @@ body {
   top: -10vh;
   opacity: 0.9;
   border-radius: 4px;
-  animation: fall 7s linear forwards; /* ⏳ dura 15 segundos */
+  animation: fall 7s linear forwards;
 }
 
 @keyframes fall {

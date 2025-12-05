@@ -78,8 +78,6 @@
     </div>
 
     <hr class="my-4">
-
-    <!-- Volver a Comunicación -->
     <div class="volver-comunicacion">
       <a href="{% url 'transicioncomunicacion' %}" class="btn-volver">
         Volver atrás
@@ -89,7 +87,6 @@
   </main>
 
   <script>
-    // Deshabilita botones según saldo
     const balance = parseInt(document.getElementById("balance").textContent || "0", 10);
     document.querySelectorAll(".buy-btn").forEach(btn => {
       const cost = parseInt(btn.dataset.cost || "0", 10);

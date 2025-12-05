@@ -33,14 +33,10 @@
     </footer>
   </main>
 
-  <!-- ===========================
-       SISTEMA DE GUARDADO + BORRADO
-       =========================== -->
   <script>
     const STORAGE_KEY = "bubblemap_data";
     const SESSION_KEY = "browser_session_id";
 
-    // 👉 Fallback para navegadores que NO soportan crypto.randomUUID()
     function uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0;
@@ -49,7 +45,6 @@
       });
     }
 
-    // 1) Generamos un ID único por pestaña
     const currentSession = sessionStorage.getItem("my_session_id") ||
       (
         window.crypto && typeof window.crypto.randomUUID === "function"
@@ -59,15 +54,12 @@
 
     sessionStorage.setItem("my_session_id", currentSession);
 
-    // 2) Leemos el último ID guardado en localStorage
     const lastSession = localStorage.getItem(SESSION_KEY);
 
-    // 3) Si NO coincide → el navegador fue cerrado → Borrar data
     if (lastSession && lastSession !== currentSession) {
       localStorage.removeItem(STORAGE_KEY);
     }
 
-    // 4) Guardamos esta sesión como "última sesión activa"
     localStorage.setItem(SESSION_KEY, currentSession);
 
 

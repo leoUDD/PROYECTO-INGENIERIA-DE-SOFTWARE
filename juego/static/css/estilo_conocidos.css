@@ -53,7 +53,7 @@ body{
   overflow:hidden;
 }
 
-/* Asegura que el contenido esté sobre el personaje */
+
 .phone > *{
   position:relative;
   z-index:2;
@@ -219,9 +219,7 @@ body{
   border-color: transparent transparent transparent rgba(0, 180, 255, 0.7);
 }
 
-/* ============================= */
-/*           TABLET              */
-/* ============================= */
+
 @media (max-width: 900px){
   .phone{
     min-height: clamp(480px, 80vh, 640px);
@@ -246,9 +244,7 @@ body{
   }
 }
 
-/* ============================= */
-/*            MÓVIL              */
-/* ============================= */
+
 @media (max-width: 600px){
 
   .phone{
@@ -292,9 +288,7 @@ body{
   }
 }
 
-/* ============================= */
-/*   EXTRA SMALL – iPhone mini   */
-/* ============================= */
+
 @media (max-width: 380px){
   .speech-bubble{
     bottom: 66%;
@@ -306,12 +300,10 @@ body{
   }
 }
 
-/* ======================================= */
-/* ⭐ FIX SOLO NOTEBOOK / DESKTOP GRANDE   */
-/* ======================================= */
+
 @media (min-width: 1100px) and (max-width: 1900px){
   .speech-bubble{
-    bottom: 35% !important;  /* 🔥 Ajuste real según tu captura */
+    bottom: 35% !important;
   }
 }
 

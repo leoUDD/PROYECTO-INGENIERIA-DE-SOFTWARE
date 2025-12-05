@@ -28,18 +28,13 @@ body {
   background: url('/static/images/empatia.png') center/cover no-repeat;
   border-radius: 28px;
   box-shadow: var(--shadow);
-
-  /* 🔥 MÁS ALTO EN TODAS LAS PANTALLAS */
   min-height: clamp(650px, 75vh, 1000px);
-
-  /* 🔥 MÁS ESPACIO INTERIOR */
   padding: clamp(40px, 5vw, 80px);
   padding-top: 80px;
   padding-bottom: 0px;
   text-align: center;
   position: relative;
   overflow: hidden;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -114,26 +109,19 @@ body {
 /* ================== SPEECH BUBBLE ================== */
 .speech-bubble {
   position: absolute;
-
-  /* 🔥 posición personalizada: */
   top: 55%;
   left: 50%;
   transform: translateX(-50%);
-
   width: clamp(300px, 60vw, 700px);
   padding: 20px 26px;
   border-radius: 18px;
-
   background: rgba(0, 140, 255, 0.10);
   border: 1.6px solid rgba(0, 180, 255, 0.75);
-
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
-
   box-shadow:
     0 0 22px rgba(0, 180, 255, .45),
     0 0 55px rgba(0, 120, 255, .30);
-
   color: #E8F6FF;
   text-align: left;
   z-index: 5;
@@ -147,7 +135,6 @@ body {
   font-weight: 400;
 }
 
-/* Opcional: colita del globo */
 .speech-bubble::after {
   content: "";
   position: absolute;

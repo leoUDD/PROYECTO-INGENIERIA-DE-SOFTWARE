@@ -11,10 +11,6 @@
 
 <body>
   <main class="results-wrap" role="main" aria-labelledby="page-title">
-
-    <!-- ========================================= -->
-    <!--                ENCABEZADO                -->
-    <!-- ========================================= -->
     <section class="results-hero">
       <header class="page-header">
         <div class="head-text">
@@ -26,15 +22,11 @@
       </header>
     </section>
 
-    <!-- ========================================= -->
-    <!--        REFLEXIÓN PRINCIPAL               -->
-    <!-- ========================================= -->
     <section class="card card-reflexion" aria-label="Reflexión final">
       <h2 class="h2">Reflexión:</h2>
       <p class="reflection">
         {{ reflexion_final|default:"Cada equipo avanzó enfrentando desafíos distintos. Hoy demostraron que cuando hay coordinación, estrategia y compromiso, ninguna misión es imposible." }}
       </p>
-
       <ul class="reflection-prompts">
         <li>¿Qué fue lo más valioso que aprendimos como equipo?</li>
         <li>¿Qué haríamos distinto en nuestra próxima misión?</li>
@@ -42,9 +34,7 @@
       </ul>
     </section>
 
-    <!-- ========================================= -->
-    <!--                  QR AREA                  -->
-    <!-- ========================================= -->
+
     <section class="qr-grid" aria-label="Códigos QR finales">
       <article class="card-instagram">
         <h3 class="h3">Instagram</h3>
@@ -63,9 +53,6 @@
       </article>
     </section>
 
-    <!-- ========================================= -->
-    <!--               FINALIZAR MISIÓN           -->
-    <!-- ========================================= -->
      <section class="final-cta">
       <a href="{% url 'perfiles' %}" class="btn-primary">
         Finalizar misión

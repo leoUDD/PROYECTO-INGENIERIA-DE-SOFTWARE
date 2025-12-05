@@ -14,23 +14,18 @@
 *{ box-sizing:border-box; margin:0; padding:0; }
 html,body{ min-height:100vh; }
 
-/* =========================
-      BODY / FONDO
-   ========================= */
 body {
   font-family:"Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background:var(--bg);
   color: var(--accent);
   display:flex;
   justify-content:center;
-  align-items:flex-start;       /* <-- evita que se corte arriba */
+  align-items:flex-start;
   padding:20px;
-  overflow-y:auto;              /* <-- permite scroll */
+  overflow-y:auto;
 }
 
-/* =========================
-      CONTENEDOR PRINCIPAL
-   ========================= */
+
 .bubblemap-container {
   width: clamp(360px, 94vw, 1100px);
   background:url('/static/images/fondo_card.png') center/cover no-repeat fixed;
@@ -38,7 +33,7 @@ body {
   box-shadow:var(--shadow);
   padding: 40px;
   text-align:center;
-  margin: 20px 0 40px;          /* <-- margen para que no quede pegado arriba */
+  margin: 20px 0 40px;
 }
 
 .subtitle {
@@ -46,9 +41,7 @@ body {
   margin-bottom: 24px;
 }
 
-/* =========================
-   BUBBLES — DESKTOP / TABLET
-   ========================= */
+
 .bubbles {
   position:relative;
   width:100%;
@@ -132,9 +125,7 @@ body {
 .bubbles .bubble:nth-child(6) { top: 18%; left: 18%; background: lightgreen; }
 .bubbles .bubble:nth-child(7) { bottom: 2%; left: 50%; transform: translateX(-50%); background: lightsalmon; }
 
-/* =========================
-      FOOTER
-   ========================= */
+
 .footer-actions {
   margin-top: 10px;
   position: relative;
@@ -158,9 +149,7 @@ body {
 }
 .btn.primary:hover { background:#3d618e; }
 
-/* =========================
-      TABLET
-   ========================= */
+
 @media (min-width: 641px) and (max-width: 900px) {
   .bubbles { height: 580px; }
 
@@ -180,9 +169,7 @@ body {
   .bubbles .bubble:nth-child(6) { top: 16%; left: 14%; }
 }
 
-/* =========================
-      📱 MÓVILES
-   ========================= */
+
 @media (max-width: 640px) {
   .bubbles {
     height:auto;

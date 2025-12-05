@@ -4,7 +4,7 @@
   --text:#E6EEF8;
   --muted:#AAB7C8;
   --primary:#00C8FF;
-  --primary-pressed:#00A3E0;  /* NUEVO: tono más oscuro para hover */
+  --primary-pressed:#00A3E0;
   --accent:#FF7A1A;
   --radius:28px;
   --shadow:0 18px 40px rgba(0,0,0,.6);
@@ -76,7 +76,6 @@ body{
   height: 100%;
 }
 
-/* luz sutil en la esquina en hover */
 .challenge-card::before{
   content:"";
   position:absolute;
@@ -96,7 +95,6 @@ body{
   opacity:1;
 }
 
-/* Borde + check visual al seleccionar */
 .challenge-card.selected{
   border-width:2px;
   border-color:#00FFD1;
@@ -133,7 +131,6 @@ body{
   to{ transform:scale(1); opacity:1; }
 }
 
-/* Contenido (dejamos espacio para el botón) */
 .content{
   padding: 18px 18px 64px 18px;
   display:flex;
@@ -153,7 +150,6 @@ body{
   flex: 1;
 }
 
-/* Botón anclado abajo-derecha */
 .actions{
   position:absolute;
   right:16px;

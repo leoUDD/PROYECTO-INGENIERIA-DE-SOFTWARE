@@ -208,7 +208,6 @@ body{
   text-shadow: 0 0 6px rgba(0, 220, 255, 0.6);
 }
 
-/* colita holográfica */
 .speech-bubble::after{
   content:"";
   position:absolute;
@@ -222,9 +221,7 @@ body{
   filter: drop-shadow(-2px 0 8px rgba(0, 180, 255, 0.8));
 }
 
-/* ============================= */
-/*           TABLET              */
-/* ============================= */
+
 @media (max-width: 900px){
   .phone{
     min-height: clamp(480px, 80vh, 640px);
@@ -249,9 +246,7 @@ body{
   }
 }
 
-/* ============================= */
-/*            MÓVIL / IPHONE     */
-/* ============================= */
+
 @media (max-width: 600px){
 
   .phone{
@@ -267,7 +262,6 @@ body{
     font-size: clamp(40px, 10vw, 50px);
   }
 
-  /* Globo más arriba para no chocar con el timer */
   .speech-bubble{
     right: 50%;
     bottom: 60%;
@@ -280,7 +274,6 @@ body{
     display:none;
   }
 
-  /* Personaje centrado abajo */
   .phone::after{
     width: 85%;
     left: 50%;   
@@ -298,9 +291,7 @@ body{
   }
 }
 
-/* ============================= */
-/* iPhone SE / pantallas mini    */
-/* ============================= */
+
 @media (max-width: 380px){
   .speech-bubble{
     bottom: 66%;
@@ -311,11 +302,6 @@ body{
     right: -22%;
   }
 }
-
-/* ============================= */
-/* 📌 FIX MARGEN ARRIBA EN PANTALLAS CHICAS */
-/* (si ya te funcionaba bien, puedes dejarlo tal cual) */
-/* ============================= */
 
 @media (max-width: 900px){
 
@@ -351,19 +337,14 @@ body{
   }
 }
 
-/* ============================= */
-/* 🎯 AJUSTE SOLO PARA NOTEBOOK  */
-/*    (globo más abajo en desktop) */
-/* ============================= */
+
 @media (min-width: 1200px) and (max-width: 1700px){
   .speech-bubble{
-    bottom: 40% !important;   /* 🔥 antes ~48% → ahora más abajo */
+    bottom: 40% !important;
   }
 }
 
-/* ============================= */
-/* Accesibilidad: reducir movimiento */
-/* ============================= */
+
 @media (prefers-reduced-motion: reduce){
   *{ animation:none !important; transition:none !important; }
 }

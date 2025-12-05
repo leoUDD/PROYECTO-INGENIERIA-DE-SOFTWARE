@@ -32,7 +32,7 @@ body {
   text-align:center;
   animation: fadeIn 0.6s ease-in-out;
   padding-top: 100px;
-  position: relative;   /* necesario para ::after y globo */
+  position: relative;
   overflow: hidden;
   min-height: clamp(600px, 75vh, 900px);
   padding-bottom: 50px;

@@ -23,7 +23,6 @@
 
     <p class="body">Ahora usa las piezas de LEGO para construir tu solución.</p>
 
-    <!-- 🔊 AUDIO DE ALARMA -->
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
     <div id="timer" class="timer">00:15</div>
@@ -38,9 +37,6 @@
 
   </main>
 
-  <!-- ===========================
-       CARGAR DATOS DEL BUBBLE MAP
-       =========================== -->
   <script>
     const STORAGE_KEY = "bubblemap_data";
     const list = document.getElementById("ideasList");
@@ -59,9 +55,6 @@
     }
   </script>
 
-  <!-- ===========================
-       TIMER + ALARMA
-       =========================== -->
   <script>
     const alarmAudio = document.getElementById("alarm-audio");
     let timeLeft = 15;
@@ -78,7 +71,6 @@
       } else {
         clearInterval(timerInterval);
 
-        // 🔊 Reproducir alarma al terminar
         try {
           alarmAudio.currentTime = 0;
           alarmAudio.play();

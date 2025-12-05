@@ -15,7 +15,6 @@
 *{ box-sizing:border-box; }
 html,body{ height:100%; margin:0; }
 
-/* SIN centrado vertical global (como tenías) */
 body{
   background:var(--bg);
   color:var(--text);
@@ -93,7 +92,6 @@ body{
   box-shadow:0 0 26px rgba(0,200,255,.8);
 }
 
-/* <a class="btn"> sin .ghost → primario por defecto */
 a.btn:not(.ghost){
   background:var(--primary);
   color:#001824;
@@ -158,7 +156,6 @@ a.btn:not(.ghost):hover{
   color:var(--primary);
 }
 
-/* Display del tiempo – estilo neon que venimos usando */
 .timer-display{
   font-weight:800;
   font-size:42px;
@@ -260,7 +257,6 @@ a.btn:not(.ghost):hover{
   justify-content:center;
 }
 
-/* Timer sticky en desktop (como tenías) */
 @media (min-width: 900px){
   .timer-card{
     position: sticky;
@@ -270,7 +266,7 @@ a.btn:not(.ghost):hover{
 
 /* ================== COLORES BOTONES DEL TEMPORIZADOR ================== */
 .timer-controls #btnStart{
-  background:#22c55e;        /* Verde: iniciar */
+  background:#22c55e;
   color:#fff;
   box-shadow:0 6px 14px rgba(34,197,94,.25);
 }
@@ -279,7 +275,7 @@ a.btn:not(.ghost):hover{
 }
 
 .timer-controls #btnPause{
-  background:#facc15;        /* Amarillo: pausar */
+  background:#facc15;
   color:#111827;
   box-shadow:0 6px 14px rgba(250,204,21,.25);
 }
@@ -288,7 +284,7 @@ a.btn:not(.ghost):hover{
 }
 
 .timer-controls #btnReset{
-  background:#ef4444;        /* Rojo: reiniciar */
+  background:#ef4444;
   color:#fff;
   box-shadow:0 6px 14px rgba(239,68,68,.25);
 }

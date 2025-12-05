@@ -27,7 +27,7 @@ body{
   font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   display:flex;
   justify-content:center;
-  align-items:center;   /* 🔥 Se sobrescribe en móviles/tablets */
+  align-items:center;
   padding:20px;
   overflow-x:hidden;
 }
@@ -80,14 +80,12 @@ body{
   transform:translateY(1px);
 }
 
-/* =========================================================
-   📱 MÓVILES GENERALES (< 768px)
-   ========================================================= */
+
 @media (max-width: 767px){
 
   body{
-    align-items: flex-start !important;     /* 🔥 CLAVE: evita corte arriba */
-    padding-top: 40px !important;           /* 🔥 margen superior real */
+    align-items: flex-start !important;
+    padding-top: 40px !important; 
     padding-left: 12px;
     padding-right: 12px;
   }
@@ -112,12 +110,12 @@ body{
   }
 }
 
-/* 📱 iPhone 12/13/14/15 — 375–390px */
+
 @media (max-width: 390px){
 
   body{
     align-items: flex-start !important;
-    padding-top: 55px !important;         /* 🔥 un poco más para iPhone mini */
+    padding-top: 55px !important;
     padding-left: 12px;
     padding-right: 12px;
   }
@@ -131,7 +129,7 @@ body{
   }
 
   .video-wrap{
-    margin-top: 140px;                 /* 🔽 sube el video */
+    margin-top: 140px;
     margin-bottom: 22px;
   }
 
@@ -142,7 +140,7 @@ body{
   }
 }
 
-/* 📱 móviles medianos (iPhone 11–XR / Android 400–430px) */
+
 @media (min-width: 391px) and (max-width: 430px){
 
   body{
@@ -162,14 +160,12 @@ body{
   }
 }
 
-/* =========================================================
-   💻 TABLETS / NOTEBOOKS (≥ 768px)
-   ========================================================= */
+
 @media (min-width: 768px){
 
   body{
-    align-items: flex-start !important;    /* 🔥 MISMO FIX PARA TABLETS */
-    padding-top: 60px !important;          /* 🔥 más margen superior */
+    align-items: flex-start !important;
+    padding-top: 60px !important;
   }
 
   .phone{

@@ -159,11 +159,10 @@ input:focus, select:focus{
   .btn{ font-size: clamp(18px, 2vw, 20px); }
 }
 
-/* === POPUP SOBRE EL CUADRO BLANCO === */
 .popup-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.25); /* oscurece levemente */
+  background: rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,7 +172,7 @@ input:focus, select:focus{
 }
 
 .popup-box {
-  background: #f44336; /* rojo alerta */
+  background: #f44336;
   color: #fff;
   font-weight: 600;
   padding: 14px 22px;
@@ -205,8 +204,8 @@ input:focus, select:focus{
 }
 
 .phone {
-  position: relative; /* necesario para anclar el overlay dentro */
-  overflow: hidden;   /* previene desplazamientos extra */
+  position: relative;
+  overflow: hidden;
 }
 
 @keyframes fadeIn {

@@ -1,6 +1,4 @@
-/* ============================
-   VARIABLES
-============================ */
+
 :root {
   --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
   --card: rgba(0, 15, 35, 0.70);
@@ -17,9 +15,7 @@
   --fs-timer: clamp(28px, 6vw, 40px);
 }
 
-/* ============================
-   RESET + BODY
-============================ */
+
 * {
   margin: 0;
   padding: 0;
@@ -36,9 +32,7 @@ body {
   min-height: 100vh;
 }
 
-/* ============================
-   PHONE CONTAINER
-============================ */
+
 .phone {
   width: clamp(450px, 90vw, 720px);
   background: var(--card);
@@ -57,18 +51,13 @@ body {
   align-items: center;
 }
 
-/* ============================
-   LOGO LEGO
-============================ */
 .logo {
   width: 120px;
   display: block;
   margin: 0 auto 18px;
 }
 
-/* ============================
-   TEXTOS
-============================ */
+
 .title {
   font-size: var(--fs-title);
   font-weight: 800;
@@ -96,9 +85,7 @@ body {
   max-width: 640px;
 }
 
-/* ============================
-   LISTA DE IDEAS
-============================ */
+
 .ideas-list {
   list-style: none;
   margin: 10px 0 25px;
@@ -124,9 +111,7 @@ body {
   overflow-wrap: anywhere;
 }
 
-/* ============================
-   TIMER NEON (como el otro código)
-============================ */
+
 #timer {
   display:flex;
   justify-content:center;
@@ -144,7 +129,7 @@ body {
   font-weight:800;
   font-size: var(--fs-timer);
 
-  font-variant-numeric: tabular-nums;   /* números alineados */
+  font-variant-numeric: tabular-nums;
   letter-spacing:.04em;
 
   border: clamp(3px, .8vw, 6px) solid #00d4ff;
@@ -159,9 +144,7 @@ body {
   50%{    box-shadow:0 0 40px #00ffff, 0 0 60px #00aaff inset; }
 }
 
-/* ============================
-   MODAL
-============================ */
+
 .modal {
   display: none;
   position: fixed;
@@ -197,9 +180,7 @@ body {
   margin-bottom: 20px;
 }
 
-/* ============================
-   BOTÓN
-============================ */
+
 #buttonContinuar {
   background: var(--accent);
   color: white;
@@ -218,9 +199,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* ============================
-   ANIMACIONES
-============================ */
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -231,9 +210,7 @@ body {
   to   { transform: scale(1); opacity: 1; }
 }
 
-/* ============================
-   RESPONSIVE
-============================ */
+
 @media (max-width: 480px) {
   .title { font-size: 22px; }
   .subtitle { font-size: 16px; }

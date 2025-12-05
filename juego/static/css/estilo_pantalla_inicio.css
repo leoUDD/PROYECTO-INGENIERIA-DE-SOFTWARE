@@ -19,7 +19,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;     /* se sobreescribe más abajo */
+  height: 100vh;
   padding: 20px;
   overflow-x: hidden;
 }
@@ -41,8 +41,6 @@ body {
   padding: 60px 30px;
   width: clamp(500px, 80vw, 540px);
   animation: fadeIn 1s ease;
-
-  /* 🔥 SEPARACIÓN REAL DEL BORDE SUPERIOR */
   margin-top: 60px;
 }
 
@@ -132,9 +130,6 @@ h1 {
   100% { left: 125%; }
 }
 
-/* ================================ */
-/* CONSOLA + TYPEWRITER             */
-/* ================================ */
 
 .console-card {
   width: 100%;
@@ -200,9 +195,7 @@ h1 {
   border-radius: inherit;
 }
 
-/* ================================ */
-/* BOTÓN CHIP ELECTRÓNICO          */
-/* ================================ */
+
 
 .btn-chip {
   position: relative;
@@ -271,21 +264,17 @@ h1 {
   100% { background: #0b1220; }
 }
 
-/* =============================================== */
-/* RESPONSIVO + SEPARACIÓN SUPERIOR EN MÓVILES     */
-/* =============================================== */
 
-/* Fija que la tarjeta se vea SIEMPRE separada arriba */
 @media (max-width: 480px){
 
   body{
     height: auto !important;
     min-height: 100vh;
-    display: block !important;     /* anula centrado vertical */
-    padding-top: 80px !important;  /* 🔥 MÁS margen superior en iPhone */
+    display: block !important;
+    padding-top: 80px !important;
   }
 
   .card{
-    margin-top: 0 !important;      /* evitamos doble margen */
+    margin-top: 0 !important;
   }
 }

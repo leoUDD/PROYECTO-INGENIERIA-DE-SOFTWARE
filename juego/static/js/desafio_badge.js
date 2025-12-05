@@ -9,22 +9,19 @@
 
   const KEY = 'desafioSeleccionado';
 
-  // Quita emojis y espacios iniciales si vinieron pegados en el título
   const stripLeadingEmoji = (s) =>
     (s || '').replace(/^\p{Extended_Pictographic}+\s*/u, '');
 
-  // 1) Lee el formato actual (sessionStorage)
   let data = null;
   try {
     const raw = sessionStorage.getItem(KEY);
     data = raw ? JSON.parse(raw) : null;
   } catch (_) { data = null; }
 
-  // 2) Fallbacks (formatos antiguos)
   if (!data) {
     try {
       const raw2 = localStorage.getItem('desafioSeleccionadoData');
-      const legacy = raw2 ? JSON.parse(raw2) : null; // { id, name, short, desc }
+      const legacy = raw2 ? JSON.parse(raw2) : null;
       if (legacy) {
         data = {
           id: legacy.id,
@@ -48,10 +45,9 @@
     }
   }
 
-  // 3) Pintado sin emoji
   if (data) {
     const tituloLimpio = stripLeadingEmoji(data.titulo || 'Desafío seleccionado');
-    titleEl.textContent = tituloLimpio;               // ← sin emoji
+    titleEl.textContent = tituloLimpio;
     const resumen = data.resumen || 'Desafío listo.';
     shortEl.textContent = resumen.length > 80 ? resumen.slice(0, 80) + '…' : resumen;
 
