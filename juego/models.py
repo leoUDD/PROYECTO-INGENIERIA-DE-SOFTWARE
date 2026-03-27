@@ -58,6 +58,13 @@ class Grupo(models.Model):
     orden_presentacion = models.PositiveIntegerField(null=True, blank=True)
     recompensa_peer_otorgada = models.BooleanField(default=False)
 
+    #Sincro
+    listo_lobby = models.BooleanField(default=False)
+    listo_f1 = models.BooleanField(default=False)
+    listo_f2 = models.BooleanField(default=False)
+    listo_f3 = models.BooleanField(default=False)
+    listo_f4 = models.BooleanField(default=False)
+
 
 
     class Meta:
@@ -162,6 +169,19 @@ class Sesion(models.Model):
     profesor = models.ForeignKey('Profesor', on_delete=models.CASCADE, db_column='profesor_idProfesor')
     nombre = models.CharField(max_length=120)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    # Sincro
+    fase_actual = models.CharField(max_length=40, default="lobby")
+    timer_corriendo = models.BooleanField(default=False)
+    segundos_restantes = models.IntegerField(default=0)
+
+    #Timer
+    t_rompehielo = models.IntegerField(default=180)
+    t_diferencias = models.IntegerField(default=300)
+    t_empatia = models.IntegerField(default=300)
+    t_creatividad = models.IntegerField(default=900)
+    t_pitch_prep = models.IntegerField(default=600)
+    t_pitch = models.IntegerField(default=90)
 
     class Meta:
         db_table = 'sesion'

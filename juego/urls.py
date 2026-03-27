@@ -3,6 +3,18 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    #NUEVO
+    path("espera/", views.pantalla_espera, name="pantalla_espera"),
+
+    path("sesion/<int:sesion_id>/estado/", views.estado_sesion, name="estado_sesion"),
+    path("sesion/<int:sesion_id>/actualizar-estado/", views.profesor_actualizar_estado, name="profesor_actualizar_estado"),
+    path("sesion/<int:sesion_id>/siguiente-fase/", views.profesor_siguiente_fase, name="profesor_siguiente_fase"),
+
+    path("grupo/<int:grupo_id>/listo/", views.marcar_grupo_listo, name="marcar_grupo_listo"),
+    path("sesion/<int:sesion_id>/control/", views.control_sesion, name="control_sesion"),
+    #NUEVO CIERRE 
+
+
     path('', views.perfiles, name='perfiles'),
     path('bienvenida/', views.bienvenida, name='bienvenida'),
     path('registro/', views.registro, name='registro'),

@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de sesión</title>
+</head>
+<body>
+  <h1>Control de sesión</h1>
+
+  <p><strong>Sesión:</strong> {{ sesion.nombre }}</p>
+  <p><strong>Fase actual:</strong> <span id="faseActual">{{ sesion.fase_actual }}</span></p>
+  <p><strong>Vista actual de alumnos:</strong> <span id="vistaActual"></span></p>
+
+  <div style="margin: 20px 0;">
+    <button type="button" onclick="siguienteFase()">Siguiente fase</button>
+    <button type="button" onclick="setFase('lobby')">Lobby</button>
+    <button type="button" onclick="setFase('f1_intro')">Abrir Fase 1</button>
+    <button type="button" onclick="setFase('f2_intro')">Abrir Fase 2</button>
+    <button type="button" onclick="setFase('f3_intro')">Abrir Fase 3</button>
+    <button type="button" onclick="setFase('f4_intro')">Abrir Fase 4</button>
+    <button type="button" onclick="iniciarTimer()">Iniciar timer</button>
+    <button type="button" onclick="pausarTimer()">Pausar timer</button>
+  </div>
+
+  <h2>Grupos en la sesión</h2>
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Grupo</th>
+        <th>Tokens</th>
+        <th>Lobby</th>
+        <th>F1</th>
+        <th>F2</th>
+        <th>F3</th>
+        <th>F4</th>
+      </tr>
+    </thead>
+    <tbody id="tablaGrupos">
+      {% for grupo in grupos %}
+      <tr>
+        <td>{{ grupo.nombregrupo }}</td>
+        <td>{{ grupo.tokensgrupo }}</td>
+        <td>{{ grupo.listo_lobby }}</td>
+        <td>{{ grupo.listo_f1 }}</td>
+        <td>{{ grupo.listo_f2 }}</td>
+        <td>{{ grupo.listo_f3 }}</td>
+        <td>{{ grupo.listo_f4 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Estado JSON</h2>
+  <pre id="estadoJson"></pre>
+
+  <script>
+    const sesionId = "{{ sesion.idsesion }}";
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + "=")) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    function nombreVistaSegunFase(fase) {
+      if (fase === "lobby") return "Sala de espera";
+      if (fase === "f1_intro" || fase === "f1_juego") return "Trabajo en equipo";
+      if (fase === "f2_intro" || fase === "f2_juego") return "Temáticas";
+      if (fase === "f3_intro" || fase === "f3_juego") return "LEGO";
+      if (fase === "f4_intro" || fase === "f4_juego") return "Pitch";
+      if (fase === "fin") return "Fin";
+      return fase;
+    }
+
+    async function cargarEstado() {
+      const res = await fetch(`/sesion/${sesionId}/estado/`);
+      const data = await res.json();
+
+      document.getElementById("faseActual").innerText = data.faseActual;
+      document.getElementById("vistaActual").innerText = nombreVistaSegunFase(data.faseActual);
+      document.getElementById("estadoJson").innerText = JSON.stringify(data, null, 2);
+
+      let html = "";
+      for (const grupo of data.grupos) {
+        html += `
+          <tr>
+            <td>${grupo.nombre}</td>
+            <td>${grupo.tokens}</td>
+            <td>${grupo.listoLobby}</td>
+            <td>${grupo.listoF1}</td>
+            <td>${grupo.listoF2}</td>
+            <td>${grupo.listoF3}</td>
+            <td>${grupo.listoF4}</td>
+          </tr>
+        `;
+      }
+      document.getElementById("tablaGrupos").innerHTML = html;
+    }
+
+    async function siguienteFase() {
+      await fetch(`/sesion/${sesionId}/siguiente-fase/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        }
+      });
+      cargarEstado();
+    }
+
+    async function setFase(fase) {
+      await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ faseActual: fase })
+      });
+      cargarEstado();
+    }
+
+    async function iniciarTimer() {
+      await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ timerCorriendo: true })
+      });
+      cargarEstado();
+    }
+
+    async function pausarTimer() {
+      await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ timerCorriendo: false })
+      });
+      cargarEstado();
+    }
+
+    setInterval(cargarEstado, 3000);
+    cargarEstado();
+  </script>
+</body>
+</html>

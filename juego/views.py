@@ -1,3 +1,9 @@
+#NUEVO
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET, require_POST
+import json
+from django.shortcuts import render, redirect, get_object_or_404
+#NUEVO CIERRRE
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -18,6 +24,208 @@ from django.db.models import F
 
 
 
+FASES_ORDEN = [
+    "lobby",
+    "f1_intro",
+    "f1_juego",
+    "f2_intro",
+    "f2_juego",
+    "f3_intro",
+    "f3_juego",
+    "f4_intro",
+    "f4_juego",
+    "fin",
+]
+
+MAPA_FASES = {
+    "pantalla_inicio": ["lobby"],
+    "trabajoenequipo": ["f1_intro", "f1_juego"],
+    "tematicas": ["f2_intro", "f2_juego"],
+    "lego": ["f3_intro", "f3_juego"],
+    "pitch": ["f4_intro", "f4_juego"],
+}
+
+#NUEVO
+
+def obtener_grupo_desde_session(request):
+    grupo_id = request.session.get("grupo_id")
+    if not grupo_id:
+        return None
+    try:
+        return Grupo.objects.select_related("sesion").get(pk=grupo_id)
+    except Grupo.DoesNotExist:
+        return None
+
+def acceso_permitido(grupo, nombre_vista):
+    if not grupo or not grupo.sesion:
+        return False
+    fases_validas = MAPA_FASES.get(nombre_vista, [])
+    return grupo.sesion.fase_actual in fases_validas
+
+
+@require_GET
+def estado_sesion(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+    grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
+
+    data = {
+        "sesionId": sesion.idsesion,
+        "faseActual": sesion.fase_actual,
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": sesion.segundos_restantes,
+        "grupos": [
+            {
+                "id": g.idgrupo,
+                "nombre": g.nombregrupo,
+                "tokens": g.tokensgrupo or 0,
+                "listoLobby": g.listo_lobby,
+                "listoF1": g.listo_f1,
+                "listoF2": g.listo_f2,
+                "listoF3": g.listo_f3,
+                "listoF4": g.listo_f4,
+            }
+            for g in grupos
+        ]
+    }
+    return JsonResponse(data)
+
+
+@require_POST
+def marcar_grupo_listo(request, grupo_id):
+    grupo = get_object_or_404(Grupo, pk=grupo_id)
+    payload = json.loads(request.body or "{}")
+    fase = payload.get("fase")
+
+    if fase == "lobby":
+        grupo.listo_lobby = True
+    elif fase == "f1":
+        grupo.listo_f1 = True
+    elif fase == "f2":
+        grupo.listo_f2 = True
+    elif fase == "f3":
+        grupo.listo_f3 = True
+    elif fase == "f4":
+        grupo.listo_f4 = True
+    else:
+        return JsonResponse({"ok": False, "error": "Fase inválida"}, status=400)
+
+    grupo.save()
+    return JsonResponse({"ok": True})
+
+
+@require_POST
+def profesor_actualizar_estado(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+    payload = json.loads(request.body or "{}")
+
+    if "faseActual" in payload:
+        sesion.fase_actual = payload["faseActual"]
+
+    if "timerCorriendo" in payload:
+        sesion.timer_corriendo = bool(payload["timerCorriendo"])
+
+    if "segundosRestantes" in payload:
+        sesion.segundos_restantes = int(payload["segundosRestantes"])
+
+    sesion.save()
+
+    return JsonResponse({
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": sesion.segundos_restantes,
+    })
+
+
+@require_POST
+def profesor_siguiente_fase(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    try:
+        idx = FASES_ORDEN.index(sesion.fase_actual)
+    except ValueError:
+        return JsonResponse({"ok": False, "error": "Fase actual inválida"}, status=400)
+
+    if idx + 1 >= len(FASES_ORDEN):
+        return JsonResponse({"ok": False, "error": "Ya está en la última fase"}, status=400)
+
+    sesion.fase_actual = FASES_ORDEN[idx + 1]
+
+    # opcional: cargar tiempo automáticamente
+    tiempos = {
+        "f1_juego": sesion.t_rompehielo,
+        "f2_juego": sesion.t_empatia,
+        "f3_juego": sesion.t_creatividad,
+        "f4_juego": sesion.t_pitch,
+    }
+
+    if sesion.fase_actual in tiempos:
+        sesion.segundos_restantes = tiempos[sesion.fase_actual]
+        sesion.timer_corriendo = False
+
+    sesion.save()
+
+    return JsonResponse({
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "segundosRestantes": sesion.segundos_restantes,
+    })
+
+
+def pantalla_espera(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        messages.error(request, "Debes ingresar con tu código.")
+        return redirect("registro")
+
+    return render(request, "pantalla_espera.html", {"grupo": grupo})
+
+
+def pantalla_inicio(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "pantalla_inicio"):
+        return redirect("pantalla_espera")
+
+    return render(request, "pantalla_inicio.html", {"grupo": grupo})
+
+
+def trabajoenequipo(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "trabajoenequipo"):
+        return redirect("pantalla_espera")
+
+    return render(request, "trabajoenequipo.html", {"grupo": grupo})
+
+
+def tematicas(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "tematicas"):
+        return redirect("pantalla_espera")
+
+    return render(request, "tematicas.html", {"grupo": grupo})
+
+
+def lego(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "lego"):
+        return redirect("pantalla_espera")
+
+    return render(request, "lego.html", {"grupo": grupo})
+
+
+#NUEVO CIERRRE
 def perfiles(request):
     return render(request, 'perfiles.html')
 
@@ -44,38 +252,43 @@ def registro(request):
 
         request.session['grupo_id'] = grupo.idgrupo
 
-        return redirect('pantalla_inicio')  # <-- ajusta al name de tu URL real
+        return redirect('pantalla_espera')  # <-- ajusta al name de tu URL real
 
     return render(request, 'registro.html', {'error': error})
 
 
 
-def trabajoenequipo(request):
-    return render(request, 'trabajoenequipo.html')
-
-
-def lego(request):
-    return render(request, 'lego.html')
 
 
 def introducciones(request):
-    return render(request, 'introducciones.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
 
-
-def pantalla_inicio(request):
-    return render(request, 'pantalla_inicio.html')
+    return render(request, "introducciones.html", {"grupo": grupo})
 
 
 def promptconocidos(request):
-    return render(request, 'promptconocidos.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
 
+    return render(request, "promptconocidos.html", {"grupo": grupo})
 
 def conocidos(request):
-    return render(request, 'conocidos.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    return render(request, "conocidos.html", {"grupo": grupo})
 
 
 def minijuego1(request):
-    return render(request, 'minijuego1.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    return render(request, "minijuego1.html", {"grupo": grupo})
 
 def sopa_completada(request):
     grupo_id = request.session.get("grupo_id")
@@ -94,12 +307,23 @@ def sopa_completada(request):
     return redirect("transiciondesafio")
 
 
-def tematicas(request):
-    return render(request, 'tematicas.html')
-
-
 def dashboardprofesor(request):
-    return render(request, 'dashboardprofesor.html')
+    profesor = Profesor.objects.first()
+    sesion = None
+
+    if profesor:
+        sesion = Sesion.objects.filter(profesor=profesor).order_by("-fecha_creacion").first()
+
+    return render(request, "dashboardprofesor.html", {"sesion": sesion})
+
+def control_sesion(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+    grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
+
+    return render(request, "control_sesion.html", {
+        "sesion": sesion,
+        "grupos": grupos,
+    })
 
 
 def dashboardadmin(request):
@@ -149,23 +373,38 @@ def eliminar_desafio(request, iddesafio):
     return redirect('lista_desafios')
 
 def transicionempatia(request):
-    return render(request, 'transicionempatia.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    return render(request, "transicionempatia.html", {"grupo": grupo})
 
 
 def transicioncreatividad(request):
-    return render(request, 'transicioncreatividad.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    return render(request, "transicioncreatividad.html", {"grupo": grupo})
 
 
 def transicioncomunicacion(request):
-    return render(request, 'transicioncomunicacion.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    return render(request, "transicioncomunicacion.html", {"grupo": grupo})
 
 
 def transiciondesafio(request):
-    return render(request, 'transiciondesafio.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    return render(request, "transiciondesafio.html", {"grupo": grupo})
 
 
 def transicionapoyo(request):
-    return render(request, 'transicionapoyo.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    return render(request, "transicionapoyo.html", {"grupo": grupo})
 
 @transaction.atomic
 def asignar_alumnos_a_grupos(sesion: Sesion):
@@ -460,11 +699,22 @@ def orden_presentacion_alumno(request):
     return render(request, "orden_presentacion_alumno.html", context)
 
 def pitch(request):
-    return render(request, 'pitch.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "pitch"):
+        return redirect("pantalla_espera")
+
+    return render(request, "pitch.html", {"grupo": grupo})
 
 
 def presentar_pitch(request):
-    return render(request, 'presentar_pitch.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    return render(request, "presentar_pitch.html", {"grupo": grupo})
 
 
 def registraralumnos(request):

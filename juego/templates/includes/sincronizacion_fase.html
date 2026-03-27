@@ -1,0 +1,34 @@
+<script>
+  const sesionId = "{{ grupo.sesion.idsesion }}";
+
+  async function revisarFaseGlobal() {
+    try {
+      const res = await fetch(`/sesion/${sesionId}/estado/`);
+      const data = await res.json();
+      const fase = data.faseActual;
+
+      const mapa = {
+        "lobby": "{% url 'pantalla_espera' %}",
+        "f1_intro": "{% url 'trabajoenequipo' %}",
+        "f1_juego": "{% url 'trabajoenequipo' %}",
+        "f2_intro": "{% url 'tematicas' %}",
+        "f2_juego": "{% url 'tematicas' %}",
+        "f3_intro": "{% url 'lego' %}",
+        "f3_juego": "{% url 'lego' %}",
+        "f4_intro": "{% url 'pitch' %}",
+        "f4_juego": "{% url 'pitch' %}"
+      };
+
+      const destino = mapa[fase];
+
+      if (destino && !window.location.pathname.startsWith(destino)) {
+        window.location.href = destino;
+      }
+    } catch (error) {
+      console.error("Error consultando estado de sesión:", error);
+    }
+  }
+
+  setInterval(revisarFaseGlobal, 2000);
+  revisarFaseGlobal();
+</script>
