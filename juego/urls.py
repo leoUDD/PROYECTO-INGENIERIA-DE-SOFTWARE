@@ -12,6 +12,7 @@ urlpatterns = [
 
     path("grupo/<int:grupo_id>/listo/", views.marcar_grupo_listo, name="marcar_grupo_listo"),
     path("sesion/<int:sesion_id>/control/", views.control_sesion, name="control_sesion"),
+    path("sesion/<int:sesion_id>/preview/", views.preview_pantalla_profesor, name="preview_pantalla_profesor"),
     #NUEVO CIERRE 
 
 

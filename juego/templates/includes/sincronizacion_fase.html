@@ -1,34 +1,29 @@
+{% if not preview_profesor %}
 <script>
   const sesionId = "{{ grupo.sesion.idsesion }}";
 
-  async function revisarFaseGlobal() {
+  function normalizar(ruta) {
+    if (!ruta) return "/";
+    return ruta.endsWith("/") ? ruta : ruta + "/";
+  }
+
+  async function revisarPantallaProfesor() {
     try {
       const res = await fetch(`/sesion/${sesionId}/estado/`);
       const data = await res.json();
-      const fase = data.faseActual;
 
-      const mapa = {
-        "lobby": "{% url 'pantalla_espera' %}",
-        "f1_intro": "{% url 'trabajoenequipo' %}",
-        "f1_juego": "{% url 'trabajoenequipo' %}",
-        "f2_intro": "{% url 'tematicas' %}",
-        "f2_juego": "{% url 'tematicas' %}",
-        "f3_intro": "{% url 'lego' %}",
-        "f3_juego": "{% url 'lego' %}",
-        "f4_intro": "{% url 'pitch' %}",
-        "f4_juego": "{% url 'pitch' %}"
-      };
+      const actual = normalizar(window.location.pathname);
+      const destino = normalizar(data.rutaAlumno);
 
-      const destino = mapa[fase];
-
-      if (destino && !window.location.pathname.startsWith(destino)) {
+      if (actual !== destino) {
         window.location.href = destino;
       }
-    } catch (error) {
-      console.error("Error consultando estado de sesión:", error);
+    } catch (e) {
+      console.error("Error sincronizando pantalla:", e);
     }
   }
 
-  setInterval(revisarFaseGlobal, 2000);
-  revisarFaseGlobal();
+  setInterval(revisarPantallaProfesor, 1500);
+  revisarPantallaProfesor();
 </script>
+{% endif %}

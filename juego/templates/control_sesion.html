@@ -3,68 +3,300 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Control de sesión</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      min-height: 100vh;
+    }
+    .panel {
+      background: #ffffff;
+      border-right: 1px solid #e5e7eb;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .preview {
+      padding: 16px;
+      background: #eef2f7;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .estado {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .botonera {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .botonera button,
+    .pantallas button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .primario { background: #2563eb; color: white; }
+    .secundario { background: #e5e7eb; color: #111827; }
+    .verde { background: #16a34a; color: white; }
+    .rojo { background: #dc2626; color: white; }
+
+    .pantallas {
+      display: grid;
+      gap: 8px;
+    }
+
+    .pantallas button.activo {
+      outline: 3px solid #93c5fd;
+      background: #dbeafe;
+    }
+
+    iframe {
+      width: 100%;
+      height: calc(100vh - 32px);
+      border: 0;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    .mini {
+      font-size: 12px;
+      color: #6b7280;
+    }
+  </style>
 </head>
 <body>
-  <h1>Control de sesión</h1>
+  <div class="layout">
+    <aside class="panel">
+      <h1>Control de sesión</h1>
 
-  <p><strong>Sesión:</strong> {{ sesion.nombre }}</p>
-  <p><strong>Fase actual:</strong> <span id="faseActual">{{ sesion.fase_actual }}</span></p>
-  <p><strong>Vista actual de alumnos:</strong> <span id="vistaActual"></span></p>
+      <div class="card estado">
+        <div><strong>Sesión:</strong> {{ sesion.nombre }}</div>
+        <div><strong>Pantalla actual:</strong> <span id="faseActual">{{ sesion.fase_actual }}</span></div>
+        <div><strong>Etiqueta:</strong> <span id="faseEtiqueta">{{ sesion.fase_actual }}</span></div>
+        <div><strong>Ruta alumno:</strong> <span id="rutaAlumno">-</span></div>
+        <div><strong>Timer:</strong> <span id="timerEstado">detenido</span></div>
+        <div><strong>Segundos restantes:</strong> <span id="segundosRestantes">{{ sesion.segundos_restantes }}</span></div>
 
-  <div style="margin: 20px 0;">
-    <button type="button" onclick="siguienteFase()">Siguiente fase</button>
-    <button type="button" onclick="setFase('lobby')">Lobby</button>
-    <button type="button" onclick="setFase('f1_intro')">Abrir Fase 1</button>
-    <button type="button" onclick="setFase('f2_intro')">Abrir Fase 2</button>
-    <button type="button" onclick="setFase('f3_intro')">Abrir Fase 3</button>
-    <button type="button" onclick="setFase('f4_intro')">Abrir Fase 4</button>
-    <button type="button" onclick="iniciarTimer()">Iniciar timer</button>
-    <button type="button" onclick="pausarTimer()">Pausar timer</button>
+        <div class="botonera">
+          <button class="primario" onclick="siguientePantalla()">Siguiente</button>
+          <button class="secundario" onclick="recargarPreview()">Recargar preview</button>
+          <button class="verde" onclick="iniciarTimer()">Iniciar timer</button>
+          <button class="rojo" onclick="pausarTimer()">Pausar timer</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Pantallas del flujo</h3>
+        <div class="pantallas" id="listaPantallas">
+          <button data-fase="pantalla_espera" onclick="irAPantalla('pantalla_espera')">Lobby / Espera</button>
+          <button data-fase="pantalla_inicio" onclick="irAPantalla('pantalla_inicio')">F1 · Inicio</button>
+          <button data-fase="promptconocidos" onclick="irAPantalla('promptconocidos')">F1 · ¿Se conocen?</button>
+          <button data-fase="introducciones" onclick="irAPantalla('introducciones')">F1 · Introducciones</button>
+          <button data-fase="conocidos" onclick="irAPantalla('conocidos')">F1 · Ya se conocen</button>
+          <button data-fase="trabajoenequipo" onclick="irAPantalla('trabajoenequipo')">F1 · Trabajo en equipo</button>
+          <button data-fase="minijuego1" onclick="irAPantalla('minijuego1')">F1 · Minijuego</button>
+          <button data-fase="transiciondesafio" onclick="irAPantalla('transiciondesafio')">F1 → F2 · Transición</button>
+          <button data-fase="transicionempatia" onclick="irAPantalla('transicionempatia')">F2 · Introducción</button>
+          <button data-fase="tematicas" onclick="irAPantalla('tematicas')">F2 · Temáticas</button>
+          <button data-fase="desafios" onclick="irAPantalla('desafios')">F2 · Desafíos</button>
+          <button data-fase="bubblemap" onclick="irAPantalla('bubblemap')">F2 · Bubble Map</button>
+          <button data-fase="transicioncreatividad" onclick="irAPantalla('transicioncreatividad')">F2 → F3 · Transición</button>
+          <button data-fase="lego" onclick="irAPantalla('lego')">F3 · LEGO</button>
+          <button data-fase="transicioncomunicacion" onclick="irAPantalla('transicioncomunicacion')">F3 → F4 · Transición</button>
+          <button data-fase="pitch" onclick="irAPantalla('pitch')">F4 · Pitch</button>
+          <button data-fase="presentar_pitch" onclick="irAPantalla('presentar_pitch')">F4 · Presentar pitch</button>
+          <button data-fase="orden_presentacion_alumno" onclick="irAPantalla('orden_presentacion_alumno')">F4 · Orden presentación</button>
+          <button data-fase="transicionapoyo" onclick="irAPantalla('transicionapoyo')">Cierre / Apoyo</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Grupos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Grupo</th>
+              <th>Tokens</th>
+              <th>Lobby</th>
+              <th>F1</th>
+              <th>F2</th>
+              <th>F3</th>
+              <th>F4</th>
+            </tr>
+          </thead>
+          <tbody id="tablaGrupos">
+            {% for grupo in grupos %}
+            <tr>
+              <td>{{ grupo.nombregrupo }}</td>
+              <td>{{ grupo.tokensgrupo }}</td>
+              <td>{{ grupo.listo_lobby }}</td>
+              <td>{{ grupo.listo_f1 }}</td>
+              <td>{{ grupo.listo_f2 }}</td>
+              <td>{{ grupo.listo_f3 }}</td>
+              <td>{{ grupo.listo_f4 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mini">El preview carga exactamente la ruta que reciben los alumnos.</div>
+    </aside>
+
+    <main class="preview">
+      <iframe id="previewAlumno" src=""></iframe>
+    </main>
   </div>
-
-  <h2>Grupos en la sesión</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Grupo</th>
-        <th>Tokens</th>
-        <th>Lobby</th>
-        <th>F1</th>
-        <th>F2</th>
-        <th>F3</th>
-        <th>F4</th>
-      </tr>
-    </thead>
-    <tbody id="tablaGrupos">
-      {% for grupo in grupos %}
-      <tr>
-        <td>{{ grupo.nombregrupo }}</td>
-        <td>{{ grupo.tokensgrupo }}</td>
-        <td>{{ grupo.listo_lobby }}</td>
-        <td>{{ grupo.listo_f1 }}</td>
-        <td>{{ grupo.listo_f2 }}</td>
-        <td>{{ grupo.listo_f3 }}</td>
-        <td>{{ grupo.listo_f4 }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h2>Estado JSON</h2>
-  <pre id="estadoJson"></pre>
 
   <script>
     const sesionId = "{{ sesion.idsesion }}";
+
+    async function fetchEstado() {
+      const res = await fetch(`/sesion/${sesionId}/estado/`);
+      return await res.json();
+    }
+
+    function marcarActiva(fase) {
+      document.querySelectorAll("[data-fase]").forEach(btn => {
+        btn.classList.toggle("activo", btn.dataset.fase === fase);
+      });
+    }
+
+    function actualizarUI(data) {
+  document.getElementById("faseActual").textContent = data.faseActual;
+  document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
+  document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
+  document.getElementById("timerEstado").textContent = data.timerCorriendo ? "corriendo" : "detenido";
+  document.getElementById("segundosRestantes").textContent = data.segundosRestantes ?? 0;
+
+  marcarActiva(data.faseActual);
+
+  const iframe = document.getElementById("previewAlumno");
+  const previewUrl = `/sesion/${sesionId}/preview/`;
+
+  if (iframe.dataset.srcActual !== previewUrl) {
+    iframe.src = previewUrl;
+    iframe.dataset.srcActual = previewUrl;
+  } else {
+    iframe.contentWindow?.location.reload();
+  }
+}
+
+    async function refrescar() {
+      try {
+        const data = await fetchEstado();
+        actualizarUI(data);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function irAPantalla(fase) {
+      const res = await fetch(`/sesion/${sesionId}/actualizar/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ faseActual: fase })
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        actualizarUI(data);
+      }
+    }
+
+    async function siguientePantalla() {
+      const res = await fetch(`/sesion/${sesionId}/siguiente/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken")
+        }
+      });
+      const data = await res.json();
+      if (data.ok) {
+        actualizarUI(data);
+      }
+    }
+
+    async function iniciarTimer() {
+      const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
+      const res = await fetch(`/sesion/${sesionId}/actualizar/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({
+          timerCorriendo: true,
+          segundosRestantes: segundos
+        })
+      });
+      const data = await res.json();
+      if (data.ok) actualizarUI(data);
+    }
+
+    async function pausarTimer() {
+      const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
+      const res = await fetch(`/sesion/${sesionId}/actualizar/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({
+          timerCorriendo: false,
+          segundosRestantes: segundos
+        })
+      });
+      const data = await res.json();
+      if (data.ok) actualizarUI(data);
+    }
+
+    function recargarPreview() {
+  const iframe = document.getElementById("previewAlumno");
+  iframe.src = `/sesion/${sesionId}/preview/`;
+}
 
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== "") {
         const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + "=")) {
             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
             break;
           }
@@ -73,90 +305,8 @@
       return cookieValue;
     }
 
-    function nombreVistaSegunFase(fase) {
-      if (fase === "lobby") return "Sala de espera";
-      if (fase === "f1_intro" || fase === "f1_juego") return "Trabajo en equipo";
-      if (fase === "f2_intro" || fase === "f2_juego") return "Temáticas";
-      if (fase === "f3_intro" || fase === "f3_juego") return "LEGO";
-      if (fase === "f4_intro" || fase === "f4_juego") return "Pitch";
-      if (fase === "fin") return "Fin";
-      return fase;
-    }
-
-    async function cargarEstado() {
-      const res = await fetch(`/sesion/${sesionId}/estado/`);
-      const data = await res.json();
-
-      document.getElementById("faseActual").innerText = data.faseActual;
-      document.getElementById("vistaActual").innerText = nombreVistaSegunFase(data.faseActual);
-      document.getElementById("estadoJson").innerText = JSON.stringify(data, null, 2);
-
-      let html = "";
-      for (const grupo of data.grupos) {
-        html += `
-          <tr>
-            <td>${grupo.nombre}</td>
-            <td>${grupo.tokens}</td>
-            <td>${grupo.listoLobby}</td>
-            <td>${grupo.listoF1}</td>
-            <td>${grupo.listoF2}</td>
-            <td>${grupo.listoF3}</td>
-            <td>${grupo.listoF4}</td>
-          </tr>
-        `;
-      }
-      document.getElementById("tablaGrupos").innerHTML = html;
-    }
-
-    async function siguienteFase() {
-      await fetch(`/sesion/${sesionId}/siguiente-fase/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        }
-      });
-      cargarEstado();
-    }
-
-    async function setFase(fase) {
-      await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify({ faseActual: fase })
-      });
-      cargarEstado();
-    }
-
-    async function iniciarTimer() {
-      await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify({ timerCorriendo: true })
-      });
-      cargarEstado();
-    }
-
-    async function pausarTimer() {
-      await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify({ timerCorriendo: false })
-      });
-      cargarEstado();
-    }
-
-    setInterval(cargarEstado, 3000);
-    cargarEstado();
+    setInterval(refrescar, 1500);
+    refrescar();
   </script>
 </body>
 </html>

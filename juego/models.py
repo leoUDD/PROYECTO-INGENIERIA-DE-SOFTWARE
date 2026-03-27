@@ -171,7 +171,7 @@ class Sesion(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     # Sincro
-    fase_actual = models.CharField(max_length=40, default="lobby")
+    fase_actual = models.CharField(max_length=40, default="pantalla_espera")    
     timer_corriendo = models.BooleanField(default=False)
     segundos_restantes = models.IntegerField(default=0)
 
