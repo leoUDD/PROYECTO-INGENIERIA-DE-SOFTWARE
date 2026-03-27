@@ -1,26 +1,45 @@
 <script>
-  (function () {
-    async function revisarEstadoSesion() {
-      try {
-        const sesionId = "{{ grupo.sesion.idsesion }}";
-        if (!sesionId) return;
+  const sesionId = "{{ grupo.sesion.idsesion }}";
 
-        const res = await fetch(`/sesion/${sesionId}/estado/`);
-        const data = await res.json();
+  async function revisarFaseGlobal() {
+    try {
+      const res = await fetch(`/sesion/${sesionId}/estado/`);
+      const data = await res.json();
 
-        window.__sesionEstado = data;
-        window.dispatchEvent(new CustomEvent("sesion-estado", { detail: data }));
+      const fase = data.faseActual;
 
-        const destino = data.rutaAlumno;
-        if (destino && window.location.pathname !== destino) {
-          window.location.href = destino;
-        }
-      } catch (error) {
-        console.error("Error sincronizando fase:", error);
+      const mapa = {
+        "lobby": "{% url 'pantalla_espera' %}",
+
+        "f1_bienvenida": "{% url 'pantalla_inicio' %}",
+        "f1_conocidos": "{% url 'conocidos' %}",
+        "f1_pre_sopa": "{% url 'promptconocidos' %}",
+        "f1_sopa": "{% url 'minijuego1' %}",
+
+        "f2_tematicas": "{% url 'tematicas' %}",
+        "f2_desafios": "{% url 'desafios' %}",
+        "f2_espera": "{% url 'espera_eleccion' %}",
+        "f2_bubblemap": "{% url 'bubblemap' %}",
+
+        "f3_lego": "{% url 'lego' %}",
+        "f3_juego": "{% url 'lego' %}",
+
+        "f4_construccion_pitch": "{% url 'pitch' %}",
+        "f4_presentacion_pitch": "{% url 'pitch' %}",
+        "f4_evaluacion_pitch": "{% url 'pitch' %}",
+
+        "reflexion": "{% url 'reflexion' %}"
+      };
+
+      const destino = mapa[fase];
+      if (destino && window.location.pathname !== destino) {
+        window.location.href = destino;
       }
+    } catch (error) {
+      console.error("Error consultando estado de sesión:", error);
     }
+  }
 
-    setInterval(revisarEstadoSesion, 1500);
-    revisarEstadoSesion();
-  })();
+  setInterval(revisarFaseGlobal, 2000);
+  revisarFaseGlobal();
 </script>

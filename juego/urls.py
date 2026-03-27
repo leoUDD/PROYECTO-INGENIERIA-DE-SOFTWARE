@@ -5,7 +5,8 @@ from . import views
 urlpatterns = [
     #NUEVO
     path("espera/", views.pantalla_espera, name="pantalla_espera"),
-
+    path("guardar-tematica/", views.guardar_tematica, name="guardar_tematica"),
+    path("guardar-desafio/", views.guardar_desafio, name="guardar_desafio"),
     path("sesion/<int:sesion_id>/estado/", views.estado_sesion, name="estado_sesion"),
     path("sesion/<int:sesion_id>/actualizar-estado/", views.profesor_actualizar_estado, name="profesor_actualizar_estado"),
     path("sesion/<int:sesion_id>/siguiente-fase/", views.profesor_siguiente_fase, name="profesor_siguiente_fase"),
@@ -13,6 +14,7 @@ urlpatterns = [
     path("grupo/<int:grupo_id>/listo/", views.marcar_grupo_listo, name="marcar_grupo_listo"),
     path("sesion/<int:sesion_id>/control/", views.control_sesion, name="control_sesion"),
     path("sesion/<int:sesion_id>/preview/", views.preview_pantalla_profesor, name="preview_pantalla_profesor"),
+    path("espera-eleccion/", views.espera_eleccion, name="espera_eleccion"),
     #NUEVO CIERRE 
 
 

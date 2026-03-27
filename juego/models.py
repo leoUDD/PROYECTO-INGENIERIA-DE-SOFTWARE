@@ -59,6 +59,16 @@ class Grupo(models.Model):
     recompensa_peer_otorgada = models.BooleanField(default=False)
 
     #Sincro
+    tema_elegido = models.CharField(max_length=80, blank=True, null=True)
+    desafio_elegido = models.ForeignKey(
+        'Desafio',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='grupos_que_lo_eligieron'
+    )
+    listo_f2_tematica = models.BooleanField(default=False)
+    listo_f2_desafio = models.BooleanField(default=False)
     listo_lobby = models.BooleanField(default=False)
     listo_f1 = models.BooleanField(default=False)
     listo_f2 = models.BooleanField(default=False)
@@ -182,6 +192,8 @@ class Sesion(models.Model):
     t_creatividad = models.IntegerField(default=900)
     t_pitch_prep = models.IntegerField(default=600)
     t_pitch = models.IntegerField(default=90)
+
+    
 
     class Meta:
         db_table = 'sesion'

@@ -181,21 +181,25 @@
         <div class="pantallas" id="listaPantallas">
   <button data-fase="lobby" onclick="irAPantalla('lobby')">Lobby / Espera</button>
 
-  <button data-fase="f1_intro" onclick="irAPantalla('f1_intro')">F1 · Introducción</button>
+  <button data-fase="f1_intro" onclick="irAPantalla('f1_intro')">
+  F1 · Introducción
+</button>
 
-  <button data-fase="f1_conocidos" onclick="irAPantalla('f1_conocidos')">
-    F1 · No se conocen → Ir a Conocerse
-  </button>
+<button data-fase="f1_conocidos" onclick="irAPantalla('f1_conocidos')">
+  F1 · No se conocen → Conocerse
+</button>
 
-  <button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">
-    F1 · Sí se conocen → Ir directo a Sopa
-  </button>
+<button data-fase="f1_pre_sopa" onclick="irAPantalla('f1_pre_sopa')">
+  F1 · Intro minijuego antes de sopa
+</button>
 
-  <button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">
-    F1 · Sopa de letras
-  </button>
+<button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">
+  F1 · Sopa de letras
+</button>
 
-  <button data-fase="f1_juego" onclick="irAPantalla('f1_juego')">F1 · Juego</button>
+<button data-fase="f1_post_sopa_espera" onclick="irAPantalla('f1_post_sopa_espera')">
+  F1 · Espera post sopa
+</button>
 
   <button data-fase="f2_intro" onclick="irAPantalla('f2_intro')">F2 · Introducción</button>
   <button data-fase="f2_bubblemap" onclick="irAPantalla('f2_bubblemap')">F2 · Bubble map</button>
@@ -204,8 +208,29 @@
   <button data-fase="f3_intro" onclick="irAPantalla('f3_intro')">F3 · Introducción</button>
   <button data-fase="f3_juego" onclick="irAPantalla('f3_juego')">F3 · Juego</button>
 
-  <button data-fase="f4_intro" onclick="irAPantalla('f4_intro')">F4 · Introducción</button>
-  <button data-fase="f4_juego" onclick="irAPantalla('f4_juego')">F4 · Pitch</button>
+<button data-fase="f4_intro_pitch" onclick="irAPantalla('f4_intro_pitch')">
+  F4 · Intro pitch
+</button>
+
+<button data-fase="f4_construccion_pitch" onclick="irAPantalla('f4_construccion_pitch')">
+  F4 · Construcción pitch
+</button>
+
+<button data-fase="f4_orden_presentacion" onclick="irAPantalla('f4_orden_presentacion')">
+  F4 · Orden presentación
+</button>
+
+<button data-fase="f4_presentacion_pitch" onclick="irAPantalla('f4_presentacion_pitch')">
+  F4 · Presentación pitch
+</button>
+
+<button data-fase="f4_intro_evaluacion" onclick="irAPantalla('f4_intro_evaluacion')">
+  F4 · Intro evaluación
+</button>
+
+<button data-fase="f4_evaluacion_pitch" onclick="irAPantalla('f4_evaluacion_pitch')">
+  F4 · Evaluación pitch
+</button>
 
   <button data-fase="reflexion" onclick="irAPantalla('reflexion')">Cierre · Reflexión + QR</button>
 </div>

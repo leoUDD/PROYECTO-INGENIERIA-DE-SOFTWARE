@@ -104,41 +104,52 @@
   <script src="{% static 'js/tematica.js' %}" defer></script>
 
 <script>
-  (function(){
-    const track = document.getElementById('themesTrack');
-    const prev = document.querySelector('.carousel-btn.prev');
-    const next = document.querySelector('.carousel-btn.next');
+(function () {
+  const cta = document.getElementById('btnContinuar');
 
-    if (!track) return;
+  function getCSRFToken() {
+    const name = 'csrftoken=';
+    const parts = document.cookie.split(';');
+    for (let c of parts) {
+      c = c.trim();
+      if (c.startsWith(name)) return c.substring(name.length);
+    }
+    return '';
+  }
 
-    function move(dir){
-      const card = track.querySelector('.theme-card');
-      if (!card) return;
-      const amount = card.offsetWidth + 24;
-      track.scrollBy({ left: dir * amount, behavior: 'smooth' });
+  function updateCTAState() {
+    const tema = localStorage.getItem('temaSeleccionado');
+    cta.disabled = !tema;
+  }
+
+  cta.addEventListener('click', async function () {
+    const tema = localStorage.getItem('temaSeleccionado');
+    if (!tema) {
+      alert('Selecciona una temática antes de continuar.');
+      return;
     }
 
-    if (prev) prev.addEventListener('click', () => move(-1));
-    if (next) next.addEventListener('click', () => move(1));
-  })();
-
-  (function () {
-    const cta = document.getElementById('btnContinuar');
-
-    function updateCTAState() {
-      const tema = localStorage.getItem('temaSeleccionado');
-      cta.disabled = !tema;
-    }
-    cta.addEventListener('click', function () {
-      const tema = localStorage.getItem('temaSeleccionado');
-      if (!tema) return alert('Selecciona una temática antes de continuar.');
-      window.location.href =
-        "{% url 'desafios' %}?tema=" + encodeURIComponent(tema);
+    const res = await fetch("{% url 'guardar_tematica' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken()
+      },
+      body: JSON.stringify({ tema })
     });
 
-    updateCTAState();
-    window.addEventListener('storage', updateCTAState);
-  })();
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      alert(data.error || "No se pudo guardar la temática.");
+      return;
+    }
+
+    window.location.href = "{% url 'desafios' %}?tema=" + encodeURIComponent(tema);
+  });
+
+  updateCTAState();
+  window.addEventListener('storage', updateCTAState);
+})();
 </script>
 {% include "includes/sincronizacion_fase.html" %}
 </body>

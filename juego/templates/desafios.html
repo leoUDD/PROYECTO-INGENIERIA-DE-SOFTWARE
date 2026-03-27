@@ -42,96 +42,38 @@
     {% csrf_token %}
     <input type="hidden" name="desafio_id" id="desafio_id">
   </form>
-  <script>
-    const KEY = 'desafioSeleccionado';
+<script>
+document.getElementById('btnContinuar').addEventListener('click', async () => {
+  const hidden = document.getElementById('desafio_id');
+  if (!hidden || !hidden.value) {
+    alert('Por favor, selecciona un desafío antes de continuar.');
+    return;
+  }
 
-    function marcarSeleccion(card) {
-      document.querySelectorAll('.challenge-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
+  const csrf = document.cookie.split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1] || '';
 
-      document.querySelectorAll('.challenge-card .btn.select').forEach(b => {
-        b.textContent = 'Elegir';
-        b.disabled = false;
-        b.classList.remove('selected');
-      });
-      const b = card.querySelector('.btn.select');
-      if (b) {
-        b.textContent = 'Seleccionado ✅';
-        b.disabled = true;
-        b.classList.add('selected');
-      }
-      const btnContinuar = document.getElementById('btnContinuar');
-      if (btnContinuar) btnContinuar.disabled = false;
-    }
+  const res = await fetch("{% url 'guardar_desafio' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrf
+    },
+    body: JSON.stringify({
+      desafio_id: hidden.value
+    })
+  });
 
-    function guardarDesafioDesdeCard(card) {
-      const data = {
-        slug: card.dataset.slug || '',
-        titulo: card.dataset.title || 'Desafío',
-        emoji: card.dataset.emoji || '🎯',
-        resumen: card.dataset.desc || '',
-        url: card.dataset.url || '#',
-        id: card.dataset.id || null
-      };
-      try { sessionStorage.setItem(KEY, JSON.stringify(data)); 
-      } catch (e) {
-        console.warn('No se pudo guardar el desafío seleccionado en sessionStorage', e);
-      }
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    alert(data.error || "No se pudo guardar el desafío.");
+    return;
+  }
 
-      const hidden = document.getElementById('desafio_id');
-      if (hidden) {
-        hidden.value = data.id;
-      }
-      marcarSeleccion(card);
-    }
-
-    document.querySelectorAll('.challenge-card .btn.select').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const card = e.currentTarget.closest('.challenge-card');
-        if (card) {
-          guardarDesafioDesdeCard(card);
-        }
-      });
-    });
-
-    document.querySelectorAll('.challenge-card').forEach(card => {
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          guardarDesafioDesdeCard(card);
-        }
-      });
-      card.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('btn')) {
-          guardarDesafioDesdeCard(card);
-        }
-      });
-    });
-
-    (function restoreSelection(){
-      let saved = null;
-      try { saved = JSON.parse(sessionStorage.getItem(KEY) || 'null');
-       } catch (_) {
-        saved = null;
-       }
-      if (!saved || !saved.id) return;
-      const card = document.querySelector(`.challenge-card[data-id="${saved.id}"]`);
-      if (card) {
-        marcarSeleccion(card);
-        const hidden = document.getElementById('desafio_id');
-        if (hidden) hidden.value = saved.id;
-      }
-    })();
-
-    // Navegar al siguiente paso
-    document.getElementById('btnContinuar').addEventListener('click', () => {
-      const hidden = document.getElementById('desafio_id');
-      if (hidden && !hidden.value) {
-        alert('Por favor, selecciona un desafío antes de continuar.');
-        return;
-      }
-      document.getElementById('formDesafio').submit();
-    });
-  </script>
+  window.location.href = "{% url 'bubblemap' %}";
+});
+</script>
 {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

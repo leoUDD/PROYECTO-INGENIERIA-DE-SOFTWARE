@@ -4,6 +4,7 @@ from django.views.decorators.http import require_GET, require_POST
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+import json
 #NUEVO CIERRRE
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -28,20 +29,26 @@ from django.db.models import F
 FASES_ORDEN = [
     "lobby",
 
-    "f1_intro",
+    # FASE 1
+    "f1_bienvenida",
     "f1_conocidos",
+    "f1_pre_sopa",
     "f1_sopa",
-    "f1_juego",
 
-    "f2_intro",
+    # FASE 2
+    "f2_tematicas",
+    "f2_desafios",
+    "f2_espera",
     "f2_bubblemap",
-    "f2_juego",
 
-    "f3_intro",
+    # FASE 3
+    "f3_lego",
     "f3_juego",
 
-    "f4_intro",
-    "f4_juego",
+    # FASE 4
+    "f4_construccion_pitch",
+    "f4_presentacion_pitch",
+    "f4_evaluacion_pitch",
 
     "reflexion",
 ]
@@ -49,45 +56,52 @@ FASES_ORDEN = [
 RUTA_POR_FASE = {
     "lobby": "pantalla_espera",
 
-    "f1_intro": "trabajoenequipo",
+    # F1
+    "f1_bienvenida": "pantalla_inicio",
     "f1_conocidos": "conocidos",
+    "f1_pre_sopa": "promptconocidos",
     "f1_sopa": "minijuego1",
-    "f1_juego": "trabajoenequipo",
 
-    "f2_intro": "tematicas",
+    # F2
+    "f2_tematicas": "tematicas",
+    "f2_desafios": "desafios",
+    "f2_espera": "espera_eleccion",
     "f2_bubblemap": "bubblemap",
-    "f2_juego": "tematicas",
 
-    "f3_intro": "lego",
+    # F3
+    "f3_lego": "lego",
     "f3_juego": "lego",
 
-    "f4_intro": "pitch",
-    "f4_juego": "pitch",
+    # F4
+    "f4_construccion_pitch": "pitch",
+    "f4_presentacion_pitch": "pitch",
+    "f4_evaluacion_pitch": "pitch",
 
     "reflexion": "reflexion",
 }
 
 ETIQUETA_FASE = {
-    "lobby": "Lobby / Espera",
+    "lobby": "Lobby",
 
-    "f1_intro": "F1 · Introducción",
+    "f1_bienvenida": "F1 · Bienvenida",
     "f1_conocidos": "F1 · Conocerse",
+    "f1_pre_sopa": "F1 · Presentación sopa",
     "f1_sopa": "F1 · Sopa de letras",
-    "f1_juego": "F1 · Juego",
 
-    "f2_intro": "F2 · Introducción",
-    "f2_bubblemap": "F2 · Bubble map",
-    "f2_juego": "F2 · Juego",
+    "f2_tematicas": "F2 · Temáticas",
+    "f2_desafios": "F2 · Desafíos",
+    "f2_espera": "F2 · Espera",
+    "f2_bubblemap": "F2 · Bubble Map",
 
-    "f3_intro": "F3 · Introducción",
+    "f3_lego": "F3 · Lego",
     "f3_juego": "F3 · Juego",
 
-    "f4_intro": "F4 · Introducción",
-    "f4_juego": "F4 · Pitch",
+    "f4_construccion_pitch": "F4 · Construcción pitch",
+    "f4_presentacion_pitch": "F4 · Presentación pitch",
+    "f4_evaluacion_pitch": "F4 · Evaluación pitch",
 
-    "reflexion": "Cierre · Reflexión + QR",
+    "reflexion": "Cierre",
 }
-
 def obtener_grupo_desde_session(request):
     grupo_id = request.session.get("grupo_id")
     if not grupo_id:
@@ -103,18 +117,46 @@ def acceso_permitido(grupo, nombre_vista):
 
     fases_por_vista = {
         "pantalla_espera": ["lobby"],
-        "trabajoenequipo": ["f1_intro", "f1_juego"],
+
+        "pantalla_inicio": ["f1_bienvenida"],
         "conocidos": ["f1_conocidos"],
+        "promptconocidos": ["f1_pre_sopa"],
         "minijuego1": ["f1_sopa"],
-        "tematicas": ["f2_intro", "f2_juego"],
+
+        "tematicas": ["f2_tematicas"],
+        "desafios": ["f2_desafios"],
+        "espera_eleccion": ["f2_espera"],
         "bubblemap": ["f2_bubblemap"],
-        "lego": ["f3_intro", "f3_juego"],
-        "pitch": ["f4_intro", "f4_juego"],
+
+        "lego": ["f3_lego", "f3_juego"],
+        "pitch": [
+            "f4_construccion_pitch",
+            "f4_presentacion_pitch",
+            "f4_evaluacion_pitch",
+        ],
+
         "reflexion": ["reflexion"],
     }
 
     return grupo.sesion.fase_actual in fases_por_vista.get(nombre_vista, [])
 
+def espera_eleccion(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "espera_eleccion"):
+        return redirect("pantalla_espera")
+
+    grupos = Grupo.objects.filter(sesion=grupo.sesion)
+    total = grupos.count()
+    listos = grupos.filter(listo_f2_desafio=True).count()
+
+    return render(request, "espera_eleccion.html", {
+        "grupo": grupo,
+        "grupos_listos": listos,
+        "grupos_totales": total,
+    })
 
 @require_GET
 def estado_sesion(request, sesion_id):
@@ -147,17 +189,77 @@ def estado_sesion(request, sesion_id):
     }
     return JsonResponse(data)
 
+@require_POST
+def guardar_tematica(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado"}, status=400)
+
+    payload = json.loads(request.body or "{}")
+    tema = (payload.get("tema") or "").strip().lower()
+
+    if not tema:
+        return JsonResponse({"ok": False, "error": "Tema inválido"}, status=400)
+
+    grupo.tema_elegido = tema
+    grupo.listo_f2_tematica = True
+    grupo.save(update_fields=["tema_elegido", "listo_f2_tematica"])
+
+    total = Grupo.objects.filter(sesion=grupo.sesion).count()
+    listos = Grupo.objects.filter(sesion=grupo.sesion, listo_f2_tematica=True).count()
+
+    return JsonResponse({
+        "ok": True,
+        "tema": tema,
+        "gruposListos": listos,
+        "gruposTotales": total,
+    })
+
+
+@require_POST
+def guardar_desafio(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado"}, status=400)
+
+    payload = json.loads(request.body or "{}")
+    desafio_id = payload.get("desafio_id")
+
+    if not desafio_id:
+        return JsonResponse({"ok": False, "error": "Desafío inválido"}, status=400)
+
+    desafio = get_object_or_404(Desafio, pk=desafio_id)
+
+    grupo.desafio_elegido = desafio
+    grupo.listo_f2_desafio = True
+    grupo.listo_f2 = True
+    grupo.save(update_fields=["desafio_elegido", "listo_f2_desafio", "listo_f2"])
+
+    total = Grupo.objects.filter(sesion=grupo.sesion).count()
+    listos = Grupo.objects.filter(sesion=grupo.sesion, listo_f2_desafio=True).count()
+
+    return JsonResponse({
+        "ok": True,
+        "desafioId": desafio.iddesafio,
+        "desafioNombre": desafio.nombredesafio,
+        "gruposListos": listos,
+        "gruposTotales": total,
+    })
 
 @require_POST
 def profesor_actualizar_estado(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
     payload = json.loads(request.body or "{}")
 
+    nueva_fase = None
+
     if "faseActual" in payload:
-        nueva = payload["faseActual"]
-        if nueva not in FASES_ORDEN:
+        nueva_fase = payload["faseActual"]
+
+        if nueva_fase not in FASES_ORDEN:
             return JsonResponse({"ok": False, "error": "Pantalla inválida"}, status=400)
-        sesion.fase_actual = nueva
+
+        sesion.fase_actual = nueva_fase
 
     if "timerCorriendo" in payload:
         sesion.timer_corriendo = bool(payload["timerCorriendo"])
@@ -165,17 +267,26 @@ def profesor_actualizar_estado(request, sesion_id):
     if "segundosRestantes" in payload:
         sesion.segundos_restantes = int(payload["segundosRestantes"])
 
-    tiempos = {
-    "f1_conocidos": sesion.t_rompehielo,
-    "f1_sopa": sesion.t_rompehielo,
-    "f1_juego": sesion.t_rompehielo,
-    "f2_juego": sesion.t_empatia,
-    "f3_juego": sesion.t_creatividad,
-    "f4_juego": sesion.t_pitch,
-}
+    TIEMPOS_POR_FASE = {
+        "f1_conocidos": 45,
+        "f1_pre_sopa": 15,
+        "f1_sopa": sesion.t_diferencias,
 
-    if payload.get("faseActual") in tiempos:
-        sesion.segundos_restantes = tiempos[payload["faseActual"]]
+        "f2_tematicas": 0,
+        "f2_desafios": sesion.t_empatia,
+        "f2_espera": 0,
+        "f2_bubblemap": sesion.t_empatia,
+
+        "f3_lego": sesion.t_creatividad,
+        "f3_juego": sesion.t_creatividad,
+
+        "f4_construccion_pitch": sesion.t_pitch,
+        "f4_presentacion_pitch": 90,
+        "f4_evaluacion_pitch": 60,
+    }
+
+    if nueva_fase in TIEMPOS_POR_FASE:
+        sesion.segundos_restantes = TIEMPOS_POR_FASE[nueva_fase]
         sesion.timer_corriendo = False
 
     sesion.save()
@@ -194,6 +305,16 @@ def profesor_actualizar_estado(request, sesion_id):
 def profesor_siguiente_fase(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
 
+    if sesion.fase_actual == "f2_espera":
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f2_desafio=True).count()
+
+        if total == 0 or listos < total:
+            return JsonResponse({
+                "ok": False,
+                "error": f"Aún faltan grupos por elegir desafío ({listos}/{total})."
+            }, status=400)
+
     try:
         idx = FASES_ORDEN.index(sesion.fase_actual)
     except ValueError:
@@ -205,13 +326,21 @@ def profesor_siguiente_fase(request, sesion_id):
     sesion.fase_actual = FASES_ORDEN[idx + 1]
 
     tiempos = {
-    "f1_conocidos": sesion.t_rompehielo,
-    "f1_sopa": sesion.t_rompehielo,
-    "f1_juego": sesion.t_rompehielo,
-    "f2_juego": sesion.t_empatia,
-    "f3_juego": sesion.t_creatividad,
-    "f4_juego": sesion.t_pitch,
-}
+        "f1_conocidos": 45,
+        "f1_pre_sopa": 15,
+        "f1_sopa": sesion.t_diferencias,
+
+        "f2_desafios": sesion.t_empatia,
+        "f2_bubblemap": sesion.t_empatia,
+
+        "f3_lego": sesion.t_creatividad,
+        "f3_juego": sesion.t_creatividad,
+
+        "f4_construccion_pitch": sesion.t_pitch,
+        "f4_presentacion_pitch": 90,
+        "f4_evaluacion_pitch": 60,
+    }
+
     if sesion.fase_actual in tiempos:
         sesion.segundos_restantes = tiempos[sesion.fase_actual]
         sesion.timer_corriendo = False
@@ -748,7 +877,22 @@ def desafios(request):
 
 
 def bubblemap(request):
-    return render(request, 'bubblemap.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "bubblemap"):
+        return redirect("pantalla_espera")
+
+    grupos = Grupo.objects.filter(sesion=grupo.sesion)
+    total = grupos.count()
+    listos = grupos.filter(listo_f2_desafio=True).count()
+
+    return render(request, "bubblemap.html", {
+        "grupo": grupo,
+        "grupos_listos": listos,
+        "grupos_totales": total,
+    })
 
 def orden_presentacion_alumno(request):
     grupo_id = request.session.get("grupo_id")
