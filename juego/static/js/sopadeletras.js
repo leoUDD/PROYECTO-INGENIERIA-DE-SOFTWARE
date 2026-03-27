@@ -340,10 +340,22 @@ function startTimer() {
 })();
 
 /* ===== Inicio ===== */
+let timerStartedByProfesor = false;
+
 (function init() {
   createFixedBoard();
   fillRandom();
   render();
   updateStatus();
-  startTimer();
 })();
+
+window.addEventListener("sesion-estado", (ev) => {
+  const data = ev.detail || {};
+  if (data.faseActual !== "f1_sopa") return;
+
+  if (!timerStartedByProfesor && data.timerCorriendo) {
+    timeLeft = Number(data.segundosRestantes ?? 45);
+    timerStartedByProfesor = true;
+    startTimer();
+  }
+});

@@ -28,50 +28,39 @@ from django.db.models import F
 FASES_ORDEN = [
     "lobby",
 
-    # FASE 1
     "f1_intro",
     "f1_conocidos",
-    "f1_prompt",
     "f1_sopa",
     "f1_juego",
 
-    # FASE 2
     "f2_intro",
     "f2_bubblemap",
     "f2_juego",
 
-    # FASE 3
     "f3_intro",
     "f3_juego",
 
-    # FASE 4
     "f4_intro",
     "f4_juego",
 
-    # FINAL
     "reflexion",
 ]
 
 RUTA_POR_FASE = {
     "lobby": "pantalla_espera",
 
-    # F1
     "f1_intro": "trabajoenequipo",
     "f1_conocidos": "conocidos",
-    "f1_prompt": "promptconocidos",
     "f1_sopa": "minijuego1",
     "f1_juego": "trabajoenequipo",
 
-    # F2
     "f2_intro": "tematicas",
     "f2_bubblemap": "bubblemap",
     "f2_juego": "tematicas",
 
-    # F3
     "f3_intro": "lego",
     "f3_juego": "lego",
 
-    # F4
     "f4_intro": "pitch",
     "f4_juego": "pitch",
 
@@ -79,25 +68,24 @@ RUTA_POR_FASE = {
 }
 
 ETIQUETA_FASE = {
-    "lobby": "Lobby",
+    "lobby": "Lobby / Espera",
 
-    "f1_intro": "F1 · Intro",
+    "f1_intro": "F1 · Introducción",
     "f1_conocidos": "F1 · Conocerse",
-    "f1_prompt": "F1 · Prompt",
     "f1_sopa": "F1 · Sopa de letras",
     "f1_juego": "F1 · Juego",
 
-    "f2_intro": "F2 · Intro",
-    "f2_bubblemap": "F2 · Bubble Map",
+    "f2_intro": "F2 · Introducción",
+    "f2_bubblemap": "F2 · Bubble map",
     "f2_juego": "F2 · Juego",
 
-    "f3_intro": "F3 · Intro",
+    "f3_intro": "F3 · Introducción",
     "f3_juego": "F3 · Juego",
 
-    "f4_intro": "F4 · Intro",
+    "f4_intro": "F4 · Introducción",
     "f4_juego": "F4 · Pitch",
 
-    "reflexion": "Cierre",
+    "reflexion": "Cierre · Reflexión + QR",
 }
 
 def obtener_grupo_desde_session(request):
@@ -114,21 +102,16 @@ def acceso_permitido(grupo, nombre_vista):
         return False
 
     fases_por_vista = {
-    "pantalla_espera": ["lobby"],
-
-    "trabajoenequipo": ["f1_intro", "f1_juego"],
-    "conocidos": ["f1_conocidos"],
-    "promptconocidos": ["f1_prompt"],
-    "minijuego1": ["f1_sopa"],
-
-    "tematicas": ["f2_intro", "f2_juego"],
-    "bubblemap": ["f2_bubblemap"],
-
-    "lego": ["f3_intro", "f3_juego"],
-    "pitch": ["f4_intro", "f4_juego"],
-
-    "reflexion": ["reflexion"],
-}
+        "pantalla_espera": ["lobby"],
+        "trabajoenequipo": ["f1_intro", "f1_juego"],
+        "conocidos": ["f1_conocidos"],
+        "minijuego1": ["f1_sopa"],
+        "tematicas": ["f2_intro", "f2_juego"],
+        "bubblemap": ["f2_bubblemap"],
+        "lego": ["f3_intro", "f3_juego"],
+        "pitch": ["f4_intro", "f4_juego"],
+        "reflexion": ["reflexion"],
+    }
 
     return grupo.sesion.fase_actual in fases_por_vista.get(nombre_vista, [])
 
@@ -183,11 +166,13 @@ def profesor_actualizar_estado(request, sesion_id):
         sesion.segundos_restantes = int(payload["segundosRestantes"])
 
     tiempos = {
-        "f1_juego": sesion.t_rompehielo,
-        "f2_juego": sesion.t_empatia,
-        "f3_juego": sesion.t_creatividad,
-        "f4_juego": sesion.t_pitch,
-    }
+    "f1_conocidos": sesion.t_rompehielo,
+    "f1_sopa": sesion.t_rompehielo,
+    "f1_juego": sesion.t_rompehielo,
+    "f2_juego": sesion.t_empatia,
+    "f3_juego": sesion.t_creatividad,
+    "f4_juego": sesion.t_pitch,
+}
 
     if payload.get("faseActual") in tiempos:
         sesion.segundos_restantes = tiempos[payload["faseActual"]]
@@ -220,12 +205,13 @@ def profesor_siguiente_fase(request, sesion_id):
     sesion.fase_actual = FASES_ORDEN[idx + 1]
 
     tiempos = {
-        "f1_juego": sesion.t_rompehielo,
-        "f2_juego": sesion.t_empatia,
-        "f3_juego": sesion.t_creatividad,
-        "f4_juego": sesion.t_pitch,
-    }
-
+    "f1_conocidos": sesion.t_rompehielo,
+    "f1_sopa": sesion.t_rompehielo,
+    "f1_juego": sesion.t_rompehielo,
+    "f2_juego": sesion.t_empatia,
+    "f3_juego": sesion.t_creatividad,
+    "f4_juego": sesion.t_pitch,
+}
     if sesion.fase_actual in tiempos:
         sesion.segundos_restantes = tiempos[sesion.fase_actual]
         sesion.timer_corriendo = False

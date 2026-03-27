@@ -1,35 +1,26 @@
 <script>
-  const sesionId = "{{ grupo.sesion.idsesion }}";
+  (function () {
+    async function revisarEstadoSesion() {
+      try {
+        const sesionId = "{{ grupo.sesion.idsesion }}";
+        if (!sesionId) return;
 
-  async function revisarFaseGlobal() {
-    try {
-      const res = await fetch(`/sesion/${sesionId}/estado/`);
-      const data = await res.json();
+        const res = await fetch(`/sesion/${sesionId}/estado/`);
+        const data = await res.json();
 
-      const fase = data.faseActual;
+        window.__sesionEstado = data;
+        window.dispatchEvent(new CustomEvent("sesion-estado", { detail: data }));
 
-      const mapa = {
-        "lobby": "{% url 'pantalla_espera' %}",
-        "f1_intro": "{% url 'trabajoenequipo' %}",
-        "f1_juego": "{% url 'trabajoenequipo' %}",
-        "f2_intro": "{% url 'tematicas' %}",
-        "f2_juego": "{% url 'tematicas' %}",
-        "f3_intro": "{% url 'lego' %}",
-        "f3_juego": "{% url 'lego' %}",
-        "f4_intro": "{% url 'pitch' %}",
-        "f4_juego": "{% url 'pitch' %}",
-        "reflexion": "{% url 'reflexion' %}"
-      };
-
-      const destino = mapa[fase];
-      if (destino && window.location.pathname !== destino) {
-        window.location.href = destino;
+        const destino = data.rutaAlumno;
+        if (destino && window.location.pathname !== destino) {
+          window.location.href = destino;
+        }
+      } catch (error) {
+        console.error("Error sincronizando fase:", error);
       }
-    } catch (error) {
-      console.error("Error consultando estado de sesión:", error);
     }
-  }
 
-  setInterval(revisarFaseGlobal, 2000);
-  revisarFaseGlobal();
+    setInterval(revisarEstadoSesion, 1500);
+    revisarEstadoSesion();
+  })();
 </script>

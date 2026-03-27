@@ -179,26 +179,36 @@
         <h2 style="margin-top:0;">Pantallas del flujo</h2>
 
         <div class="pantallas" id="listaPantallas">
-          <button data-fase="lobby" onclick="irAPantalla('lobby')">Lobby / Espera</button>
+  <button data-fase="lobby" onclick="irAPantalla('lobby')">Lobby / Espera</button>
 
-          <button data-fase="f1_intro" onclick="irAPantalla('f1_intro')">F1 · Introducción</button>
-          <button data-fase="f1_conocidos" onclick="irAPantalla('f1_conocidos')">F1 · Conocerse</button>
-          <button data-fase="f1_prompt" onclick="irAPantalla('f1_prompt')">F1 · Prompt conocidos</button>
-          <button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">F1 · Sopa de letras</button>
-          <button data-fase="f1_juego" onclick="irAPantalla('f1_juego')">F1 · Juego</button>
+  <button data-fase="f1_intro" onclick="irAPantalla('f1_intro')">F1 · Introducción</button>
 
-          <button data-fase="f2_intro" onclick="irAPantalla('f2_intro')">F2 · Introducción</button>
-          <button data-fase="f2_bubblemap" onclick="irAPantalla('f2_bubblemap')">F2 · Bubble map</button>
-          <button data-fase="f2_juego" onclick="irAPantalla('f2_juego')">F2 · Juego</button>
+  <button data-fase="f1_conocidos" onclick="irAPantalla('f1_conocidos')">
+    F1 · No se conocen → Ir a Conocerse
+  </button>
 
-          <button data-fase="f3_intro" onclick="irAPantalla('f3_intro')">F3 · Introducción</button>
-          <button data-fase="f3_juego" onclick="irAPantalla('f3_juego')">F3 · Juego</button>
+  <button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">
+    F1 · Sí se conocen → Ir directo a Sopa
+  </button>
 
-          <button data-fase="f4_intro" onclick="irAPantalla('f4_intro')">F4 · Introducción</button>
-          <button data-fase="f4_juego" onclick="irAPantalla('f4_juego')">F4 · Pitch</button>
+  <button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">
+    F1 · Sopa de letras
+  </button>
 
-          <button data-fase="reflexion" onclick="irAPantalla('reflexion')">Cierre · Reflexión + QR</button>
-        </div>
+  <button data-fase="f1_juego" onclick="irAPantalla('f1_juego')">F1 · Juego</button>
+
+  <button data-fase="f2_intro" onclick="irAPantalla('f2_intro')">F2 · Introducción</button>
+  <button data-fase="f2_bubblemap" onclick="irAPantalla('f2_bubblemap')">F2 · Bubble map</button>
+  <button data-fase="f2_juego" onclick="irAPantalla('f2_juego')">F2 · Juego</button>
+
+  <button data-fase="f3_intro" onclick="irAPantalla('f3_intro')">F3 · Introducción</button>
+  <button data-fase="f3_juego" onclick="irAPantalla('f3_juego')">F3 · Juego</button>
+
+  <button data-fase="f4_intro" onclick="irAPantalla('f4_intro')">F4 · Introducción</button>
+  <button data-fase="f4_juego" onclick="irAPantalla('f4_juego')">F4 · Pitch</button>
+
+  <button data-fase="reflexion" onclick="irAPantalla('reflexion')">Cierre · Reflexión + QR</button>
+</div>
       </div>
 
       <div class="card">

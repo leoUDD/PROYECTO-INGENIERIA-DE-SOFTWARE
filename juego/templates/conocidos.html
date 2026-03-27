@@ -25,46 +25,67 @@
       </div>
     </div>
         <script>
-      let timeLeft = 45;
-      const timerElement = document.getElementById('timer');
+  let timeLeft = 45;
+  let timerInterval = null;
+  let timerIniciado = false;
 
-      function updateTimer() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        if (timeLeft <= 10) {
-          timerElement.style.boxShadow = '0 0 20px #ff2d55, 0 0 40px #ff0000 inset';
-          timerElement.style.textShadow = '0 0 10px #ff2d55';
-        }
-        if (timeLeft > 0) {
-          timeLeft--;
-        } else {
-          clearInterval(timerInterval);
-          reproducirAlarma();
-          mostrarModal();
-        }
+  const timerElement = document.getElementById("timer");
+
+  function pintarTiempo() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerElement.textContent =
+      `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  function reproducirAlarma() {
+    const alarmAudio = document.getElementById("alarm-audio");
+    alarmAudio.currentTime = 0;
+    alarmAudio.play();
+
+    document.body.classList.add("flash");
+    setTimeout(() => document.body.classList.remove("flash"), 800);
+  }
+
+  function mostrarModal() {
+    const modal = document.getElementById("modal-fin");
+    modal.style.display = "flex";
+  }
+
+  function iniciarTimerLocal() {
+    if (timerIniciado) return;
+    timerIniciado = true;
+
+    timerInterval = setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        pintarTiempo();
+      } else {
+        clearInterval(timerInterval);
+        reproducirAlarma();
+        mostrarModal();
       }
+    }, 1000);
 
-      function mostrarModal() {
-        const modal = document.getElementById('modal-fin');
-        modal.style.display = 'flex';
-        document.getElementById('buttonContinuar').addEventListener('click', () => {
-          window.location.href = "{% url 'trabajoenequipo' %}";
-        });
-      }
-      function reproducirAlarma() {
-        const alarmAudio = document.getElementById('alarm-audio');
-        alarmAudio.currentTime = 0;
-        alarmAudio.play();
+    pintarTiempo();
+  }
 
-        const body = document.body;
-        body.classList.add('flash');
-        setTimeout(() => {body.classList.remove('flash');}, 800);
-      }
+  document.getElementById("buttonContinuar").addEventListener("click", () => {
+    window.location.href = "{% url 'minijuego1' %}";
+  });
 
-      const timerInterval = setInterval(updateTimer, 1000);
-      updateTimer();
-    </script>
+  window.addEventListener("sesion-estado", (ev) => {
+    const data = ev.detail || {};
+    if (data.faseActual !== "f1_conocidos") return;
+
+    if (!timerIniciado && data.timerCorriendo) {
+      timeLeft = Number(data.segundosRestantes ?? 45);
+      iniciarTimerLocal();
+    }
+  });
+
+  pintarTiempo();
+</script>
   </main>
 {% include "includes/sincronizacion_fase.html" %}
 </body>
