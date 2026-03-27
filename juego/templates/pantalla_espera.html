@@ -1,35 +1,45 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Esperando al profesor</title>
-</head>
-<body>
-  <h1>Esperando al profesor</h1>
-  <p>Grupo: {{ grupo.nombregrupo }}</p>
-  <p id="estado">Esperando apertura de la siguiente fase...</p>
-
-  <script>
-    async function revisarEstado() {
+<script>
+  async function revisarEstado() {
+    try {
       const sesionId = "{{ grupo.sesion.idsesion }}";
       const res = await fetch(`/sesion/${sesionId}/estado/`);
       const data = await res.json();
       const fase = data.faseActual;
 
-      document.getElementById("estado").innerText =
-        `Fase actual: ${fase}`;
-
-      if (fase === "lobby") {
-        return;
+      const estadoEl = document.getElementById("estado");
+      if (estadoEl) {
+        estadoEl.innerText = `Fase actual: ${fase}`;
       }
+
+      if (fase === "lobby") return;
 
       if (["f1_intro", "f1_juego"].includes(fase)) {
         window.location.href = "{% url 'trabajoenequipo' %}";
         return;
       }
 
+      if (fase === "f1_conocidos") {
+        window.location.href = "{% url 'conocidos' %}";
+        return;
+      }
+
+      if (fase === "f1_prompt") {
+        window.location.href = "{% url 'promptconocidos' %}";
+        return;
+      }
+
+      if (fase === "f1_sopa") {
+        window.location.href = "{% url 'minijuego1' %}";
+        return;
+      }
+
       if (["f2_intro", "f2_juego"].includes(fase)) {
         window.location.href = "{% url 'tematicas' %}";
+        return;
+      }
+
+      if (fase === "f2_bubblemap") {
+        window.location.href = "{% url 'bubblemap' %}";
         return;
       }
 
@@ -42,11 +52,16 @@
         window.location.href = "{% url 'pitch' %}";
         return;
       }
-    }
 
-    setInterval(revisarEstado, 2000);
-    revisarEstado();
-  </script>
-{% include "includes/sincronizacion_fase.html" %}
-</body>
-</html>
+      if (fase === "reflexion") {
+        window.location.href = "{% url 'reflexion' %}";
+      }
+
+    } catch (error) {
+      console.error("Error en revisarEstado:", error);
+    }
+  }
+
+  setInterval(revisarEstado, 2000);
+  revisarEstado();
+</script>

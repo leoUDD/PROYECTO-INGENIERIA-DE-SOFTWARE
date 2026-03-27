@@ -1,82 +1,106 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Control de sesión</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      background: #f5f7fb;
-      color: #1f2937;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
     }
+
     .layout {
-      display: grid;
-      grid-template-columns: 420px 1fr;
+      display: flex;
       min-height: 100vh;
     }
-    .panel {
+
+    .sidebar {
+      width: 380px;
       background: #ffffff;
-      border-right: 1px solid #e5e7eb;
-      padding: 20px;
+      padding: 24px;
+      box-sizing: border-box;
+      border-right: 1px solid #d1d5db;
       overflow-y: auto;
     }
-    .preview {
-      padding: 16px;
-      background: #eef2f7;
+
+    .contenido {
+      flex: 1;
+      padding: 24px;
+      box-sizing: border-box;
     }
-    h1, h2, h3 {
+
+    h1 {
       margin-top: 0;
+      font-size: 28px;
+      color: #1f2937;
     }
+
     .card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 16px;
       padding: 16px;
       margin-bottom: 16px;
     }
-    .estado {
-      font-size: 14px;
-      line-height: 1.6;
+
+    .datos p {
+      margin: 8px 0;
+      font-size: 16px;
     }
-    .botonera {
+
+    .acciones {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 10px;
+      margin-top: 16px;
     }
-    .botonera button,
-    .pantallas button {
+
+    button {
       border: none;
-      border-radius: 10px;
-      padding: 10px 12px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
-      font-weight: 600;
     }
-    .primario { background: #2563eb; color: white; }
-    .secundario { background: #e5e7eb; color: #111827; }
-    .verde { background: #16a34a; color: white; }
-    .rojo { background: #dc2626; color: white; }
+
+    .btn-azul {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-gris {
+      background: #d1d5db;
+      color: #111827;
+    }
+
+    .btn-verde {
+      background: #16a34a;
+      color: white;
+    }
+
+    .btn-rojo {
+      background: #dc2626;
+      color: white;
+    }
 
     .pantallas {
-      display: grid;
-      gap: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
     }
 
-    .pantallas button.activo {
+    .pantallas button {
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .pantallas button.activa {
       outline: 3px solid #93c5fd;
       background: #dbeafe;
-    }
-
-    iframe {
-      width: 100%;
-      height: calc(100vh - 32px);
-      border: 0;
-      border-radius: 16px;
-      background: white;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
 
     table {
@@ -84,65 +108,101 @@
       border-collapse: collapse;
       font-size: 14px;
     }
+
     th, td {
-      padding: 8px;
       border-bottom: 1px solid #e5e7eb;
-      text-align: left;
+      padding: 8px 6px;
+      text-align: center;
     }
-    .mini {
-      font-size: 12px;
-      color: #6b7280;
+
+    th {
+      background: #f9fafb;
+      position: sticky;
+      top: 0;
+    }
+
+    .estado-debug {
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 180px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+    }
+
+    .nota {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    a.boton-link {
+      display: inline-block;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      font-weight: 700;
+      background: #d1d5db;
+      color: #111827;
     }
   </style>
 </head>
 <body>
   <div class="layout">
-    <aside class="panel">
+    <aside class="sidebar">
       <h1>Control de sesión</h1>
 
-      <div class="card estado">
-        <div><strong>Sesión:</strong> {{ sesion.nombre }}</div>
-        <div><strong>Pantalla actual:</strong> <span id="faseActual">{{ sesion.fase_actual }}</span></div>
-        <div><strong>Etiqueta:</strong> <span id="faseEtiqueta">{{ sesion.fase_actual }}</span></div>
-        <div><strong>Ruta alumno:</strong> <span id="rutaAlumno">-</span></div>
-        <div><strong>Timer:</strong> <span id="timerEstado">detenido</span></div>
-        <div><strong>Segundos restantes:</strong> <span id="segundosRestantes">{{ sesion.segundos_restantes }}</span></div>
+      <div class="card datos">
+        <p><strong>Sesión:</strong> {{ sesion.nombre }}</p>
+        <p><strong>Pantalla actual:</strong> <span id="faseActual">{{ sesion.fase_actual }}</span></p>
+        <p><strong>Etiqueta:</strong> <span id="faseEtiqueta">{{ sesion.fase_actual }}</span></p>
+        <p><strong>Ruta alumno:</strong> <span id="rutaAlumno">-</span></p>
+        <p><strong>Timer:</strong> <span id="timerEstado">detenido</span></p>
+        <p><strong>Segundos restantes:</strong> <span id="segundosRestantes">0</span></p>
 
-        <div class="botonera">
-          <button class="primario" onclick="siguientePantalla()">Siguiente</button>
-          <button class="secundario" onclick="recargarPreview()">Recargar preview</button>
-          <button class="verde" onclick="iniciarTimer()">Iniciar timer</button>
-          <button class="rojo" onclick="pausarTimer()">Pausar timer</button>
+        <div class="acciones">
+          <button type="button" class="btn-azul" onclick="siguientePantalla()">Siguiente</button>
+          <button type="button" class="btn-gris" onclick="abrirPreviewNuevaPestana()">Abrir preview</button>
+          <button type="button" class="btn-verde" onclick="iniciarTimer()">Iniciar timer</button>
+          <button type="button" class="btn-rojo" onclick="pausarTimer()">Pausar timer</button>
         </div>
+
+        <p class="nota" style="margin-top:12px;">
+          El preview dentro de iframe está bloqueado por el navegador. Usa “Abrir preview” en otra pestaña.
+        </p>
       </div>
 
       <div class="card">
-        <h3>Pantallas del flujo</h3>
+        <h2 style="margin-top:0;">Pantallas del flujo</h2>
+
         <div class="pantallas" id="listaPantallas">
-          <button data-fase="pantalla_espera" onclick="irAPantalla('pantalla_espera')">Lobby / Espera</button>
-          <button data-fase="pantalla_inicio" onclick="irAPantalla('pantalla_inicio')">F1 · Inicio</button>
-          <button data-fase="promptconocidos" onclick="irAPantalla('promptconocidos')">F1 · ¿Se conocen?</button>
-          <button data-fase="introducciones" onclick="irAPantalla('introducciones')">F1 · Introducciones</button>
-          <button data-fase="conocidos" onclick="irAPantalla('conocidos')">F1 · Ya se conocen</button>
-          <button data-fase="trabajoenequipo" onclick="irAPantalla('trabajoenequipo')">F1 · Trabajo en equipo</button>
-          <button data-fase="minijuego1" onclick="irAPantalla('minijuego1')">F1 · Minijuego</button>
-          <button data-fase="transiciondesafio" onclick="irAPantalla('transiciondesafio')">F1 → F2 · Transición</button>
-          <button data-fase="transicionempatia" onclick="irAPantalla('transicionempatia')">F2 · Introducción</button>
-          <button data-fase="tematicas" onclick="irAPantalla('tematicas')">F2 · Temáticas</button>
-          <button data-fase="desafios" onclick="irAPantalla('desafios')">F2 · Desafíos</button>
-          <button data-fase="bubblemap" onclick="irAPantalla('bubblemap')">F2 · Bubble Map</button>
-          <button data-fase="transicioncreatividad" onclick="irAPantalla('transicioncreatividad')">F2 → F3 · Transición</button>
-          <button data-fase="lego" onclick="irAPantalla('lego')">F3 · LEGO</button>
-          <button data-fase="transicioncomunicacion" onclick="irAPantalla('transicioncomunicacion')">F3 → F4 · Transición</button>
-          <button data-fase="pitch" onclick="irAPantalla('pitch')">F4 · Pitch</button>
-          <button data-fase="presentar_pitch" onclick="irAPantalla('presentar_pitch')">F4 · Presentar pitch</button>
-          <button data-fase="orden_presentacion_alumno" onclick="irAPantalla('orden_presentacion_alumno')">F4 · Orden presentación</button>
-          <button data-fase="transicionapoyo" onclick="irAPantalla('transicionapoyo')">Cierre / Apoyo</button>
+          <button data-fase="lobby" onclick="irAPantalla('lobby')">Lobby / Espera</button>
+
+          <button data-fase="f1_intro" onclick="irAPantalla('f1_intro')">F1 · Introducción</button>
+          <button data-fase="f1_conocidos" onclick="irAPantalla('f1_conocidos')">F1 · Conocerse</button>
+          <button data-fase="f1_prompt" onclick="irAPantalla('f1_prompt')">F1 · Prompt conocidos</button>
+          <button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">F1 · Sopa de letras</button>
+          <button data-fase="f1_juego" onclick="irAPantalla('f1_juego')">F1 · Juego</button>
+
+          <button data-fase="f2_intro" onclick="irAPantalla('f2_intro')">F2 · Introducción</button>
+          <button data-fase="f2_bubblemap" onclick="irAPantalla('f2_bubblemap')">F2 · Bubble map</button>
+          <button data-fase="f2_juego" onclick="irAPantalla('f2_juego')">F2 · Juego</button>
+
+          <button data-fase="f3_intro" onclick="irAPantalla('f3_intro')">F3 · Introducción</button>
+          <button data-fase="f3_juego" onclick="irAPantalla('f3_juego')">F3 · Juego</button>
+
+          <button data-fase="f4_intro" onclick="irAPantalla('f4_intro')">F4 · Introducción</button>
+          <button data-fase="f4_juego" onclick="irAPantalla('f4_juego')">F4 · Pitch</button>
+
+          <button data-fase="reflexion" onclick="irAPantalla('reflexion')">Cierre · Reflexión + QR</button>
         </div>
       </div>
 
       <div class="card">
-        <h3>Grupos</h3>
+        <h2 style="margin-top:0;">Grupos</h2>
         <table>
           <thead>
             <tr>
@@ -159,144 +219,37 @@
             {% for grupo in grupos %}
             <tr>
               <td>{{ grupo.nombregrupo }}</td>
-              <td>{{ grupo.tokensgrupo }}</td>
-              <td>{{ grupo.listo_lobby }}</td>
-              <td>{{ grupo.listo_f1 }}</td>
-              <td>{{ grupo.listo_f2 }}</td>
-              <td>{{ grupo.listo_f3 }}</td>
-              <td>{{ grupo.listo_f4 }}</td>
+              <td>{{ grupo.tokensgrupo|default:0 }}</td>
+              <td>{{ grupo.listo_lobby|yesno:"✅,❌" }}</td>
+              <td>{{ grupo.listo_f1|yesno:"✅,❌" }}</td>
+              <td>{{ grupo.listo_f2|yesno:"✅,❌" }}</td>
+              <td>{{ grupo.listo_f3|yesno:"✅,❌" }}</td>
+              <td>{{ grupo.listo_f4|yesno:"✅,❌" }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-
-      <div class="mini">El preview carga exactamente la ruta que reciben los alumnos.</div>
     </aside>
 
-    <main class="preview">
-      <iframe id="previewAlumno" src=""></iframe>
+    <main class="contenido">
+      <div class="card">
+        <h2 style="margin-top:0;">Estado técnico</h2>
+        <div id="debugEstado" class="estado-debug">Esperando datos de la sesión...</div>
+      </div>
     </main>
   </div>
 
   <script>
     const sesionId = "{{ sesion.idsesion }}";
 
-    async function fetchEstado() {
-      const res = await fetch(`/sesion/${sesionId}/estado/`);
-      return await res.json();
-    }
-
-    function marcarActiva(fase) {
-      document.querySelectorAll("[data-fase]").forEach(btn => {
-        btn.classList.toggle("activo", btn.dataset.fase === fase);
-      });
-    }
-
-    function actualizarUI(data) {
-  document.getElementById("faseActual").textContent = data.faseActual;
-  document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
-  document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
-  document.getElementById("timerEstado").textContent = data.timerCorriendo ? "corriendo" : "detenido";
-  document.getElementById("segundosRestantes").textContent = data.segundosRestantes ?? 0;
-
-  marcarActiva(data.faseActual);
-
-  const iframe = document.getElementById("previewAlumno");
-  const previewUrl = `/sesion/${sesionId}/preview/`;
-
-  if (iframe.dataset.srcActual !== previewUrl) {
-    iframe.src = previewUrl;
-    iframe.dataset.srcActual = previewUrl;
-  } else {
-    iframe.contentWindow?.location.reload();
-  }
-}
-
-    async function refrescar() {
-      try {
-        const data = await fetchEstado();
-        actualizarUI(data);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    async function irAPantalla(fase) {
-      const res = await fetch(`/sesion/${sesionId}/actualizar/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify({ faseActual: fase })
-      });
-
-      const data = await res.json();
-      if (data.ok) {
-        actualizarUI(data);
-      }
-    }
-
-    async function siguientePantalla() {
-      const res = await fetch(`/sesion/${sesionId}/siguiente/`, {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": getCookie("csrftoken")
-        }
-      });
-      const data = await res.json();
-      if (data.ok) {
-        actualizarUI(data);
-      }
-    }
-
-    async function iniciarTimer() {
-      const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
-      const res = await fetch(`/sesion/${sesionId}/actualizar/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify({
-          timerCorriendo: true,
-          segundosRestantes: segundos
-        })
-      });
-      const data = await res.json();
-      if (data.ok) actualizarUI(data);
-    }
-
-    async function pausarTimer() {
-      const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
-      const res = await fetch(`/sesion/${sesionId}/actualizar/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify({
-          timerCorriendo: false,
-          segundosRestantes: segundos
-        })
-      });
-      const data = await res.json();
-      if (data.ok) actualizarUI(data);
-    }
-
-    function recargarPreview() {
-  const iframe = document.getElementById("previewAlumno");
-  iframe.src = `/sesion/${sesionId}/preview/`;
-}
-
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== "") {
         const cookies = document.cookie.split(";");
-        for (let cookie of cookies) {
-          cookie = cookie.trim();
-          if (cookie.startsWith(name + "=")) {
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + "=")) {
             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
             break;
           }
@@ -305,8 +258,179 @@
       return cookieValue;
     }
 
-    setInterval(refrescar, 1500);
-    refrescar();
+    function marcarActiva(faseActual) {
+      const botones = document.querySelectorAll("#listaPantallas button");
+      botones.forEach(btn => {
+        if (btn.dataset.fase === faseActual) {
+          btn.classList.add("activa");
+        } else {
+          btn.classList.remove("activa");
+        }
+      });
+    }
+
+    function actualizarTablaGrupos(grupos) {
+      const tabla = document.getElementById("tablaGrupos");
+      if (!tabla || !Array.isArray(grupos)) return;
+
+      tabla.innerHTML = grupos.map(g => `
+        <tr>
+          <td>${g.nombre}</td>
+          <td>${g.tokens ?? 0}</td>
+          <td>${g.listoLobby ? "✅" : "❌"}</td>
+          <td>${g.listoF1 ? "✅" : "❌"}</td>
+          <td>${g.listoF2 ? "✅" : "❌"}</td>
+          <td>${g.listoF3 ? "✅" : "❌"}</td>
+          <td>${g.listoF4 ? "✅" : "❌"}</td>
+        </tr>
+      `).join("");
+    }
+
+    function actualizarUI(data) {
+      document.getElementById("faseActual").textContent = data.faseActual;
+      document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
+      document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
+      document.getElementById("timerEstado").textContent = data.timerCorriendo ? "corriendo" : "detenido";
+      document.getElementById("segundosRestantes").textContent = data.segundosRestantes ?? 0;
+
+      marcarActiva(data.faseActual);
+
+      if (data.grupos) {
+        actualizarTablaGrupos(data.grupos);
+      }
+
+      const debug = document.getElementById("debugEstado");
+      if (debug) {
+        debug.textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
+    async function cargarEstado() {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado/`);
+        const data = await res.json();
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error cargando estado:", error);
+      }
+    }
+
+    async function irAPantalla(fase) {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+          },
+          body: JSON.stringify({ faseActual: fase })
+        });
+
+        const data = await res.json();
+        console.log("irAPantalla response:", data);
+
+        if (!res.ok || !data.ok) {
+          alert("No se pudo cambiar la fase: " + (data.error || JSON.stringify(data)));
+          return;
+        }
+
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error en irAPantalla:", error);
+        alert("Error de red al cambiar de fase");
+      }
+    }
+
+    async function siguientePantalla() {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/siguiente-fase/`, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+          }
+        });
+
+        const data = await res.json();
+        console.log("siguientePantalla response:", data);
+
+        if (!res.ok || !data.ok) {
+          alert("No se pudo avanzar: " + (data.error || JSON.stringify(data)));
+          return;
+        }
+
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error en siguientePantalla:", error);
+        alert("Error de red al avanzar de fase");
+      }
+    }
+
+    async function iniciarTimer() {
+      try {
+        const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
+
+        const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+          },
+          body: JSON.stringify({
+            timerCorriendo: true,
+            segundosRestantes: segundos
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          alert("No se pudo iniciar el timer: " + (data.error || JSON.stringify(data)));
+          return;
+        }
+
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error en iniciarTimer:", error);
+        alert("Error de red al iniciar timer");
+      }
+    }
+
+    async function pausarTimer() {
+      try {
+        const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
+
+        const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+          },
+          body: JSON.stringify({
+            timerCorriendo: false,
+            segundosRestantes: segundos
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          alert("No se pudo pausar el timer: " + (data.error || JSON.stringify(data)));
+          return;
+        }
+
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error en pausarTimer:", error);
+        alert("Error de red al pausar timer");
+      }
+    }
+
+    function abrirPreviewNuevaPestana() {
+      window.open(`/sesion/${sesionId}/preview/`, "_blank");
+    }
+
+    setInterval(cargarEstado, 2000);
+    cargarEstado();
   </script>
 </body>
 </html>

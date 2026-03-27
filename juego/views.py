@@ -26,77 +26,78 @@ from django.db.models import F
 
 
 FASES_ORDEN = [
-    "pantalla_espera",
+    "lobby",
 
-    # Fase 1
-    "pantalla_inicio",
-    "promptconocidos",
-    "introducciones",
-    "conocidos",
-    "trabajoenequipo",
-    "minijuego1",
-    "transiciondesafio",
+    # FASE 1
+    "f1_intro",
+    "f1_conocidos",
+    "f1_prompt",
+    "f1_sopa",
+    "f1_juego",
 
-    # Fase 2
-    "transicionempatia",
-    "tematicas",
-    "desafios",
-    "bubblemap",
-    "transicioncreatividad",
+    # FASE 2
+    "f2_intro",
+    "f2_bubblemap",
+    "f2_juego",
 
-    # Fase 3
-    "lego",
-    "transicioncomunicacion",
+    # FASE 3
+    "f3_intro",
+    "f3_juego",
 
-    # Fase 4
-    "pitch",
-    "presentar_pitch",
-    "orden_presentacion_alumno",
-    "transicionapoyo",
+    # FASE 4
+    "f4_intro",
+    "f4_juego",
+
+    # FINAL
+    "reflexion",
 ]
 
 RUTA_POR_FASE = {
-    "pantalla_espera": "pantalla_espera",
-    "pantalla_inicio": "pantalla_inicio",
-    "promptconocidos": "promptconocidos",
-    "introducciones": "introducciones",
-    "conocidos": "conocidos",
-    "trabajoenequipo": "trabajoenequipo",
-    "minijuego1": "minijuego1",
-    "transiciondesafio": "transiciondesafio",
-    "transicionempatia": "transicionempatia",
-    "tematicas": "tematicas",
-    "desafios": "desafios",
-    "bubblemap": "bubblemap",
-    "transicioncreatividad": "transicioncreatividad",
-    "lego": "lego",
-    "transicioncomunicacion": "transicioncomunicacion",
-    "pitch": "pitch",
-    "presentar_pitch": "presentar_pitch",
-    "orden_presentacion_alumno": "orden_presentacion_alumno",
-    "transicionapoyo": "transicionapoyo",
+    "lobby": "pantalla_espera",
+
+    # F1
+    "f1_intro": "trabajoenequipo",
+    "f1_conocidos": "conocidos",
+    "f1_prompt": "promptconocidos",
+    "f1_sopa": "minijuego1",
+    "f1_juego": "trabajoenequipo",
+
+    # F2
+    "f2_intro": "tematicas",
+    "f2_bubblemap": "bubblemap",
+    "f2_juego": "tematicas",
+
+    # F3
+    "f3_intro": "lego",
+    "f3_juego": "lego",
+
+    # F4
+    "f4_intro": "pitch",
+    "f4_juego": "pitch",
+
+    "reflexion": "reflexion",
 }
 
 ETIQUETA_FASE = {
-    "pantalla_espera": "Lobby / Espera",
-    "pantalla_inicio": "F1 · Inicio",
-    "promptconocidos": "F1 · ¿Se conocen?",
-    "introducciones": "F1 · Introducciones",
-    "conocidos": "F1 · Ya se conocen",
-    "trabajoenequipo": "F1 · Trabajo en equipo",
-    "minijuego1": "F1 · Minijuego",
-    "transiciondesafio": "F1 → F2 · Transición",
-    "transicionempatia": "F2 · Introducción",
-    "tematicas": "F2 · Temáticas",
-    "desafios": "F2 · Desafíos",
-    "bubblemap": "F2 · Bubble Map",
-    "transicioncreatividad": "F2 → F3 · Transición",
-    "lego": "F3 · LEGO",
-    "transicioncomunicacion": "F3 → F4 · Transición",
-    "pitch": "F4 · Pitch",
-    "presentar_pitch": "F4 · Presentar pitch",
-    "orden_presentacion_alumno": "F4 · Orden de presentación",
-    "transicionapoyo": "Cierre / Apoyo",
+    "lobby": "Lobby",
+
+    "f1_intro": "F1 · Intro",
+    "f1_conocidos": "F1 · Conocerse",
+    "f1_prompt": "F1 · Prompt",
+    "f1_sopa": "F1 · Sopa de letras",
+    "f1_juego": "F1 · Juego",
+
+    "f2_intro": "F2 · Intro",
+    "f2_bubblemap": "F2 · Bubble Map",
+    "f2_juego": "F2 · Juego",
+
+    "f3_intro": "F3 · Intro",
+    "f3_juego": "F3 · Juego",
+
+    "f4_intro": "F4 · Intro",
+    "f4_juego": "F4 · Pitch",
+
+    "reflexion": "Cierre",
 }
 
 def obtener_grupo_desde_session(request):
@@ -111,7 +112,25 @@ def obtener_grupo_desde_session(request):
 def acceso_permitido(grupo, nombre_vista):
     if not grupo or not grupo.sesion:
         return False
-    return grupo.sesion.fase_actual == nombre_vista
+
+    fases_por_vista = {
+    "pantalla_espera": ["lobby"],
+
+    "trabajoenequipo": ["f1_intro", "f1_juego"],
+    "conocidos": ["f1_conocidos"],
+    "promptconocidos": ["f1_prompt"],
+    "minijuego1": ["f1_sopa"],
+
+    "tematicas": ["f2_intro", "f2_juego"],
+    "bubblemap": ["f2_bubblemap"],
+
+    "lego": ["f3_intro", "f3_juego"],
+    "pitch": ["f4_intro", "f4_juego"],
+
+    "reflexion": ["reflexion"],
+}
+
+    return grupo.sesion.fase_actual in fases_por_vista.get(nombre_vista, [])
 
 
 @require_GET
@@ -163,12 +182,11 @@ def profesor_actualizar_estado(request, sesion_id):
     if "segundosRestantes" in payload:
         sesion.segundos_restantes = int(payload["segundosRestantes"])
 
-    # tiempos automáticos solo para pantallas/juegos principales
     tiempos = {
-        "trabajoenequipo": sesion.t_rompehielo,
-        "tematicas": sesion.t_empatia,
-        "lego": sesion.t_creatividad,
-        "pitch": sesion.t_pitch,
+        "f1_juego": sesion.t_rompehielo,
+        "f2_juego": sesion.t_empatia,
+        "f3_juego": sesion.t_creatividad,
+        "f4_juego": sesion.t_pitch,
     }
 
     if payload.get("faseActual") in tiempos:
@@ -194,18 +212,18 @@ def profesor_siguiente_fase(request, sesion_id):
     try:
         idx = FASES_ORDEN.index(sesion.fase_actual)
     except ValueError:
-        return JsonResponse({"ok": False, "error": "Pantalla actual inválida"}, status=400)
+        return JsonResponse({"ok": False, "error": "Fase actual inválida"}, status=400)
 
     if idx + 1 >= len(FASES_ORDEN):
-        return JsonResponse({"ok": False, "error": "Ya está en la última pantalla"}, status=400)
+        return JsonResponse({"ok": False, "error": "Ya está en la última fase"}, status=400)
 
     sesion.fase_actual = FASES_ORDEN[idx + 1]
 
     tiempos = {
-        "trabajoenequipo": sesion.t_rompehielo,
-        "tematicas": sesion.t_empatia,
-        "lego": sesion.t_creatividad,
-        "pitch": sesion.t_pitch,
+        "f1_juego": sesion.t_rompehielo,
+        "f2_juego": sesion.t_empatia,
+        "f3_juego": sesion.t_creatividad,
+        "f4_juego": sesion.t_pitch,
     }
 
     if sesion.fase_actual in tiempos:
@@ -219,34 +237,11 @@ def profesor_siguiente_fase(request, sesion_id):
         "faseActual": sesion.fase_actual,
         "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
         "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+        "timerCorriendo": sesion.timer_corriendo,
         "segundosRestantes": sesion.segundos_restantes,
     })
 
-@require_GET
-def estado_sesion(request, sesion_id):
-    sesion = get_object_or_404(Sesion, pk=sesion_id)
-    grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
 
-    data = {
-        "sesionId": sesion.idsesion,
-        "faseActual": sesion.fase_actual,
-        "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": sesion.segundos_restantes,
-        "grupos": [
-            {
-                "id": g.idgrupo,
-                "nombre": g.nombregrupo,
-                "tokens": g.tokensgrupo or 0,
-                "listoLobby": g.listo_lobby,
-                "listoF1": g.listo_f1,
-                "listoF2": g.listo_f2,
-                "listoF3": g.listo_f3,
-                "listoF4": g.listo_f4,
-            }
-            for g in grupos
-        ]
-    }
-    return JsonResponse(data)
 
 
 @require_POST
@@ -272,63 +267,10 @@ def marcar_grupo_listo(request, grupo_id):
     return JsonResponse({"ok": True})
 
 
-@require_POST
-def profesor_actualizar_estado(request, sesion_id):
-    sesion = get_object_or_404(Sesion, pk=sesion_id)
-    payload = json.loads(request.body or "{}")
-
-    if "faseActual" in payload:
-        sesion.fase_actual = payload["faseActual"]
-
-    if "timerCorriendo" in payload:
-        sesion.timer_corriendo = bool(payload["timerCorriendo"])
-
-    if "segundosRestantes" in payload:
-        sesion.segundos_restantes = int(payload["segundosRestantes"])
-
-    sesion.save()
-
-    return JsonResponse({
-        "ok": True,
-        "faseActual": sesion.fase_actual,
-        "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": sesion.segundos_restantes,
-    })
 
 
-@require_POST
-def profesor_siguiente_fase(request, sesion_id):
-    sesion = get_object_or_404(Sesion, pk=sesion_id)
 
-    try:
-        idx = FASES_ORDEN.index(sesion.fase_actual)
-    except ValueError:
-        return JsonResponse({"ok": False, "error": "Fase actual inválida"}, status=400)
 
-    if idx + 1 >= len(FASES_ORDEN):
-        return JsonResponse({"ok": False, "error": "Ya está en la última fase"}, status=400)
-
-    sesion.fase_actual = FASES_ORDEN[idx + 1]
-
-    # opcional: cargar tiempo automáticamente
-    tiempos = {
-        "f1_juego": sesion.t_rompehielo,
-        "f2_juego": sesion.t_empatia,
-        "f3_juego": sesion.t_creatividad,
-        "f4_juego": sesion.t_pitch,
-    }
-
-    if sesion.fase_actual in tiempos:
-        sesion.segundos_restantes = tiempos[sesion.fase_actual]
-        sesion.timer_corriendo = False
-
-    sesion.save()
-
-    return JsonResponse({
-        "ok": True,
-        "faseActual": sesion.fase_actual,
-        "segundosRestantes": sesion.segundos_restantes,
-    })
 
 
 def pantalla_espera(request):
@@ -1148,8 +1090,19 @@ def eliminar_alumno(request, idalumno):
         messages.error(request, f"Ocurrió un error al eliminar: {e}")
     return redirect("registraralumnos")
 
+def finalizar_mision(request):
+    request.session.pop("grupo_id", None)
+    return redirect("perfiles")
+
 def reflexion(request):
-    return render(request, 'reflexion.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "reflexion"):
+        return redirect("pantalla_espera")
+
+    return render(request, "reflexion.html", {"grupo": grupo})
 
 def crear_sesion(request):
     profesor = Profesor.objects.first()
@@ -1168,7 +1121,7 @@ def crear_sesion(request):
         Sesion.objects.create(
             profesor=profesor,
             nombre=nombre,
-            fase_actual="pantalla_espera",
+            fase_actual="lobby",
             timer_corriendo=False,
             segundos_restantes=0
         )
@@ -1297,26 +1250,26 @@ def preview_pantalla_profesor(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
 
     plantilla_por_fase = {
-        "pantalla_espera": "pantalla_espera_preview.html",
-        "pantalla_inicio": "pantalla_inicio.html",
-        "promptconocidos": "promptconocidos.html",
-        "introducciones": "introducciones.html",
-        "conocidos": "conocidos.html",
-        "trabajoenequipo": "trabajoenequipo.html",
-        "minijuego1": "minijuego1.html",
-        "transiciondesafio": "transiciondesafio.html",
-        "transicionempatia": "transicionempatia.html",
-        "tematicas": "tematicas.html",
-        "desafios": "desafios.html",
-        "bubblemap": "bubblemap.html",
-        "transicioncreatividad": "transicioncreatividad.html",
-        "lego": "lego.html",
-        "transicioncomunicacion": "transicioncomunicacion.html",
-        "pitch": "pitch.html",
-        "presentar_pitch": "presentar_pitch.html",
-        "orden_presentacion_alumno": "orden_presentacion_alumno.html",
-        "transicionapoyo": "transicionapoyo.html",
-    }
+    "lobby": "pantalla_espera_preview.html",
+
+    "f1_intro": "trabajoenequipo.html",
+    "f1_conocidos": "conocidos.html",
+    "f1_prompt": "promptconocidos.html",
+    "f1_sopa": "minijuego1.html",
+    "f1_juego": "trabajoenequipo.html",
+
+    "f2_intro": "tematicas.html",
+    "f2_bubblemap": "bubblemap.html",
+    "f2_juego": "tematicas.html",
+
+    "f3_intro": "lego.html",
+    "f3_juego": "lego.html",
+
+    "f4_intro": "pitch.html",
+    "f4_juego": "pitch.html",
+
+    "reflexion": "reflexion.html",
+}
 
     template_name = plantilla_por_fase.get(sesion.fase_actual, "pantalla_espera_preview.html")
 
