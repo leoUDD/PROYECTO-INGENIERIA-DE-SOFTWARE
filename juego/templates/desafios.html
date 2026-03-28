@@ -14,14 +14,13 @@
       <h1 id="page-title">{{ theme.title|default:slug|title }}</h1>
       <p class="subtitle">{{ theme.hero }}</p>
     </header>
+
     <section class="challenges-grid" aria-label="Desafíos disponibles">
       {% for challenge in theme.challenges %}
       <article class="challenge-card" tabindex="0"
                data-id="{{ challenge.id }}"
                data-title="{{ challenge.name }}"
                data-desc="{{ challenge.desc }}"
-               data-emoji="{{ challenge.emoji|default:'🎯' }}"
-               data-url="{% url 'market' %}"
                data-slug="{{ slug }}">
         <div class="content">
           <h2 class="title">{{ challenge.name }}</h2>
@@ -31,6 +30,8 @@
           <button class="btn select" type="button">Elegir</button>
         </div>
       </article>
+      {% empty %}
+      <p>No hay desafíos disponibles.</p>
       {% endfor %}
     </section>
 
@@ -38,76 +39,79 @@
       <button id="btnContinuar" class="btn primary" disabled>Comenzar desafío</button>
     </footer>
   </main>
-<div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const tarjetas = document.querySelectorAll(".challenge-card");
-  const btnContinuar = document.getElementById("btnContinuar");
-  const hidden = document.getElementById("desafio_id");
 
-  let desafioSeleccionado = null;
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
 
-  function getCSRFToken() {
-    const row = document.cookie
-      .split("; ")
-      .find(r => r.startsWith("csrftoken="));
-    return row ? row.split("=")[1] : "";
-  }
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tarjetas = document.querySelectorAll(".challenge-card");
+    const btnContinuar = document.getElementById("btnContinuar");
 
-  tarjetas.forEach(card => {
-    const btn = card.querySelector(".btn.select");
+    let desafioSeleccionado = null;
 
-    if (!btn) return;
+    function getCSRFToken() {
+      const row = document.cookie
+        .split("; ")
+        .find(r => r.startsWith("csrftoken="));
+      return row ? row.split("=")[1] : "";
+    }
 
-    btn.addEventListener("click", () => {
-      desafioSeleccionado = card.dataset.id;
+    tarjetas.forEach(card => {
+      function seleccionarCard(card) {
+  desafioSeleccionado = card.dataset.id;
 
-      tarjetas.forEach(c => c.classList.remove("seleccionado"));
-      card.classList.add("seleccionado");
+  tarjetas.forEach(c => c.classList.remove("seleccionado"));
+  card.classList.add("seleccionado");
 
-      if (hidden) hidden.value = desafioSeleccionado;
-      if (btnContinuar) btnContinuar.disabled = false;
+  if (btnContinuar) btnContinuar.disabled = false;
 
-      console.log("Desafío seleccionado:", desafioSeleccionado);
+  console.log("Desafío seleccionado:", desafioSeleccionado);
+}
+
+const btn = card.querySelector(".btn.select");
+if (!btn) return;
+
+btn.addEventListener("click", () => seleccionarCard(card));
+card.addEventListener("click", () => seleccionarCard(card));
     });
-  });
 
-  if (btnContinuar) {
-    btnContinuar.addEventListener("click", async () => {
-      if (!desafioSeleccionado) {
-        alert("Selecciona un desafío");
-        return;
-      }
-
-      try {
-        const res = await fetch("{% url 'guardar_desafio' %}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-          },
-          body: JSON.stringify({
-            desafio_id: desafioSeleccionado
-          })
-        });
-
-        const data = await res.json();
-        console.log("Respuesta guardar_desafio:", data);
-
-        if (!res.ok || !data.ok) {
-          alert(data.error || "No se pudo guardar el desafío");
+    if (btnContinuar) {
+      btnContinuar.addEventListener("click", async () => {
+        if (!desafioSeleccionado) {
+          alert("Selecciona un desafío");
           return;
         }
 
-        window.location.href = "{% url 'espera_eleccion' %}";
-      } catch (err) {
-        console.error("Error guardando desafío:", err);
-        alert("Ocurrió un error al guardar el desafío");
-      }
-    });
-  }
-});
-</script>
-{% include "includes/sincronizacion_fase.html" %}
+        try {
+          const res = await fetch("{% url 'guardar_desafio' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({
+              desafio_id: desafioSeleccionado
+            })
+          });
+
+          const data = await res.json();
+          console.log("Respuesta guardar_desafio:", data);
+
+          if (!res.ok || !data.ok) {
+            alert(data.error || "No se pudo guardar el desafío");
+            return;
+          }
+
+          window.location.href = "{% url 'espera_eleccion' %}";
+        } catch (err) {
+          console.error("Error guardando desafío:", err);
+          alert("Ocurrió un error al guardar el desafío");
+        }
+      });
+    }
+  });
+  </script>
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

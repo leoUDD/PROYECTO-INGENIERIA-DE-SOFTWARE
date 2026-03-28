@@ -4,10 +4,11 @@ const sesionId = document
   ?.dataset?.sesionId;
 
 console.log("SESION ID:", sesionId);
+
 let redirigiendo = false;
 
 async function revisarFaseGlobal() {
-  if (redirigiendo) return;
+  if (redirigiendo || !sesionId) return;
 
   try {
     const res = await fetch(`/sesion/${sesionId}/estado/`);
@@ -15,13 +16,6 @@ async function revisarFaseGlobal() {
 
     const fase = data.faseActual;
     const actual = window.location.pathname;
-
-    // Caso especial:
-    // si el alumno ya está en espera y la fase global sigue siendo f2_tematicas,
-    // NO lo devolvemos a tematicas
-    if (fase === "f2_tematicas" && actual === "{% url 'espera_eleccion' %}") {
-      return;
-    }
 
     const mapa = {
       "lobby": "{% url 'pantalla_espera' %}",
@@ -48,10 +42,25 @@ async function revisarFaseGlobal() {
 
     const destino = mapa[fase];
 
+    // 🔥 CASO ESPECIAL F2
+    if (fase === "f2_tematicas") {
+      const rutasPermitidas = [
+        "{% url 'tematicas' %}",
+        "{% url 'desafios' %}",
+        "{% url 'espera_eleccion' %}"
+      ];
+
+      if (rutasPermitidas.includes(actual)) {
+        return;
+      }
+    }
+
+    // 🔥 ESTE BLOQUE FALTABA
     if (destino && actual !== destino) {
       redirigiendo = true;
       window.location.href = destino;
     }
+
   } catch (e) {
     console.error("Error consultando fase:", e);
   }

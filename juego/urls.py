@@ -15,7 +15,6 @@ urlpatterns = [
     path("sesion/<int:sesion_id>/control/", views.control_sesion, name="control_sesion"),
     path("sesion/<int:sesion_id>/preview/", views.preview_pantalla_profesor, name="preview_pantalla_profesor"),
     path("espera-eleccion/", views.espera_eleccion, name="espera_eleccion"),
-    path("guardar-desafio/", views.guardar_desafio, name="guardar_desafio"),
     #NUEVO CIERRE 
 
 

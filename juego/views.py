@@ -232,8 +232,7 @@ def guardar_desafio(request):
 
     return JsonResponse({
         "ok": True,
-        "desafioId": desafio.pk,
-        "desafioNombre": getattr(desafio, "nombredesafio", str(desafio)),
+        "desafioId": desafio_id,
         "gruposListos": listos,
         "gruposTotales": total,
     })
@@ -860,22 +859,21 @@ def agregar_alumno_manual(request):
 
 def desafios(request):
     grupo = obtener_grupo_desde_session(request)
-
     if not grupo:
         return redirect("registro")
 
-    tema = request.GET.get("tema")
+    slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
+    theme = get_theme(slug)
 
-    theme = {
-        "title": tema.capitalize() if tema else "Desafíos",
-        "hero": "Selecciona un desafío",
-        "challenges": Desafio.objects.filter(tema=tema) if tema else Desafio.objects.all()
-    }
+    if not theme:
+        return redirect('tematicas')
 
-    return render(request, "desafios.html", {
-        "grupo": grupo,
-        "theme": theme,
-        "slug": tema
+    request.session['tema'] = slug
+
+    return render(request, 'desafios.html', {
+        'grupo': grupo,
+        'theme': theme,
+        'slug': slug,
     })
 
 
