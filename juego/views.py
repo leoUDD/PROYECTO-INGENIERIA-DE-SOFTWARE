@@ -176,6 +176,47 @@ def espera_eleccion(request):
         "total_grupos": total_grupos,
     })
 
+
+#PRESENTACION PITCH/LEGO
+@require_GET
+def estado_presentacion_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    grupo_actual = sesion.grupo_presentando
+
+    data = {
+        "ok": True,
+        "grupoActual": {
+            "id": grupo_actual.idgrupo,
+            "nombre": grupo_actual.nombregrupo,
+            "fotoLego": grupo_actual.foto_lego.url if grupo_actual and grupo_actual.foto_lego else None,
+            "orden": grupo_actual.orden_presentacion,
+        } if grupo_actual else None,
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": sesion.segundos_restantes,
+    }
+    return JsonResponse(data)
+
+@require_POST
+def siguiente_grupo_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    actual = sesion.grupo_presentando
+    if actual is None:
+        siguiente = Grupo.objects.filter(sesion=sesion).order_by("orden_presentacion").first()
+    else:
+        siguiente = Grupo.objects.filter(
+            sesion=sesion,
+            orden_presentacion__gt=actual.orden_presentacion
+        ).order_by("orden_presentacion").first()
+
+    sesion.grupo_presentando = siguiente
+    sesion.segundos_restantes = 90
+    sesion.timer_corriendo = False
+    sesion.save(update_fields=["grupo_presentando", "segundos_restantes", "timer_corriendo"])
+
+    return JsonResponse({"ok": True})
+
 @require_GET
 def estado_sesion(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
@@ -185,20 +226,21 @@ def estado_sesion(request, sesion_id):
     nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
 
     grupos_data = [
-    {
-        "id": g.idgrupo,
-        "nombre": g.nombregrupo,
-        "tokens": g.tokensgrupo or 0,
-        "listoLobby": g.listo_lobby,
-        "listoF1": g.listo_f1,
-        "listoF2": g.listo_f2_desafio,
-        "listoF3": g.listo_f3,
-        "listoF4": g.listo_f4,
-        "listoF5": getattr(g, "listo_f5", False),
-        "listoF6": getattr(g, "listo_f6", False),
-    }
-    for g in grupos
-]
+        {
+            "esProfesor": True,
+            "id": g.idgrupo,
+            "nombre": g.nombregrupo,
+            "tokens": g.tokensgrupo or 0,
+            "listoLobby": g.listo_lobby,
+            "listoF1": g.listo_f1,
+            "listoF2": g.listo_f2_desafio,
+            "listoF3": g.listo_f3,
+            "listoF4": g.listo_f4,
+            "listoF5": getattr(g, "listo_f5", False),
+            "listoF6": getattr(g, "listo_f6", False),
+        }
+        for g in grupos
+    ]
 
     total_grupos = len(grupos_data)
     grupos_listos_f2 = sum(1 for g in grupos_data if g["listoF2"])
@@ -215,6 +257,7 @@ def estado_sesion(request, sesion_id):
         "gruposListosF2": grupos_listos_f2,
         "todosListosF2": todos_listos_f2,
         "grupos": grupos_data,
+        "esProfesor": request.user.is_staff,
     }
 
     return JsonResponse(data)
@@ -344,6 +387,7 @@ def profesor_actualizar_estado(request, sesion_id):
     sesion.save()
 
     return JsonResponse({
+        "esProfesor": True,
         "ok": True,
         "faseActual": sesion.fase_actual,
         "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
@@ -402,6 +446,7 @@ def profesor_siguiente_fase(request, sesion_id):
     sesion.save()
 
     return JsonResponse({
+        "esProfesor": True,
         "ok": True,
         "faseActual": sesion.fase_actual,
         "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
@@ -480,9 +525,24 @@ def lego(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
         return redirect("registro")
+
     if not acceso_permitido(grupo, "lego"):
         return redirect("pantalla_espera")
-    return render(request, "lego.html", {"grupo": grupo})
+
+    if request.method == "POST":
+        form = FotoLegoForm(request.POST, request.FILES, instance=grupo)
+        if form.is_valid():
+            form.save()
+            grupo.listo_f3 = True
+            grupo.save(update_fields=["listo_f3"])
+            return redirect("pantalla_espera")
+    else:
+        form = FotoLegoForm(instance=grupo)
+
+    return render(request, "lego.html", {
+        "grupo": grupo,
+        "form": form,
+    })
 
 
 #NUEVO CIERRRE
@@ -585,8 +645,8 @@ def control_sesion(request, sesion_id):
     return render(request, "control_sesion.html", {
         "sesion": sesion,
         "grupos": grupos,
+        "es_profesor_panel": True,
     })
-
 
 def dashboardadmin(request):
     return render(request, 'dashboardadmin.html')

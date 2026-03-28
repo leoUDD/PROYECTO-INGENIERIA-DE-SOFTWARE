@@ -57,7 +57,8 @@ class Grupo(models.Model):
     sopa_ganada = models.BooleanField(default=False)
     orden_presentacion = models.PositiveIntegerField(null=True, blank=True)
     recompensa_peer_otorgada = models.BooleanField(default=False)
-
+    foto_lego = models.ImageField(upload_to="legos/", null=True, blank=True)
+    pitch_texto = models.TextField(null=True, blank=True)   
     #Sincro
     tema_elegido = models.CharField(max_length=80, blank=True, null=True)
     desafio_elegido = models.ForeignKey(
@@ -181,6 +182,13 @@ class Sesion(models.Model):
     profesor = models.ForeignKey('Profesor', on_delete=models.CASCADE, db_column='profesor_idProfesor')
     nombre = models.CharField(max_length=120)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    grupo_presentando = models.ForeignKey(
+    'Grupo',
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name='sesiones_como_presentador_actual'
+)
 
     # Sincro
     fase_actual = models.CharField(max_length=40, default="lobby")   

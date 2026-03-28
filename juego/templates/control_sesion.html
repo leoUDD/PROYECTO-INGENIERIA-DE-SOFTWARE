@@ -168,18 +168,9 @@
       color: #166534;
     }
 
-    .panel-sorteo {
-      display: none;
-      margin-top: 12px;
-      padding: 14px;
-      border-radius: 12px;
-      background: #f5f3ff;
-      border: 1px solid #c4b5fd;
-    }
 
-    .panel-sorteo.visible {
-      display: block;
-    }
+
+
 
     .panel-sorteo ol {
       margin: 10px 0 0 18px;
@@ -203,10 +194,109 @@
       background: #d1d5db;
       color: #111827;
     }
+
+.panel-sorteo {
+  display: none;
+  margin-top: 18px;
+  padding: 24px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #c4b5fd;
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.14);
+  text-align: center;
+}
+
+.panel-sorteo.visible {
+  display: block;
+}
+
+.panel-sorteo h3 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  color: #312e81;
+  font-size: 24px;
+}
+
+.panel-sorteo .contenedor-boton-sorteo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 140px;
+}
+
+.panel-sorteo button {
+  font-size: 22px;
+  font-weight: 800;
+  padding: 18px 34px;
+  border-radius: 18px;
+  box-shadow: 0 10px 20px rgba(124, 58, 237, 0.22);
+}
+
+.placeholder-sorteo {
+  display: none;
+  margin-top: 12px;
+  padding: 22px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px dashed #a78bfa;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.placeholder-sorteo.visible {
+  display: block;
+}
+
+.placeholder-sorteo .icono {
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+.placeholder-sorteo .titulo {
+  font-size: 18px;
+  font-weight: 800;
+  color: #5b21b6;
+  margin-bottom: 8px;
+}
+
+.placeholder-sorteo .texto {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #6b7280;
+}
+
+.resultado-sorteo {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.resultado-sorteo h4 {
+  margin-bottom: 10px;
+  color: #312e81;
+  font-size: 20px;
+}
+
+.resultado-sorteo ol {
+  display: inline-block;
+  text-align: left;
+  margin: 0;
+  padding-left: 22px;
+}
+
+.resultado-sorteo li {
+  margin-bottom: 7px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #374151;
+}
   </style>
 </head>
 <body>
   <div class="layout">
+    <form id="csrfForm" style="display:none;">
+  {% csrf_token %}
+</form>
     <aside class="sidebar">
       <h1>Control de sesión</h1>
 
@@ -266,13 +356,36 @@
         </div>
 
         <div id="panelSorteoPitch" class="panel-sorteo">
-          <h3>Sorteo orden de pitch</h3>
-          <button type="button" class="btn-morado" onclick="sortearOrdenPitch()">
-            Sortear orden de pitch
-          </button>
-          <div id="resultadoSorteoPitch"></div>
-        </div>
-      </div>
+  <h3>Sorteo orden de pitch</h3>
+
+  <div id="contenedorBotonSorteo" class="contenedor-boton-sorteo">
+    <button type="button" class="btn-morado" onclick="sortearOrdenPitch()">
+      🎲 Sortear orden de pitch
+    </button>
+  </div>
+
+  <div id="placeholderSorteo" class="placeholder-sorteo">
+    <div class="icono">🎲✨</div>
+    <div class="titulo">Esperando el sorteo</div>
+    <div class="texto">
+      El profesor realizará el sorteo del orden de presentación.
+      Cuando esté listo, aquí aparecerá el resultado para tu equipo.
+    </div>
+  </div>
+
+  <div id="resultadoSorteoPitch" class="resultado-sorteo"></div>
+</div>
+
+  <!-- PLACEHOLDER ALUMNOS -->
+  <div id="placeholderSorteo" style="display:none; text-align:center; margin-top:12px;">
+    <p style="font-weight:600; color:#6b7280;">
+      Esperando que el profesor realice el sorteo...
+    </p>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="resultadoSorteoPitch" style="margin-top:14px; text-align:center;"></div>
+</div>
 
       <div class="card">
         <h2 style="margin-top:0;">Estado F2</h2>
@@ -326,6 +439,7 @@
 
   <script>
     const sesionId = "{{ sesion.idsesion }}";
+    const esProfesorPanel = true;
 
     function getCookie(name) {
       let cookieValue = null;
@@ -396,18 +510,39 @@
       }
     }
 
-    function actualizarEstadoPanelSorteo(data) {
-      const panel = document.getElementById("panelSorteoPitch");
-      if (!panel) return;
+function actualizarEstadoPanelSorteo(data) {
+  const panel = document.getElementById("panelSorteoPitch");
+  const boton = document.getElementById("contenedorBotonSorteo");
+  const placeholder = document.getElementById("placeholderSorteo");
+  const resultado = document.getElementById("resultadoSorteoPitch");
 
-      if (data.faseActual === "f4_orden_pitch") {
-        panel.classList.add("visible");
-      } else {
-        panel.classList.remove("visible");
-      }
-    }
+  if (!panel || !boton || !placeholder || !resultado) return;
+
+  if (data.faseActual === "f4_orden_pitch") {
+    panel.classList.add("visible");
+  } else {
+    panel.classList.remove("visible");
+    boton.style.display = "none";
+    placeholder.classList.remove("visible");
+    resultado.innerHTML = "";
+    return;
+  }
+
+  const esProfesor = (data.esProfesor === true) || esProfesorPanel === true;
+
+  if (esProfesor) {
+    boton.style.display = "flex";
+    placeholder.classList.remove("visible");
+  } else {
+    boton.style.display = "none";
+    placeholder.classList.add("visible");
+  }
+}
 
     function actualizarUI(data) {
+
+      console.log("esProfesor:", data.esProfesor);
+
       document.getElementById("faseActual").textContent = data.faseActual;
       document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
       document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
@@ -445,8 +580,9 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
+            "X-CSRFToken": obtenerCSRFToken()
           },
+          credentials: "same-origin",
           body: JSON.stringify({ faseActual: fase })
         });
 
@@ -464,41 +600,49 @@
         alert("Error de red al cambiar de fase");
       }
     }
+    
+    function obtenerCSRFToken() {
+  const input = document.querySelector('#csrfForm input[name="csrfmiddlewaretoken"]');
+  return input ? input.value : "";
+}
 
     async function siguientePantalla() {
-      try {
-        const res = await fetch(`/sesion/${sesionId}/siguiente-fase/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
-          },
-          body: JSON.stringify({})
-        });
+  try {
+    const csrfToken = obtenerCSRFToken();
 
-        const contentType = res.headers.get("content-type") || "";
+    const res = await fetch(`/sesion/${sesionId}/siguiente-fase/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({})
+    });
 
-        if (!contentType.includes("application/json")) {
-          const texto = await res.text();
-          console.error("Respuesta no JSON en siguientePantalla:", texto);
-          alert("El servidor respondió con un error HTML. Revisa CSRF o login del profesor.");
-          return;
-        }
+    const contentType = res.headers.get("content-type") || "";
 
-        const data = await res.json();
-        console.log("siguientePantalla response:", data);
-
-        if (!res.ok || !data.ok) {
-          alert("No se pudo avanzar: " + (data.error || JSON.stringify(data)));
-          return;
-        }
-
-        actualizarUI(data);
-      } catch (error) {
-        console.error("Error en siguientePantalla:", error);
-        alert("Error de red al avanzar de fase");
-      }
+    if (!contentType.includes("application/json")) {
+      const texto = await res.text();
+      console.error("Respuesta no JSON en siguientePantalla:", texto);
+      alert("Error CSRF o respuesta HTML del servidor.");
+      return;
     }
+
+    const data = await res.json();
+    console.log("siguientePantalla response:", data);
+
+    if (!res.ok || !data.ok) {
+      alert("No se pudo avanzar: " + (data.error || JSON.stringify(data)));
+      return;
+    }
+
+    actualizarUI(data);
+  } catch (error) {
+    console.error("Error en siguientePantalla:", error);
+    alert("Error de red al avanzar de fase");
+  }
+}
 
     async function sortearOrdenPitch() {
       try {
@@ -506,8 +650,9 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
+            "X-CSRFToken": obtenerCSRFToken()
           },
+          credentials: "same-origin",
           body: JSON.stringify({})
         });
 
@@ -529,11 +674,11 @@
 
         const cont = document.getElementById("resultadoSorteoPitch");
         cont.innerHTML = `
-          <h3 style="margin-top:14px;">Orden sorteado</h3>
-          <ol>
-            ${data.orden.map(item => `<li>${item.nombre}</li>`).join("")}
-          </ol>
-        `;
+  <h4>Orden sorteado</h4>
+  <ol>
+    ${data.orden.map(item => `<li>${item.nombre}</li>`).join("")}
+  </ol>
+`;
       } catch (error) {
         console.error("Error en sortearOrdenPitch:", error);
         alert("Error de red al sortear el orden.");
@@ -548,8 +693,9 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
+            "X-CSRFToken": obtenerCSRFToken()
           },
+          credentials: "same-origin",
           body: JSON.stringify({
             timerCorriendo: true,
             segundosRestantes: segundos
@@ -578,8 +724,9 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
+            "X-CSRFToken": obtenerCSRFToken()
           },
+          credentials: "same-origin",
           body: JSON.stringify({
             timerCorriendo: false,
             segundosRestantes: segundos

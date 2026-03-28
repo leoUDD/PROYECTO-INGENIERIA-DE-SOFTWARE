@@ -7,6 +7,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — LEGO</title>
   <link rel="stylesheet" href="{% static 'css/estilo_lego.css' %}">
+  <style>
+    .foto-panel {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .foto-panel h3 {
+      margin: 0 0 10px 0;
+      font-size: 1rem;
+    }
+
+    .foto-input {
+      margin: 10px 0 12px 0;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .preview-wrapper {
+      display: none;
+      margin: 12px auto 0 auto;
+    }
+
+    .preview-wrapper.visible {
+      display: block;
+    }
+
+    .preview-label {
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+      opacity: 0.85;
+    }
+
+    .preview-img {
+      max-width: 240px;
+      max-height: 240px;
+      width: auto;
+      height: auto;
+      border-radius: 14px;
+      border: 3px solid #ddd;
+      background: #fff;
+      object-fit: cover;
+    }
+
+    .btn-guardar-foto {
+      margin-top: 14px;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #6d28d9;
+      color: white;
+      box-shadow: 0 8px 18px rgba(109, 40, 217, 0.22);
+    }
+
+    .btn-guardar-foto:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .texto-espera-foto {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .modal-content form {
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
   <main class="phone">
@@ -27,11 +102,40 @@
 
     <div id="timer" class="timer">00:15</div>
 
+    <div class="foto-panel">
+      <h3>Prepara la foto de tu solución LEGO</h3>
+      <p class="texto-espera-foto">
+        Cuando termine el tiempo, sube una foto de tu construcción para usarla más adelante en la presentación.
+      </p>
+
+      <div id="previewWrapper" class="preview-wrapper">
+        <div class="preview-label">Vista previa</div>
+        <img id="previewImg" class="preview-img" alt="Vista previa de la foto LEGO">
+      </div>
+    </div>
+
     <div id="modal-fin" class="modal">
       <div class="modal-content">
         <h2>Tiempo terminado</h2>
-        <p>El tiempo para construir ha terminado.</p>
-        <button id="buttonContinuar">Continuar</button>
+        <p>El tiempo para construir ha terminado. Ahora sube la foto de tu LEGO.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input
+            type="file"
+            name="foto_lego"
+            id="foto_lego"
+            class="foto-input"
+            accept="image/*"
+            required
+          >
+
+          <br>
+
+          <button type="submit" id="buttonGuardarFoto" class="btn-guardar-foto" disabled>
+            Guardar foto
+          </button>
+        </form>
       </div>
     </div>
 
@@ -58,7 +162,8 @@
   <script>
     const alarmAudio = document.getElementById("alarm-audio");
     let timeLeft = 15;
-    const timerElement = document.getElementById('timer');
+    const timerElement = document.getElementById("timer");
+    const modalFin = document.getElementById("modal-fin");
 
     function updateTimer() {
       const minutes = Math.floor(timeLeft / 60);
@@ -78,18 +183,39 @@
           console.warn("No se pudo reproducir la alarma:", e);
         }
 
-        // Mostrar modal
-        document.getElementById("modal-fin").style.display = "flex";
+        modalFin.style.display = "flex";
       }
     }
 
     const timerInterval = setInterval(updateTimer, 1000);
     updateTimer();
-
-    document.getElementById("buttonContinuar").addEventListener("click", () => {
-      window.location.href = "{% url 'transicioncomunicacion' %}";
-    });
   </script>
-{% include "includes/sincronizacion_fase.html" %}
+
+  <script>
+    const inputFoto = document.getElementById("foto_lego");
+    const previewWrapper = document.getElementById("previewWrapper");
+    const previewImg = document.getElementById("previewImg");
+    const buttonGuardarFoto = document.getElementById("buttonGuardarFoto");
+
+    if (inputFoto) {
+      inputFoto.addEventListener("change", (event) => {
+        const file = event.target.files && event.target.files[0];
+
+        if (!file) {
+          previewWrapper.classList.remove("visible");
+          previewImg.removeAttribute("src");
+          buttonGuardarFoto.disabled = true;
+          return;
+        }
+
+        const imageUrl = URL.createObjectURL(file);
+        previewImg.src = imageUrl;
+        previewWrapper.classList.add("visible");
+        buttonGuardarFoto.disabled = false;
+      });
+    }
+  </script>
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>
