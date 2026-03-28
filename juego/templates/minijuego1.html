@@ -56,14 +56,13 @@
     </div>
 
     <div
-      id="routes"
-      data-sopa-completada-url="{% url 'sopa_completada' %}"
-      data-sesion-id="{{ grupo.sesion.idsesion }}"
-      data-tiempo="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias }}">
-    </div>
+  id="routes"
+  data-sopa-completada-url="{% url 'sopa_completada' %}"
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-tiempo="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias }}">
+</div>
   </main>
 
   <script src="{% static 'js/sopadeletras.js' %}?v=4" defer></script>
-  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

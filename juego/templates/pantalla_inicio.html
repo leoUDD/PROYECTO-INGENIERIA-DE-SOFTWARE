@@ -37,10 +37,12 @@
   </main>
 
   <script>
-    document.getElementById('btnComenzar').addEventListener('click', () => {
-      window.location.href = "{% url 'promptconocidos' %}";
-    });
-  </script>
+  document.getElementById('btnComenzar').addEventListener('click', () => {
+    const btn = document.getElementById('btnComenzar');
+    btn.disabled = true;
+    btn.textContent = 'Esperando al profesor...';
+  });
+</script>
 {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

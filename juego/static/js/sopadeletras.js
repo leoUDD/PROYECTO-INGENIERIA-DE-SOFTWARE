@@ -326,15 +326,11 @@ function startTimer() {
 
   if (timerInterval || gameEnded) return;
 
+  renderTimer();
+
   timerInterval = setInterval(() => {
     if (gameEnded) {
       pauseTimerLocally();
-      return;
-    }
-
-    if (timeLeft <= 0) {
-      pauseTimerLocally();
-      endGame(false, alarmAudio);
       return;
     }
 
@@ -346,8 +342,6 @@ function startTimer() {
       endGame(false, alarmAudio);
     }
   }, 1000);
-
-  renderTimer();
 }
 
 /* ===== Ajuste de grilla responsiva ===== */
@@ -420,7 +414,6 @@ function procesarEstadoSesion(data) {
   const faseActual = data.faseActual;
   ultimaFaseDetectada = faseActual;
 
-  // Si el profesor ya cambió a otra fase, esta pantalla sale sola
   if (faseActual && faseActual !== "f1_sopa") {
     if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
       window.location.href = data.rutaAlumno;
@@ -428,22 +421,38 @@ function procesarEstadoSesion(data) {
     return;
   }
 
-  // Actualiza reloj visible con el valor real del backend
-  if (typeof data.segundosRestantes === "number") {
-    timeLeft = Number(data.segundosRestantes);
-    renderTimer();
+  const backendSeconds = Number(data.segundosRestantes);
+
+  // Solo sincronizar el número cuando el timer todavía no parte
+  // o cuando el profesor lo deja en pausa.
+  if (!timerStartedByProfesor || !data.timerCorriendo) {
+    if (!Number.isNaN(backendSeconds)) {
+      timeLeft = backendSeconds;
+      renderTimer();
+    }
   }
 
-  // El profesor inicia
   if (!timerStartedByProfesor && data.timerCorriendo) {
     timerStartedByProfesor = true;
+
+    if (!Number.isNaN(backendSeconds)) {
+      timeLeft = backendSeconds;
+      renderTimer();
+    }
+
     startTimer();
     return;
   }
 
-  // El profesor pausa
   if (timerStartedByProfesor && !data.timerCorriendo) {
     pauseTimerLocally();
+
+    if (!Number.isNaN(backendSeconds)) {
+      timeLeft = backendSeconds;
+      renderTimer();
+    }
+
+    timerStartedByProfesor = false;
     return;
   }
 }

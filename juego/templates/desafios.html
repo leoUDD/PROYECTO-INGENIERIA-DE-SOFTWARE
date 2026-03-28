@@ -38,40 +38,74 @@
       <button id="btnContinuar" class="btn primary" disabled>Comenzar desafío</button>
     </footer>
   </main>
-  <form id="formDesafio" method="post" action="{% url 'transicionempatia' %}">
-    {% csrf_token %}
-    <input type="hidden" name="desafio_id" id="desafio_id">
-  </form>
+
 <script>
-document.getElementById('btnContinuar').addEventListener('click', async () => {
-  const hidden = document.getElementById('desafio_id');
-  if (!hidden || !hidden.value) {
-    alert('Por favor, selecciona un desafío antes de continuar.');
-    return;
+document.addEventListener("DOMContentLoaded", () => {
+  const tarjetas = document.querySelectorAll(".challenge-card");
+  const btnContinuar = document.getElementById("btnContinuar");
+  const hidden = document.getElementById("desafio_id");
+
+  let desafioSeleccionado = null;
+
+  function getCSRFToken() {
+    const row = document.cookie
+      .split("; ")
+      .find(r => r.startsWith("csrftoken="));
+    return row ? row.split("=")[1] : "";
   }
 
-  const csrf = document.cookie.split('; ')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1] || '';
+  tarjetas.forEach(card => {
+    const btn = card.querySelector(".btn.select");
 
-  const res = await fetch("{% url 'guardar_desafio' %}", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrf
-    },
-    body: JSON.stringify({
-      desafio_id: hidden.value
-    })
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      desafioSeleccionado = card.dataset.id;
+
+      tarjetas.forEach(c => c.classList.remove("seleccionado"));
+      card.classList.add("seleccionado");
+
+      if (hidden) hidden.value = desafioSeleccionado;
+      if (btnContinuar) btnContinuar.disabled = false;
+
+      console.log("Desafío seleccionado:", desafioSeleccionado);
+    });
   });
 
-  const data = await res.json();
-  if (!res.ok || !data.ok) {
-    alert(data.error || "No se pudo guardar el desafío.");
-    return;
-  }
+  if (btnContinuar) {
+    btnContinuar.addEventListener("click", async () => {
+      if (!desafioSeleccionado) {
+        alert("Selecciona un desafío");
+        return;
+      }
 
-  window.location.href = "{% url 'bubblemap' %}";
+      try {
+        const res = await fetch("{% url 'guardar_desafio' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+          },
+          body: JSON.stringify({
+            desafio_id: desafioSeleccionado
+          })
+        });
+
+        const data = await res.json();
+        console.log("Respuesta guardar_desafio:", data);
+
+        if (!res.ok || !data.ok) {
+          alert(data.error || "No se pudo guardar el desafío");
+          return;
+        }
+
+        window.location.href = "{% url 'espera_eleccion' %}";
+      } catch (err) {
+        console.error("Error guardando desafío:", err);
+        alert("Ocurrió un error al guardar el desafío");
+      }
+    });
+  }
 });
 </script>
 {% include "includes/sincronizacion_fase.html" %}

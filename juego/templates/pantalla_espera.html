@@ -1,20 +1,12 @@
 <script>
-  async function revisarEstado() {
+  async function revisarEstadoSesion() {
     try {
-      const sesionId = "{{ grupo.sesion.idsesion }}";
-      const res = await fetch(`/sesion/${sesionId}/estado/`);
+      const res = await fetch("/sesion/{{ grupo.sesion.idsesion }}/estado/");
       const data = await res.json();
       const fase = data.faseActual;
 
-      const estadoEl = document.getElementById("estado");
-      if (estadoEl) {
-        estadoEl.innerText = `Fase actual: ${fase}`;
-      }
-
-      if (fase === "lobby") return;
-
-      if (["f1_intro", "f1_juego"].includes(fase)) {
-        window.location.href = "{% url 'trabajoenequipo' %}";
+      if (fase === "f1_bienvenida") {
+        window.location.href = "{% url 'pantalla_inicio' %}";
         return;
       }
 
@@ -23,8 +15,8 @@
         return;
       }
 
-      if (fase === "f1_prompt") {
-        window.location.href = "{% url 'promptconocidos' %}";
+      if (fase === "f1_pre_sopa") {
+        window.location.href = "{% url 'trabajoenequipo' %}";
         return;
       }
 
@@ -33,8 +25,18 @@
         return;
       }
 
-      if (["f2_intro", "f2_juego"].includes(fase)) {
+      if (fase === "f2_tematicas") {
         window.location.href = "{% url 'tematicas' %}";
+        return;
+      }
+
+      if (fase === "f2_desafios") {
+        window.location.href = "{% url 'desafios' %}";
+        return;
+      }
+
+      if (fase === "f2_espera") {
+        window.location.href = "{% url 'espera_eleccion' %}";
         return;
       }
 
@@ -43,12 +45,16 @@
         return;
       }
 
-      if (["f3_intro", "f3_juego"].includes(fase)) {
+      if (fase === "f3_lego" || fase === "f3_juego") {
         window.location.href = "{% url 'lego' %}";
         return;
       }
 
-      if (["f4_intro", "f4_juego"].includes(fase)) {
+      if (
+        fase === "f4_construccion_pitch" ||
+        fase === "f4_presentacion_pitch" ||
+        fase === "f4_evaluacion_pitch"
+      ) {
         window.location.href = "{% url 'pitch' %}";
         return;
       }
@@ -56,12 +62,11 @@
       if (fase === "reflexion") {
         window.location.href = "{% url 'reflexion' %}";
       }
-
     } catch (error) {
-      console.error("Error en revisarEstado:", error);
+      console.error("Error consultando sesión:", error);
     }
   }
 
-  setInterval(revisarEstado, 2000);
-  revisarEstado();
+  setInterval(revisarEstadoSesion, 2000);
+  revisarEstadoSesion();
 </script>

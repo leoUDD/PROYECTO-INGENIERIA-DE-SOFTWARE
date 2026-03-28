@@ -12,82 +12,177 @@
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
     <h1 class="title">Es momento de fortalecer lazos!</h1>
+
     <div class="speech-bubble">
-      <p class="body">Nombra una habilidad que tenga uno de los integrantes del equipo y cuenta una anécdota donde hayas visto esa habilidad en acción.</p>
+      <p class="body">
+        Nombra una habilidad que tenga uno de los integrantes del equipo y cuenta una anécdota donde hayas visto esa habilidad en acción.
+      </p>
     </div>
-      <h2 id="timer">00:45</h2>
+
+    <h2 id="timer">00:45</h2>
+
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+
     <div id="modal-fin" class="modal">
       <div class="modal-content">
         <h2>Tiempo terminado</h2>
-        <p>El tiempo para conocerse ha terminado. Presiona el botón para continuar.</p>
-        <button id="buttonContinuar">Continuar</button>
+        <p>El tiempo para conocerse ha terminado. Espera la señal del profesor para continuar.</p>
+        <button id="buttonContinuar" type="button">Aceptar</button>
       </div>
     </div>
-        <script>
-  let timeLeft = 45;
-  let timerInterval = null;
-  let timerIniciado = false;
 
-  const timerElement = document.getElementById("timer");
+    <div
+      id="routes"
+      data-sesion-id="{{ grupo.sesion.idsesion }}"
+      data-tiempo="{{ grupo.sesion.segundos_restantes|default:45 }}">
+    </div>
 
-  function pintarTiempo() {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    timerElement.textContent =
-      `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-  }
+    <script>
+      (function () {
+        const routesEl = document.getElementById("routes");
+        const sesionId = routesEl?.dataset?.sesionId;
+        const timerElement = document.getElementById("timer");
+        const modal = document.getElementById("modal-fin");
+        const btnContinuar = document.getElementById("buttonContinuar");
+        const alarmAudio = document.getElementById("alarm-audio");
 
-  function reproducirAlarma() {
-    const alarmAudio = document.getElementById("alarm-audio");
-    alarmAudio.currentTime = 0;
-    alarmAudio.play();
+        if (!sesionId || !timerElement) return;
 
-    document.body.classList.add("flash");
-    setTimeout(() => document.body.classList.remove("flash"), 800);
-  }
+        let timeLeft = Number(routesEl.dataset.tiempo || 45);
+        let timerInterval = null;
+        let timerIniciado = false;
+        let tiempoFinalizado = false;
+        let redirigiendo = false;
 
-  function mostrarModal() {
-    const modal = document.getElementById("modal-fin");
-    modal.style.display = "flex";
-  }
+        function pintarTiempo() {
+          const minutes = Math.floor(Math.max(0, timeLeft) / 60);
+          const seconds = Math.max(0, timeLeft) % 60;
+          timerElement.textContent =
+            `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+        }
 
-  function iniciarTimerLocal() {
-    if (timerIniciado) return;
-    timerIniciado = true;
+        function reproducirAlarma() {
+          if (!alarmAudio) return;
+          alarmAudio.currentTime = 0;
+          alarmAudio.play().catch(() => {});
+          document.body.classList.add("flash");
+          setTimeout(() => document.body.classList.remove("flash"), 800);
+        }
 
-    timerInterval = setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft--;
+        function mostrarModal() {
+          if (!modal) return;
+          modal.style.display = "flex";
+        }
+
+        function ocultarModal() {
+          if (!modal) return;
+          modal.style.display = "none";
+        }
+
+        function pausarTimerLocal() {
+          if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+          }
+        }
+
+        function iniciarTimerLocal() {
+          if (timerInterval || tiempoFinalizado || redirigiendo) return;
+
+          timerIniciado = true;
+          pintarTiempo();
+
+          timerInterval = setInterval(() => {
+            if (redirigiendo) {
+              pausarTimerLocal();
+              return;
+            }
+
+            if (timeLeft > 0) {
+              timeLeft--;
+              pintarTiempo();
+            }
+
+            if (timeLeft <= 0) {
+              timeLeft = 0;
+              pintarTiempo();
+              pausarTimerLocal();
+
+              if (!tiempoFinalizado) {
+                tiempoFinalizado = true;
+                reproducirAlarma();
+                mostrarModal();
+              }
+            }
+          }, 1000);
+        }
+
+        function procesarEstadoSesion(data) {
+          if (!data) return;
+
+          const faseActual = data.faseActual;
+
+          if (faseActual && faseActual !== "f1_conocidos") {
+            if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+              redirigiendo = true;
+              window.location.href = data.rutaAlumno;
+            }
+            return;
+          }
+
+          const backendSeconds = Number(data.segundosRestantes);
+
+          if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+
+          if (!timerIniciado && data.timerCorriendo) {
+            if (!Number.isNaN(backendSeconds)) {
+              timeLeft = backendSeconds;
+              pintarTiempo();
+            }
+            iniciarTimerLocal();
+            return;
+          }
+
+          if (timerIniciado && !data.timerCorriendo) {
+            pausarTimerLocal();
+
+            if (!Number.isNaN(backendSeconds)) {
+              timeLeft = backendSeconds;
+              pintarTiempo();
+            }
+
+            timerIniciado = false;
+          }
+        }
+
+        async function consultarEstadoSesion() {
+          if (redirigiendo) return;
+
+          try {
+            const res = await fetch(`/sesion/${sesionId}/estado/`);
+            const data = await res.json();
+            procesarEstadoSesion(data);
+          } catch (err) {
+            console.error("Error consultando estado de sesión:", err);
+          }
+        }
+
+        if (btnContinuar) {
+          btnContinuar.addEventListener("click", () => {
+            ocultarModal();
+          });
+        }
+
         pintarTiempo();
-      } else {
-        clearInterval(timerInterval);
-        reproducirAlarma();
-        mostrarModal();
-      }
-    }, 1000);
-
-    pintarTiempo();
-  }
-
-  document.getElementById("buttonContinuar").addEventListener("click", () => {
-    window.location.href = "{% url 'minijuego1' %}";
-  });
-
-  window.addEventListener("sesion-estado", (ev) => {
-    const data = ev.detail || {};
-    if (data.faseActual !== "f1_conocidos") return;
-
-    if (!timerIniciado && data.timerCorriendo) {
-      timeLeft = Number(data.segundosRestantes ?? 45);
-      iniciarTimerLocal();
-    }
-  });
-
-  pintarTiempo();
-</script>
+        setInterval(consultarEstadoSesion, 1500);
+        consultarEstadoSesion();
+      })();
+    </script>
   </main>
-{% include "includes/sincronizacion_fase.html" %}
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>
-

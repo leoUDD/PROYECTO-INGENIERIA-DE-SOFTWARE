@@ -29,15 +29,14 @@ from django.db.models import F
 FASES_ORDEN = [
     "lobby",
 
-    
     "f1_bienvenida",
     "f1_conocidos",
     "f1_pre_sopa",
     "f1_sopa",
 
+    "f2_transicion",
     "f2_tematicas",
-    "f2_desafios",
-    "f2_espera",
+    "f2_transicion_empatia",
     "f2_bubblemap",
 
     "f3_lego",
@@ -58,9 +57,9 @@ RUTA_POR_FASE = {
     "f1_pre_sopa": "trabajoenequipo",
     "f1_sopa": "minijuego1",
 
+    "f2_transicion": "transiciondesafio",
     "f2_tematicas": "tematicas",
-    "f2_desafios": "desafios",
-    "f2_espera": "espera_eleccion",
+    "f2_transicion_empatia": "transicionempatia",
     "f2_bubblemap": "bubblemap",
 
     "f3_lego": "lego",
@@ -81,9 +80,9 @@ ETIQUETA_FASE = {
     "f1_pre_sopa": "F1 · Trabajo en equipo",
     "f1_sopa": "F1 · Sopa de letras",
 
+    "f2_transicion": "F2 · Desafíos",
     "f2_tematicas": "F2 · Temáticas",
-    "f2_desafios": "F2 · Desafíos",
-    "f2_espera": "F2 · Espera",
+    "f2_transicion_empatia": "F2 · Transición Empatía",
     "f2_bubblemap": "F2 · Bubble Map",
 
     "f3_lego": "F3 · Lego",
@@ -117,10 +116,12 @@ def acceso_permitido(grupo, nombre_vista):
         "trabajoenequipo": ["f1_pre_sopa"],
         "minijuego1": ["f1_sopa"],
 
-        "tematicas": ["f2_tematicas"],
-        "desafios": ["f2_desafios"],
-        "espera_eleccion": ["f2_espera"],
-        "bubblemap": ["f2_bubblemap"],
+        "transiciondesafio": ["f2_transicion"],
+"tematicas": ["f2_tematicas"],
+"desafios": ["f2_tematicas"],
+"espera_eleccion": ["f2_tematicas"],
+"transicionempatia": ["f2_transicion_empatia"],
+"bubblemap": ["f2_bubblemap"],
 
         "lego": ["f3_lego", "f3_juego"],
         "pitch": [
@@ -138,9 +139,6 @@ def espera_eleccion(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
         return redirect("registro")
-
-    if not acceso_permitido(grupo, "espera_eleccion"):
-        return redirect("pantalla_espera")
 
     grupos = Grupo.objects.filter(sesion=grupo.sesion)
     total = grupos.count()
@@ -234,17 +232,19 @@ def guardar_desafio(request):
 
     return JsonResponse({
         "ok": True,
-        "desafioId": desafio.iddesafio,
-        "desafioNombre": desafio.nombredesafio,
+        "desafioId": desafio.pk,
+        "desafioNombre": getattr(desafio, "nombredesafio", str(desafio)),
         "gruposListos": listos,
         "gruposTotales": total,
     })
+
 
 @require_POST
 def profesor_actualizar_estado(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
     payload = json.loads(request.body or "{}")
 
+    fase_anterior = sesion.fase_actual
     nueva_fase = None
 
     if "faseActual" in payload:
@@ -262,24 +262,19 @@ def profesor_actualizar_estado(request, sesion_id):
         sesion.segundos_restantes = int(payload["segundosRestantes"])
 
     TIEMPOS_POR_FASE = {
-    "f1_conocidos": 45,
-    "f1_pre_sopa": 0,
-    "f1_sopa": sesion.t_diferencias,
+        "f1_conocidos": 45,
+        "f1_pre_sopa": 0,
+        "f1_sopa": sesion.t_diferencias,
+        "f2_transicion": 0,
+        "f2_bubblemap": sesion.t_empatia,
+        "f3_lego": sesion.t_creatividad,
+        "f3_juego": sesion.t_creatividad,
+        "f4_construccion_pitch": sesion.t_pitch,
+        "f4_presentacion_pitch": 90,
+        "f4_evaluacion_pitch": 60,
+    }
 
-    "f2_tematicas": 0,
-    "f2_desafios": sesion.t_empatia,
-    "f2_espera": 0,
-    "f2_bubblemap": sesion.t_empatia,
-
-    "f3_lego": sesion.t_creatividad,
-    "f3_juego": sesion.t_creatividad,
-
-    "f4_construccion_pitch": sesion.t_pitch,
-    "f4_presentacion_pitch": 90,
-    "f4_evaluacion_pitch": 60,
-}
-
-    if nueva_fase in TIEMPOS_POR_FASE:
+    if nueva_fase and nueva_fase != fase_anterior and nueva_fase in TIEMPOS_POR_FASE:
         sesion.segundos_restantes = TIEMPOS_POR_FASE[nueva_fase]
         sesion.timer_corriendo = False
 
@@ -299,7 +294,7 @@ def profesor_actualizar_estado(request, sesion_id):
 def profesor_siguiente_fase(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
 
-    if sesion.fase_actual == "f2_espera":
+    if sesion.fase_actual == "f2_tematicas":
         total = Grupo.objects.filter(sesion=sesion).count()
         listos = Grupo.objects.filter(sesion=sesion, listo_f2_desafio=True).count()
 
@@ -324,7 +319,9 @@ def profesor_siguiente_fase(request, sesion_id):
         "f1_pre_sopa": 0,
         "f1_sopa": sesion.t_diferencias,
 
-        "f2_desafios": sesion.t_empatia,
+        "f2_transicion": 0,
+        "f2_tematicas": 0,
+        "f2_transicion_empatia": 0,
         "f2_bubblemap": sesion.t_empatia,
 
         "f3_lego": sesion.t_creatividad,
@@ -878,15 +875,7 @@ def bubblemap(request):
     if not acceso_permitido(grupo, "bubblemap"):
         return redirect("pantalla_espera")
 
-    grupos = Grupo.objects.filter(sesion=grupo.sesion)
-    total = grupos.count()
-    listos = grupos.filter(listo_f2_desafio=True).count()
-
-    return render(request, "bubblemap.html", {
-        "grupo": grupo,
-        "grupos_listos": listos,
-        "grupos_totales": total,
-    })
+    return render(request, "bubblemap.html", {"grupo": grupo})
 
 def orden_presentacion_alumno(request):
     grupo_id = request.session.get("grupo_id")

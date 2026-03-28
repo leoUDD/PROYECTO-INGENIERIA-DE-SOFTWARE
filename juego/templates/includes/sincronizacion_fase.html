@@ -1,45 +1,58 @@
 <script>
-  const sesionId = "{{ grupo.sesion.idsesion }}";
+const sesionId = "{{ grupo.sesion.idsesion }}";
+let redirigiendo = false;
 
-  async function revisarFaseGlobal() {
-    try {
-      const res = await fetch(`/sesion/${sesionId}/estado/`);
-      const data = await res.json();
+async function revisarFaseGlobal() {
+  if (redirigiendo) return;
 
-      const fase = data.faseActual;
+  try {
+    const res = await fetch(`/sesion/${sesionId}/estado/`);
+    const data = await res.json();
 
-      const mapa = {
-        "lobby": "{% url 'pantalla_espera' %}",
+    const fase = data.faseActual;
+    const actual = window.location.pathname;
 
-        "f1_bienvenida": "{% url 'pantalla_inicio' %}",
-        "f1_conocidos": "{% url 'conocidos' %}",
-        "f1_pre_sopa": "{% url 'trabajoenequipo' %}",
-        "f1_sopa": "{% url 'minijuego1' %}",
-
-        "f2_tematicas": "{% url 'tematicas' %}",
-        "f2_desafios": "{% url 'desafios' %}",
-        "f2_espera": "{% url 'espera_eleccion' %}",
-        "f2_bubblemap": "{% url 'bubblemap' %}",
-
-        "f3_lego": "{% url 'lego' %}",
-        "f3_juego": "{% url 'lego' %}",
-
-        "f4_construccion_pitch": "{% url 'pitch' %}",
-        "f4_presentacion_pitch": "{% url 'pitch' %}",
-        "f4_evaluacion_pitch": "{% url 'pitch' %}",
-
-        "reflexion": "{% url 'reflexion' %}"
-      };
-
-      const destino = mapa[fase];
-      if (destino && window.location.pathname !== destino) {
-        window.location.href = destino;
-      }
-    } catch (error) {
-      console.error("Error consultando estado de sesión:", error);
+    // Caso especial:
+    // si el alumno ya está en espera y la fase global sigue siendo f2_tematicas,
+    // NO lo devolvemos a tematicas
+    if (fase === "f2_tematicas" && actual === "{% url 'espera_eleccion' %}") {
+      return;
     }
-  }
 
-  setInterval(revisarFaseGlobal, 2000);
-  revisarFaseGlobal();
+    const mapa = {
+      "lobby": "{% url 'pantalla_espera' %}",
+
+      "f1_bienvenida": "{% url 'pantalla_inicio' %}",
+      "f1_conocidos": "{% url 'conocidos' %}",
+      "f1_pre_sopa": "{% url 'trabajoenequipo' %}",
+      "f1_sopa": "{% url 'minijuego1' %}",
+
+      "f2_transicion": "{% url 'transiciondesafio' %}",
+      "f2_tematicas": "{% url 'tematicas' %}",
+      "f2_transicion_empatia": "{% url 'transicionempatia' %}",
+      "f2_bubblemap": "{% url 'bubblemap' %}",
+
+      "f3_lego": "{% url 'lego' %}",
+      "f3_juego": "{% url 'lego' %}",
+
+      "f4_construccion_pitch": "{% url 'pitch' %}",
+      "f4_presentacion_pitch": "{% url 'pitch' %}",
+      "f4_evaluacion_pitch": "{% url 'pitch' %}",
+
+      "reflexion": "{% url 'reflexion' %}"
+    };
+
+    const destino = mapa[fase];
+
+    if (destino && actual !== destino) {
+      redirigiendo = true;
+      window.location.href = destino;
+    }
+  } catch (e) {
+    console.error("Error consultando fase:", e);
+  }
+}
+
+setInterval(revisarFaseGlobal, 2000);
+revisarFaseGlobal();
 </script>
