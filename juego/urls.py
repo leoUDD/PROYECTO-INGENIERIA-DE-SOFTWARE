@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     #NUEVO
-    
+    path("grupo/<int:grupo_id>/listo-ranking/", views.marcar_listo_ranking, name="marcar_listo_ranking"),
     path("espera/", views.pantalla_espera, name="pantalla_espera"),
     path("guardar-tematica/", views.guardar_tematica, name="guardar_tematica"),
     path("guardar-desafio/", views.guardar_desafio, name="guardar_desafio"),
@@ -21,6 +21,18 @@ urlpatterns = [
     "sesion/<int:sesion_id>/sortear-orden/",
     views.profesor_sortear_orden_pitch,
     name="profesor_sortear_orden_pitch"
+),
+
+
+path(
+    "sesion/<int:sesion_id>/estado-presentacion/",
+    views.estado_presentacion_pitch,
+    name="estado_presentacion_pitch",
+),
+path(
+    "sesion/<int:sesion_id>/siguiente-grupo-pitch/",
+    views.siguiente_grupo_pitch,
+    name="siguiente_grupo_pitch",
 ),
     #NUEVO CIERRE 
 

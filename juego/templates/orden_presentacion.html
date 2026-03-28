@@ -82,6 +82,7 @@
       border: 1px solid #ddd6fe;
       border-radius: 18px;
       padding: 20px 28px;
+      min-width: 260px;
     }
 
     .lista h2 {
@@ -102,6 +103,10 @@
       font-weight: 700;
       color: #374151;
     }
+
+    .actual {
+      color: #5b21b6;
+    }
   </style>
 </head>
 <body>
@@ -112,26 +117,74 @@
         El profesor realizará el sorteo del orden en que cada equipo presentará su pitch.
       </p>
 
-      {% if grupos_ordenados %}
-        <div class="lista">
-          <h2>Orden sorteado</h2>
-          <ol>
+      <div id="placeholderOrden" class="placeholder" {% if grupos_ordenados %}style="display:none;"{% endif %}>
+        <div class="icono">🎲✨</div>
+        <div class="titulo-placeholder">Esperando el sorteo</div>
+        <div class="texto-placeholder">
+          Cuando el profesor realice el sorteo, aquí aparecerá el orden de presentación de todos los equipos.
+        </div>
+      </div>
+
+      <div id="panelOrden" class="lista" {% if not grupos_ordenados %}style="display:none;"{% endif %}>
+        <h2>Orden sorteado</h2>
+        <ol id="listaOrdenPresentacion">
+          {% if grupos_ordenados %}
             {% for g in grupos_ordenados %}
               <li>{{ g.nombregrupo }}</li>
             {% endfor %}
-          </ol>
-        </div>
-      {% else %}
-        <div class="placeholder">
-          <div class="icono">🎲✨</div>
-          <div class="titulo-placeholder">Esperando el sorteo</div>
-          <div class="texto-placeholder">
-            Cuando el profesor realice el sorteo, aquí aparecerá el orden de presentación de todos los equipos.
-          </div>
-        </div>
-      {% endif %}
+          {% else %}
+            <li>Esperando sorteo...</li>
+          {% endif %}
+        </ol>
+      </div>
     </section>
   </main>
+
+  <script>
+    const sesionId = "{{ grupo.sesion.idsesion }}";
+
+    function renderOrden(ordenPitch, grupoActual) {
+      const lista = document.getElementById("listaOrdenPresentacion");
+      const panel = document.getElementById("panelOrden");
+      const placeholder = document.getElementById("placeholderOrden");
+
+      if (!lista || !panel || !placeholder) return;
+
+      if (!ordenPitch || !ordenPitch.length) {
+        panel.style.display = "none";
+        placeholder.style.display = "block";
+        lista.innerHTML = "<li>Esperando sorteo...</li>";
+        return;
+      }
+
+      placeholder.style.display = "none";
+      panel.style.display = "inline-block";
+
+      lista.innerHTML = ordenPitch.map(item => {
+        const esActual = grupoActual && grupoActual.id === item.id;
+        return `<li class="${esActual ? "actual" : ""}">${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
+      }).join("");
+    }
+
+    async function cargarOrden() {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado-presentacion/`, {
+          credentials: "same-origin"
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) return;
+
+        renderOrden(data.ordenPitch, data.grupoActual);
+      } catch (error) {
+        console.error("Error cargando orden:", error);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarOrden);
+    setInterval(cargarOrden, 1000);
+  </script>
 
   {% include "includes/sincronizacion_fase.html" %}
 </body>

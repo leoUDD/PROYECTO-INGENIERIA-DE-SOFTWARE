@@ -373,18 +373,15 @@
     </div>
   </div>
 
+  <div class="card">
+  <h3>Estado ranking final</h3>
+  <p id="estadoListosRanking">0/0 grupos listos para ranking</p>
+</div>
+
   <div id="resultadoSorteoPitch" class="resultado-sorteo"></div>
 </div>
 
-  <!-- PLACEHOLDER ALUMNOS -->
-  <div id="placeholderSorteo" style="display:none; text-align:center; margin-top:12px;">
-    <p style="font-weight:600; color:#6b7280;">
-      Esperando que el profesor realice el sorteo...
-    </p>
-  </div>
 
-  <!-- RESULTADO -->
-  <div id="resultadoSorteoPitch" style="margin-top:14px; text-align:center;"></div>
 </div>
 
       <div class="card">
@@ -430,11 +427,44 @@
     </aside>
 
     <main class="contenido">
-      <div class="card">
-        <h2 style="margin-top:0;">Estado técnico</h2>
-        <div id="debugEstado" class="estado-debug">Esperando datos de la sesión.</div>
+  <div class="card">
+    <h2 style="margin-top:0;">Presentación de pitch</h2>
+
+    <div id="panelPitchProfesor" style="display:grid; gap:16px;">
+      <div>
+        <div style="font-size:14px; opacity:.7;">Grupo presentando</div>
+        <div id="grupoActualNombre" style="font-size:32px; font-weight:700;">Aún no sorteado</div>
+        <div id="grupoActualOrden" style="font-size:16px; opacity:.8;">-</div>
       </div>
-    </main>
+
+      <div style="display:flex; justify-content:center;">
+        <img
+          id="grupoActualFoto"
+          src=""
+          alt="Foto del lego del grupo actual"
+          style="max-width:420px; width:100%; max-height:320px; object-fit:contain; border-radius:16px; display:none;"
+        >
+      </div>
+
+      <div style="text-align:center;">
+        <div style="font-size:14px; opacity:.7;">Tiempo de presentación</div>
+        <div id="timerPitchProfesor" style="font-size:64px; font-weight:800;">01:30</div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <button type="button" onclick="iniciarTimer()">Iniciar</button>
+        <button type="button" onclick="pausarTimer()">Pausar</button>
+        <button type="button" onclick="reiniciarTimerPitch()">Reiniciar</button>
+        <button type="button" onclick="siguienteGrupoPitch()">Siguiente grupo</button>
+      </div>
+
+      <div>
+        <h3 style="margin-bottom:8px;">Orden del pitch</h3>
+        <ol id="listaOrdenPitch" style="margin:0; padding-left:20px;"></ol>
+      </div>
+    </div>
+  </div>
+</main>
   </div>
 
   <script>
@@ -539,30 +569,140 @@ function actualizarEstadoPanelSorteo(data) {
   }
 }
 
-    function actualizarUI(data) {
+    function formatearTiempo(totalSegundos) {
+  const segundos = Math.max(0, Number(totalSegundos || 0));
+  const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+  const sec = String(segundos % 60).padStart(2, "0");
+  return `${min}:${sec}`;
+}
 
-      console.log("esProfesor:", data.esProfesor);
+function renderOrdenPitch(ordenPitch, grupoActual) {
+  const lista = document.getElementById("listaOrdenPitch");
+  if (!lista) return;
 
-      document.getElementById("faseActual").textContent = data.faseActual;
-      document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
-      document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
-      document.getElementById("timerEstado").textContent = data.timerCorriendo ? "corriendo" : "detenido";
-      document.getElementById("segundosRestantes").textContent = data.segundosRestantes ?? 0;
+  if (!ordenPitch || !ordenPitch.length) {
+    lista.innerHTML = "<li>Aún no se ha sorteado el orden.</li>";
+    return;
+  }
 
-      marcarActiva(data.faseActual);
+  lista.innerHTML = ordenPitch.map(item => {
+    const esActual = grupoActual && grupoActual.id === item.id;
+    return `<li ${esActual ? 'style="font-weight:700;"' : ""}>${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
+  }).join("");
+}
 
-      if (data.grupos) {
-        actualizarTablaGrupos(data.grupos);
-      }
+function renderPanelPitchProfesor(data) {
+  const grupoActual = data.grupoActual;
+  const nombre = document.getElementById("grupoActualNombre");
+  const orden = document.getElementById("grupoActualOrden");
+  const foto = document.getElementById("grupoActualFoto");
+  const timer = document.getElementById("timerPitchProfesor");
 
-      actualizarResumenF2(data);
-      actualizarEstadoPanelSorteo(data);
+  if (nombre) {
+    nombre.textContent = grupoActual ? grupoActual.nombre : "Aún no sorteado";
+  }
 
-      const debug = document.getElementById("debugEstado");
-      if (debug) {
-        debug.textContent = JSON.stringify(data, null, 2);
-      }
+  if (orden) {
+    orden.textContent = grupoActual ? `Orden ${grupoActual.orden}` : "-";
+  }
+
+  if (foto) {
+    if (grupoActual && grupoActual.fotoLego) {
+      foto.src = grupoActual.fotoLego;
+      foto.style.display = "block";
+    } else {
+      foto.removeAttribute("src");
+      foto.style.display = "none";
     }
+  }
+
+  if (timer) {
+    timer.textContent = formatearTiempo(data.segundosRestantes);
+  }
+
+  renderOrdenPitch(data.ordenPitch, grupoActual);
+}
+
+async function siguienteGrupoPitch() {
+  try {
+    const res = await fetch(`/sesion/${sesionId}/siguiente-grupo-pitch/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": obtenerCSRFToken()
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({})
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      alert(data.error || "No se pudo pasar al siguiente grupo.");
+      return;
+    }
+
+    actualizarUI(data);
+  } catch (error) {
+    console.error("Error en siguienteGrupoPitch:", error);
+    alert("Error de red al pasar al siguiente grupo.");
+  }
+}
+
+async function reiniciarTimerPitch() {
+  try {
+    const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": obtenerCSRFToken()
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        timerCorriendo: false,
+        segundosRestantes: 90
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      alert(data.error || "No se pudo reiniciar el timer.");
+      return;
+    }
+
+    actualizarUI(data);
+  } catch (error) {
+    console.error("Error en reiniciarTimerPitch:", error);
+    alert("Error de red al reiniciar timer.");
+  }
+}
+
+
+    function actualizarUI(data) {
+  console.log("esProfesor:", data.esProfesor);
+
+  document.getElementById("faseActual").textContent = data.faseActual;
+  document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
+  document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
+  document.getElementById("timerEstado").textContent = data.timerCorriendo ? "corriendo" : "detenido";
+  document.getElementById("segundosRestantes").textContent = data.segundosRestantes ?? 0;
+
+  marcarActiva(data.faseActual);
+
+  if (data.grupos) {
+    actualizarTablaGrupos(data.grupos);
+  }
+
+  actualizarResumenF2(data);
+  actualizarEstadoPanelSorteo(data);
+  renderPanelPitchProfesor(data);
+
+  const estadoRanking = document.getElementById("estadoListosRanking");
+  if (estadoRanking) {
+    estadoRanking.textContent = `${data.gruposListosRanking || 0}/${data.totalGrupos || 0} grupos listos para ranking`;
+  }
+}
 
     async function cargarEstado() {
       try {
@@ -667,10 +807,12 @@ function actualizarEstadoPanelSorteo(data) {
 
         const data = await res.json();
 
-        if (!res.ok || !data.ok) {
-          alert(data.error || "No se pudo sortear el orden.");
-          return;
-        }
+if (!res.ok || !data.ok) {
+  alert(data.error || "No se pudo sortear el orden.");
+  return;
+}
+
+actualizarUI(data);
 
         const cont = document.getElementById("resultadoSorteoPitch");
         cont.innerHTML = `

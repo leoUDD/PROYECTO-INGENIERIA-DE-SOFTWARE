@@ -58,7 +58,8 @@ class Grupo(models.Model):
     orden_presentacion = models.PositiveIntegerField(null=True, blank=True)
     recompensa_peer_otorgada = models.BooleanField(default=False)
     foto_lego = models.ImageField(upload_to="legos/", null=True, blank=True)
-    pitch_texto = models.TextField(null=True, blank=True)   
+    pitch_texto = models.TextField(null=True, blank=True)
+    listo_ranking = models.BooleanField(default=False)   
     #Sincro
     tema_elegido = models.CharField(max_length=80, blank=True, null=True)
     desafio_elegido = models.ForeignKey(

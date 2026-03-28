@@ -178,23 +178,50 @@ def espera_eleccion(request):
     })
 
 
-#PRESENTACION PITCH/LEGO
-@require_GET
-def estado_presentacion_pitch(request, sesion_id):
-    sesion = get_object_or_404(Sesion, pk=sesion_id)
-
+def serializar_estado_pitch(sesion, grupo_solicitante=None):
     grupo_actual = sesion.grupo_presentando
 
-    data = {
-        "ok": True,
+    orden_pitch = list(
+        Grupo.objects.filter(sesion=sesion, orden_presentacion__isnull=False)
+        .order_by("orden_presentacion")
+        .values("idgrupo", "nombregrupo", "orden_presentacion")
+    )
+
+    return {
         "grupoActual": {
             "id": grupo_actual.idgrupo,
             "nombre": grupo_actual.nombregrupo,
             "fotoLego": grupo_actual.foto_lego.url if grupo_actual and grupo_actual.foto_lego else None,
             "orden": grupo_actual.orden_presentacion,
         } if grupo_actual else None,
+        "ordenPitch": [
+            {
+                "id": g["idgrupo"],
+                "nombre": g["nombregrupo"],
+                "orden": g["orden_presentacion"],
+            }
+            for g in orden_pitch
+        ],
         "timerCorriendo": sesion.timer_corriendo,
         "segundosRestantes": sesion.segundos_restantes,
+        "miPitch": grupo_solicitante.pitch_texto if grupo_solicitante else None,
+    }
+
+
+
+#PRESENTACION PITCH/LEGO
+@require_GET
+def estado_presentacion_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    grupo_solicitante = None
+    grupo_id = request.session.get("grupo_id")
+    if grupo_id:
+        grupo_solicitante = Grupo.objects.filter(pk=grupo_id, sesion=sesion).first()
+
+    data = {
+        "ok": True,
+        **serializar_estado_pitch(sesion, grupo_solicitante=grupo_solicitante),
     }
     return JsonResponse(data)
 
@@ -203,20 +230,33 @@ def siguiente_grupo_pitch(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
 
     actual = sesion.grupo_presentando
+
     if actual is None:
-        siguiente = Grupo.objects.filter(sesion=sesion).order_by("orden_presentacion").first()
+        siguiente = Grupo.objects.filter(
+            sesion=sesion,
+            orden_presentacion__isnull=False
+        ).order_by("orden_presentacion").first()
     else:
         siguiente = Grupo.objects.filter(
             sesion=sesion,
             orden_presentacion__gt=actual.orden_presentacion
         ).order_by("orden_presentacion").first()
 
+    if siguiente is None:
+        return JsonResponse({
+            "ok": False,
+            "error": "Ya no quedan más grupos por presentar."
+        }, status=400)
+
     sesion.grupo_presentando = siguiente
     sesion.segundos_restantes = 90
     sesion.timer_corriendo = False
     sesion.save(update_fields=["grupo_presentando", "segundos_restantes", "timer_corriendo"])
 
-    return JsonResponse({"ok": True})
+    return JsonResponse({
+        "ok": True,
+        **serializar_estado_pitch(sesion),
+    })
 
 @require_GET
 def estado_sesion(request, sesion_id):
@@ -239,6 +279,7 @@ def estado_sesion(request, sesion_id):
             "listoF4": g.listo_f4,
             "listoF5": getattr(g, "listo_f5", False),
             "listoF6": getattr(g, "listo_f6", False),
+            
         }
         for g in grupos
     ]
@@ -246,6 +287,8 @@ def estado_sesion(request, sesion_id):
     total_grupos = len(grupos_data)
     grupos_listos_f2 = sum(1 for g in grupos_data if g["listoF2"])
     todos_listos_f2 = total_grupos > 0 and grupos_listos_f2 == total_grupos
+    grupos_listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
+    todos_listos_ranking = total_grupos > 0 and grupos_listos_ranking == total_grupos
 
     data = {
         "sesionId": sesion.idsesion,
@@ -259,6 +302,9 @@ def estado_sesion(request, sesion_id):
         "todosListosF2": todos_listos_f2,
         "grupos": grupos_data,
         "esProfesor": request.user.is_staff,
+        "gruposListosRanking": grupos_listos_ranking,
+        "todosListosRanking": todos_listos_ranking,
+        **serializar_estado_pitch(sesion),
     }
 
     return JsonResponse(data)
@@ -388,14 +434,15 @@ def profesor_actualizar_estado(request, sesion_id):
     sesion.save()
 
     return JsonResponse({
-        "esProfesor": True,
-        "ok": True,
-        "faseActual": sesion.fase_actual,
-        "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
-        "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
-        "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": sesion.segundos_restantes,
-    })
+    "esProfesor": True,
+    "ok": True,
+    "faseActual": sesion.fase_actual,
+    "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
+    "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+    "timerCorriendo": sesion.timer_corriendo,
+    "segundosRestantes": sesion.segundos_restantes,
+    **serializar_estado_pitch(sesion),
+})
 
 
 @require_POST
@@ -420,7 +467,25 @@ def profesor_siguiente_fase(request, sesion_id):
     if idx + 1 >= len(FASES_ORDEN):
         return JsonResponse({"ok": False, "error": "Ya está en la última fase"}, status=400)
 
-    sesion.fase_actual = FASES_ORDEN[idx + 1]
+    nueva_fase = FASES_ORDEN[idx + 1]
+
+    if nueva_fase == "f5_evaluacion_pitch":
+        Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
+
+    if nueva_fase == "f6_ranking":
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
+
+        if total == 0 or listos_ranking < total:
+            return JsonResponse({
+                "ok": False,
+                "error": f"Aún faltan grupos por presionar Ranking final ({listos_ranking}/{total})."
+            }, status=400)
+
+    if nueva_fase == "mision_cumplida":
+        Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
+
+    sesion.fase_actual = nueva_fase
 
     tiempos = {
         "f1_conocidos": 45,
@@ -432,12 +497,19 @@ def profesor_siguiente_fase(request, sesion_id):
         "f2_transicion_empatia": 0,
         "f2_bubblemap": sesion.t_empatia,
 
+        "f3_transicion_creatividad": 0,
         "f3_lego": sesion.t_creatividad,
-        "f3_juego": sesion.t_creatividad,
 
+        "f4_transicion_comunicacion": 0,
         "f4_construccion_pitch": sesion.t_pitch,
+        "f4_orden_pitch": 0,
         "f4_presentacion_pitch": 90,
-        "f4_evaluacion_pitch": 60,
+
+        "f5_transicion_apoyo": 0,
+        "f5_evaluacion_pitch": 60,
+
+        "f6_ranking": 0,
+        "reflexion": 0,
     }
 
     if sesion.fase_actual in tiempos:
@@ -454,9 +526,31 @@ def profesor_siguiente_fase(request, sesion_id):
         "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
         "timerCorriendo": sesion.timer_corriendo,
         "segundosRestantes": sesion.segundos_restantes,
+        **serializar_estado_pitch(sesion),
     })
 
 
+
+@require_POST
+def marcar_listo_ranking(request, grupo_id):
+    grupo = get_object_or_404(Grupo, pk=grupo_id)
+
+    grupo.listo_ranking = True
+    grupo.save(update_fields=["listo_ranking"])
+
+    sesion = grupo.sesion
+    total_grupos = Grupo.objects.filter(sesion=sesion).count()
+    grupos_listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
+
+
+    return JsonResponse({
+        "ok": True,
+        "grupoId": grupo.idgrupo,
+        "listoRanking": True,
+        "gruposListosRanking": grupos_listos_ranking,
+        "totalGrupos": total_grupos,
+        "todosListosRanking": total_grupos > 0 and grupos_listos_ranking == total_grupos,
+    })
 
 
 @require_POST
@@ -1041,47 +1135,40 @@ def pitch(request):
     if not acceso_permitido(grupo, "pitch"):
         return redirect("pantalla_espera")
     return render(request, "pitch.html", {"grupo": grupo})
+
+
 @require_POST
 def profesor_sortear_orden_pitch(request, sesion_id):
-    sesion = get_object_or_404(Sesion, idsesion=sesion_id)
-
-    if sesion.fase_actual != "f4_orden_pitch":
-        return JsonResponse({
-            "ok": False,
-            "error": "El sorteo solo se puede hacer en la fase f4_orden_pitch."
-        }, status=400)
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
 
     grupos = list(Grupo.objects.filter(sesion=sesion).order_by("idgrupo"))
-
     if not grupos:
-        return JsonResponse({
-            "ok": False,
-            "error": "No hay grupos para sortear."
-        }, status=400)
-
-    for g in grupos:
-        g.orden_presentacion = None
-    Grupo.objects.bulk_update(grupos, ["orden_presentacion"])
+        return JsonResponse({"ok": False, "error": "No hay grupos en la sesión."}, status=400)
 
     random.shuffle(grupos)
 
     for i, grupo in enumerate(grupos, start=1):
         grupo.orden_presentacion = i
+        grupo.save(update_fields=["orden_presentacion"])
 
-    Grupo.objects.bulk_update(grupos, ["orden_presentacion"])
+    primer_grupo = sorted(grupos, key=lambda g: g.orden_presentacion)[0]
 
-    orden = [
-        {
-            "grupo_id": g.idgrupo,
-            "nombre": g.nombregrupo,
-            "orden": g.orden_presentacion,
-        }
-        for g in sorted(grupos, key=lambda x: x.orden_presentacion or 999)
-    ]
+    sesion.grupo_presentando = primer_grupo
+    sesion.segundos_restantes = 90
+    sesion.timer_corriendo = False
+    sesion.save(update_fields=["grupo_presentando", "segundos_restantes", "timer_corriendo"])
 
     return JsonResponse({
         "ok": True,
-        "orden": orden
+        "orden": [
+            {
+                "id": g.idgrupo,
+                "nombre": g.nombregrupo,
+                "orden": g.orden_presentacion,
+            }
+            for g in sorted(grupos, key=lambda x: x.orden_presentacion)
+        ],
+        **serializar_estado_pitch(sesion),
     })
 
 def presentar_pitch(request):
@@ -1520,10 +1607,17 @@ def ranking_view(request):
     return render(request, "ranking.html", context)
 
 def mision_cumplida_view(request):
-    """
-    Pantalla final de cierre de misión antes del ranking.
-    """
-    return render(request, "mision_cumplida.html")
+    grupo_id = request.session.get("grupo_id")
+    grupo = get_object_or_404(Grupo, pk=grupo_id)
+    sesion = grupo.sesion
+
+    if not request.session.get("ranking_flags_reseteados"):
+        Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
+        request.session["ranking_flags_reseteados"] = True
+
+    return render(request, "mision_cumplida.html", {
+        "grupo": grupo,
+    })
 
 def preview_pantalla_profesor(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)

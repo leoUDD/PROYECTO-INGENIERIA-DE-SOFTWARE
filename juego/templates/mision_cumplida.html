@@ -19,7 +19,7 @@
 
     <p class="intro">
       Han completado todos los objetivos de esta misión.<br>
-      Es momento de ver cómo quedó el <strong>ranking final de tokens</strong>.
+      Es momento de prepararse para ver el <strong>ranking final de tokens</strong>.
     </p>
 
     <div class="logo">
@@ -29,59 +29,68 @@
     <ul class="highlights">
       <li>✓ Superaron las pruebas de <strong>creatividad, comunicación y trabajo en equipo</strong>.</li>
       <li>✓ Ya se registraron las evaluaciones entre equipos.</li>
-      <li>✓ Los equipos están listos para el podio final.</li>
+      <li>✓ Solo falta que todos los equipos queden listos para el ranking final.</li>
     </ul>
 
-    <a href="{% url 'ranking' %}" class="btn-ranking">Ver ranking final</a>
+    <div id="panelRankingFinal">
+      <button id="btnRankingFinal" class="btn-ranking" type="button">Ranking final</button>
+    </div>
+
+    <div id="esperaProfesorRanking" style="display:none; margin-top:20px;">
+      <p style="font-weight:700; font-size:20px; color:#4c1d95; margin-bottom:8px;">
+        Esperando al profesor
+      </p>
+      <p style="margin:0; color:#6b7280;">
+        Tu grupo ya quedó listo. Cuando todos los equipos presionen Ranking final, el profesor podrá mostrar el ranking.
+      </p>
+    </div>
   </main>
 
   <script>
-  const sound = document.getElementById("celebration-sound");
-  sound.volume = 0.6;
+    const sound = document.getElementById("celebration-sound");
+    sound.volume = 0.6;
 
-  function tryPlay() {
-    const promise = sound.play();
-    if (promise !== undefined) {
-      promise
-        .then(() => {
-          console.log("Sonido reproducido automáticamente.");
-        })
-        .catch(() => {
-          console.warn("Autoplay bloqueado. Esperando interacción…");
-          enableInteractionPlay();
-        });
+    function tryPlay() {
+      const promise = sound.play();
+      if (promise !== undefined) {
+        promise
+          .then(() => {
+            console.log("Sonido reproducido automáticamente.");
+          })
+          .catch(() => {
+            console.warn("Autoplay bloqueado. Esperando interacción…");
+            enableInteractionPlay();
+          });
+      }
     }
-  }
 
-  function enableInteractionPlay() {
-    const handler = () => {
-      sound.play();
-      window.removeEventListener("click", handler);
-      window.removeEventListener("touchstart", handler);
-      window.removeEventListener("keydown", handler);
-      window.removeEventListener("scroll", handler);
-    };
+    function enableInteractionPlay() {
+      const handler = () => {
+        sound.play();
+        window.removeEventListener("click", handler);
+        window.removeEventListener("touchstart", handler);
+        window.removeEventListener("keydown", handler);
+        window.removeEventListener("scroll", handler);
+      };
 
-    window.addEventListener("click", handler, { once: true });
-    window.addEventListener("touchstart", handler, { once: true });
-    window.addEventListener("keydown", handler, { once: true });
-    window.addEventListener("scroll", handler, { once: true });
-  }
+      window.addEventListener("click", handler, { once: true });
+      window.addEventListener("touchstart", handler, { once: true });
+      window.addEventListener("keydown", handler, { once: true });
+      window.addEventListener("scroll", handler, { once: true });
+    }
 
-  window.addEventListener("load", tryPlay);
+    window.addEventListener("load", tryPlay);
 
-
-    /* ====== CONFETI ====== */
-    const container = document.querySelector('.confetti-container');
+    const container = document.querySelector(".confetti-container");
     const colors = ["#FF7A1A", "#00C8FF", "#E6EEF8", "#8B5CF6", "#34D399"];
 
-    function createConfetti(){
+    function createConfetti() {
       const confetti = document.createElement("div");
       confetti.classList.add("confetti");
       confetti.style.width = Math.random() * 8 + 6 + "px";
       confetti.style.height = Math.random() * 12 + 8 + "px";
       confetti.style.left = Math.random() * 100 + "vw";
-      confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
       confetti.style.animationDelay = (Math.random() * 3) + "s";
 
       container.appendChild(confetti);
@@ -90,7 +99,53 @@
 
     let confettiInterval = setInterval(createConfetti, 100);
     setTimeout(() => clearInterval(confettiInterval), 15000);
+
+    function obtenerCSRFToken() {
+      const name = "csrftoken=";
+      const cookies = document.cookie.split(";");
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name)) {
+          return decodeURIComponent(cookie.substring(name.length));
+        }
+      }
+      return "";
+    }
+
+    const grupoId = "{{ grupo.idgrupo }}";
+
+    async function marcarListoRanking() {
+      try {
+        const res = await fetch(`/grupo/${grupoId}/listo-ranking/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": obtenerCSRFToken()
+          },
+          credentials: "same-origin",
+          body: JSON.stringify({})
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          alert(data.error || "No se pudo marcar listo.");
+          return;
+        }
+
+        const panelBoton = document.getElementById("panelRankingFinal");
+        const espera = document.getElementById("esperaProfesorRanking");
+
+        if (panelBoton) panelBoton.style.display = "none";
+        if (espera) espera.style.display = "block";
+      } catch (error) {
+        console.error("Error marcando listo ranking:", error);
+        alert("Error de red.");
+      }
+    }
+
+    document.getElementById("btnRankingFinal")?.addEventListener("click", marcarListoRanking);
   </script>
-{% include "includes/sincronizacion_fase.html" %}
+
 </body>
 </html>

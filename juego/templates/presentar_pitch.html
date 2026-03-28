@@ -27,15 +27,38 @@
         </div>
       </article>
 
+      <!-- Orden del pitch -->
+      <article class="panel">
+        <h3>Orden del pitch</h3>
+        <ol id="ordenPitchAlumno">
+          <li>Esperando sorteo...</li>
+        </ol>
+      </article>
+
       <!-- Temporizador -->
       <aside class="timer-card" aria-label="Temporizador de Pitch">
+        <h3>Presentación actual</h3>
+
+        <div id="grupoActualAlumnoNombre" style="font-size:28px; font-weight:700; margin-bottom:8px;">
+          Esperando sorteo...
+        </div>
+
+        <div id="grupoActualAlumnoOrden" style="opacity:.8; margin-bottom:12px;">
+          -
+        </div>
+
+        <div style="display:flex; justify-content:center; margin-bottom:16px;">
+          <img
+            id="grupoActualAlumnoFoto"
+            src=""
+            alt="Foto del lego del grupo que está presentando"
+            style="max-width:320px; width:100%; max-height:240px; object-fit:contain; border-radius:16px; display:none;"
+          >
+        </div>
+
         <h3>Temporizador</h3>
         <div id="timer" class="timer-display" data-seconds="90">01:30</div>
-        <div class="timer-controls">
-          <button id="btnStart" class="btn">Iniciar</button>
-          <button id="btnPause" class="btn ghost" disabled>Pausar</button>
-          <button id="btnReset" class="btn ghost">Reiniciar</button>
-        </div>
+
         <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
       </aside>
     </section>
@@ -64,11 +87,94 @@
 
   <script>const ALARM_URL = "{% static 'sounds/alarma.mp3' %}";</script>
   <script src="{% static 'js/presentar_pitch.js' %}"></script>
+
   <script>
-  document.getElementById("btnContinuar").addEventListener("click", () => {
-    window.location.href = "{% url 'transicionapoyo' %}";
-  });
-</script>
-{% include "includes/sincronizacion_fase.html" %}
+    document.getElementById("btnContinuar").addEventListener("click", () => {
+      window.location.href = "{% url 'transicionapoyo' %}";
+    });
+
+    const sesionId = "{{ grupo.sesion.idsesion }}";
+
+    function formatearTiempo(totalSegundos) {
+      const segundos = Math.max(0, Number(totalSegundos || 0));
+      const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+      const sec = String(segundos % 60).padStart(2, "0");
+      return `${min}:${sec}`;
+    }
+
+    function renderOrdenAlumno(ordenPitch, grupoActual) {
+      const lista = document.getElementById("ordenPitchAlumno");
+      if (!lista) return;
+
+      if (!ordenPitch || !ordenPitch.length) {
+        lista.innerHTML = "<li>Esperando sorteo...</li>";
+        return;
+      }
+
+      lista.innerHTML = ordenPitch.map(item => {
+        const esActual = grupoActual && grupoActual.id === item.id;
+        return `<li ${esActual ? 'style="font-weight:700;"' : ""}>${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
+      }).join("");
+    }
+
+    function renderEstadoPresentacion(data) {
+      const grupoActual = data.grupoActual;
+
+      const nombre = document.getElementById("grupoActualAlumnoNombre");
+      const orden = document.getElementById("grupoActualAlumnoOrden");
+      const foto = document.getElementById("grupoActualAlumnoFoto");
+      const timer = document.getElementById("timer");
+
+      if (nombre) {
+        nombre.textContent = grupoActual ? grupoActual.nombre : "Esperando sorteo...";
+      }
+
+      if (orden) {
+        orden.textContent = grupoActual ? `Orden ${grupoActual.orden}` : "-";
+      }
+
+      if (foto) {
+        if (grupoActual && grupoActual.fotoLego) {
+          foto.src = grupoActual.fotoLego;
+          foto.style.display = "block";
+        } else {
+          foto.removeAttribute("src");
+          foto.style.display = "none";
+        }
+      }
+
+      if (window.presentarPitchUI && typeof window.presentarPitchUI.actualizarTimer === "function") {
+  window.presentarPitchUI.actualizarTimer(data.segundosRestantes);
+} else if (timer) {
+  timer.textContent = formatearTiempo(data.segundosRestantes);
+  timer.dataset.seconds = Number(data.segundosRestantes || 0);
+}
+
+      renderOrdenAlumno(data.ordenPitch, grupoActual);
+    }
+
+    async function cargarEstadoPresentacion() {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado-presentacion/`, {
+          credentials: "same-origin"
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          return;
+        }
+
+        renderEstadoPresentacion(data);
+      } catch (error) {
+        console.error("Error cargando estado de presentación:", error);
+      }
+    }
+
+    setInterval(cargarEstadoPresentacion, 1000);
+    document.addEventListener("DOMContentLoaded", cargarEstadoPresentacion);
+  </script>
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>
