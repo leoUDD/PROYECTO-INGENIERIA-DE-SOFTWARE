@@ -74,6 +74,8 @@ class Grupo(models.Model):
     listo_f2 = models.BooleanField(default=False)
     listo_f3 = models.BooleanField(default=False)
     listo_f4 = models.BooleanField(default=False)
+    listo_f5 = models.BooleanField(default=False)
+    listo_f6 = models.BooleanField(default=False)
 
 
 

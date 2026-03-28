@@ -1,10 +1,11 @@
 #NUEVO
-from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 import json
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 #NUEVO CIERRRE
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -39,13 +40,18 @@ FASES_ORDEN = [
     "f2_transicion_empatia",
     "f2_bubblemap",
 
+    "f3_transicion_creatividad",
     "f3_lego",
-    "f3_juego",
 
+    "f4_transicion_comunicacion",
     "f4_construccion_pitch",
+    "f4_orden_pitch",
     "f4_presentacion_pitch",
-    "f4_evaluacion_pitch",
 
+    "f5_transicion_apoyo",
+    "f5_evaluacion_pitch",
+
+    "f6_ranking",
     "reflexion",
 ]
 
@@ -62,13 +68,18 @@ RUTA_POR_FASE = {
     "f2_transicion_empatia": "transicionempatia",
     "f2_bubblemap": "bubblemap",
 
+    "f3_transicion_creatividad": "transicioncreatividad",
     "f3_lego": "lego",
-    "f3_juego": "lego",
 
+    "f4_transicion_comunicacion": "transicioncomunicacion",
     "f4_construccion_pitch": "pitch",
-    "f4_presentacion_pitch": "pitch",
-    "f4_evaluacion_pitch": "pitch",
+    "f4_orden_pitch": "orden_presentacion_alumno",
+    "f4_presentacion_pitch": "presentar_pitch",
 
+    "f5_transicion_apoyo": "transicionapoyo",
+    "f5_evaluacion_pitch": "peer_review",
+
+    "f6_ranking": "ranking",
     "reflexion": "reflexion",
 }
 
@@ -85,13 +96,18 @@ ETIQUETA_FASE = {
     "f2_transicion_empatia": "F2 · Transición Empatía",
     "f2_bubblemap": "F2 · Bubble Map",
 
+    "f3_transicion_creatividad": "F3 · Transición Creatividad",
     "f3_lego": "F3 · Lego",
-    "f3_juego": "F3 · Juego",
 
+    "f4_transicion_comunicacion": "F4 · Transición Comunicación",
     "f4_construccion_pitch": "F4 · Construcción pitch",
+    "f4_orden_pitch": "F4 · Sorteo orden pitch",
     "f4_presentacion_pitch": "F4 · Presentación pitch",
-    "f4_evaluacion_pitch": "F4 · Evaluación pitch",
 
+    "f5_transicion_apoyo": "F5 · Transición Apoyo",
+    "f5_evaluacion_pitch": "F5 · Evaluación pitch",
+
+    "f6_ranking": "Ranking",
     "reflexion": "Cierre",
 }
 
@@ -109,41 +125,47 @@ def acceso_permitido(grupo, nombre_vista):
         return False
 
     fases_por_vista = {
-        "pantalla_espera": ["lobby"],
+    "pantalla_espera": ["lobby"],
 
-        "pantalla_inicio": ["f1_bienvenida"],
-        "conocidos": ["f1_conocidos"],
-        "trabajoenequipo": ["f1_pre_sopa"],
-        "minijuego1": ["f1_sopa"],
+    "pantalla_inicio": ["f1_bienvenida"],
+    "conocidos": ["f1_conocidos"],
+    "trabajoenequipo": ["f1_pre_sopa"],
+    "minijuego1": ["f1_sopa"],
 
-        "transiciondesafio": ["f2_transicion"],
-"tematicas": ["f2_tematicas"],
-"desafios": ["f2_tematicas"],
-"espera_eleccion": ["f2_tematicas"],
-"transicionempatia": ["f2_transicion_empatia"],
-"bubblemap": ["f2_bubblemap"],
+    "transiciondesafio": ["f2_transicion"],
+    "tematicas": ["f2_tematicas"],
+    "desafios": ["f2_tematicas"],
+    "espera_eleccion": ["f2_tematicas"],
+    "transicionempatia": ["f2_transicion_empatia"],
+    "bubblemap": ["f2_bubblemap"],
 
-        "lego": ["f3_lego", "f3_juego"],
-        "pitch": [
-            "f4_construccion_pitch",
-            "f4_presentacion_pitch",
-            "f4_evaluacion_pitch",
-        ],
+    "transicioncreatividad": ["f3_transicion_creatividad"],
+    "lego": ["f3_lego"],
 
-        "reflexion": ["reflexion"],
-    }
+    "transicioncomunicacion": ["f4_transicion_comunicacion"],
+    "pitch": ["f4_construccion_pitch"],
+    "orden_presentacion_alumno": ["f4_orden_pitch"],
+    "presentar_pitch": ["f4_presentacion_pitch"],
+
+    "transicionapoyo": ["f5_transicion_apoyo"],
+    "peer_review": ["f5_evaluacion_pitch"],
+
+    "ranking": ["f6_ranking"],
+    "reflexion": ["reflexion"],
+}
 
     return grupo.sesion.fase_actual in fases_por_vista.get(nombre_vista, [])
 
 def espera_eleccion(request):
     grupo = obtener_grupo_desde_session(request)
+
     if not grupo:
         return redirect("registro")
 
     sesion = grupo.sesion
     grupos = Grupo.objects.filter(sesion=sesion)
 
-    grupos_listos = grupos.filter(listo_f2=True).count()
+    grupos_listos = grupos.filter(listo_f2_desafio=True).count()
     total_grupos = grupos.count()
 
     return render(request, "espera_eleccion.html", {
@@ -163,18 +185,20 @@ def estado_sesion(request, sesion_id):
     nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
 
     grupos_data = [
-        {
-            "id": g.idgrupo,
-            "nombre": g.nombregrupo,
-            "tokens": g.tokensgrupo or 0,
-            "listoLobby": g.listo_lobby,
-            "listoF1": g.listo_f1,
-            "listoF2": g.listo_f2,
-            "listoF3": g.listo_f3,
-            "listoF4": g.listo_f4,
-        }
-        for g in grupos
-    ]
+    {
+        "id": g.idgrupo,
+        "nombre": g.nombregrupo,
+        "tokens": g.tokensgrupo or 0,
+        "listoLobby": g.listo_lobby,
+        "listoF1": g.listo_f1,
+        "listoF2": g.listo_f2_desafio,
+        "listoF3": g.listo_f3,
+        "listoF4": g.listo_f4,
+        "listoF5": getattr(g, "listo_f5", False),
+        "listoF6": getattr(g, "listo_f6", False),
+    }
+    for g in grupos
+]
 
     total_grupos = len(grupos_data)
     grupos_listos_f2 = sum(1 for g in grupos_data if g["listoF2"])
@@ -225,6 +249,7 @@ def guardar_tematica(request):
 @require_POST
 def guardar_desafio(request):
     grupo = obtener_grupo_desde_session(request)
+
     if not grupo:
         return JsonResponse({"ok": False, "error": "Grupo no identificado"}, status=400)
 
@@ -250,13 +275,19 @@ def guardar_desafio(request):
     request.session["desafio_id"] = desafio_id
     request.session["desafio_nombre"] = desafio_nombre
 
+    grupo.listo_f2_desafio = True
     grupo.listo_f2 = True
-    grupo.save(update_fields=["listo_f2"])
+    grupo.save(update_fields=["listo_f2_desafio", "listo_f2"])
+
+    total = Grupo.objects.filter(sesion=grupo.sesion).count()
+    listos = Grupo.objects.filter(sesion=grupo.sesion, listo_f2_desafio=True).count()
 
     return JsonResponse({
         "ok": True,
         "desafio_id": desafio_id,
-        "desafio_nombre": desafio_nombre
+        "desafio_nombre": desafio_nombre,
+        "gruposListos": listos,
+        "gruposTotales": total,
     })
 
 @require_POST
@@ -282,17 +313,29 @@ def profesor_actualizar_estado(request, sesion_id):
         sesion.segundos_restantes = int(payload["segundosRestantes"])
 
     TIEMPOS_POR_FASE = {
-        "f1_conocidos": 45,
-        "f1_pre_sopa": 0,
-        "f1_sopa": sesion.t_diferencias,
-        "f2_transicion": 0,
-        "f2_bubblemap": sesion.t_empatia,
-        "f3_lego": sesion.t_creatividad,
-        "f3_juego": sesion.t_creatividad,
-        "f4_construccion_pitch": sesion.t_pitch,
-        "f4_presentacion_pitch": 90,
-        "f4_evaluacion_pitch": 60,
-    }
+    "f1_conocidos": 45,
+    "f1_pre_sopa": 0,
+    "f1_sopa": sesion.t_diferencias,
+
+    "f2_transicion": 0,
+    "f2_tematicas": 0,
+    "f2_transicion_empatia": 0,
+    "f2_bubblemap": sesion.t_empatia,
+
+    "f3_transicion_creatividad": 0,
+    "f3_lego": sesion.t_creatividad,
+
+    "f4_transicion_comunicacion": 0,
+    "f4_construccion_pitch": sesion.t_pitch,
+    "f4_orden_pitch": 0,
+    "f4_presentacion_pitch": 90,
+
+    "f5_transicion_apoyo": 0,
+    "f5_evaluacion_pitch": 60,
+
+    "f6_ranking": 0,
+    "reflexion": 0,
+}
 
     if nueva_fase and nueva_fase != fase_anterior and nueva_fase in TIEMPOS_POR_FASE:
         sesion.segundos_restantes = TIEMPOS_POR_FASE[nueva_fase]
@@ -911,40 +954,24 @@ def bubblemap(request):
     return render(request, "bubblemap.html", {"grupo": grupo})
 
 def orden_presentacion_alumno(request):
-    grupo_id = request.session.get("grupo_id")
-    if not grupo_id:
-        messages.error(request, "No se pudo identificar tu grupo.")
+    grupo = obtener_grupo_desde_session(request)
+
+    if not grupo:
         return redirect("registro")
 
-    grupo_actual = get_object_or_404(Grupo, pk=grupo_id)
-    sesion = grupo_actual.sesion
+    if not acceso_permitido(grupo, "orden_presentacion_alumno"):
+        return redirect("pantalla_espera")
 
-    grupos = Grupo.objects.filter(sesion=sesion).order_by('idgrupo')
+    grupos_ordenados = Grupo.objects.filter(
+        sesion=grupo.sesion
+    ).exclude(
+        orden_presentacion__isnull=True
+    ).order_by("orden_presentacion")
 
-    orden_existente = any(g.orden_presentacion for g in grupos)
-
-    if request.method == "POST":
-        if orden_existente:
-            messages.warning(request, "El orden ya fue sorteado y no puede modificarse.")
-            return redirect("orden_presentacion_alumno")
-
-        lista = list(grupos)
-        random.shuffle(lista)
-
-        for pos, g in enumerate(lista, start=1):
-            g.orden_presentacion = pos
-            g.save()
-
-        messages.success(request, "Orden sorteado correctamente.")
-        return redirect("orden_presentacion_alumno")
-
-    context = {
-        "grupos": grupos.order_by('orden_presentacion'),
-        "grupo_actual": grupo_actual,
-        "orden_existente": orden_existente,
-    }
-
-    return render(request, "orden_presentacion_alumno.html", context)
+    return render(request, "orden_presentacion.html", {
+        "grupo": grupo,
+        "grupos_ordenados": grupos_ordenados,
+    })
 
 def pitch(request):
     grupo = obtener_grupo_desde_session(request)
@@ -953,12 +980,57 @@ def pitch(request):
     if not acceso_permitido(grupo, "pitch"):
         return redirect("pantalla_espera")
     return render(request, "pitch.html", {"grupo": grupo})
+@require_POST
+def profesor_sortear_orden_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, idsesion=sesion_id)
 
+    if sesion.fase_actual != "f4_orden_pitch":
+        return JsonResponse({
+            "ok": False,
+            "error": "El sorteo solo se puede hacer en la fase f4_orden_pitch."
+        }, status=400)
+
+    grupos = list(Grupo.objects.filter(sesion=sesion).order_by("idgrupo"))
+
+    if not grupos:
+        return JsonResponse({
+            "ok": False,
+            "error": "No hay grupos para sortear."
+        }, status=400)
+
+    for g in grupos:
+        g.orden_presentacion = None
+    Grupo.objects.bulk_update(grupos, ["orden_presentacion"])
+
+    random.shuffle(grupos)
+
+    for i, grupo in enumerate(grupos, start=1):
+        grupo.orden_presentacion = i
+
+    Grupo.objects.bulk_update(grupos, ["orden_presentacion"])
+
+    orden = [
+        {
+            "grupo_id": g.idgrupo,
+            "nombre": g.nombregrupo,
+            "orden": g.orden_presentacion,
+        }
+        for g in sorted(grupos, key=lambda x: x.orden_presentacion or 999)
+    ]
+
+    return JsonResponse({
+        "ok": True,
+        "orden": orden
+    })
 
 def presentar_pitch(request):
     grupo = obtener_grupo_desde_session(request)
+
     if not grupo:
         return redirect("registro")
+
+    if not acceso_permitido(grupo, "presentar_pitch"):
+        return redirect("pantalla_espera")
 
     return render(request, "presentar_pitch.html", {"grupo": grupo})
 
