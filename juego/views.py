@@ -1,4 +1,5 @@
 #NUEVO
+from .forms import FotoLegoForm
 from django.views.decorators.http import require_GET, require_POST
 import json
 from django.shortcuts import render, redirect, get_object_or_404
