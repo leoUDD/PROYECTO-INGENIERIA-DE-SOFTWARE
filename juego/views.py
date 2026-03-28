@@ -29,23 +29,20 @@ from django.db.models import F
 FASES_ORDEN = [
     "lobby",
 
-    # FASE 1
+    
     "f1_bienvenida",
     "f1_conocidos",
     "f1_pre_sopa",
     "f1_sopa",
 
-    # FASE 2
     "f2_tematicas",
     "f2_desafios",
     "f2_espera",
     "f2_bubblemap",
 
-    # FASE 3
     "f3_lego",
     "f3_juego",
 
-    # FASE 4
     "f4_construccion_pitch",
     "f4_presentacion_pitch",
     "f4_evaluacion_pitch",
@@ -56,23 +53,19 @@ FASES_ORDEN = [
 RUTA_POR_FASE = {
     "lobby": "pantalla_espera",
 
-    # F1
     "f1_bienvenida": "pantalla_inicio",
     "f1_conocidos": "conocidos",
-    "f1_pre_sopa": "promptconocidos",
+    "f1_pre_sopa": "trabajoenequipo",
     "f1_sopa": "minijuego1",
 
-    # F2
     "f2_tematicas": "tematicas",
     "f2_desafios": "desafios",
     "f2_espera": "espera_eleccion",
     "f2_bubblemap": "bubblemap",
 
-    # F3
     "f3_lego": "lego",
     "f3_juego": "lego",
 
-    # F4
     "f4_construccion_pitch": "pitch",
     "f4_presentacion_pitch": "pitch",
     "f4_evaluacion_pitch": "pitch",
@@ -85,7 +78,7 @@ ETIQUETA_FASE = {
 
     "f1_bienvenida": "F1 · Bienvenida",
     "f1_conocidos": "F1 · Conocerse",
-    "f1_pre_sopa": "F1 · Presentación sopa",
+    "f1_pre_sopa": "F1 · Trabajo en equipo",
     "f1_sopa": "F1 · Sopa de letras",
 
     "f2_tematicas": "F2 · Temáticas",
@@ -102,6 +95,7 @@ ETIQUETA_FASE = {
 
     "reflexion": "Cierre",
 }
+
 def obtener_grupo_desde_session(request):
     grupo_id = request.session.get("grupo_id")
     if not grupo_id:
@@ -120,7 +114,7 @@ def acceso_permitido(grupo, nombre_vista):
 
         "pantalla_inicio": ["f1_bienvenida"],
         "conocidos": ["f1_conocidos"],
-        "promptconocidos": ["f1_pre_sopa"],
+        "trabajoenequipo": ["f1_pre_sopa"],
         "minijuego1": ["f1_sopa"],
 
         "tematicas": ["f2_tematicas"],
@@ -268,22 +262,22 @@ def profesor_actualizar_estado(request, sesion_id):
         sesion.segundos_restantes = int(payload["segundosRestantes"])
 
     TIEMPOS_POR_FASE = {
-        "f1_conocidos": 45,
-        "f1_pre_sopa": 15,
-        "f1_sopa": sesion.t_diferencias,
+    "f1_conocidos": 45,
+    "f1_pre_sopa": 0,
+    "f1_sopa": sesion.t_diferencias,
 
-        "f2_tematicas": 0,
-        "f2_desafios": sesion.t_empatia,
-        "f2_espera": 0,
-        "f2_bubblemap": sesion.t_empatia,
+    "f2_tematicas": 0,
+    "f2_desafios": sesion.t_empatia,
+    "f2_espera": 0,
+    "f2_bubblemap": sesion.t_empatia,
 
-        "f3_lego": sesion.t_creatividad,
-        "f3_juego": sesion.t_creatividad,
+    "f3_lego": sesion.t_creatividad,
+    "f3_juego": sesion.t_creatividad,
 
-        "f4_construccion_pitch": sesion.t_pitch,
-        "f4_presentacion_pitch": 90,
-        "f4_evaluacion_pitch": 60,
-    }
+    "f4_construccion_pitch": sesion.t_pitch,
+    "f4_presentacion_pitch": 90,
+    "f4_evaluacion_pitch": 60,
+}
 
     if nueva_fase in TIEMPOS_POR_FASE:
         sesion.segundos_restantes = TIEMPOS_POR_FASE[nueva_fase]
@@ -327,7 +321,7 @@ def profesor_siguiente_fase(request, sesion_id):
 
     tiempos = {
         "f1_conocidos": 45,
-        "f1_pre_sopa": 15,
+        "f1_pre_sopa": 0,
         "f1_sopa": sesion.t_diferencias,
 
         "f2_desafios": sesion.t_empatia,
