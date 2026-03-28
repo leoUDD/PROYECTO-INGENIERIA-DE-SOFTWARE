@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     #NUEVO
+    
     path("espera/", views.pantalla_espera, name="pantalla_espera"),
     path("guardar-tematica/", views.guardar_tematica, name="guardar_tematica"),
     path("guardar-desafio/", views.guardar_desafio, name="guardar_desafio"),

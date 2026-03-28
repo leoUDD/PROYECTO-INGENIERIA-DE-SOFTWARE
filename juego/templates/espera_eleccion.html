@@ -10,10 +10,15 @@
 <body>
     <main style="max-width: 800px; margin: 60px auto; text-align: center;">
         <h2>Esperando a los demás equipos</h2>
-        <p>Han elegido {{ grupos_listos }} de {{ grupos_totales }} grupos.</p>
-        <p>Tu temática: {{ grupo.tema_elegido|default:"No seleccionada" }}</p>
-        <p>Tu desafío: {{ grupo.desafio_elegido.nombredesafio|default:"No seleccionado" }}</p>
-        <p>Cuando todos terminen, el profesor podrá hacer avanzar la actividad.</p>
+<h1>Esperando a los demás equipos</h1>
+
+<p>Han elegido {{ grupos_listos }} de {{ total_grupos }} grupos.</p>
+
+<p>Tu temática: {{ tema }}</p>
+
+<p>Tu desafío: {{ desafio_nombre }}</p>
+
+<p>Cuando todos terminen, el profesor podrá hacer avanzar la actividad.</p>
     </main>
 <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
 {% include "includes/sincronizacion_fase.html" %}

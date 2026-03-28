@@ -57,24 +57,24 @@ body {
 -------------------------------------------------- */
 .themes-carousel {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 14px;
+  overflow: hidden;
+  width: 100%;
 }
 
 .themes-track {
-  flex: 1;
   display: flex;
-  gap: 18px;
+  gap: 24px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  padding: 12px 4px;
-  max-width: 900px;
-  margin: 0 auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  width: 100%;
+  padding: 8px 4px;
 }
-.themes-track::-webkit-scrollbar { display: none; }
+
+.themes-track::-webkit-scrollbar {
+  display: none;
+}
 
 /* ==== FLECHAS DEL CARRUSEL ==== */
 .carousel-btn {
@@ -111,8 +111,8 @@ body {
 -------------------------------------------------- */
 .theme-card {
   scroll-snap-align: center;
-  flex: 0 0 90%;
-  max-width: 420px;
+  flex: 0 0 340px;
+  max-width: 340px;
 
   display: flex;
   flex-direction: column;

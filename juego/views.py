@@ -140,14 +140,18 @@ def espera_eleccion(request):
     if not grupo:
         return redirect("registro")
 
-    grupos = Grupo.objects.filter(sesion=grupo.sesion)
-    total = grupos.count()
-    listos = grupos.filter(listo_f2_desafio=True).count()
+    sesion = grupo.sesion
+    grupos = Grupo.objects.filter(sesion=sesion)
+
+    grupos_listos = grupos.filter(listo_f2=True).count()
+    total_grupos = grupos.count()
 
     return render(request, "espera_eleccion.html", {
         "grupo": grupo,
-        "grupos_listos": listos,
-        "grupos_totales": total,
+        "tema": request.session.get("tema", "No seleccionada"),
+        "desafio_nombre": request.session.get("desafio_nombre", "No seleccionado"),
+        "grupos_listos": grupos_listos,
+        "total_grupos": total_grupos,
     })
 
 @require_GET
@@ -158,6 +162,24 @@ def estado_sesion(request, sesion_id):
     fase_actual = sesion.fase_actual
     nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
 
+    grupos_data = [
+        {
+            "id": g.idgrupo,
+            "nombre": g.nombregrupo,
+            "tokens": g.tokensgrupo or 0,
+            "listoLobby": g.listo_lobby,
+            "listoF1": g.listo_f1,
+            "listoF2": g.listo_f2,
+            "listoF3": g.listo_f3,
+            "listoF4": g.listo_f4,
+        }
+        for g in grupos
+    ]
+
+    total_grupos = len(grupos_data)
+    grupos_listos_f2 = sum(1 for g in grupos_data if g["listoF2"])
+    todos_listos_f2 = total_grupos > 0 and grupos_listos_f2 == total_grupos
+
     data = {
         "sesionId": sesion.idsesion,
         "faseActual": fase_actual,
@@ -165,20 +187,12 @@ def estado_sesion(request, sesion_id):
         "rutaAlumno": reverse(nombre_url),
         "timerCorriendo": sesion.timer_corriendo,
         "segundosRestantes": sesion.segundos_restantes,
-        "grupos": [
-            {
-                "id": g.idgrupo,
-                "nombre": g.nombregrupo,
-                "tokens": g.tokensgrupo or 0,
-                "listoLobby": g.listo_lobby,
-                "listoF1": g.listo_f1,
-                "listoF2": g.listo_f2,
-                "listoF3": g.listo_f3,
-                "listoF4": g.listo_f4,
-            }
-            for g in grupos
-        ]
+        "totalGrupos": total_grupos,
+        "gruposListosF2": grupos_listos_f2,
+        "todosListosF2": todos_listos_f2,
+        "grupos": grupos_data,
     }
+
     return JsonResponse(data)
 
 @require_POST
@@ -212,31 +226,38 @@ def guardar_tematica(request):
 def guardar_desafio(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
-        return JsonResponse({"ok": False, "error": "Grupo no encontrado"}, status=400)
+        return JsonResponse({"ok": False, "error": "Grupo no identificado"}, status=400)
 
-    payload = json.loads(request.body or "{}")
-    desafio_id = payload.get("desafio_id")
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"ok": False, "error": "JSON inválido"}, status=400)
 
+    desafio_id = str(data.get("desafio_id", "")).strip()
     if not desafio_id:
-        return JsonResponse({"ok": False, "error": "Desafío inválido"}, status=400)
+        return JsonResponse({"ok": False, "error": "No se recibió desafio_id"}, status=400)
 
-    desafio = get_object_or_404(Desafio, pk=desafio_id)
+    slug = (request.session.get("tema") or "").strip().lower()
+    theme = get_theme(slug)
 
-    grupo.desafio_elegido = desafio
-    grupo.listo_f2_desafio = True
+    desafio_nombre = ""
+    if theme:
+        for challenge in theme.get("challenges", []):
+            if str(challenge.get("id")) == desafio_id:
+                desafio_nombre = challenge.get("name", "")
+                break
+
+    request.session["desafio_id"] = desafio_id
+    request.session["desafio_nombre"] = desafio_nombre
+
     grupo.listo_f2 = True
-    grupo.save(update_fields=["desafio_elegido", "listo_f2_desafio", "listo_f2"])
-
-    total = Grupo.objects.filter(sesion=grupo.sesion).count()
-    listos = Grupo.objects.filter(sesion=grupo.sesion, listo_f2_desafio=True).count()
+    grupo.save(update_fields=["listo_f2"])
 
     return JsonResponse({
         "ok": True,
-        "desafioId": desafio_id,
-        "gruposListos": listos,
-        "gruposTotales": total,
+        "desafio_id": desafio_id,
+        "desafio_nombre": desafio_nombre
     })
-
 
 @require_POST
 def profesor_actualizar_estado(request, sesion_id):
@@ -862,19 +883,21 @@ def desafios(request):
     if not grupo:
         return redirect("registro")
 
-    slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
+    slug = (request.GET.get("tema") or request.session.get("tema") or "").strip().lower()
     theme = get_theme(slug)
 
     if not theme:
-        return redirect('tematicas')
+        return redirect("tematicas")
 
-    request.session['tema'] = slug
+    request.session["tema"] = slug
 
-    return render(request, 'desafios.html', {
-        'grupo': grupo,
-        'theme': theme,
-        'slug': slug,
+    return render(request, "desafios.html", {
+        "grupo": grupo,
+        "theme": theme,
+        "slug": slug,
     })
+
+
 
 
 def bubblemap(request):

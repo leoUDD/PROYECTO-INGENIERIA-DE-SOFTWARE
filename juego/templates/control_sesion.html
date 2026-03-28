@@ -137,6 +137,22 @@
       line-height: 1.4;
     }
 
+    .resumen-f2 {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    .resumen-f2.ok {
+      background: #ecfdf5;
+      border-color: #86efac;
+      color: #166534;
+    }
+
     a.boton-link {
       display: inline-block;
       text-decoration: none;
@@ -179,38 +195,34 @@
         <h2 style="margin-top:0;">Pantallas del flujo</h2>
 
         <div class="pantallas" id="listaPantallas">
-  <button data-fase="lobby" onclick="irAPantalla('lobby')">Lobby / Espera</button>
+          <button data-fase="lobby" onclick="irAPantalla('lobby')">Lobby / Espera</button>
 
-<button data-fase="f1_bienvenida" onclick="irAPantalla('f1_bienvenida')">F1 · Bienvenida</button>
-<button data-fase="f1_conocidos" onclick="irAPantalla('f1_conocidos')">F1 · Conocerse</button>
-<button data-fase="f1_pre_sopa" onclick="irAPantalla('f1_pre_sopa')">F1 · Trabajo en equipo</button>
-<button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">F1 · Sopa</button>
+          <button data-fase="f1_bienvenida" onclick="irAPantalla('f1_bienvenida')">F1 · Bienvenida</button>
+          <button data-fase="f1_conocidos" onclick="irAPantalla('f1_conocidos')">F1 · Conocerse</button>
+          <button data-fase="f1_pre_sopa" onclick="irAPantalla('f1_pre_sopa')">F1 · Trabajo en equipo</button>
+          <button data-fase="f1_sopa" onclick="irAPantalla('f1_sopa')">F1 · Sopa</button>
 
-<button data-fase="f2_transicion" onclick="irAPantalla('f2_transicion')">
-  F2 · Transición
-</button>
+          <button data-fase="f2_transicion" onclick="irAPantalla('f2_transicion')">F2 · Transición</button>
+          <button data-fase="f2_tematicas" onclick="irAPantalla('f2_tematicas')">F2 · Temáticas</button>
+          <button data-fase="f2_transicion_empatia" onclick="irAPantalla('f2_transicion_empatia')">F2 · Transición Empatía</button>
+          <button data-fase="f2_bubblemap" onclick="irAPantalla('f2_bubblemap')">F2 · Bubble Map</button>
 
-<button data-fase="f2_tematicas" onclick="irAPantalla('f2_tematicas')">
-  F2 · Temáticas
-</button>
+          <button data-fase="f3_lego" onclick="irAPantalla('f3_lego')">F3 · Lego</button>
+          <button data-fase="f3_juego" onclick="irAPantalla('f3_juego')">F3 · Juego</button>
 
-<button data-fase="f2_transicion_empatia" onclick="irAPantalla('f2_transicion_empatia')">
-  F2 · Transición Empatía
-</button>
+          <button data-fase="f4_construccion_pitch" onclick="irAPantalla('f4_construccion_pitch')">F4 · Construcción Pitch</button>
+          <button data-fase="f4_presentacion_pitch" onclick="irAPantalla('f4_presentacion_pitch')">F4 · Presentación Pitch</button>
+          <button data-fase="f4_evaluacion_pitch" onclick="irAPantalla('f4_evaluacion_pitch')">F4 · Evaluación Pitch</button>
 
-<button data-fase="f2_bubblemap" onclick="irAPantalla('f2_bubblemap')">
-  F2 · Bubble Map
-</button>
+          <button data-fase="reflexion" onclick="irAPantalla('reflexion')">Cierre</button>
+        </div>
+      </div>
 
-<button data-fase="f3_lego" onclick="irAPantalla('f3_lego')">F3 · Lego</button>
-<button data-fase="f3_juego" onclick="irAPantalla('f3_juego')">F3 · Juego</button>
-
-<button data-fase="f4_construccion_pitch" onclick="irAPantalla('f4_construccion_pitch')">F4 · Construcción Pitch</button>
-<button data-fase="f4_presentacion_pitch" onclick="irAPantalla('f4_presentacion_pitch')">F4 · Presentación Pitch</button>
-<button data-fase="f4_evaluacion_pitch" onclick="irAPantalla('f4_evaluacion_pitch')">F4 · Evaluación Pitch</button>
-
-<button data-fase="reflexion" onclick="irAPantalla('reflexion')">Cierre</button>
-</div>
+      <div class="card">
+        <h2 style="margin-top:0;">Estado F2</h2>
+        <div id="resumenF2" class="resumen-f2">
+          Han elegido 0 de 0 grupos.
+        </div>
       </div>
 
       <div class="card">
@@ -247,7 +259,7 @@
     <main class="contenido">
       <div class="card">
         <h2 style="margin-top:0;">Estado técnico</h2>
-        <div id="debugEstado" class="estado-debug">Esperando datos de la sesión...</div>
+        <div id="debugEstado" class="estado-debug">Esperando datos de la sesión.</div>
       </div>
     </main>
   </div>
@@ -298,6 +310,30 @@
       `).join("");
     }
 
+    function actualizarResumenF2(data) {
+      const resumen = document.getElementById("resumenF2");
+      if (!resumen) return;
+
+      let total = 0;
+      let listos = 0;
+
+      if (typeof data.totalGrupos === "number" && typeof data.gruposListosF2 === "number") {
+        total = data.totalGrupos;
+        listos = data.gruposListosF2;
+      } else if (Array.isArray(data.grupos)) {
+        total = data.grupos.length;
+        listos = data.grupos.filter(g => g.listoF2).length;
+      }
+
+      resumen.textContent = `Han elegido ${listos} de ${total} grupos.`;
+
+      if (total > 0 && listos === total) {
+        resumen.classList.add("ok");
+      } else {
+        resumen.classList.remove("ok");
+      }
+    }
+
     function actualizarUI(data) {
       document.getElementById("faseActual").textContent = data.faseActual;
       document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
@@ -310,6 +346,8 @@
       if (data.grupos) {
         actualizarTablaGrupos(data.grupos);
       }
+
+      actualizarResumenF2(data);
 
       const debug = document.getElementById("debugEstado");
       if (debug) {

@@ -1,71 +1,91 @@
 <script>
-const sesionId = document
-  .getElementById("routes")
-  ?.dataset?.sesionId;
+  const sesionId = "{{ grupo.sesion.idsesion|default:'' }}";
+  let redirigiendo = false;
 
-console.log("SESION ID:", sesionId);
+  function normalizarRuta(ruta) {
+    if (!ruta) return "";
 
-let redirigiendo = false;
+    let limpia = ruta.split("?")[0].split("#")[0];
 
-async function revisarFaseGlobal() {
-  if (redirigiendo || !sesionId) return;
-
-  try {
-    const res = await fetch(`/sesion/${sesionId}/estado/`);
-    const data = await res.json();
-
-    const fase = data.faseActual;
-    const actual = window.location.pathname;
-
-    const mapa = {
-      "lobby": "{% url 'pantalla_espera' %}",
-
-      "f1_bienvenida": "{% url 'pantalla_inicio' %}",
-      "f1_conocidos": "{% url 'conocidos' %}",
-      "f1_pre_sopa": "{% url 'trabajoenequipo' %}",
-      "f1_sopa": "{% url 'minijuego1' %}",
-
-      "f2_transicion": "{% url 'transiciondesafio' %}",
-      "f2_tematicas": "{% url 'tematicas' %}",
-      "f2_transicion_empatia": "{% url 'transicionempatia' %}",
-      "f2_bubblemap": "{% url 'bubblemap' %}",
-
-      "f3_lego": "{% url 'lego' %}",
-      "f3_juego": "{% url 'lego' %}",
-
-      "f4_construccion_pitch": "{% url 'pitch' %}",
-      "f4_presentacion_pitch": "{% url 'pitch' %}",
-      "f4_evaluacion_pitch": "{% url 'pitch' %}",
-
-      "reflexion": "{% url 'reflexion' %}"
-    };
-
-    const destino = mapa[fase];
-
-    // 🔥 CASO ESPECIAL F2
-    if (fase === "f2_tematicas") {
-      const rutasPermitidas = [
-        "{% url 'tematicas' %}",
-        "{% url 'desafios' %}",
-        "{% url 'espera_eleccion' %}"
-      ];
-
-      if (rutasPermitidas.includes(actual)) {
-        return;
-      }
+    if (limpia.length > 1 && limpia.endsWith("/")) {
+      limpia = limpia.slice(0, -1);
     }
 
-    // 🔥 ESTE BLOQUE FALTABA
-    if (destino && actual !== destino) {
-      redirigiendo = true;
-      window.location.href = destino;
-    }
-
-  } catch (e) {
-    console.error("Error consultando fase:", e);
+    return limpia;
   }
-}
 
-setInterval(revisarFaseGlobal, 2000);
-revisarFaseGlobal();
+  async function revisarFaseGlobal() {
+    if (!sesionId || redirigiendo) return;
+
+    try {
+      const res = await fetch(`/sesion/${sesionId}/estado/`, {
+        cache: "no-store"
+      });
+      const data = await res.json();
+
+      const fase = data.faseActual;
+      const rutaActual = normalizarRuta(window.location.pathname);
+      const rutaDestino = normalizarRuta(data.rutaAlumno || "");
+
+      const rutasValidasPorFase = {
+        "lobby": [
+          normalizarRuta("{% url 'pantalla_espera' %}")
+        ],
+
+        "f1_intro": [
+          normalizarRuta("{% url 'trabajoenequipo' %}")
+        ],
+        "f1_juego": [
+          normalizarRuta("{% url 'trabajoenequipo' %}")
+        ],
+
+        // Aquí está la lógica importante:
+        // Mientras el profesor esté en f2_tematicas,
+        // el alumno puede estar en cualquiera de estas 3 pantallas
+        "f2_tematicas": [
+          normalizarRuta("{% url 'tematicas' %}"),
+          normalizarRuta("{% url 'desafios' %}"),
+          normalizarRuta("{% url 'espera_eleccion' %}")
+        ],
+
+        // Cuando el profesor cambie a transición empatía,
+        // todos deben terminar aquí sí o sí
+        "f2_transicion_empatia": [
+          normalizarRuta("{% url 'transicionempatia' %}")
+        ],
+
+        "f3_intro": [
+          normalizarRuta("{% url 'lego' %}")
+        ],
+        "f3_juego": [
+          normalizarRuta("{% url 'lego' %}")
+        ],
+
+        "f4_intro": [
+          normalizarRuta("{% url 'pitch' %}")
+        ],
+        "f4_juego": [
+          normalizarRuta("{% url 'pitch' %}")
+        ],
+
+        "reflexion": [
+          normalizarRuta("{% url 'reflexion' %}")
+        ]
+      };
+
+      const rutasValidas = rutasValidasPorFase[fase] || [];
+      const estaEnRutaValida = rutasValidas.includes(rutaActual);
+
+      if (!estaEnRutaValida && rutaDestino && rutaActual !== rutaDestino) {
+        redirigiendo = true;
+        window.location.href = data.rutaAlumno;
+      }
+
+    } catch (error) {
+      console.error("Error consultando estado de sesión:", error);
+    }
+  }
+
+  setInterval(revisarFaseGlobal, 1500);
+  revisarFaseGlobal();
 </script>

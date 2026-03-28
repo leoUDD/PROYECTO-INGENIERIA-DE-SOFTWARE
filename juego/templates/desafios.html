@@ -42,7 +42,7 @@
 
   <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
 
-  <script>
+ <script>
   document.addEventListener("DOMContentLoaded", () => {
     const tarjetas = document.querySelectorAll(".challenge-card");
     const btnContinuar = document.getElementById("btnContinuar");
@@ -58,21 +58,21 @@
 
     tarjetas.forEach(card => {
       function seleccionarCard(card) {
-  desafioSeleccionado = card.dataset.id;
+        desafioSeleccionado = card.dataset.id;
 
-  tarjetas.forEach(c => c.classList.remove("seleccionado"));
-  card.classList.add("seleccionado");
+        tarjetas.forEach(c => c.classList.remove("seleccionado"));
+        card.classList.add("seleccionado");
 
-  if (btnContinuar) btnContinuar.disabled = false;
+        if (btnContinuar) btnContinuar.disabled = false;
 
-  console.log("Desafío seleccionado:", desafioSeleccionado);
-}
+        console.log("Desafío seleccionado:", desafioSeleccionado);
+      }
 
-const btn = card.querySelector(".btn.select");
-if (!btn) return;
+      const btn = card.querySelector(".btn.select");
+      if (!btn) return;
 
-btn.addEventListener("click", () => seleccionarCard(card));
-card.addEventListener("click", () => seleccionarCard(card));
+      btn.addEventListener("click", () => seleccionarCard(card));
+      card.addEventListener("click", () => seleccionarCard(card));
     });
 
     if (btnContinuar) {
@@ -110,7 +110,7 @@ card.addEventListener("click", () => seleccionarCard(card));
       });
     }
   });
-  </script>
+</script>
 
   {% include "includes/sincronizacion_fase.html" %}
 </body>
