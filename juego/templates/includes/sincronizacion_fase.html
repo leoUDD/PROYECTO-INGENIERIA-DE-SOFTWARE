@@ -1,5 +1,9 @@
 <script>
-const sesionId = "{{ grupo.sesion.idsesion }}";
+const sesionId = document
+  .getElementById("routes")
+  ?.dataset?.sesionId;
+
+console.log("SESION ID:", sesionId);
 let redirigiendo = false;
 
 async function revisarFaseGlobal() {

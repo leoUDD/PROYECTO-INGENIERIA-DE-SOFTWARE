@@ -859,12 +859,24 @@ def agregar_alumno_manual(request):
     return redirect("registraralumnos")
 
 def desafios(request):
-    slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
-    theme = get_theme(slug)
-    if not theme:
-        return redirect('tematicas')
-    request.session['tema'] = slug
-    return render(request, 'desafios.html', {'theme': theme, 'slug': slug})
+    grupo = obtener_grupo_desde_session(request)
+
+    if not grupo:
+        return redirect("registro")
+
+    tema = request.GET.get("tema")
+
+    theme = {
+        "title": tema.capitalize() if tema else "Desafíos",
+        "hero": "Selecciona un desafío",
+        "challenges": Desafio.objects.filter(tema=tema) if tema else Desafio.objects.all()
+    }
+
+    return render(request, "desafios.html", {
+        "grupo": grupo,
+        "theme": theme,
+        "slug": tema
+    })
 
 
 def bubblemap(request):

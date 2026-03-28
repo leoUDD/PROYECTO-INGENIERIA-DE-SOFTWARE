@@ -15,7 +15,7 @@
         <p>Tu desafío: {{ grupo.desafio_elegido.nombredesafio|default:"No seleccionado" }}</p>
         <p>Cuando todos terminen, el profesor podrá hacer avanzar la actividad.</p>
     </main>
-
-    {% include "includes/sincronizacion_fase.html" %}
+<div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+{% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>
