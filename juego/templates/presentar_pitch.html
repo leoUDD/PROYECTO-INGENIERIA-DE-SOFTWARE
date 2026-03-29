@@ -15,19 +15,16 @@
         <h1 id="page-title" class="title">Pitch del equipo</h1>
         <p class="subtitle">Presenten su solución usando el texto que prepararon.</p>
       </div>
-      <button class="btn ghost" onclick="window.history.back()">⟵ Volver</button>
     </header>
 
     <section class="content-grid">
-      <!-- Panel del pitch guardado -->
       <article class="panel">
-        <h3>Pitch guardado</h3>
+        <h3>Pitch de mi equipo</h3>
         <div id="textoGuardado" class="pitch-text" aria-live="polite">
           <em>Buscando contenido guardado…</em>
         </div>
       </article>
 
-      <!-- Orden del pitch -->
       <article class="panel">
         <h3>Orden del pitch</h3>
         <ol id="ordenPitchAlumno">
@@ -35,7 +32,6 @@
         </ol>
       </article>
 
-      <!-- Temporizador -->
       <aside class="timer-card" aria-label="Temporizador de Pitch">
         <h3>Presentación actual</h3>
 
@@ -67,32 +63,12 @@
       <div class="left-actions">
         <span class="subtitle">Consejo: enfoquen problema, solución, impacto y próximos pasos.</span>
       </div>
-      <div class="right-actions">
-        <button class="btn primary" id="btnContinuar">Continuar</button>
-      </div>
     </footer>
   </main>
 
-  <!-- Modal fin de tiempo -->
-  <div id="timeModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <h4>⏰ ¡Tiempo terminado!</h4>
-      <p>Concluyan la idea principal en una frase. ¿Listos para compartir?</p>
-      <div class="modal-actions">
-        <button class="btn ghost" id="btnCerrarModal">Cerrar</button>
-        <a class="btn" href="{% url 'transicionapoyo' %}">Continuar</a>
-      </div>
-    </div>
-  </div>
-
-  <script>const ALARM_URL = "{% static 'sounds/alarma.mp3' %}";</script>
   <script src="{% static 'js/presentar_pitch.js' %}"></script>
 
   <script>
-    document.getElementById("btnContinuar").addEventListener("click", () => {
-      window.location.href = "{% url 'transicionapoyo' %}";
-    });
-
     const sesionId = "{{ grupo.sesion.idsesion }}";
 
     function formatearTiempo(totalSegundos) {
@@ -144,11 +120,15 @@
       }
 
       if (window.presentarPitchUI && typeof window.presentarPitchUI.actualizarTimer === "function") {
-  window.presentarPitchUI.actualizarTimer(data.segundosRestantes);
-} else if (timer) {
-  timer.textContent = formatearTiempo(data.segundosRestantes);
-  timer.dataset.seconds = Number(data.segundosRestantes || 0);
-}
+        window.presentarPitchUI.actualizarTimer(data.segundosRestantes);
+      } else if (timer) {
+        timer.textContent = formatearTiempo(data.segundosRestantes);
+        timer.dataset.seconds = Number(data.segundosRestantes || 0);
+      }
+
+      if (window.presentarPitchUI && typeof window.presentarPitchUI.actualizarPitchPropio === "function") {
+        window.presentarPitchUI.actualizarPitchPropio(data.miPitch || "");
+      }
 
       renderOrdenAlumno(data.ordenPitch, grupoActual);
     }
@@ -156,7 +136,8 @@
     async function cargarEstadoPresentacion() {
       try {
         const res = await fetch(`/sesion/${sesionId}/estado-presentacion/`, {
-          credentials: "same-origin"
+          credentials: "same-origin",
+          cache: "no-store"
         });
 
         const data = await res.json();

@@ -4,13 +4,10 @@
 
   function normalizarRuta(ruta) {
     if (!ruta) return "";
-
     let limpia = ruta.split("?")[0].split("#")[0];
-
     if (limpia.length > 1 && limpia.endsWith("/")) {
       limpia = limpia.slice(0, -1);
     }
-
     return limpia;
   }
 
@@ -21,8 +18,10 @@
       const res = await fetch(`/sesion/${sesionId}/estado/`, {
         cache: "no-store"
       });
-      const data = await res.json();
 
+      if (!res.ok) return;
+
+      const data = await res.json();
       const fase = data.faseActual;
       const rutaActual = normalizarRuta(window.location.pathname);
       const rutaDestino = normalizarRuta(data.rutaAlumno || "");
@@ -32,40 +31,74 @@
           normalizarRuta("{% url 'pantalla_espera' %}")
         ],
 
-        "f1_intro": [
-          normalizarRuta("{% url 'trabajoenequipo' %}")
+        "f1_bienvenida": [
+          normalizarRuta("{% url 'pantalla_inicio' %}")
         ],
-        "f1_juego": [
+
+        "f1_conocidos": [
+          normalizarRuta("{% url 'conocidos' %}")
+        ],
+
+        "f1_pre_sopa": [
           normalizarRuta("{% url 'trabajoenequipo' %}")
         ],
 
-        // Aquí está la lógica importante:
-        // Mientras el profesor esté en f2_tematicas,
-        // el alumno puede estar en cualquiera de estas 3 pantallas
+        "f1_sopa": [
+          normalizarRuta("{% url 'minijuego1' %}")
+        ],
+
+        "f2_transicion": [
+          normalizarRuta("{% url 'transiciondesafio' %}")
+        ],
+
         "f2_tematicas": [
           normalizarRuta("{% url 'tematicas' %}"),
           normalizarRuta("{% url 'desafios' %}"),
           normalizarRuta("{% url 'espera_eleccion' %}")
         ],
 
-        // Cuando el profesor cambie a transición empatía,
-        // todos deben terminar aquí sí o sí
         "f2_transicion_empatia": [
           normalizarRuta("{% url 'transicionempatia' %}")
         ],
 
-        "f3_intro": [
-          normalizarRuta("{% url 'lego' %}")
+        "f2_bubblemap": [
+          normalizarRuta("{% url 'bubblemap' %}")
         ],
-        "f3_juego": [
+
+        "f3_transicion_creatividad": [
+          normalizarRuta("{% url 'transicioncreatividad' %}")
+        ],
+
+        "f3_lego": [
           normalizarRuta("{% url 'lego' %}")
         ],
 
-        "f4_intro": [
+        "f4_transicion_comunicacion": [
+          normalizarRuta("{% url 'transicioncomunicacion' %}")
+        ],
+
+        "f4_construccion_pitch": [
           normalizarRuta("{% url 'pitch' %}")
         ],
-        "f4_juego": [
-          normalizarRuta("{% url 'pitch' %}")
+
+        "f4_orden_pitch": [
+          normalizarRuta("{% url 'orden_presentacion_alumno' %}")
+        ],
+
+        "f4_presentacion_pitch": [
+          normalizarRuta("{% url 'presentar_pitch' %}")
+        ],
+
+        "f5_transicion_apoyo": [
+          normalizarRuta("{% url 'transicionapoyo' %}")
+        ],
+
+        "f5_evaluacion_pitch": [
+          normalizarRuta("{% url 'peer_review' %}")
+        ],
+
+        "f6_ranking": [
+          normalizarRuta("{% url 'ranking' %}")
         ],
 
         "reflexion": [
@@ -80,7 +113,6 @@
         redirigiendo = true;
         window.location.href = data.rutaAlumno;
       }
-
     } catch (error) {
       console.error("Error consultando estado de sesión:", error);
     }

@@ -8,24 +8,59 @@
   <title>Misión Emprende UDD — LEGO</title>
   <link rel="stylesheet" href="{% static 'css/estilo_lego.css' %}">
   <style>
-    .foto-panel {
-      margin-top: 18px;
-      padding: 14px;
+    .recordatorio-desafio{
+      width: 100%;
+      max-width: 640px;
+      margin: 6px auto 14px;
+      padding: 14px 16px;
       border-radius: 16px;
-      background: rgba(255,255,255,0.92);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border: 2px solid rgba(0, 200, 255, 0.55);
+      background: rgba(0, 90, 140, 0.16);
+      text-align: left;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+
+    .recordatorio-desafio h3{
+      margin: 0 0 8px 0;
+      color: var(--primary);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .recordatorio-desafio p{
+      margin: 0;
+      color: var(--text);
+      line-height: 1.45;
+      font-size: 0.98rem;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .foto-panel {
+      width: 100%;
+      max-width: 640px;
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 122, 26, 0.70);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
       text-align: center;
     }
 
     .foto-panel h3 {
       margin: 0 0 10px 0;
-      font-size: 1rem;
+      font-size: 1.05rem;
+      color: #fff;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     .foto-input {
       margin: 10px 0 12px 0;
       width: 100%;
       max-width: 280px;
+      color: white;
     }
 
     .preview-wrapper {
@@ -40,7 +75,8 @@
     .preview-label {
       margin-bottom: 8px;
       font-size: 0.92rem;
-      opacity: 0.85;
+      opacity: 0.9;
+      color: var(--text);
     }
 
     .preview-img {
@@ -74,12 +110,52 @@
 
     .texto-espera-foto {
       margin-top: 10px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .sin-foto-wrap{
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .sin-foto-label{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.16);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .sin-foto-label input{
+      transform: scale(1.15);
+      cursor: pointer;
+    }
+
+    .ayuda-foto{
+      margin-top: 10px;
+      color: var(--muted);
       font-size: 0.9rem;
-      opacity: 0.8;
+      line-height: 1.35;
     }
 
     .modal-content form {
       margin-top: 10px;
+    }
+
+    .error-foto{
+      margin-top: 10px;
+      color: #ffd6d6;
+      font-size: 0.92rem;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -91,6 +167,11 @@
     <h1 class="title">Construye tu solución</h1>
 
     {% include "desafio_badge.html" %}
+
+    <section class="recordatorio-desafio">
+      <h3>Desafío seleccionado</h3>
+      <p>{{ request.session.desafio_nombre|default:"Desafío no seleccionado" }}</p>
+    </section>
 
     <h2 class="subtitle">Recuerda las características de tu cliente</h2>
 
@@ -107,6 +188,9 @@
       <p class="texto-espera-foto">
         Cuando termine el tiempo, sube una foto de tu construcción para usarla más adelante en la presentación.
       </p>
+      <p class="ayuda-foto">
+        Si por algún motivo no pueden subir la foto, podrán marcar la opción correspondiente y continuar.
+      </p>
 
       <div id="previewWrapper" class="preview-wrapper">
         <div class="preview-label">Vista previa</div>
@@ -117,23 +201,34 @@
     <div id="modal-fin" class="modal">
       <div class="modal-content">
         <h2>Tiempo terminado</h2>
-        <p>El tiempo para construir ha terminado. Ahora sube la foto de tu LEGO.</p>
+        <p>El tiempo para construir ha terminado. Ahora sube la foto de tu LEGO o marca que no pudieron subirla.</p>
 
         <form method="POST" enctype="multipart/form-data">
           {% csrf_token %}
+
           <input
             type="file"
             name="foto_lego"
             id="foto_lego"
             class="foto-input"
             accept="image/*"
-            required
           >
+
+          <div class="sin-foto-wrap">
+            <label class="sin-foto-label" for="sin_foto_lego">
+              <input type="checkbox" name="sin_foto_lego" id="sin_foto_lego">
+              No pudimos subir foto
+            </label>
+          </div>
+
+          <div id="errorFoto" class="error-foto" style="display:none;">
+            Debes subir una foto o marcar que no pudieron subirla.
+          </div>
 
           <br>
 
           <button type="submit" id="buttonGuardarFoto" class="btn-guardar-foto" disabled>
-            Guardar foto
+            Guardar y continuar
           </button>
         </form>
       </div>
@@ -146,11 +241,11 @@
     const list = document.getElementById("ideasList");
 
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    if (!saved || Object.values(saved).every(v => !v.trim())) {
+    if (!saved || Object.values(saved).every(v => !String(v || "").trim())) {
       list.innerHTML = "<li>No se ingresaron ideas.</li>";
     } else {
       Object.values(saved).forEach(text => {
-        if (text.trim()) {
+        if (String(text || "").trim()) {
           const li = document.createElement("li");
           li.textContent = text;
           list.appendChild(li);
@@ -193,25 +288,69 @@
 
   <script>
     const inputFoto = document.getElementById("foto_lego");
+    const sinFoto = document.getElementById("sin_foto_lego");
     const previewWrapper = document.getElementById("previewWrapper");
     const previewImg = document.getElementById("previewImg");
     const buttonGuardarFoto = document.getElementById("buttonGuardarFoto");
+    const errorFoto = document.getElementById("errorFoto");
+    const formFoto = document.querySelector("#modal-fin form");
+
+    function actualizarEstadoBoton() {
+      const hayArchivo = inputFoto && inputFoto.files && inputFoto.files.length > 0;
+      const marcoSinFoto = sinFoto && sinFoto.checked;
+
+      buttonGuardarFoto.disabled = !(hayArchivo || marcoSinFoto);
+
+      if (errorFoto) {
+        errorFoto.style.display = "none";
+      }
+
+      if (marcoSinFoto) {
+        inputFoto.value = "";
+        previewWrapper.classList.remove("visible");
+        previewImg.removeAttribute("src");
+      }
+    }
 
     if (inputFoto) {
       inputFoto.addEventListener("change", (event) => {
         const file = event.target.files && event.target.files[0];
 
+        if (sinFoto) {
+          sinFoto.checked = false;
+        }
+
         if (!file) {
           previewWrapper.classList.remove("visible");
           previewImg.removeAttribute("src");
-          buttonGuardarFoto.disabled = true;
+          actualizarEstadoBoton();
           return;
         }
 
         const imageUrl = URL.createObjectURL(file);
         previewImg.src = imageUrl;
         previewWrapper.classList.add("visible");
-        buttonGuardarFoto.disabled = false;
+        actualizarEstadoBoton();
+      });
+    }
+
+    if (sinFoto) {
+      sinFoto.addEventListener("change", () => {
+        actualizarEstadoBoton();
+      });
+    }
+
+    if (formFoto) {
+      formFoto.addEventListener("submit", (e) => {
+        const hayArchivo = inputFoto && inputFoto.files && inputFoto.files.length > 0;
+        const marcoSinFoto = sinFoto && sinFoto.checked;
+
+        if (!hayArchivo && !marcoSinFoto) {
+          e.preventDefault();
+          if (errorFoto) {
+            errorFoto.style.display = "block";
+          }
+        }
       });
     }
   </script>

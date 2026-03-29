@@ -625,18 +625,25 @@ def lego(request):
         return redirect("pantalla_espera")
 
     if request.method == "POST":
-        form = FotoLegoForm(request.POST, request.FILES, instance=grupo)
-        if form.is_valid():
-            form.save()
+        sin_foto = request.POST.get("sin_foto_lego") == "on"
+        foto = request.FILES.get("foto_lego")
+
+        if sin_foto:
+            grupo.foto_lego = None
             grupo.listo_f3 = True
-            grupo.save(update_fields=["listo_f3"])
+            grupo.save(update_fields=["foto_lego", "listo_f3"])
             return redirect("pantalla_espera")
-    else:
-        form = FotoLegoForm(instance=grupo)
+
+        if foto:
+            grupo.foto_lego = foto
+            grupo.listo_f3 = True
+            grupo.save(update_fields=["foto_lego", "listo_f3"])
+            return redirect("pantalla_espera")
+
+        messages.error(request, "Debes subir una foto o marcar que no pudieron subirla.")
 
     return render(request, "lego.html", {
         "grupo": grupo,
-        "form": form,
     })
 
 
@@ -1281,26 +1288,6 @@ def peer_review_view(request):
         messages.error(request, "Tu grupo no está asociado a ninguna sesión.")
         return redirect("registro")
 
-    all_targets = (
-        Grupo.objects
-        .filter(sesion=sesion)
-        .exclude(pk=grupo_evaluador.pk)
-    )
-
-    evaluaciones_hechas = Evaluacion.objects.filter(
-        sesion=sesion,
-        grupo_evaluador=grupo_evaluador,
-    )
-    evaluados_ids = set(
-        evaluaciones_hechas.values_list("grupo_evaluado_id", flat=True)
-    )
-
-    pending_targets = all_targets.exclude(pk__in=evaluados_ids)
-    completed = not pending_targets.exists()  # True si ya evaluó a todos
-
-    if completed and not getattr(grupo_evaluador, "recompensa_peer_otorgada", False):
-        otorgar_tokens_peer_review(grupo_evaluador)
-
     criteria = [
         {"key": "claridad",     "label": "Claridad de la solución"},
         {"key": "creatividad",  "label": "Creatividad / innovación"},
@@ -1309,19 +1296,56 @@ def peer_review_view(request):
         {"key": "presentacion", "label": "Calidad de la presentación / pitch"},
     ]
 
-    if request.method == "POST" and not completed:
+    all_targets = (
+        Grupo.objects
+        .filter(sesion=sesion)
+        .exclude(pk=grupo_evaluador.pk)
+        .order_by("pk")
+    )
+
+    evaluaciones_hechas = Evaluacion.objects.filter(
+        sesion=sesion,
+        grupo_evaluador=grupo_evaluador,
+    )
+
+    evaluados_ids = set(
+        evaluaciones_hechas.values_list("grupo_evaluado_id", flat=True)
+    )
+
+    pending_targets = all_targets.exclude(pk__in=evaluados_ids)
+    completed = not pending_targets.exists()
+
+    if completed and not getattr(grupo_evaluador, "recompensa_peer_otorgada", False):
+        otorgar_tokens_peer_review(grupo_evaluador)
+
+    if request.method == "POST":
+        if completed:
+            messages.info(request, "Tu grupo ya completó todas las evaluaciones.")
+            return redirect("peer_review")
+
         target_team_id = request.POST.get("target_team_id")
         comment = request.POST.get("comment", "").strip()
         reflection = request.POST.get("reflection", "").strip()
         confirm = request.POST.get("confirm_honesty")
 
         try:
-            grupo_evaluado = pending_targets.get(pk=target_team_id)
-        except (Grupo.DoesNotExist, ValueError, TypeError):
-            messages.error(
-                request,
-                "Debes seleccionar un equipo válido que aún no hayas evaluado."
-            )
+            target_team_id = int(target_team_id)
+        except (TypeError, ValueError):
+            messages.error(request, "Debes seleccionar un equipo válido.")
+            return redirect("peer_review")
+
+        try:
+            grupo_evaluado = Grupo.objects.get(pk=target_team_id, sesion=sesion)
+        except Grupo.DoesNotExist:
+            messages.error(request, "El equipo seleccionado no es válido para esta sesión.")
+            return redirect("peer_review")
+
+        if grupo_evaluado.pk == grupo_evaluador.pk:
+            messages.error(request, "No puedes evaluar a tu propio equipo.")
+            return redirect("peer_review")
+
+        if grupo_evaluado.pk in evaluados_ids:
+            messages.info(request, "Ese equipo ya fue evaluado por tu grupo.")
             return redirect("peer_review")
 
         if not comment:
@@ -1345,7 +1369,7 @@ def peer_review_view(request):
             grupo_evaluador=grupo_evaluador,
             grupo_evaluado=grupo_evaluado
         ).exists():
-            messages.info(request, "Ya habías evaluado a ese equipo.")
+            messages.info(request, "Ese equipo ya fue evaluado por tu grupo.")
             return redirect("peer_review")
 
         Evaluacion.objects.create(
@@ -1360,6 +1384,19 @@ def peer_review_view(request):
             comentario=comment,
             reflexion=reflection or None,
         )
+
+        evaluados_ids = set(
+            Evaluacion.objects.filter(
+                sesion=sesion,
+                grupo_evaluador=grupo_evaluador,
+            ).values_list("grupo_evaluado_id", flat=True)
+        )
+
+        pending_targets = all_targets.exclude(pk__in=evaluados_ids)
+        completed = not pending_targets.exists()
+
+        if completed and not getattr(grupo_evaluador, "recompensa_peer_otorgada", False):
+            otorgar_tokens_peer_review(grupo_evaluador)
 
         messages.success(request, "¡Evaluación enviada para ese equipo!")
         return redirect("peer_review")

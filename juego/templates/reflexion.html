@@ -3,63 +3,64 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Misión Emprende UDD — Reflexión Final</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_reflexion.css' %}">
-</head>
-
-<body>
-  <main class="results-wrap" role="main" aria-labelledby="page-title">
-    <section class="results-hero">
-      <header class="page-header">
-        <div class="head-text">
-          <h1 id="page-title">Reflexión final del juego</h1>
-          <p class="subtitle">
-            Cierra la misión compartiendo qué se llevan como equipo.
-          </p>
-        </div>
-      </header>
-    </section>
-
-    <section class="card card-reflexion" aria-label="Reflexión final">
-      <h2 class="h2">Reflexión:</h2>
-      <p class="reflection">
-        {{ reflexion_final|default:"Cada equipo avanzó enfrentando desafíos distintos. Hoy demostraron que cuando hay coordinación, estrategia y compromiso, ninguna misión es imposible." }}
-      </p>
-      <ul class="reflection-prompts">
-        <li>¿Qué fue lo más valioso que aprendimos como equipo?</li>
-        <li>¿Qué haríamos distinto en nuestra próxima misión?</li>
-        <li>¿Qué habilidad nueva descubrimos?</li>
-      </ul>
-    </section>
-
-
-    <section class="qr-grid" aria-label="Códigos QR finales">
-      <article class="card-instagram">
-        <h3 class="h3">Instagram</h3>
-        <div class="qr-box">
-          <img src="{% static 'images/qr_insta.png' %}" alt="Código QR Instagram Misión Emprende" />
-        </div>
-        <p class="qr-hint">Síguenos para nuevas misiones.</p>
-      </article>
-
-      <article class="card-evaluacion">
-        <h3 class="h3">Evaluación de la Actividad</h3>
-        <div class="qr-box">
-          <img src="{% static 'images/qr_evaluacion.png' %}" alt="Código QR Evaluación de la actividad" />
-        </div>
-        <p class="qr-hint">Tu opinión nos ayuda a mejorar.</p>
-      </article>
-    </section>
-
-     <section class="final-cta">
-      <a href="{% url 'finalizar_mision' %}" class="btn-primary">
-  Finalizar misión
-</a>
-    </section>
-
-  </main>
-{% include "includes/sincronizacion_fase.html" %}
-</body>
-</html>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Misión Emprende UDD — Reflexión Final</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+          <link rel="stylesheet" href="{% static 'css/estilo_reflexion.css' %}">
+          </head>
+          
+          <body>
+            <main class="results-wrap" role="main" aria-labelledby="page-title">
+                <section class="results-hero">
+                      <header class="page-header">
+                              <div class="head-text">
+                                        <h1 id="page-title">Reflexión final del juego</h1>
+                                                  <p class="subtitle">
+                                                              Cierra la misión compartiendo qué se llevan como equipo.
+                                                                        </p>
+                                                                                </div>
+                                                                                      </header>
+                                                                                          </section>
+                                                                                          
+                                                                                              <section class="card card-reflexion" aria-label="Reflexión final">
+                                                                                                    <h2 class="h2">Reflexión:</h2>
+                                                                                                          <p class="reflection">
+                                                                                                                  {{ reflexion_final|default:"Cada equipo avanzó enfrentando desafíos distintos. Hoy demostraron que cuando hay coordinación, estrategia y compromiso, ninguna misión es imposible." }}
+                                                                                                                        </p>
+                                                                                                                              <ul class="reflection-prompts">
+                                                                                                                                      <li>¿Qué fue lo más valioso que aprendimos como equipo?</li>
+                                                                                                                                              <li>¿Qué haríamos distinto en nuestra próxima misión?</li>
+                                                                                                                                                      <li>¿Qué habilidad nueva descubrimos?</li>
+                                                                                                                                                            </ul>
+                                                                                                                                                                </section>
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                    <section class="qr-grid" aria-label="Códigos QR finales">
+                                                                                                                                                                          <article class="card-instagram">
+                                                                                                                                                                                  <h3 class="h3">Instagram</h3>
+                                                                                                                                                                                          <div class="qr-box">
+                                                                                                                                                                                                    <img src="{% static 'images/qr_insta.png' %}" alt="Código QR Instagram Misión Emprende" />
+                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                    <p class="qr-hint">Síguenos para nuevas misiones.</p>
+                                                                                                                                                                                                                          </article>
+                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                <article class="card-evaluacion">
+                                                                                                                                                                                                                                        <h3 class="h3">Evaluación de la Actividad</h3>
+                                                                                                                                                                                                                                                <div class="qr-box">
+                                                                                                                                                                                                                                                          <img src="{% static 'images/qr_evaluacion.png' %}" alt="Código QR Evaluación de la actividad" />
+                                                                                                                                                                                                                                                                  </div>
+                                                                                                                                                                                                                                                                          <p class="qr-hint">Tu opinión nos ayuda a mejorar.</p>
+                                                                                                                                                                                                                                                                                </article>
+                                                                                                                                                                                                                                                                                    </section>
+                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                         <section class="final-cta">
+                                                                                                                                                                                                                                                                                               <a href="{% url 'finalizar_mision' %}" class="btn-primary">
+                                                                                                                                                                                                                                                                                                 Finalizar misión
+                                                                                                                                                                                                                                                                                                 </a>
+                                                                                                                                                                                                                                                                                                     </section>
+                                                                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                                                                       </main>
+                                                                                                                                                                                                                                                                                                       {% include "includes/sincronizacion_fase.html" %}
+                                                                                                                                                                                                                                                                                                       </body>
+                                                                                                                                                                                                                                                                                                       </html>
+                                                                                                                                                                                                                                                                                                       }

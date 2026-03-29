@@ -8,14 +8,31 @@
   <title>Misión Emprende UDD — Pitch</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}" />
+  <style>
+    .desafio-textual{
+      margin: 10px auto 18px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(0, 200, 255, 0.10);
+      border: 1px solid rgba(0, 200, 255, 0.35);
+      max-width: 900px;
+      line-height: 1.45;
+    }
+  </style>
 </head>
 <body>
   <main class="pitch-editor" role="region" aria-label="Editor de Pitch">
     
-    <!-- Imagen superior -->
     <h1 class="title">¡Crea tu pitch!</h1>
     <p class="subtitle">Escribe un pitch, o simplemente prepara algunas notas para tu presentación.</p>
-        {% include "desafio_badge.html" %}
+
+    {% include "desafio_badge.html" %}
+
+    <div class="desafio-textual">
+      <strong>Desafío seleccionado:</strong>
+      {{ request.session.desafio_nombre|default:"No seleccionado" }}
+    </div>
+
     <section class="tips">
       <h2>Consejos para un buen pitch</h2>
       <ul>
@@ -30,16 +47,28 @@
       <textarea id="pitch-text" name="pitch-text" placeholder="Escribe tu pitch, o simplemente unas notas…" rows="10"></textarea>
       <div class="actions">
         <button type="button" class="btn ghost" id="btnLimpiar">Limpiar</button>
-        <button type="button" class="btn primary" id="btnPresentar">Presentar</button>
       </div>
       <p id="saveHint" class="save-hint" aria-live="polite">Los cambios se guardan automáticamente.</p>
     </form>
   </main>
   
-  <script>
-    const PRESENTAR_URL = "{% url 'orden_presentacion_alumno' %}";
-  </script>
   <script src="{% static 'js/pitch_edit.js' %}"></script>
-{% include "includes/sincronizacion_fase.html" %}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const textarea = document.getElementById("pitch-text");
+      const btnLimpiar = document.getElementById("btnLimpiar");
+
+      btnLimpiar?.addEventListener("click", () => {
+        const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");
+        if (!confirmar) return;
+
+        textarea.value = "";
+        textarea.dispatchEvent(new Event("input"));
+      });
+    });
+  </script>
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>
