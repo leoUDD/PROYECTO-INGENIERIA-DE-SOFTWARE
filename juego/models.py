@@ -44,23 +44,35 @@ class Encuesta(models.Model):
     class Meta:
         db_table = 'encuesta'
 
-
-
 class Grupo(models.Model):
     idgrupo = models.AutoField(db_column='idGrupo', primary_key=True)
     sesion = models.ForeignKey('Sesion', models.CASCADE, db_column='sesion_idSesion', null=True)
     nombregrupo = models.CharField(max_length=100, blank=True, null=True)
-    usuario_idusuario = models.ForeignKey('Usuario',models.DO_NOTHING,db_column='usuario_idUsuario',null=True,blank=True)
+    usuario_idusuario = models.ForeignKey(
+        'Usuario',
+        models.DO_NOTHING,
+        db_column='usuario_idUsuario',
+        null=True,
+        blank=True
+    )
     tokensgrupo = models.IntegerField(blank=True, null=True, default=10)
     etapa = models.IntegerField(blank=True, null=True, default=1)
-    codigoacceso = models.CharField(db_column='codigoAcceso', max_length=8, unique=True, blank=True, null=True)
+    codigoacceso = models.CharField(
+        db_column='codigoAcceso',
+        max_length=8,
+        unique=True,
+        blank=True,
+        null=True
+    )
     sopa_ganada = models.BooleanField(default=False)
     orden_presentacion = models.PositiveIntegerField(null=True, blank=True)
     recompensa_peer_otorgada = models.BooleanField(default=False)
+
     foto_lego = models.ImageField(upload_to="legos/", null=True, blank=True)
     pitch_texto = models.TextField(null=True, blank=True)
-    listo_ranking = models.BooleanField(default=False)   
-    #Sincro
+    listo_ranking = models.BooleanField(default=False)
+
+    # Sincro F2
     tema_elegido = models.CharField(max_length=80, blank=True, null=True)
     desafio_elegido = models.ForeignKey(
         'Desafio',
@@ -69,16 +81,19 @@ class Grupo(models.Model):
         blank=True,
         related_name='grupos_que_lo_eligieron'
     )
+    desafio_id_externo = models.CharField(max_length=50, blank=True, null=True)
+    desafio_nombre = models.CharField(max_length=255, blank=True, null=True)
+    desafio_descripcion = models.TextField(blank=True, null=True)
     listo_f2_tematica = models.BooleanField(default=False)
     listo_f2_desafio = models.BooleanField(default=False)
+
     listo_lobby = models.BooleanField(default=False)
     listo_f1 = models.BooleanField(default=False)
     listo_f2 = models.BooleanField(default=False)
     listo_f3 = models.BooleanField(default=False)
     listo_f4 = models.BooleanField(default=False)
     listo_f5 = models.BooleanField(default=False)
-    listo_f6 = models.BooleanField(default=False)
-
+    listo_f6 = models.BooleanField(default=False)                                                               
 
 
     class Meta:
@@ -192,7 +207,7 @@ class Sesion(models.Model):
 )
 
     # Sincro
-    fase_actual = models.CharField(max_length=40, default="lobby")   
+    fase_actual = models.CharField(max_length=40, default="f1_bienvenida")  
     timer_corriendo = models.BooleanField(default=False)
     segundos_restantes = models.IntegerField(default=0)
 
