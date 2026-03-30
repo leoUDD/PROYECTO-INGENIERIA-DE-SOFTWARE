@@ -2,90 +2,148 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Misión Emprende UDD — Ranking de equipos</title>
-  <link rel="stylesheet" href="{% static 'css/estilo_ranking.css' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking final</title>
+  <link rel="stylesheet" href="{% static 'css/estilo_ranking_animado.css' %}">
 </head>
-
 <body>
-  <main class="results-wrap" role="main" aria-labelledby="page-title">
+  <main class="ranking-scene">
+    <section class="carrera-wrap" id="carreraWrap">
+      <h1 class="titulo">Resultados finales</h1>
+      <p class="subtitulo">Cada equipo dio lo mejor de sí. Veamos el cierre final.</p>
 
-    <section class="results-hero">
-      <header class="page-header">
-        <div class="head-text">
-          <h1 id="page-title">Ranking de equipos</h1>
-          <p class="subtitle">
-            Resultados finales según la cantidad de <strong>tokens</strong>.
-          </p>
-        </div>
-      </header>
-    </section>
-
-    <section class="card card-ranking" aria-label="Tabla de ranking de equipos">
-      <div class="card-header-row">
-        <h2 class="h2">Resultados de la sesión</h2>
-        {% if session %}
-          <p class="session-name">Sesión: <strong>{{ session.nombre }}</strong></p>
-        {% endif %}
+      <div class="carril">
+        <span class="nombre-equipo">{{ ranking.0.nombregrupo }}</span>
+        <div class="pista"><div class="barra barra-1" id="barra1"></div></div>
       </div>
 
-      {% if rankings %}
-        <div class="table-wrapper">
-          <table class="ranking-table">
-            <thead>
-              <tr>
-                <th>Puesto</th>
-                <th>Equipo</th>
-                <th>Tokens</th>
-              </tr>
-            </thead>
+      <div class="carril">
+        <span class="nombre-equipo">{{ ranking.1.nombregrupo|default:"Equipo 2" }}</span>
+        <div class="pista"><div class="barra barra-2" id="barra2"></div></div>
+      </div>
 
-            <tbody>
-              {% for row in rankings %}
-              <tr class="{{ row.podium_class }}">
-                
-                <!-- Puesto con medalla o número -->
-                <td class="rank-col">
-                  {% if row.medal %}
-                    <span class="medal">{{ row.medal }}</span>
-                  {% else %}
-                    #{{ row.rank }}
-                  {% endif %}
-                </td>
+      <div class="carril">
+        <span class="nombre-equipo">{{ ranking.2.nombregrupo|default:"Equipo 3" }}</span>
+        <div class="pista"><div class="barra barra-3" id="barra3"></div></div>
+      </div>
+    </section>
 
-                <!-- Nombre del equipo -->
-                <td class="team-col">
-                  {{ row.team_name }}
-                  {% if row.is_me %}
-                    <span class="badge-yo">(tu equipo)</span>
-                  {% endif %}
-                </td>
+    <section class="ganador-overlay" id="ganadorOverlay">
+      <div class="ganador-box">
+        <p class="ganador-label">Ganador</p>
+        <h2 class="ganador-nombre">{{ ranking.0.nombregrupo }}</h2>
+      </div>
+    </section>
 
-                <!-- Tokens -->
-                <td class="tokens-col">
-                  {{ row.tokens }}
-                </td>
+    <section class="podio-wrap" id="podioWrap">
+      <h2 class="podio-titulo">Podio final</h2>
 
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+      <div class="podio">
+        <div class="puesto puesto-2">
+          <div class="caja">2</div>
+          <div class="equipo">{{ ranking.1.nombregrupo|default:"Equipo 2" }}</div>
         </div>
 
-      {% else %}
-        <p class="empty-state">Aún no hay resultados para mostrar.</p>
-      {% endif %}
+        <div class="puesto puesto-1">
+          <div class="caja">1</div>
+          <div class="equipo">{{ ranking.0.nombregrupo }}</div>
+        </div>
+
+        <div class="puesto puesto-3">
+          <div class="caja">3</div>
+          <div class="equipo">{{ ranking.2.nombregrupo|default:"Equipo 3" }}</div>
+        </div>
+      </div>
+
+      <div class="tabla-final">
+        <h3>Tabla completa</h3>
+        <ol>
+          {% for equipo in ranking %}
+            <li>{{ equipo.nombregrupo }} — {{ equipo.puntaje_total }}</li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <div class="acciones">
+        <a href="{% url 'mision_cumplida' %}" class="btn-final">Continuar</a>
+      </div>
     </section>
 
-    <section class="final-cta">
-      <a href="{% url 'reflexion' %}" class="btn-primary">
-        Continuar
-      </a>
-    </section>
-
+    <audio id="audioCelebracion" src="{% static 'sounds/celebracion.mp3' %}" preload="auto"></audio>
   </main>
-{% include "includes/sincronizacion_fase.html" %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const barras = [
+      { el: document.getElementById("barra1"), pos: 0, vel: 0.22 },
+      { el: document.getElementById("barra2"), pos: 0, vel: 0.18 },
+      { el: document.getElementById("barra3"), pos: 0, vel: 0.16 }
+    ];
+
+    const overlay = document.getElementById("ganadorOverlay");
+    const podio = document.getElementById("podioWrap");
+    const carrera = document.getElementById("carreraWrap");
+    const audio = document.getElementById("audioCelebracion");
+
+    let frame = 0;
+    let terminado = false;
+
+    function actualizarCarrera() {
+      if (terminado) return;
+
+      frame++;
+
+      if (frame < 80) {
+        barras[0].vel = 0.28;
+        barras[1].vel = 0.17;
+        barras[2].vel = 0.15;
+      } else if (frame < 150) {
+        barras[0].vel = 0.18;
+        barras[1].vel = 0.29;
+        barras[2].vel = 0.19;
+      } else if (frame < 220) {
+        barras[0].vel = 0.27;
+        barras[1].vel = 0.22;
+        barras[2].vel = 0.26;
+      } else {
+        barras[0].vel = 0.24;
+        barras[1].vel = 0.235;
+        barras[2].vel = 0.23;
+      }
+
+      barras.forEach((b) => {
+        b.pos += b.vel;
+        if (b.pos > 95) b.pos = 95;
+        if (b.el) b.el.style.width = `${b.pos}%`;
+      });
+
+      if (barras.every(b => b.pos >= 95)) {
+        terminado = true;
+
+        setTimeout(() => {
+          carrera.classList.add("fade-out");
+          overlay.classList.add("visible");
+          try {
+            audio.currentTime = 0;
+            audio.play();
+          } catch (_) {}
+        }, 400);
+
+        setTimeout(() => {
+          overlay.classList.remove("visible");
+          podio.classList.add("visible");
+        }, 3200);
+
+        return;
+      }
+
+      requestAnimationFrame(actualizarCarrera);
+    }
+
+    requestAnimationFrame(actualizarCarrera);
+  });
+</script>
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

@@ -16,7 +16,8 @@
 
     try {
       const res = await fetch(`/sesion/${sesionId}/estado/`, {
-        cache: "no-store"
+        cache: "no-store",
+        credentials: "same-origin"
       });
 
       if (!res.ok) return;
@@ -54,7 +55,7 @@
         "f2_tematicas": [
           normalizarRuta("{% url 'tematicas' %}"),
           normalizarRuta("{% url 'desafios' %}"),
-          normalizarRuta("{% url 'espera_eleccion' %}")
+          normalizarRuta("{% url 'pantalla_espera' %}")
         ],
 
         "f2_transicion_empatia": [
@@ -111,13 +112,13 @@
 
       if (!estaEnRutaValida && rutaDestino && rutaActual !== rutaDestino) {
         redirigiendo = true;
-        window.location.href = data.rutaAlumno;
+        window.location.replace(data.rutaAlumno);
       }
     } catch (error) {
       console.error("Error consultando estado de sesión:", error);
     }
   }
 
-  setInterval(revisarFaseGlobal, 1500);
+  setInterval(revisarFaseGlobal, 1000);
   revisarFaseGlobal();
 </script>

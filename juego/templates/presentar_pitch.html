@@ -94,6 +94,11 @@
     }
 
     function renderEstadoPresentacion(data) {
+        if (data.faseActual && data.faseActual !== "f4_presentacion_pitch") {
+    window.location.replace(data.rutaAlumno || "{% url 'pantalla_espera' %}");
+    return;
+  }
+
       const grupoActual = data.grupoActual;
 
       const nombre = document.getElementById("grupoActualAlumnoNombre");

@@ -83,6 +83,7 @@
       border-radius: 18px;
       padding: 20px 28px;
       min-width: 260px;
+      max-width: 100%;
     }
 
     .lista h2 {
@@ -106,6 +107,12 @@
 
     .actual {
       color: #5b21b6;
+    }
+
+    .estado-fase {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #6b7280;
     }
   </style>
 </head>
@@ -137,6 +144,8 @@
           {% endif %}
         </ol>
       </div>
+
+      <div class="estado-fase" id="estadoFaseTexto"></div>
     </section>
   </main>
 
@@ -166,17 +175,44 @@
       }).join("");
     }
 
+    function renderEstadoFase(data) {
+      const estado = document.getElementById("estadoFaseTexto");
+      if (!estado) return;
+
+      if (data.faseActual === "f4_orden_pitch") {
+        estado.textContent = "Esperando a que el profesor dé inicio a la presentación.";
+      } else if (data.faseActual === "f4_presentacion_pitch") {
+        estado.textContent = "La presentación ha comenzado.";
+      } else {
+        estado.textContent = "";
+      }
+    }
+
     async function cargarOrden() {
       try {
         const res = await fetch(`/sesion/${sesionId}/estado-presentacion/`, {
-          credentials: "same-origin"
+          credentials: "same-origin",
+          cache: "no-store"
         });
 
         const data = await res.json();
 
         if (!res.ok || !data.ok) return;
 
+        if (data.faseActual === "f4_presentacion_pitch") {
+          window.location.replace("{% url 'presentar_pitch' %}");
+          return;
+        }
+
+        if (data.faseActual && data.faseActual !== "f4_orden_pitch") {
+          if (data.rutaAlumno) {
+            window.location.replace(data.rutaAlumno);
+            return;
+          }
+        }
+
         renderOrden(data.ordenPitch, data.grupoActual);
+        renderEstadoFase(data);
       } catch (error) {
         console.error("Error cargando orden:", error);
       }

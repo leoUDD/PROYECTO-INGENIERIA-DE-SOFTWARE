@@ -7,14 +7,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Bubble Map</title>
   <link rel="stylesheet" href="{% static 'css/estilo_bubblemap.css' %}">
+  <style>
+.desafio-panel{
+  width: 100%;
+  max-width: 760px;
+  margin: 14px auto 18px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 200, 255, 0.35);
+  background: rgba(7, 38, 70, 0.78);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
+
+.desafio-toggle{
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.desafio-toggle-head{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.desafio-etiqueta{
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #00c8ff;
+}
+
+.desafio-titulo{
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.desafio-icono{
+  font-size: 1rem;
+  font-weight: 800;
+  color: #00c8ff;
+}
+
+.desafio-body{
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding: 16px 18px 18px;
+}
+
+.desafio-descripcion{
+  margin: 0;
+  color: #d9e6f2;
+  line-height: 1.5;
+  font-size: 0.98rem;
+}
+</style>
 </head>
 <body>
   <main class="bubblemap-container">
     <h1>💭 Bubble Map — Genera tus ideas</h1>
     <p class="subtitle">Escribe palabras clave relacionadas con tu persona del desafío.</p>
 
-    {% include "desafio_badge.html" %}
+<section class="desafio-panel">
+  <button type="button" class="desafio-toggle" id="desafioToggle">
+    <div class="desafio-toggle-head">
+      <span class="desafio-etiqueta">Desafío seleccionado</span>
+      <span class="desafio-titulo">
+        {{ request.session.desafio_nombre|default:"Desafío no seleccionado" }}
+      </span>
+    </div>
+    <span class="desafio-icono" id="desafioIcono">▼</span>
+  </button>
 
+  <div class="desafio-body" id="desafioBody" hidden>
+    <p class="desafio-descripcion">
+      {{ request.session.desafio_descripcion|default:"Aún no hay descripción disponible para este desafío." }}
+    </p>
+  </div>
+</section>
     <section class="bubbles">
       <div class="bubble central">
         <img src="{% static 'images/personas.png' %}" alt="Persona" />
@@ -86,6 +162,27 @@
       window.location.href = "{% url 'transicioncreatividad' %}";
     });
   </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("desafioToggle");
+    const body = document.getElementById("desafioBody");
+    const icono = document.getElementById("desafioIcono");
+
+    if (!toggle || !body || !icono) return;
+
+    toggle.addEventListener("click", () => {
+      const abierto = !body.hasAttribute("hidden");
+
+      if (abierto) {
+        body.setAttribute("hidden", "hidden");
+        icono.textContent = "▼";
+      } else {
+        body.removeAttribute("hidden");
+        icono.textContent = "▲";
+      }
+    });
+  });
+</script>
 {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

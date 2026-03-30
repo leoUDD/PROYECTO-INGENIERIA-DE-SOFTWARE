@@ -7,17 +7,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Desafíos</title>
   <link rel="stylesheet" href="{% static 'css/estilo_desafios.css' %}">
+  <style>
+    .challenge-card.seleccionado {
+      outline: 3px solid #00c8ff;
+      transform: scale(1.01);
+      box-shadow: 0 0 0 4px rgba(0, 200, 255, 0.12);
+    }
+
+    .estado-seleccion {
+      margin: 18px auto 0;
+      max-width: 860px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(0, 200, 255, 0.10);
+      border: 1px solid rgba(0, 200, 255, 0.35);
+      color: #e8f7ff;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .estado-seleccion.visible {
+      display: block;
+    }
+
+    .estado-espera-profesor{
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 209, 102, 0.12);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  color: #ffe29a;
+  font-weight: 700;
+}
+  </style>
 </head>
 <body>
   <main class="selector-container" role="main" aria-labelledby="page-title">
     <header class="header">
       <h1 id="page-title">{{ theme.title|default:slug|title }}</h1>
       <p class="subtitle">{{ theme.hero }}</p>
+      <p style="font-size:14px; opacity:.8; color:white;">
+        Equipo actual: {{ grupo.nombregrupo }} | ID: {{ grupo.idgrupo }} | Sesión: {{ grupo.sesion.idsesion }}
+      </p>
     </header>
 
     <section class="challenges-grid" aria-label="Desafíos disponibles">
       {% for challenge in theme.challenges %}
-      <article class="challenge-card" tabindex="0"
+      <article class="challenge-card"
+               id="card-{{ challenge.id }}"
+               tabindex="0"
                data-id="{{ challenge.id }}"
                data-title="{{ challenge.name }}"
                data-desc="{{ challenge.desc }}"
@@ -27,7 +65,13 @@
           <p class="desc">{{ challenge.summary|default:challenge.desc }}</p>
         </div>
         <div class="actions">
-          <button class="btn select" type="button">Elegir</button>
+          <button
+            class="btn select"
+            type="button"
+            data-desafio-id="{{ challenge.id }}"
+          >
+            Elegir
+          </button>
         </div>
       </article>
       {% empty %}
@@ -35,82 +79,112 @@
       {% endfor %}
     </section>
 
-    <footer class="footer-actions">
-      <button id="btnContinuar" class="btn primary" disabled>Comenzar desafío</button>
-    </footer>
+    <div id="estadoSeleccion" class="estado-seleccion" aria-live="polite">
+  <strong>Desafío seleccionado:</strong>
+  <span id="nombreDesafioSeleccionado">-</span>
+  <div id="descripcionDesafioSeleccionado" style="margin-top:8px;"></div>
+
+  <div id="estadoEsperaProfesor" class="estado-espera-profesor">
+    Esperando a que el profesor avance a la siguiente etapa.
+  </div>
+</div>
   </main>
 
-  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
-
- <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const tarjetas = document.querySelectorAll(".challenge-card");
-    const btnContinuar = document.getElementById("btnContinuar");
-
-    let desafioSeleccionado = null;
-
-    function getCSRFToken() {
-      const row = document.cookie
-        .split("; ")
-        .find(r => r.startsWith("csrftoken="));
-      return row ? row.split("=")[1] : "";
+  <script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.substring(0, name.length + 1) === (name + "=")) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
     }
 
-    tarjetas.forEach(card => {
-      function seleccionarCard(card) {
-        desafioSeleccionado = card.dataset.id;
+    document.addEventListener("DOMContentLoaded", () => {
+      const botones = document.querySelectorAll("[data-desafio-id]");
+      const estadoSeleccion = document.getElementById("estadoSeleccion");
+      const nombreDesafio = document.getElementById("nombreDesafioSeleccionado");
+      const descripcionDesafio = document.getElementById("descripcionDesafioSeleccionado");
 
-        tarjetas.forEach(c => c.classList.remove("seleccionado"));
-        card.classList.add("seleccionado");
+      let enviando = false;
 
-        if (btnContinuar) btnContinuar.disabled = false;
+      function marcarSeleccion(cardId) {
+        document.querySelectorAll(".challenge-card").forEach(card => {
+          card.classList.remove("seleccionado");
+        });
 
-        console.log("Desafío seleccionado:", desafioSeleccionado);
+        const card = document.getElementById(cardId);
+        if (card) card.classList.add("seleccionado");
       }
 
-      const btn = card.querySelector(".btn.select");
-      if (!btn) return;
+      botones.forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (enviando) return;
 
-      btn.addEventListener("click", () => seleccionarCard(card));
-      card.addEventListener("click", () => seleccionarCard(card));
-    });
+          const desafioId = btn.dataset.desafioId;
+          if (!desafioId) return;
 
-    if (btnContinuar) {
-      btnContinuar.addEventListener("click", async () => {
-        if (!desafioSeleccionado) {
-          alert("Selecciona un desafío");
-          return;
-        }
+          enviando = true;
+          botones.forEach(b => b.disabled = true);
 
-        try {
-          const res = await fetch("{% url 'guardar_desafio' %}", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken()
-            },
-            body: JSON.stringify({
-              desafio_id: desafioSeleccionado
-            })
-          });
+          try {
+            const res = await fetch("{% url 'guardar_desafio' %}", {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+                "X-Requested-With": "XMLHttpRequest"
+              },
+              body: JSON.stringify({
+                desafio_id: desafioId
+              })
+            });
 
-          const data = await res.json();
-          console.log("Respuesta guardar_desafio:", data);
+            const contentType = res.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+              const texto = await res.text();
+              console.error("guardar_desafio devolvió HTML/no JSON:", texto);
+              throw new Error("El servidor no devolvió JSON. Revisa la terminal de Django.");
+            }
 
-          if (!res.ok || !data.ok) {
-            alert(data.error || "No se pudo guardar el desafío");
-            return;
+            const data = await res.json();
+
+            if (!res.ok || !data.ok) {
+              throw new Error(data.error || "No se pudo guardar el desafío.");
+            }
+
+            marcarSeleccion(`card-${desafioId}`);
+            nombreDesafio.textContent = data.desafio_nombre || "Desafío seleccionado";
+            descripcionDesafio.textContent = data.desafio_descripcion || "";
+            estadoSeleccion.classList.add("visible");
+
+            botones.forEach(b => {
+  b.disabled = false;
+  if (b.dataset.desafioId === desafioId) {
+    b.textContent = "Elegido";
+  } else {
+    b.textContent = "Elegir";
+  }
+});
+
+          } catch (error) {
+            console.error("Error guardando desafío:", error);
+            alert(error.message || "Hubo un problema al guardar el desafío.");
+            botones.forEach(b => b.disabled = false);
+          } finally {
+            enviando = false;
           }
-
-          window.location.href = "{% url 'espera_eleccion' %}";
-        } catch (err) {
-          console.error("Error guardando desafío:", err);
-          alert("Ocurrió un error al guardar el desafío");
-        }
+        });
       });
-    }
-  });
-</script>
+    });
+  </script>
 
   {% include "includes/sincronizacion_fase.html" %}
 </body>

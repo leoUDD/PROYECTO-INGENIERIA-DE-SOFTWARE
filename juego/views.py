@@ -4,7 +4,6 @@ from django.views.decorators.http import require_GET, require_POST
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-import json
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 #NUEVO CIERRRE
@@ -219,8 +218,12 @@ def estado_presentacion_pitch(request, sesion_id):
     if grupo_id:
         grupo_solicitante = Grupo.objects.filter(pk=grupo_id, sesion=sesion).first()
 
+    nombre_url = RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")
+
     data = {
         "ok": True,
+        "faseActual": sesion.fase_actual,
+        "rutaAlumno": reverse(nombre_url),
         **serializar_estado_pitch(sesion, grupo_solicitante=grupo_solicitante),
     }
     return JsonResponse(data)
@@ -313,73 +316,85 @@ def estado_sesion(request, sesion_id):
 def guardar_tematica(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
-        return JsonResponse({"ok": False, "error": "Grupo no encontrado"}, status=400)
+        print("guardar_tematica -> SIN GRUPO EN SESION")
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
 
-    payload = json.loads(request.body or "{}")
-    tema = (payload.get("tema") or "").strip().lower()
+    tema = ""
 
-    if not tema:
-        return JsonResponse({"ok": False, "error": "Tema inválido"}, status=400)
+    if request.content_type and "application/json" in request.content_type:
+        try:
+            payload = json.loads(request.body or "{}")
+            tema = (payload.get("tema") or payload.get("slug") or "").strip().lower()
+        except Exception:
+            tema = ""
+    else:
+        tema = (request.POST.get("tema") or request.POST.get("slug") or "").strip().lower()
 
-    grupo.tema_elegido = tema
-    grupo.listo_f2_tematica = True
-    grupo.save(update_fields=["tema_elegido", "listo_f2_tematica"])
+    print(f"guardar_tematica -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | tema: {tema}")
 
-    total = Grupo.objects.filter(sesion=grupo.sesion).count()
-    listos = Grupo.objects.filter(sesion=grupo.sesion, listo_f2_tematica=True).count()
+    if not tema or not get_theme(tema):
+        return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
+
+    request.session["tema"] = tema
+    request.session.modified = True
 
     return JsonResponse({
         "ok": True,
-        "tema": tema,
-        "gruposListos": listos,
-        "gruposTotales": total,
+        "redirect_url": reverse("desafios") + f"?tema={tema}"
     })
-
 
 @require_POST
 def guardar_desafio(request):
     grupo = obtener_grupo_desde_session(request)
-
     if not grupo:
-        return JsonResponse({"ok": False, "error": "Grupo no identificado"}, status=400)
+        print("guardar_desafio -> SIN GRUPO EN SESION")
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
+
+    print(f"guardar_desafio -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo}")
 
     try:
-        data = json.loads(request.body or "{}")
-    except json.JSONDecodeError:
-        return JsonResponse({"ok": False, "error": "JSON inválido"}, status=400)
+        payload = json.loads(request.body or "{}")
+        desafio_id = payload.get("desafio_id")
+    except Exception as e:
+        print(f"guardar_desafio -> ERROR leyendo JSON: {e}")
+        return JsonResponse({"ok": False, "error": "Solicitud inválida."}, status=400)
 
-    desafio_id = str(data.get("desafio_id", "")).strip()
     if not desafio_id:
-        return JsonResponse({"ok": False, "error": "No se recibió desafio_id"}, status=400)
+        return JsonResponse({"ok": False, "error": "Debes seleccionar un desafío."}, status=400)
 
-    slug = (request.session.get("tema") or "").strip().lower()
-    theme = get_theme(slug)
+    tema = request.session.get("tema")
+    theme = get_theme(tema)
 
-    desafio_nombre = ""
-    if theme:
-        for challenge in theme.get("challenges", []):
-            if str(challenge.get("id")) == desafio_id:
-                desafio_nombre = challenge.get("name", "")
-                break
+    print(f"guardar_desafio -> tema session: {tema}")
 
-    request.session["desafio_id"] = desafio_id
-    request.session["desafio_nombre"] = desafio_nombre
+    if not theme:
+        return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
+
+    challenge = None
+    for c in theme.get("challenges", []):
+        if str(c.get("id")) == str(desafio_id):
+            challenge = c
+            break
+
+    if not challenge:
+        print(f"guardar_desafio -> desafio no encontrado: {desafio_id}")
+        return JsonResponse({"ok": False, "error": "Desafío no válido."}, status=404)
+
+    request.session["desafio_id"] = str(challenge.get("id"))
+    request.session["desafio_nombre"] = challenge.get("name", "")
+    request.session["desafio_descripcion"] = challenge.get("desc", "")
+    request.session.modified = True
 
     grupo.listo_f2_desafio = True
-    grupo.listo_f2 = True
-    grupo.save(update_fields=["listo_f2_desafio", "listo_f2"])
+    grupo.save(update_fields=["listo_f2_desafio"])
 
-    total = Grupo.objects.filter(sesion=grupo.sesion).count()
-    listos = Grupo.objects.filter(sesion=grupo.sesion, listo_f2_desafio=True).count()
+    print(f"guardar_desafio -> OK grupo {grupo.idgrupo} listo_f2_desafio=True")
 
     return JsonResponse({
         "ok": True,
-        "desafio_id": desafio_id,
-        "desafio_nombre": desafio_nombre,
-        "gruposListos": listos,
-        "gruposTotales": total,
+        "desafio_nombre": challenge.get("name", ""),
+        "desafio_descripcion": challenge.get("desc", ""),
     })
-
 @require_POST
 def profesor_actualizar_estado(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
@@ -611,9 +626,15 @@ def trabajoenequipo(request):
 def tematicas(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
+        print("tematicas -> SIN GRUPO EN SESION")
         return redirect("registro")
+
+    print(f"tematicas -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | sesion: {grupo.sesion.idsesion}")
+
     if not acceso_permitido(grupo, "tematicas"):
+        print(f"tematicas -> acceso no permitido para grupo {grupo.idgrupo}")
         return redirect("pantalla_espera")
+
     return render(request, "tematicas.html", {"grupo": grupo})
 
 def lego(request):
@@ -659,25 +680,28 @@ def bienvenida(request):
 def registro(request):
     error = None
 
-    if request.method == 'POST':
-        codigo = request.POST.get('id_grupo', '').strip()
+    if request.method == "POST":
+        codigo = (request.POST.get("id_grupo") or "").strip().upper()
 
         if not codigo:
             error = "Debes ingresar un código."
-            return render(request, 'registro.html', {'error': error})
+            return render(request, "registro.html", {"error": error})
 
         try:
-            grupo = Grupo.objects.get(codigoacceso=codigo)
+            grupo = Grupo.objects.select_related("sesion").get(codigoacceso__iexact=codigo)
         except Grupo.DoesNotExist:
-            error = 'Código de grupo inválido'
-            return render(request, 'registro.html', {'error': error})
+            error = "Código de grupo inválido"
+            return render(request, "registro.html", {"error": error})
 
-        request.session['grupo_id'] = grupo.idgrupo
+        request.session.flush()
+        request.session["grupo_id"] = grupo.idgrupo
+        request.session.modified = True
 
-        return redirect('pantalla_espera')  # <-- ajusta al name de tu URL real
+        print(f"registro -> codigo={codigo} | grupo={grupo.idgrupo} | nombre={grupo.nombregrupo} | sesion={grupo.sesion.idsesion if grupo.sesion else 'SIN SESION'}")
 
-    return render(request, 'registro.html', {'error': error})
+        return redirect("pantalla_inicio")
 
+    return render(request, "registro.html", {"error": error})
 
 
 
@@ -1086,15 +1110,20 @@ def agregar_alumno_manual(request):
 def desafios(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
+        print("desafios -> SIN GRUPO EN SESION")
         return redirect("registro")
 
     slug = (request.GET.get("tema") or request.session.get("tema") or "").strip().lower()
     theme = get_theme(slug)
 
+    print(f"desafios -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | tema recibido: {slug}")
+
     if not theme:
+        print(f"desafios -> tema invalido para grupo {grupo.idgrupo}: {slug}")
         return redirect("tematicas")
 
     request.session["tema"] = slug
+    request.session.modified = True
 
     return render(request, "desafios.html", {
         "grupo": grupo,
@@ -1644,8 +1673,11 @@ def ranking_view(request):
     return render(request, "ranking.html", context)
 
 def mision_cumplida_view(request):
-    grupo_id = request.session.get("grupo_id")
-    grupo = get_object_or_404(Grupo, pk=grupo_id)
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        messages.error(request, "No pudimos identificar tu grupo.")
+        return redirect("registro")
+
     sesion = grupo.sesion
 
     if not request.session.get("ranking_flags_reseteados"):
@@ -1660,26 +1692,32 @@ def preview_pantalla_profesor(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
 
     plantilla_por_fase = {
-    "lobby": "pantalla_espera_preview.html",
+        "lobby": "pantalla_espera_preview.html",
 
-    "f1_intro": "trabajoenequipo.html",
-    "f1_conocidos": "conocidos.html",
-    "f1_prompt": "promptconocidos.html",
-    "f1_sopa": "minijuego1.html",
-    "f1_juego": "trabajoenequipo.html",
+        "f1_bienvenida": "pantalla_inicio.html",
+        "f1_conocidos": "conocidos.html",
+        "f1_pre_sopa": "trabajoenequipo.html",
+        "f1_sopa": "minijuego1.html",
 
-    "f2_intro": "tematicas.html",
-    "f2_bubblemap": "bubblemap.html",
-    "f2_juego": "tematicas.html",
+        "f2_transicion": "transiciondesafio.html",
+        "f2_tematicas": "tematicas.html",
+        "f2_transicion_empatia": "transicionempatia.html",
+        "f2_bubblemap": "bubblemap.html",
 
-    "f3_intro": "lego.html",
-    "f3_juego": "lego.html",
+        "f3_transicion_creatividad": "transicioncreatividad.html",
+        "f3_lego": "lego.html",
 
-    "f4_intro": "pitch.html",
-    "f4_juego": "pitch.html",
+        "f4_transicion_comunicacion": "transicioncomunicacion.html",
+        "f4_construccion_pitch": "pitch.html",
+        "f4_orden_pitch": "orden_presentacion.html",
+        "f4_presentacion_pitch": "presentar_pitch.html",
 
-    "reflexion": "reflexion.html",
-}
+        "f5_transicion_apoyo": "transicionapoyo.html",
+        "f5_evaluacion_pitch": "peer_review.html",
+
+        "f6_ranking": "ranking.html",
+        "reflexion": "reflexion.html",
+    }
 
     template_name = plantilla_por_fase.get(sesion.fase_actual, "pantalla_espera_preview.html")
 
