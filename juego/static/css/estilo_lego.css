@@ -39,16 +39,14 @@ body {
   padding: 35px 25px 50px;
   border-radius: 26px;
   box-shadow: var(--shadow);
-
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
-
   text-align: center;
   animation: fadeIn 0.5s ease-out;
-
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 14px;
 }
 
 .logo {
@@ -67,10 +65,10 @@ body {
 }
 
 .subtitle {
-  margin-top: 18px;
-  margin-bottom: 12px;
+  margin-top: 10px;
+  margin-bottom: 6px;
   font-size: var(--fs-sub);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--primary);
 }
 
@@ -88,24 +86,22 @@ body {
 
 .ideas-list {
   list-style: none;
-  margin: 10px 0 25px;
+  margin: 6px 0 18px;
   padding: 0;
   width: 100%;
   max-width: 640px;
 }
 
 .ideas-list li {
-  background: rgba(0, 140, 255, 0.15);
-  border: 1px solid rgba(0, 180, 255, 0.45);
+  background: rgba(0, 140, 255, 0.12);
+  border: 1px solid rgba(0, 180, 255, 0.38);
   padding: 10px 14px;
   margin-bottom: 12px;
   border-radius: 12px;
   font-size: 15px;
   text-align: left;
-
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: anywhere;
@@ -113,27 +109,22 @@ body {
 
 
 #timer {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-
-  margin-top:auto;
-  margin-bottom: clamp(18px, 4vh, 26px);
-
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-top: 6px;
+  margin-bottom: 18px;
   width: clamp(180px, 36vw, 260px);
   height: clamp(72px, 12vw, 98px);
-
-  background:#0a0a0a;
-  color:#fff;
-  font-weight:800;
+  background: #0a0a0a;
+  color: #fff;
+  font-weight: 800;
   font-size: var(--fs-timer);
-
   font-variant-numeric: tabular-nums;
-  letter-spacing:.04em;
-
+  letter-spacing: .04em;
   border: clamp(3px, .8vw, 6px) solid #00d4ff;
-  border-radius:24px;
+  border-radius: 24px;
   box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset;
   text-shadow: 0 0 8px #00d4ff;
   animation: neonPulse 1.2s ease-in-out infinite;
@@ -214,12 +205,18 @@ body {
 @media (max-width: 480px) {
   .title { font-size: 22px; }
   .subtitle { font-size: 16px; }
-  .phone { padding: 28px 18px 40px; }
+  .phone {
+  padding: 28px 18px 40px;
+  gap: 12px;
+}
   #timer{
-    width: 82%;
-    height: clamp(80px, 16vw, 110px);
-    font-size: clamp(30px, 9vw, 40px);
-  }
+  width: 82%;
+  height: clamp(80px, 16vw, 110px);
+  font-size: clamp(30px, 9vw, 40px);
+}
+  .ideas-list{
+  margin-bottom: 14px;
+}
 }
 
 .recordatorio-desafio{
@@ -253,7 +250,7 @@ body {
 .foto-panel {
   width: 100%;
   max-width: 640px;
-  margin-top: 18px;
+  margin-top: 0;
   padding: 18px;
   border-radius: 16px;
   border: 2px solid rgba(255, 122, 26, 0.70);

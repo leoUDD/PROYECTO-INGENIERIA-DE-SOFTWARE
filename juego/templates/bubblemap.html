@@ -7,90 +7,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Bubble Map</title>
   <link rel="stylesheet" href="{% static 'css/estilo_bubblemap.css' %}">
-  <style>
-.desafio-panel{
-  width: 100%;
-  max-width: 760px;
-  margin: 14px auto 18px;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 2px solid rgba(0, 200, 255, 0.35);
-  background: rgba(7, 38, 70, 0.78);
-  box-shadow: 0 10px 28px rgba(0,0,0,.22);
-}
-
-.desafio-toggle{
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: #fff;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  text-align: left;
-}
-
-.desafio-toggle-head{
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.desafio-etiqueta{
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #00c8ff;
-}
-
-.desafio-titulo{
-  font-size: 1.08rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.desafio-icono{
-  font-size: 1rem;
-  font-weight: 800;
-  color: #00c8ff;
-}
-
-.desafio-body{
-  border-top: 1px solid rgba(255,255,255,.12);
-  padding: 16px 18px 18px;
-}
-
-.desafio-descripcion{
-  margin: 0;
-  color: #d9e6f2;
-  line-height: 1.5;
-  font-size: 0.98rem;
-}
-</style>
 </head>
 <body>
   <main class="bubblemap-container">
     <h1>💭 Bubble Map — Genera tus ideas</h1>
     <p class="subtitle">Escribe palabras clave relacionadas con tu persona del desafío.</p>
 
-<section class="desafio-panel">
-  <button type="button" class="desafio-toggle" id="desafioToggle">
-    <div class="desafio-toggle-head">
-      <span class="desafio-etiqueta">Desafío seleccionado</span>
-      <span class="desafio-titulo">
-        {{ request.session.desafio_nombre|default:"Desafío no seleccionado" }}
-      </span>
-    </div>
-    <span class="desafio-icono" id="desafioIcono">▼</span>
-  </button>
+    {% include "desafio_badge.html" %}
 
-  <div class="desafio-body" id="desafioBody" hidden>
-    <p class="desafio-descripcion">
-      {{ request.session.desafio_descripcion|default:"Aún no hay descripción disponible para este desafío." }}
-    </p>
-  </div>
-</section>
+    <div
+      id="bubblemap-desafio-data"
+      data-nombre="{{ desafio_nombre_actual|default:'Desafío no seleccionado'|escape }}"
+      data-descripcion="{{ desafio_descripcion_actual|default:'Aún no hay descripción disponible para este desafío.'|escape }}"
+      hidden
+    ></div>
+
+    <div class="timer-wrap">
+      <div class="timer-bubblemap" id="timer">03:00</div>
+    </div>
+
     <section class="bubbles">
       <div class="bubble central">
         <img src="{% static 'images/personas.png' %}" alt="Persona" />
@@ -104,8 +39,13 @@
       <div class="bubble"><textarea placeholder="Otros"></textarea></div>
     </section>
 
-    <footer class="footer-actions">
-    </footer>
+    <footer class="footer-actions"></footer>
+
+    <div
+      id="routes"
+      data-sesion-id="{{ sesion.idsesion }}"
+      data-tiempo="{{ segundos_restantes|default:180 }}"
+    ></div>
   </main>
 
   <script>
@@ -137,52 +77,145 @@
 
     localStorage.setItem(SESSION_KEY, currentSession);
 
+    document.addEventListener("DOMContentLoaded", () => {
+      const bubbles = document.querySelectorAll(".bubble textarea");
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
-    /* ========= GUARDAR DATOS ========= */
-
-    const bubbles = document.querySelectorAll(".bubble textarea");
-
-    // Restaurar si existe
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    bubbles.forEach((area, i) => {
-      if (saved[i]) area.value = saved[i];
-    });
-
-    // Guardar al escribir
-    bubbles.forEach((area, i) => {
-      area.addEventListener("input", () => {
-        const data = {};
-        bubbles.forEach((a, idx) => data[idx] = a.value.trim());
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      bubbles.forEach((area, i) => {
+        if (saved[i]) area.value = saved[i];
       });
-    });
 
-    // Botón siguiente
-    document.getElementById("btnContinuar").addEventListener("click", () => {
-      window.location.href = "{% url 'transicioncreatividad' %}";
+      bubbles.forEach((area, i) => {
+        area.addEventListener("input", () => {
+          const data = {};
+          bubbles.forEach((a, idx) => data[idx] = a.value.trim());
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        });
+      });
+
+      /* ===== RELLENAR BADGE DEL DESAFÍO DESDE DJANGO ===== */
+      const dataNode = document.getElementById("bubblemap-desafio-data");
+      const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
+      const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
+
+      const dbTitle = document.getElementById("dbTitle");
+      const dbShort = document.getElementById("dbShort");
+      const dbDesc = document.getElementById("dbDesc");
+
+      if (dbTitle) dbTitle.textContent = nombre;
+
+      if (dbShort) {
+        const corto = descripcion.length > 90
+          ? descripcion.slice(0, 90).trim() + "..."
+          : descripcion;
+        dbShort.textContent = corto;
+      }
+
+      if (dbDesc) dbDesc.textContent = descripcion;
+
+      const routesEl = document.getElementById("routes");
+      const sesionId = routesEl?.dataset?.sesionId;
+      const timerElement = document.getElementById("timer");
+
+      if (!sesionId || !timerElement) return;
+
+      let timeLeft = Number(routesEl.dataset.tiempo || 180);
+      let timerInterval = null;
+      let timerIniciado = false;
+      let redirigiendo = false;
+
+      function pintarTiempo() {
+        const minutes = Math.floor(Math.max(0, timeLeft) / 60);
+        const seconds = Math.max(0, timeLeft) % 60;
+        timerElement.textContent =
+          `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      function pausarTimerLocal() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function iniciarTimerLocal() {
+        if (timerInterval || redirigiendo) return;
+
+        timerIniciado = true;
+        pintarTiempo();
+
+        timerInterval = setInterval(() => {
+          if (redirigiendo) {
+            pausarTimerLocal();
+            return;
+          }
+
+          if (timeLeft > 0) {
+            timeLeft--;
+            pintarTiempo();
+          }
+        }, 1000);
+      }
+
+      function procesarEstadoSesion(data) {
+        if (!data) return;
+
+        const faseActual = data.faseActual;
+
+        if (faseActual && faseActual !== "f2_bubblemap") {
+          if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.href = data.rutaAlumno;
+          }
+          return;
+        }
+
+        const backendSeconds = Number(data.segundosRestantes);
+
+        if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+          timeLeft = backendSeconds;
+          pintarTiempo();
+        }
+
+        if (!timerIniciado && data.timerCorriendo) {
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+          iniciarTimerLocal();
+          return;
+        }
+
+        if (timerIniciado && !data.timerCorriendo) {
+          pausarTimerLocal();
+
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+
+          timerIniciado = false;
+        }
+      }
+
+      async function consultarEstadoSesion() {
+        if (redirigiendo) return;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`);
+          const data = await res.json();
+          procesarEstadoSesion(data);
+        } catch (err) {
+          console.error("Error consultando estado de sesión:", err);
+        }
+      }
+
+      pintarTiempo();
+      setInterval(consultarEstadoSesion, 1500);
+      consultarEstadoSesion();
     });
   </script>
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggle = document.getElementById("desafioToggle");
-    const body = document.getElementById("desafioBody");
-    const icono = document.getElementById("desafioIcono");
 
-    if (!toggle || !body || !icono) return;
-
-    toggle.addEventListener("click", () => {
-      const abierto = !body.hasAttribute("hidden");
-
-      if (abierto) {
-        body.setAttribute("hidden", "hidden");
-        icono.textContent = "▼";
-      } else {
-        body.removeAttribute("hidden");
-        icono.textContent = "▲";
-      }
-    });
-  });
-</script>
-{% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

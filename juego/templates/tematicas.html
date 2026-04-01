@@ -104,27 +104,43 @@
 
 <script>
 (function () {
-  const cta = document.getElementById('btnContinuar');
+  const cta = document.getElementById("btnContinuar");
+  const cards = Array.from(document.querySelectorAll(".theme-card"));
+  let temaSeleccionado = "{{ tema_actual|default:'' }}";
 
   function getCSRFToken() {
-    const name = 'csrftoken=';
-    const parts = document.cookie.split(';');
+    const name = "csrftoken=";
+    const parts = document.cookie.split(";");
     for (let c of parts) {
       c = c.trim();
-      if (c.startsWith(name)) return c.substring(name.length);
+      if (c.startsWith(name)) return decodeURIComponent(c.substring(name.length));
     }
-    return '';
+    return "";
   }
 
-  function updateCTAState() {
-    const tema = localStorage.getItem('temaSeleccionado');
-    cta.disabled = !tema;
+  function marcarTema(slug) {
+    temaSeleccionado = (slug || "").trim().toLowerCase();
+
+    cards.forEach(card => {
+      const activo = (card.dataset.slug || "").trim().toLowerCase() === temaSeleccionado;
+      card.classList.toggle("selected", activo);
+
+      const btn = card.querySelector(".btn.select");
+      if (btn) {
+        btn.textContent = activo ? "Seleccionado ✅" : "Elegir";
+      }
+    });
+
+    cta.disabled = !temaSeleccionado;
   }
 
-  cta.addEventListener('click', async function () {
-    const tema = localStorage.getItem('temaSeleccionado');
-    if (!tema) {
-      alert('Selecciona una temática antes de continuar.');
+  window.guardarTema = function (slug) {
+    marcarTema(slug);
+  };
+
+  cta.addEventListener("click", async function () {
+    if (!temaSeleccionado) {
+      alert("Selecciona una temática antes de continuar.");
       return;
     }
 
@@ -134,20 +150,21 @@
         "Content-Type": "application/json",
         "X-CSRFToken": getCSRFToken()
       },
-      body: JSON.stringify({ tema })
+      credentials: "same-origin",
+      body: JSON.stringify({ tema: temaSeleccionado })
     });
 
     const data = await res.json();
+
     if (!res.ok || !data.ok) {
       alert(data.error || "No se pudo guardar la temática.");
       return;
     }
 
-    window.location.href = "{% url 'desafios' %}?tema=" + encodeURIComponent(tema);
+    window.location.href = data.redirect_url || "{% url 'desafios' %}";
   });
 
-  updateCTAState();
-  window.addEventListener('storage', updateCTAState);
+  marcarTema(temaSeleccionado);
 })();
 </script>
 {% include "includes/sincronizacion_fase.html" %}
