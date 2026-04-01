@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,12 +15,10 @@
       <div class="title">
         <h1>Empatía</h1>
       </div>
+
       <div class="speech-bubble">
         <p>La empatía te ayuda a entender mejor a tus clientes y crear soluciones que realmente necesitan. Ahora completarás un Bubble Map sobre tu persona objetivo.</p>
-
         <p>Espera la indicación del profesor para avanzar.</p>
-
-{% include "includes/sincronizacion_fase.html" %}
       </div>
 
       <div class="next-step">
@@ -28,23 +27,6 @@
     </section>
   </main>
 
-  <script>
-    document.getElementById('btnContinuar').addEventListener('click', () => {
-      let data = null;
-      try {
-        data = JSON.parse(sessionStorage.getItem('desafioSeleccionado') || 'null');
-      } catch (_) {}
-
-      if (!data || !data.id) {
-        alert('Por favor selecciona un desafío antes de continuar.');
-        return;
-      }
-      const desafioId = data.id;
-
-      // Redirigir a la página bubblemap con el parámetro del desafío
-      window.location.href = "{% url 'bubblemap' %}?desafio=" + encodeURIComponent(desafioId);
-    });
-  </script>
-{% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

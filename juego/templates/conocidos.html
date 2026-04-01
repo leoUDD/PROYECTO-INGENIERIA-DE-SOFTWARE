@@ -11,12 +11,20 @@
 </head>
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
-    <h1 class="title">Es momento de fortalecer lazos!</h1>
+    <h1 class="title">¡Es momento de conocerse!</h1>
 
     <div class="speech-bubble">
       <p class="body">
-        Nombra una habilidad que tenga uno de los integrantes del equipo y cuenta una anécdota donde hayas visto esa habilidad en acción.
+        Di tu nombre y comparte un dato curioso sobre ti.
       </p>
+
+      <p class="body pregunta-random" id="preguntaTexto">
+        👉 Cargando pregunta...
+      </p>
+
+      <button class="btn-random" id="btnPregunta" type="button">
+        Nueva pregunta
+      </button>
     </div>
 
     <h2 id="timer">00:45</h2>
@@ -45,6 +53,44 @@
         const modal = document.getElementById("modal-fin");
         const btnContinuar = document.getElementById("buttonContinuar");
         const alarmAudio = document.getElementById("alarm-audio");
+
+        const btnPregunta = document.getElementById("btnPregunta");
+        const preguntaTexto = document.getElementById("preguntaTexto");
+
+        const preguntas = [
+          "¿Qué superpoder te gustaría tener?",
+          "¿Qué harías si ganaras 1 millón?",
+          "¿Serie o película favorita?",
+          "¿Comida favorita?",
+          "¿Plan tranquilo o aventura?",
+          "¿Qué habilidad te gustaría aprender?",
+          "¿Perro o gato?",
+          "¿Tu mejor viaje?",
+          "¿Madrugador o nocturno?",
+          "¿Qué harías si no tuvieras miedo a nada?"
+        ];
+
+        let ultimoIndice = -1;
+
+        function cambiarPregunta() {
+          if (!preguntaTexto) return;
+
+          let random = Math.floor(Math.random() * preguntas.length);
+
+          if (preguntas.length > 1) {
+            while (random === ultimoIndice) {
+              random = Math.floor(Math.random() * preguntas.length);
+            }
+          }
+
+          ultimoIndice = random;
+          preguntaTexto.textContent = "👉 " + preguntas[random];
+        }
+
+        if (btnPregunta) {
+          btnPregunta.addEventListener("click", cambiarPregunta);
+          cambiarPregunta();
+        }
 
         if (!sesionId || !timerElement) return;
 

@@ -7,67 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Bubble Map</title>
   <link rel="stylesheet" href="{% static 'css/estilo_bubblemap.css' %}">
-  <style>
-    .desafio-panel{
-      width: 100%;
-      max-width: 760px;
-      margin: 14px auto 18px;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 2px solid rgba(0, 200, 255, 0.35);
-      background: rgba(7, 38, 70, 0.78);
-      box-shadow: 0 10px 28px rgba(0,0,0,.22);
-    }
-
-    .desafio-toggle{
-      width: 100%;
-      border: none;
-      background: transparent;
-      color: #fff;
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .desafio-toggle-head{
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .desafio-etiqueta{
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #00c8ff;
-    }
-
-    .desafio-titulo{
-      font-size: 1.08rem;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .desafio-icono{
-      font-size: 1rem;
-      font-weight: 800;
-      color: #00c8ff;
-    }
-
-    .desafio-body{
-      border-top: 1px solid rgba(255,255,255,.12);
-      padding: 16px 18px 18px;
-    }
-
-    .desafio-descripcion{
-      margin: 0;
-      color: #d9e6f2;
-      line-height: 1.5;
-      font-size: 0.98rem;
-    }
-  </style>
 </head>
 <body>
   <main class="bubblemap-container">
@@ -88,6 +27,10 @@
       </div>
     </section>
 
+    <div class="timer-wrap">
+      <div class="timer-bubblemap" id="timer">03:00</div>
+    </div>
+
     <section class="bubbles">
       <div class="bubble central">
         <img src="{% static 'images/personas.png' %}" alt="Persona" />
@@ -102,6 +45,12 @@
     </section>
 
     <footer class="footer-actions"></footer>
+
+    <div
+      id="routes"
+      data-sesion-id="{{ sesion.idsesion }}"
+      data-tiempo="{{ segundos_restantes|default:180 }}"
+    </div>
   </main>
 
   <script>
@@ -166,6 +115,107 @@
           }
         });
       }
+
+      const routesEl = document.getElementById("routes");
+      const sesionId = routesEl?.dataset?.sesionId;
+      const timerElement = document.getElementById("timer");
+
+      if (!sesionId || !timerElement) return;
+
+      let timeLeft = Number(routesEl.dataset.tiempo || 180);
+      let timerInterval = null;
+      let timerIniciado = false;
+      let redirigiendo = false;
+
+      function pintarTiempo() {
+        const minutes = Math.floor(Math.max(0, timeLeft) / 60);
+        const seconds = Math.max(0, timeLeft) % 60;
+        timerElement.textContent =
+          `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      function pausarTimerLocal() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function iniciarTimerLocal() {
+        if (timerInterval || redirigiendo) return;
+
+        timerIniciado = true;
+        pintarTiempo();
+
+        timerInterval = setInterval(() => {
+          if (redirigiendo) {
+            pausarTimerLocal();
+            return;
+          }
+
+          if (timeLeft > 0) {
+            timeLeft--;
+            pintarTiempo();
+          }
+        }, 1000);
+      }
+
+      function procesarEstadoSesion(data) {
+        if (!data) return;
+
+        const faseActual = data.faseActual;
+
+        if (faseActual && faseActual !== "f2_bubblemap") {
+          if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.href = data.rutaAlumno;
+          }
+          return;
+        }
+
+        const backendSeconds = Number(data.segundosRestantes);
+
+        if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+          timeLeft = backendSeconds;
+          pintarTiempo();
+        }
+
+        if (!timerIniciado && data.timerCorriendo) {
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+          iniciarTimerLocal();
+          return;
+        }
+
+        if (timerIniciado && !data.timerCorriendo) {
+          pausarTimerLocal();
+
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+
+          timerIniciado = false;
+        }
+      }
+
+      async function consultarEstadoSesion() {
+        if (redirigiendo) return;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`);
+          const data = await res.json();
+          procesarEstadoSesion(data);
+        } catch (err) {
+          console.error("Error consultando estado de sesión:", err);
+        }
+      }
+
+      pintarTiempo();
+      setInterval(consultarEstadoSesion, 1500);
+      consultarEstadoSesion();
     });
   </script>
 

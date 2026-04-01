@@ -1,4 +1,5 @@
 #NUEVO
+from django.shortcuts import render, redirect
 from .forms import FotoLegoForm
 from django.views.decorators.http import require_GET, require_POST
 import json
@@ -513,9 +514,9 @@ def profesor_actualizar_estado(request, sesion_id):
         if nueva_fase not in FASES_ORDEN:
             return JsonResponse({"ok": False, "error": "Pantalla inválida"}, status=400)
         sesion.fase_actual = nueva_fase
-#CAMBIO TIMERS
+#CAMBIAR TIMERS
     tiempos_por_fase = {
-        "f1_conocidos": 45,
+        "f1_conocidos": 180,
         "f1_pre_sopa": 0,
         "f1_sopa": 90,
         "f2_transicion": 0,
@@ -629,10 +630,10 @@ def profesor_siguiente_fase(request, sesion_id):
         Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
 
     sesion.fase_actual = nueva_fase
-#CAMBIO TIMERS
+#CAMBIAR TIMERS
 
     tiempos = {
-        "f1_conocidos": 120,
+        "f1_conocidos": 180,
         "f1_pre_sopa": 0,
         "f1_sopa": 90,
 
@@ -1333,19 +1334,43 @@ def desafios(request):
 
 
 
+
 @never_cache
 def bubblemap(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
         return redirect("registro")
 
+    # 🔒 Control de acceso por fase
     if not acceso_permitido(grupo, "bubblemap"):
         return redirect("pantalla_espera")
 
+    sesion = grupo.sesion
+
+    # 🔹 Desafío desde URL o sesión
+    desafio_id = request.GET.get("desafio")
+
+    if desafio_id:
+        request.session["desafio_id"] = desafio_id
+        request.session["desafio_nombre"] = grupo.desafio_nombre
+        request.session.modified = True
+
+    desafio_nombre = (
+        grupo.desafio_nombre
+        or request.session.get("desafio_nombre")
+        or "Desafío no seleccionado"
+    )
+
+    # ⏱️ Timer seguro
+    segundos = 180
+    if sesion and sesion.segundos_restantes is not None:
+        segundos = sesion.segundos_restantes
+
     return render(request, "bubblemap.html", {
         "grupo": grupo,
-        "desafio_nombre_actual": grupo.desafio_nombre or "Desafío no seleccionado",
-        "desafio_descripcion_actual": grupo.desafio_descripcion or "Aún no hay descripción disponible para este desafío.",
+        "sesion": sesion,
+        "desafio_nombre_actual": desafio_nombre,
+        "segundos_restantes": segundos,
     })
 
 def orden_presentacion_alumno(request):
@@ -1847,7 +1872,6 @@ def ranking_view(request):
     )
 
     rankings = []
-
     last_tokens = None
     current_rank = 0
     position = 0
@@ -1860,30 +1884,16 @@ def ranking_view(request):
             current_rank = position
             last_tokens = tokens
 
-        if current_rank == 1:
-            medal = "🏆"
-            podium_class = "podium-1"
-        elif current_rank == 2:
-            medal = "🥈"
-            podium_class = "podium-2"
-        elif current_rank == 3:
-            medal = "🥉"
-            podium_class = "podium-3"
-        else:
-            medal = ""
-            podium_class = ""
-
         rankings.append({
             "team_name": g.nombregrupo or f"Grupo {g.idgrupo}",
             "tokens": tokens,
             "is_me": g.idgrupo == grupo_actual.idgrupo,
             "rank": current_rank,
-            "medal": medal,
-            "podium_class": podium_class,
         })
 
     context = {
         "session": sesion,
+        "grupo": grupo_actual,
         "rankings": rankings,
     }
     return render(request, "ranking.html", context)
