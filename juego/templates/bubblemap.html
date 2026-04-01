@@ -13,19 +13,14 @@
     <h1>💭 Bubble Map — Genera tus ideas</h1>
     <p class="subtitle">Escribe palabras clave relacionadas con tu persona del desafío.</p>
 
-    <section class="desafio-panel">
-      <button type="button" class="desafio-toggle" id="desafioToggle">
-        <div class="desafio-toggle-head">
-          <span class="desafio-etiqueta">Desafío seleccionado</span>
-          <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
-        </div>
-        <span class="desafio-icono" id="desafioIcono">▼</span>
-      </button>
+    {% include "desafio_badge.html" %}
 
-      <div class="desafio-body" id="desafioBody" hidden>
-        <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
-      </div>
-    </section>
+    <div
+      id="bubblemap-desafio-data"
+      data-nombre="{{ desafio_nombre_actual|default:'Desafío no seleccionado'|escape }}"
+      data-descripcion="{{ desafio_descripcion_actual|default:'Aún no hay descripción disponible para este desafío.'|escape }}"
+      hidden
+    ></div>
 
     <div class="timer-wrap">
       <div class="timer-bubblemap" id="timer">03:00</div>
@@ -50,7 +45,7 @@
       id="routes"
       data-sesion-id="{{ sesion.idsesion }}"
       data-tiempo="{{ segundos_restantes|default:180 }}"
-    </div>
+    ></div>
   </main>
 
   <script>
@@ -98,23 +93,25 @@
         });
       });
 
-      const toggle = document.getElementById("desafioToggle");
-      const body = document.getElementById("desafioBody");
-      const icono = document.getElementById("desafioIcono");
+      /* ===== RELLENAR BADGE DEL DESAFÍO DESDE DJANGO ===== */
+      const dataNode = document.getElementById("bubblemap-desafio-data");
+      const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
+      const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
 
-      if (toggle && body && icono) {
-        toggle.addEventListener("click", () => {
-          const abierto = !body.hasAttribute("hidden");
+      const dbTitle = document.getElementById("dbTitle");
+      const dbShort = document.getElementById("dbShort");
+      const dbDesc = document.getElementById("dbDesc");
 
-          if (abierto) {
-            body.setAttribute("hidden", "hidden");
-            icono.textContent = "▼";
-          } else {
-            body.removeAttribute("hidden");
-            icono.textContent = "▲";
-          }
-        });
+      if (dbTitle) dbTitle.textContent = nombre;
+
+      if (dbShort) {
+        const corto = descripcion.length > 90
+          ? descripcion.slice(0, 90).trim() + "..."
+          : descripcion;
+        dbShort.textContent = corto;
       }
+
+      if (dbDesc) dbDesc.textContent = descripcion;
 
       const routesEl = document.getElementById("routes");
       const sesionId = routesEl?.dataset?.sesionId;

@@ -74,6 +74,8 @@ body{
   font-size: var(--fs-title);
   font-weight:800;
   color: var(--primary);
+  position: relative;
+  z-index: 15;
 }
 
 .subtitle{
@@ -165,19 +167,34 @@ body{
 
 .speech-bubble{
   position:absolute;
-  right: 30%;
-  bottom: 45%;
-  width: clamp(280px, 42vw, 460px);
+  right: 28%;
+  bottom: 38%;
+  width: clamp(300px, 42vw, 500px);
+  max-height: clamp(220px, 32vh, 320px);
   padding: 24px 26px 22px;
   border-radius: 18px;
   background: rgba(0, 140, 255, 0.12);
   border: 1.6px solid rgba(0, 180, 255, 0.8);
   backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
   box-shadow:
     0 0 20px rgba(0, 180, 255, .4),
     0 0 60px rgba(0, 100, 255, .3);
   transition: 0.25s ease;
   z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 220, 255, .6) transparent;
+}
+
+.speech-bubble::-webkit-scrollbar{
+  width: 8px;
+}
+
+.speech-bubble::-webkit-scrollbar-thumb{
+  background: rgba(0, 220, 255, .45);
+  border-radius: 999px;
 }
 
 .speech-bubble .subtitle,
@@ -187,6 +204,9 @@ body{
   font-size: clamp(14px, 1.4vw, 18px);
   text-align:left;
   text-shadow: 0 0 6px rgba(0, 220, 255, 0.6);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .speech-bubble::after{
@@ -200,11 +220,16 @@ body{
 }
 
 .pregunta-random{
+  display:block;
   margin-top:8px;
   font-weight:700;
   color:#ffffff;
   text-shadow: 0 0 8px rgba(0, 200, 255, 0.65);
   line-height: 1.45;
+  font-size: clamp(16px, 1.7vw, 28px);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .btn-random{
@@ -259,15 +284,16 @@ body{
 
 @media (max-width: 900px){
   .phone{
-    min-height: clamp(480px, 80vh, 640px);
+    min-height: clamp(520px, 82vh, 700px);
     padding: 32px 24px;
   }
 
   .speech-bubble{
     right: 50%;
-    bottom: 55%;
+    bottom: 48%;
     transform: translateX(50%);
-    width: min(90%, 450px);
+    width: min(90%, 500px);
+    max-height: 250px;
   }
 
   .speech-bubble::after{
@@ -297,9 +323,10 @@ body{
 
   .speech-bubble{
     right: 50%;
-    bottom: 60%;
+    bottom: 56%;
     transform: translateX(50%);
     width: 94%;
+    max-height: 220px;
     padding: 20px 18px;
     border-radius: 16px;
   }
@@ -333,8 +360,9 @@ body{
 
 @media (max-width: 380px){
   .speech-bubble{
-    bottom: 66%;
+    bottom: 60%;
     width: 92%;
+    max-height: 205px;
   }
 
   .phone::after{
@@ -345,7 +373,7 @@ body{
 
 @media (min-width: 1100px) and (max-width: 1900px){
   .speech-bubble{
-    bottom: 35% !important;
+    bottom: 35%;
   }
 }
 

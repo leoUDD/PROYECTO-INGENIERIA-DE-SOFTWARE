@@ -47,90 +47,38 @@ body{
   font-size: clamp(15px, 1.8vw, 22px);
 }
 
-.desafio-panel{
-  width: 100%;
-  max-width: 760px;
-  margin: 14px auto 14px;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 2px solid rgba(0, 200, 255, 0.35);
-  background: rgba(7, 38, 70, 0.78);
-  box-shadow: 0 10px 28px rgba(0,0,0,.22);
-}
-
-.desafio-toggle{
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: #fff;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  text-align: left;
-}
-
-.desafio-toggle-head{
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.desafio-etiqueta{
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #00c8ff;
-}
-
-.desafio-titulo{
-  font-size: 1.08rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.desafio-icono{
-  font-size: 1rem;
-  font-weight: 800;
-  color: #00c8ff;
-}
-
-.desafio-body{
-  border-top: 1px solid rgba(255,255,255,.12);
-  padding: 16px 18px 18px;
-}
-
-.desafio-descripcion{
-  margin: 0;
-  color: #d9e6f2;
-  line-height: 1.5;
-  font-size: 0.98rem;
+.db-badge{
+  position: relative;
+  z-index: 4;
 }
 
 .timer-wrap{
   width: 100%;
-  display:flex;
-  justify-content:center;
-  margin: 0 auto 18px;
+  display: flex;
+  justify-content: center;
+  margin: 6px auto 22px;
+  position: relative;
+  z-index: 3;
 }
 
 .timer-bubblemap{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  width: clamp(170px, 28vw, 240px);
-  height: clamp(64px, 10vw, 88px);
-  background:#0a0a0a;
-  color:#fff;
-  font-weight:800;
-  font-size: clamp(28px, 5vw, 38px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: clamp(180px, 36vw, 260px);
+  height: clamp(72px, 12vw, 98px);
+  background: #0a0a0a;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 40px);
   font-variant-numeric: tabular-nums;
-  letter-spacing:.04em;
-  border: clamp(3px, .8vw, 5px) solid #00d4ff;
-  border-radius:22px;
+  letter-spacing: .04em;
+  border: clamp(3px, .8vw, 6px) solid #00d4ff;
+  border-radius: 24px;
   box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset;
   text-shadow: 0 0 8px #00d4ff;
+  animation: neonPulse 1.2s ease-in-out infinite;
 }
 
 .bubbles{
@@ -320,24 +268,6 @@ body{
     margin-bottom: 14px;
   }
 
-  .desafio-panel{
-    margin: 10px auto 12px;
-    border-radius: 16px;
-  }
-
-  .desafio-toggle{
-    padding: 14px 14px;
-  }
-
-  .desafio-etiqueta{
-    font-size: .86rem;
-  }
-
-  .desafio-titulo{
-    font-size: .98rem;
-    line-height: 1.3;
-  }
-
   .timer-wrap{
     margin-bottom: 14px;
   }
@@ -385,5 +315,14 @@ body{
   *{
     animation:none !important;
     transition:none !important;
+  }
+}
+
+@keyframes neonPulse{
+  0%,100%{
+    box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset;
+  }
+  50%{
+    box-shadow: 0 0 40px #00ffff, 0 0 60px #00aaff inset;
   }
 }

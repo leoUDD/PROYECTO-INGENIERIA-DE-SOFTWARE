@@ -90,27 +90,7 @@
 
       if (dbDesc) dbDesc.textContent = descripcion;
 
-      function abrirDrawer() {
-        if (!dbDrawer || !dbToggle) return;
-        dbDrawer.hidden = false;
-        dbToggle.setAttribute("aria-expanded", "true");
-      }
 
-      function cerrarDrawer() {
-        if (!dbDrawer || !dbToggle) return;
-        dbDrawer.hidden = true;
-        dbToggle.setAttribute("aria-expanded", "false");
-      }
-
-      dbToggle?.addEventListener("click", () => {
-        if (dbDrawer?.hidden) {
-          abrirDrawer();
-        } else {
-          cerrarDrawer();
-        }
-      });
-
-      dbClose?.addEventListener("click", cerrarDrawer);
 
       btnLimpiar?.addEventListener("click", () => {
         const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");

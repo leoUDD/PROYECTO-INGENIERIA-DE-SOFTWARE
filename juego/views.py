@@ -1341,18 +1341,17 @@ def bubblemap(request):
     if not grupo:
         return redirect("registro")
 
-    # 🔒 Control de acceso por fase
     if not acceso_permitido(grupo, "bubblemap"):
         return redirect("pantalla_espera")
 
     sesion = grupo.sesion
 
-    # 🔹 Desafío desde URL o sesión
     desafio_id = request.GET.get("desafio")
 
     if desafio_id:
         request.session["desafio_id"] = desafio_id
         request.session["desafio_nombre"] = grupo.desafio_nombre
+        request.session["desafio_descripcion"] = getattr(grupo, "desafio_descripcion", "") or ""
         request.session.modified = True
 
     desafio_nombre = (
@@ -1361,7 +1360,12 @@ def bubblemap(request):
         or "Desafío no seleccionado"
     )
 
-    # ⏱️ Timer seguro
+    desafio_descripcion = (
+        getattr(grupo, "desafio_descripcion", None)
+        or request.session.get("desafio_descripcion")
+        or "Aún no hay descripción disponible para este desafío."
+    )
+
     segundos = 180
     if sesion and sesion.segundos_restantes is not None:
         segundos = sesion.segundos_restantes
@@ -1370,9 +1374,9 @@ def bubblemap(request):
         "grupo": grupo,
         "sesion": sesion,
         "desafio_nombre_actual": desafio_nombre,
+        "desafio_descripcion_actual": desafio_descripcion,
         "segundos_restantes": segundos,
     })
-
 def orden_presentacion_alumno(request):
     grupo = obtener_grupo_desde_session(request)
 
