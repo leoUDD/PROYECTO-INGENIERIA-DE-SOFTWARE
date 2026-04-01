@@ -5,6 +5,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     #NUEVO
+    path("presentar-pitch/", views.presentar_pitch, name="presentar_pitch"),
+    path("guardar-pitch/", views.guardar_pitch, name="guardar_pitch"),
     path("desbloquear-desafio/", views.desbloquear_desafio, name="desbloquear_desafio"),
     path("sopa/registrar-palabra/", views.registrar_palabra_sopa, name="registrar_palabra_sopa"),
     path("grupo/<int:grupo_id>/listo-ranking/", views.marcar_listo_ranking, name="marcar_listo_ranking"),

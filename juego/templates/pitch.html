@@ -3,106 +3,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Misión Emprende UDD — Pitch</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}" />
-  <style>
-.desafio-panel{
-  width: 100%;
-  max-width: 760px;
-  margin: 14px auto 22px;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 2px solid rgba(0, 200, 255, 0.35);
-  background: rgba(7, 38, 70, 0.92);
-  box-shadow: 0 10px 28px rgba(0,0,0,.22);
-}
 
-.desafio-toggle{
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: #fff;
-  padding: 16px 18px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  cursor: pointer;
-  text-align: left;
-}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-.desafio-toggle-head{
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-  flex: 1;
-}
-
-.desafio-etiqueta{
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #00c8ff;
-}
-
-.desafio-titulo{
-  font-size: 1.08rem;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1.35;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.desafio-icono{
-  font-size: 1rem;
-  font-weight: 800;
-  color: #00c8ff;
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-
-.desafio-body{
-  border-top: 1px solid rgba(255,255,255,.12);
-  padding: 16px 18px 18px;
-}
-
-.desafio-descripcion{
-  margin: 0;
-  color: #d9e6f2;
-  line-height: 1.55;
-  font-size: 0.98rem;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-  </style>
+  <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}">
 </head>
-<body>
-  <main class="pitch-editor" role="region" aria-label="Editor de Pitch">
-    
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
+  <main class="pitch-editor">
+
     <h1 class="title">¡Crea tu pitch!</h1>
-    <p class="subtitle">Escribe un pitch, o simplemente prepara algunas notas para tu presentación.</p>
+    <p class="subtitle">
+      Escribe un pitch, o simplemente prepara algunas notas para tu presentación.
+    </p>
 
-    <section class="desafio-panel">
-      <button type="button" class="desafio-toggle" id="desafioToggle">
-        <div class="desafio-toggle-head">
-          <span class="desafio-etiqueta">Desafío seleccionado</span>
-          <span class="desafio-titulo">
-            {{ request.session.desafio_nombre|default:"Desafío no seleccionado" }}
-          </span>
-        </div>
-        <span class="desafio-icono" id="desafioIcono">▼</span>
-      </button>
+    {% include "desafio_badge.html" %}
 
-      <div class="desafio-body" id="desafioBody" hidden>
-        <p class="desafio-descripcion">
-          {{ request.session.desafio_descripcion|default:"Aún no hay descripción disponible para este desafío." }}
-        </p>
-      </div>
-    </section>
+    <div
+      id="pitch-desafio-data"
+      data-nombre="{{ desafio_nombre_actual|default:'Desafío no seleccionado'|escape }}"
+      data-descripcion="{{ desafio_descripcion_actual|default:'Aún no hay descripción disponible para este desafío.'|escape }}"
+      hidden
+    ></div>
 
     <section class="tips">
       <h2>Consejos para un buen pitch</h2>
@@ -115,46 +41,86 @@
     </section>
 
     <form class="pitch-form" onsubmit="return false;">
-      <textarea id="pitch-text" name="pitch-text" placeholder="Escribe tu pitch, o simplemente unas notas…" rows="10"></textarea>
+      <textarea
+        id="pitch-text"
+        name="pitch-text"
+        placeholder="Escribe tu pitch, o simplemente unas notas..."
+        rows="10"
+      >{{ pitch_guardado }}</textarea>
+
       <div class="actions">
         <button type="button" class="btn ghost" id="btnLimpiar">Limpiar</button>
       </div>
-      <p id="saveHint" class="save-hint" aria-live="polite">Los cambios se guardan automáticamente.</p>
+
+      <p id="saveHint" class="save-hint">Los cambios se guardan automáticamente.</p>
     </form>
   </main>
-  
+
+  <script>
+    const GUARDAR_PITCH_URL = "{% url 'guardar_pitch' %}";
+    const CSRF_TOKEN = "{{ csrf_token }}";
+  </script>
+
   <script src="{% static 'js/pitch_edit.js' %}"></script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggle = document.getElementById("desafioToggle");
-    const body = document.getElementById("desafioBody");
-    const icono = document.getElementById("desafioIcono");
-    const textarea = document.getElementById("pitch-text");
-    const btnLimpiar = document.getElementById("btnLimpiar");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const dataNode = document.getElementById("pitch-desafio-data");
+      const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
+      const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
 
-    if (toggle && body && icono) {
-      toggle.addEventListener("click", () => {
-        const abierto = !body.hasAttribute("hidden");
-        if (abierto) {
-          body.setAttribute("hidden", "hidden");
-          icono.textContent = "▼";
+      const dbToggle = document.getElementById("dbToggle");
+      const dbDrawer = document.getElementById("dbDrawer");
+      const dbTitle = document.getElementById("dbTitle");
+      const dbShort = document.getElementById("dbShort");
+      const dbDesc = document.getElementById("dbDesc");
+      const dbClose = document.getElementById("dbClose");
+
+      const textarea = document.getElementById("pitch-text");
+      const btnLimpiar = document.getElementById("btnLimpiar");
+
+      if (dbTitle) dbTitle.textContent = nombre;
+
+      if (dbShort) {
+        const corto = descripcion.length > 90
+          ? descripcion.slice(0, 90).trim() + "..."
+          : descripcion;
+        dbShort.textContent = corto;
+      }
+
+      if (dbDesc) dbDesc.textContent = descripcion;
+
+      function abrirDrawer() {
+        if (!dbDrawer || !dbToggle) return;
+        dbDrawer.hidden = false;
+        dbToggle.setAttribute("aria-expanded", "true");
+      }
+
+      function cerrarDrawer() {
+        if (!dbDrawer || !dbToggle) return;
+        dbDrawer.hidden = true;
+        dbToggle.setAttribute("aria-expanded", "false");
+      }
+
+      dbToggle?.addEventListener("click", () => {
+        if (dbDrawer?.hidden) {
+          abrirDrawer();
         } else {
-          body.removeAttribute("hidden");
-          icono.textContent = "▲";
+          cerrarDrawer();
         }
       });
-    }
 
-    btnLimpiar?.addEventListener("click", () => {
-      const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");
-      if (!confirmar) return;
+      dbClose?.addEventListener("click", cerrarDrawer);
 
-      textarea.value = "";
-      textarea.dispatchEvent(new Event("input"));
+      btnLimpiar?.addEventListener("click", () => {
+        const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");
+        if (!confirmar) return;
+
+        textarea.value = "";
+        textarea.dispatchEvent(new Event("input"));
+      });
     });
-  });
-</script>
+  </script>
 
   {% include "includes/sincronizacion_fase.html" %}
 </body>

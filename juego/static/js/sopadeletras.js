@@ -3,7 +3,6 @@ const words = ["IDEA", "EQUIPO", "NEGOCIO", "CREATIVIDAD", "LIDERAZGO"];
 const gridEl = document.getElementById("grid");
 const statusEl = document.getElementById("status");
 
-
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -62,11 +61,9 @@ async function registrarSopaCompletada() {
   }
 }
 
-
 document.documentElement.style.setProperty("--cols", gridSize);
 document.documentElement.style.setProperty("--rows", gridSize);
 
-// 8 direcciones: horizontales, verticales y diagonales
 const DIRS = [
   [1, 0], [-1, 0], [0, 1], [0, -1],
   [1, 1], [-1, -1], [1, -1], [-1, 1]
@@ -76,9 +73,21 @@ let board = [];
 let mouseDown = false;
 let selection = [];
 let timerInterval = null;
+let syncInterval = null;
 let gameEnded = false;
-const routesEl = document.getElementById('routes');
-let timeLeft = Number(routesEl?.dataset?.tiempo || 300);
+
+const routesEl = document.getElementById("routes");
+let timeLeft = Number(
+  routesEl?.dataset?.tiempoInicial ||
+  routesEl?.dataset?.tiempo ||
+  document.body?.dataset?.tiempoInicial ||
+  300
+);
+
+if (Number.isNaN(timeLeft) || timeLeft <= 0) {
+  timeLeft = 300;
+}
+
 let timerStartedByProfesor = false;
 let ultimaFaseDetectada = null;
 
@@ -117,6 +126,7 @@ function render() {
   if (!gridEl) return;
 
   gridEl.innerHTML = "";
+
   for (let r = 0; r < gridSize; r++) {
     for (let c = 0; c < gridSize; c++) {
       const cell = document.createElement("div");
@@ -125,13 +135,35 @@ function render() {
       cell.dataset.r = r;
       cell.dataset.c = c;
 
-      cell.addEventListener("mousedown", (e) => { e.preventDefault(); handleDown(e); });
-      cell.addEventListener("mouseover", (e) => { e.preventDefault(); handleOver(e); });
-      cell.addEventListener("mouseup",   (e) => { e.preventDefault(); handleUp(e); });
+      cell.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        handleDown(e);
+      });
 
-      cell.addEventListener("touchstart", (e) => { e.preventDefault(); handleDown(convertTouch(e)); }, { passive: false });
-      cell.addEventListener("touchmove",  (e) => { e.preventDefault(); handleOver(convertTouch(e)); }, { passive: false });
-      cell.addEventListener("touchend",   (e) => { e.preventDefault(); handleUp(); }, { passive: false });
+      cell.addEventListener("mouseover", (e) => {
+        e.preventDefault();
+        handleOver(e);
+      });
+
+      cell.addEventListener("mouseup", (e) => {
+        e.preventDefault();
+        handleUp(e);
+      });
+
+      cell.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        handleDown(convertTouch(e));
+      }, { passive: false });
+
+      cell.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        handleOver(convertTouch(e));
+      }, { passive: false });
+
+      cell.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        handleUp();
+      }, { passive: false });
 
       gridEl.appendChild(cell);
     }
@@ -157,6 +189,7 @@ function handleDown(e) {
   if (e.button !== 0) return;
   if (!e.currentTarget || !e.currentTarget.dataset) return;
   if (gameEnded) return;
+
   mouseDown = true;
   clearTempSelection();
   addToSelection(e.currentTarget);
@@ -260,7 +293,6 @@ function checkSelection() {
   }
 }
 
-// ===== Utilidades para la lista =====
 function getWordListItem(word) {
   let li = document.querySelector(`#word-list li[data-word="${word}"]`);
   if (li) return li;
@@ -297,12 +329,16 @@ function allFound() {
   return [...list].every(li => li.classList.contains("found"));
 }
 
-/* ===== Cierre unificado del juego ===== */
 function endGame(won, alarmAudio = null) {
   if (gameEnded) return;
 
   gameEnded = true;
   pauseTimerLocally();
+
+  if (syncInterval) {
+    clearInterval(syncInterval);
+    syncInterval = null;
+  }
 
   if (alarmAudio && !won) {
     try {
@@ -318,7 +354,6 @@ function endGame(won, alarmAudio = null) {
   }
 }
 
-/* ===== Modales ===== */
 function showWinModal() {
   if (!gameEnded) return;
 
@@ -331,8 +366,10 @@ function showWinModal() {
 
   const victoryAudio = document.getElementById("victory-sound");
   if (victoryAudio) {
-    victoryAudio.currentTime = 0;
-    victoryAudio.play();
+    try {
+      victoryAudio.currentTime = 0;
+      victoryAudio.play();
+    } catch (_) {}
   }
 
   setTimeout(() => btn.focus(), 50);
@@ -341,7 +378,7 @@ function showWinModal() {
 
 async function goNext() {
   const routes = document.getElementById("routes");
-  const url = routes?.dataset.sopaCompletadaUrl;
+  const url = routes?.dataset?.sopaCompletadaUrl;
 
   if (!url) return;
 
@@ -361,16 +398,17 @@ function showTimeUpModal() {
   btn.addEventListener("click", goNext, { once: true });
 }
 
-/* ===== Temporizador ===== */
 function renderTimer() {
   const timerEl = document.getElementById("timer");
   if (!timerEl) return;
 
-  const min = Math.floor(timeLeft / 60);
-  const sec = timeLeft % 60;
+  const tiempoSeguro = Math.max(0, Number(timeLeft) || 0);
+  const min = Math.floor(tiempoSeguro / 60);
+  const sec = tiempoSeguro % 60;
+
   timerEl.textContent = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
 
-  if (timeLeft <= 10) {
+  if (tiempoSeguro <= 10) {
     timerEl.classList.add("low-time");
   } else {
     timerEl.classList.remove("low-time");
@@ -407,7 +445,6 @@ function startTimer() {
   }, 1000);
 }
 
-/* ===== Ajuste de grilla responsiva ===== */
 (function makeGridResponsive() {
   const root = document.documentElement;
 
@@ -460,7 +497,6 @@ function startTimer() {
   adjustGrid();
 })();
 
-/* ===== Sincronización con profesor ===== */
 function obtenerSesionId() {
   const routes = document.getElementById("routes");
   const sesionId =
@@ -486,10 +522,8 @@ function procesarEstadoSesion(data) {
 
   const backendSeconds = Number(data.segundosRestantes);
 
-  // Solo sincronizar el número cuando el timer todavía no parte
-  // o cuando el profesor lo deja en pausa.
   if (!timerStartedByProfesor || !data.timerCorriendo) {
-    if (!Number.isNaN(backendSeconds)) {
+    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
       timeLeft = backendSeconds;
       renderTimer();
     }
@@ -498,7 +532,7 @@ function procesarEstadoSesion(data) {
   if (!timerStartedByProfesor && data.timerCorriendo) {
     timerStartedByProfesor = true;
 
-    if (!Number.isNaN(backendSeconds)) {
+    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
       timeLeft = backendSeconds;
       renderTimer();
     }
@@ -510,13 +544,12 @@ function procesarEstadoSesion(data) {
   if (timerStartedByProfesor && !data.timerCorriendo) {
     pauseTimerLocally();
 
-    if (!Number.isNaN(backendSeconds)) {
+    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
       timeLeft = backendSeconds;
       renderTimer();
     }
 
     timerStartedByProfesor = false;
-    return;
   }
 }
 
@@ -525,7 +558,13 @@ async function revisarEstadoProfesor() {
     const sesionId = obtenerSesionId();
     if (!sesionId) return;
 
-    const res = await fetch(`/sesion/${sesionId}/estado/`);
+    const res = await fetch(`/sesion/${sesionId}/estado/`, {
+      credentials: "same-origin",
+      cache: "no-store"
+    });
+
+    if (!res.ok) return;
+
     const data = await res.json();
     procesarEstadoSesion(data);
   } catch (error) {
@@ -533,7 +572,6 @@ async function revisarEstadoProfesor() {
   }
 }
 
-/* ===== Inicio ===== */
 (function init() {
   createFixedBoard();
   fillRandom();
@@ -541,7 +579,6 @@ async function revisarEstadoProfesor() {
   updateStatus();
   renderTimer();
 
-  // Polling propio: así no dependes de otro include
-  setInterval(revisarEstadoProfesor, 1500);
   revisarEstadoProfesor();
+  syncInterval = setInterval(revisarEstadoProfesor, 1500);
 })();

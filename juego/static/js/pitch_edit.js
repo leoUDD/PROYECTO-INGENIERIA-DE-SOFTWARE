@@ -1,34 +1,67 @@
 (function () {
-  const KEY = 'pitchTexto';
-  const textarea = document.getElementById('pitch-text');
-  const btnPresentar = document.getElementById('btnPresentar');
-  const btnLimpiar = document.getElementById('btnLimpiar');
+  const textarea = document.getElementById("pitch-text");
+  const btnLimpiar = document.getElementById("btnLimpiar");
+  const hint = document.getElementById("saveHint");
 
-  try {
-    const prev = sessionStorage.getItem(KEY);
-    if (prev) textarea.value = prev;
-  } catch (_) {}
+  if (!textarea) return;
 
-  let saveTimer;
-  textarea.addEventListener('input', () => {
-    try { sessionStorage.setItem(KEY, textarea.value); } catch (_) {}
-    // hint sutil
-    const hint = document.getElementById('saveHint');
-    if (hint) {
-      hint.textContent = 'Guardado…';
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => hint.textContent = 'Los cambios se guardan automáticamente.', 800);
+  let saveTimer = null;
+  let debounceTimer = null;
+  let ultimoTextoGuardado = textarea.value || "";
+
+  function setHint(texto) {
+    if (!hint) return;
+    hint.textContent = texto;
+  }
+
+  async function guardarEnBackend(texto) {
+    const res = await fetch(GUARDAR_PITCH_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": CSRF_TOKEN,
+      },
+      body: JSON.stringify({
+        pitch_texto: texto,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || "No se pudo guardar el pitch.");
     }
+
+    ultimoTextoGuardado = texto;
+    setHint("Guardado automáticamente.");
+  }
+
+  function programarGuardado() {
+    const textoActual = textarea.value;
+
+    setHint("Guardando...");
+
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      try {
+        await guardarEnBackend(textoActual);
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          setHint("Los cambios se guardan automáticamente.");
+        }, 1000);
+      } catch (error) {
+        console.error("Error guardando pitch:", error);
+        setHint("Error al guardar. Intenta nuevamente.");
+      }
+    }, 500);
+  }
+
+  textarea.addEventListener("input", () => {
+    if (textarea.value === ultimoTextoGuardado) return;
+    programarGuardado();
   });
 
-  btnLimpiar.addEventListener('click', () => {
-    textarea.value = '';
-    try { sessionStorage.removeItem(KEY); } catch (_) {}
-    const hint = document.getElementById('saveHint');
-    if (hint) hint.textContent = 'Contenido borrado.';
-  });
-
-  btnPresentar.addEventListener('click', () => {
-    window.location.href = PRESENTAR_URL;
+  btnLimpiar?.addEventListener("click", () => {
+    setHint("Borrando contenido...");
   });
 })();

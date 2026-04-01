@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -84,14 +85,12 @@
             </p>
 
             <div class="acciones-finales">
-              {% if submitted %}
-               <div class="alert alert-success">
-                  Ya terminaron de evaluar a todos los equipos.
-                </div>
-                <a href="{% url 'mision_cumplida' %}" class="btn btn-primary">
-                   Continuar
-                </a>
-              {% endif %}
+              <div class="alert alert-success">
+                Ya terminaron de evaluar a todos los equipos.
+              </div>
+              <a href="{% url 'mision_cumplida' %}" class="btn btn-primary">
+                Continuar
+              </a>
             </div>
 
           {% else %}
@@ -112,7 +111,7 @@
               {% endif %}
             </div>
 
-            <form method="post" id="peerReviewForm">
+            <form method="post" id="peerReviewForm" action="{% url 'peer_review' %}">
               {% csrf_token %}
 
               <div class="mb-4">
@@ -131,8 +130,8 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="target_team_id">Equipo a evaluar</label>
-                <select name="target_team_id" id="target_team_id" class="form-select" required>
+                <label class="form-label fw-semibold" for="team_id">Equipo a evaluar</label>
+                <select name="team_id" id="team_id" class="form-select" required>
                   <option value="" selected disabled>Selecciona un equipo</option>
                   {% for team in target_teams %}
                     <option value="{{ team.idgrupo }}">

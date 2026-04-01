@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_presentar_pitch.css' %}">
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="pitch-container" role="main" aria-labelledby="page-title">
     <header class="header">
       <div>
@@ -21,7 +21,11 @@
       <article class="panel">
         <h3>Pitch de mi equipo</h3>
         <div id="textoGuardado" class="pitch-text" aria-live="polite">
-          <em>Buscando contenido guardado…</em>
+          {% if miPitch %}
+            <div style="white-space: pre-wrap;">{{ miPitch }}</div>
+          {% else %}
+            <em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>
+          {% endif %}
         </div>
       </article>
 
@@ -94,10 +98,10 @@
     }
 
     function renderEstadoPresentacion(data) {
-        if (data.faseActual && data.faseActual !== "f4_presentacion_pitch") {
-    window.location.replace(data.rutaAlumno || "{% url 'pantalla_espera' %}");
-    return;
-  }
+      if (data.faseActual && data.faseActual !== "f4_presentacion_pitch") {
+        window.location.replace(data.rutaAlumno || "{% url 'pantalla_espera' %}");
+        return;
+      }
 
       const grupoActual = data.grupoActual;
 
@@ -105,6 +109,7 @@
       const orden = document.getElementById("grupoActualAlumnoOrden");
       const foto = document.getElementById("grupoActualAlumnoFoto");
       const timer = document.getElementById("timer");
+      const textoGuardado = document.getElementById("textoGuardado");
 
       if (nombre) {
         nombre.textContent = grupoActual ? grupoActual.nombre : "Esperando sorteo...";
@@ -131,8 +136,14 @@
         timer.dataset.seconds = Number(data.segundosRestantes || 0);
       }
 
-      if (window.presentarPitchUI && typeof window.presentarPitchUI.actualizarPitchPropio === "function") {
-        window.presentarPitchUI.actualizarPitchPropio(data.miPitch || "");
+      if (textoGuardado) {
+        const miPitch = (data.miPitch || "").trim();
+        textoGuardado.innerHTML = miPitch
+          ? `<div style="white-space: pre-wrap;">${miPitch
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")}</div>`
+          : `<em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>`;
       }
 
       renderOrdenAlumno(data.ordenPitch, grupoActual);
@@ -144,6 +155,11 @@
           credentials: "same-origin",
           cache: "no-store"
         });
+
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          return;
+        }
 
         const data = await res.json();
 

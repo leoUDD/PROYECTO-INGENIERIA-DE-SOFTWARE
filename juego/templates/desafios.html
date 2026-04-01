@@ -14,6 +14,10 @@
       box-shadow: 0 0 0 4px rgba(0, 200, 255, 0.12);
     }
 
+    .challenge-card.bloqueada {
+      opacity: 0.88;
+    }
+
     .estado-seleccion {
       margin: 18px auto 0;
       max-width: 860px;
@@ -39,9 +43,27 @@
       color: #ffe29a;
       font-weight: 700;
     }
+
+    .estado-error {
+      margin: 12px auto 0;
+      max-width: 860px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 77, 77, 0.12);
+      border: 1px solid rgba(255, 77, 77, 0.35);
+      color: #ffd8d8;
+      display: none;
+    }
+
+    .estado-error.visible {
+      display: block;
+    }
   </style>
 </head>
-<body>
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-grupo-id="{{ grupo.idgrupo }}"
+>
   <main class="selector-container" role="main" aria-labelledby="page-title">
     <header class="header">
       <h1 id="page-title">{{ theme.title|default:slug|title }}</h1>
@@ -74,12 +96,12 @@
     <section class="challenges-grid" aria-label="Desafíos disponibles">
       {% for challenge in theme.challenges %}
       <article
-        class="challenge-card"
+        class="challenge-card {% if desafio_confirmado and desafio_id_actual == challenge.id|stringformat:'s' %}seleccionado bloqueada{% endif %}"
         id="card-{{ challenge.id }}"
         tabindex="0"
         data-id="{{ challenge.id }}"
-        data-title="{{ challenge.name }}"
-        data-desc="{{ challenge.desc }}"
+        data-title="{{ challenge.name|escape }}"
+        data-desc="{{ challenge.desc|escape }}"
         data-slug="{{ slug }}"
       >
         <div class="content">
@@ -116,6 +138,8 @@
         Esperando a que el profesor avance a la siguiente etapa.
       </div>
     </div>
+
+    <div id="estadoError" class="estado-error" aria-live="polite"></div>
   </main>
 
   <div
@@ -145,11 +169,13 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const botones = document.querySelectorAll("[data-desafio-id]");
+      const cards = document.querySelectorAll(".challenge-card");
       const estadoSeleccion = document.getElementById("estadoSeleccion");
       const nombreDesafio = document.getElementById("nombreDesafioSeleccionado");
       const descripcionDesafio = document.getElementById("descripcionDesafioSeleccionado");
       const btnCambiar = document.getElementById("btnCambiarDesafio");
       const desafioData = document.getElementById("desafio-data");
+      const estadoError = document.getElementById("estadoError");
 
       const desafioConfirmado = desafioData?.dataset?.desafioConfirmado === "true";
       const desafioIdActual = desafioData?.dataset?.desafioIdActual || "";
@@ -159,21 +185,45 @@
       let enviando = false;
       let bloqueado = desafioConfirmado;
 
+      function mostrarError(texto) {
+        if (!estadoError) return;
+        if (!texto) {
+          estadoError.classList.remove("visible");
+          estadoError.textContent = "";
+          return;
+        }
+        estadoError.textContent = texto;
+        estadoError.classList.add("visible");
+      }
+
       function marcarSeleccion(cardId) {
-        document.querySelectorAll(".challenge-card").forEach((card) => {
+        cards.forEach((card) => {
           card.classList.remove("seleccionado");
         });
 
         const card = document.getElementById(cardId);
-        if (card) card.classList.add("seleccionado");
+        if (card) {
+          card.classList.add("seleccionado");
+        }
       }
 
       function aplicarModoBloqueado(desafioId, nombre, descripcion) {
         bloqueado = true;
+        mostrarError("");
 
         botones.forEach((b) => {
+          const esElegido = b.dataset.desafioId === String(desafioId);
           b.disabled = true;
-          b.textContent = b.dataset.desafioId === String(desafioId) ? "Confirmado" : "Elegir";
+          b.textContent = esElegido ? "Confirmado" : "Elegir";
+        });
+
+        cards.forEach((card) => {
+          if (String(card.dataset.id) === String(desafioId)) {
+            card.classList.add("seleccionado", "bloqueada");
+          } else {
+            card.classList.remove("seleccionado");
+            card.classList.add("bloqueada");
+          }
         });
 
         if (nombreDesafio) nombreDesafio.textContent = nombre || "-";
@@ -185,10 +235,20 @@
 
       function aplicarModoEditable() {
         bloqueado = false;
+        mostrarError("");
+
         botones.forEach((b) => {
           b.disabled = false;
           b.textContent = "Elegir";
         });
+
+        cards.forEach((card) => {
+          card.classList.remove("bloqueada", "seleccionado");
+        });
+
+        if (estadoSeleccion) {
+          estadoSeleccion.classList.remove("visible");
+        }
       }
 
       if (desafioConfirmado) {
@@ -204,13 +264,20 @@
           if (enviando || bloqueado) return;
 
           const desafioId = btn.dataset.desafioId;
-          if (!desafioId) return;
+          const card = btn.closest(".challenge-card");
 
-          if (!confirm("¿Confirmar este desafío para tu equipo?")) {
+          if (!desafioId || !card) return;
+
+          const nombre = card.dataset.title || "";
+          const descripcion = card.dataset.desc || "";
+
+          if (!confirm(`¿Confirmar el desafío "${nombre}" para tu equipo?`)) {
             return;
           }
 
           enviando = true;
+          mostrarError("");
+
           botones.forEach((b) => {
             b.disabled = true;
           });
@@ -226,7 +293,8 @@
               },
               body: JSON.stringify({
                 desafio_id: desafioId
-              })
+              }),
+              cache: "no-store"
             });
 
             const data = await res.json();
@@ -242,7 +310,7 @@
             );
           } catch (error) {
             console.error("Error guardando desafío:", error);
-            alert(error.message || "Hubo un problema al guardar el desafío.");
+            mostrarError(error.message || "Hubo un problema al guardar el desafío.");
             aplicarModoEditable();
           } finally {
             enviando = false;
@@ -264,7 +332,8 @@
               "X-CSRFToken": getCookie("csrftoken"),
               "X-Requested-With": "XMLHttpRequest"
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({}),
+            cache: "no-store"
           });
 
           const data = await res.json();
@@ -274,15 +343,10 @@
           }
 
           aplicarModoEditable();
-          document.querySelectorAll(".challenge-card").forEach((card) => {
-            card.classList.remove("seleccionado");
-          });
-
-          if (estadoSeleccion) estadoSeleccion.classList.remove("visible");
           location.reload();
         } catch (error) {
-          console.error(error);
-          alert(error.message || "No se pudo cambiar el desafío.");
+          console.error("Error desbloqueando desafío:", error);
+          mostrarError(error.message || "No se pudo cambiar el desafío.");
         }
       });
     });

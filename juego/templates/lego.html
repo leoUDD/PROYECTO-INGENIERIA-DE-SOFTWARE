@@ -187,7 +187,10 @@
     }
   </style>
 </head>
-<body>
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-tiempo-inicial="{{ tiempo_inicial_lego|default:15 }}"
+>
   <main class="phone">
 
     <img src="{% static 'images/Lego-logo.png' %}" class="logo" alt="Lego logo">
@@ -198,17 +201,13 @@
       <button type="button" class="desafio-toggle" id="desafioToggle">
         <div class="desafio-toggle-head">
           <span class="desafio-etiqueta">Desafío seleccionado</span>
-          <span class="desafio-titulo">
-            {{ request.session.desafio_nombre|default:"Desafío no seleccionado" }}
-          </span>
+          <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
         </div>
         <span class="desafio-icono" id="desafioIcono">▼</span>
       </button>
 
       <div class="desafio-body" id="desafioBody" hidden>
-        <p class="desafio-descripcion">
-          {{ request.session.desafio_descripcion|default:"Aún no hay descripción disponible para este desafío." }}
-        </p>
+        <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
       </div>
     </section>
 
@@ -307,29 +306,129 @@
 
   <script>
     const alarmAudio = document.getElementById("alarm-audio");
-    let timeLeft = 15;
     const timerElement = document.getElementById("timer");
     const modalFin = document.getElementById("modal-fin");
 
-    function updateTimer() {
-      const minutes = Math.floor(timeLeft / 60);
-      const seconds = timeLeft % 60;
-      timerElement.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    let timeLeft = Number(document.body.dataset.tiempoInicial || 15);
+    let timerInterval = null;
+    let timerStartedByProfesor = false;
+    let modalMostrado = false;
 
-      if (timeLeft > 0) {
-        timeLeft--;
-      } else {
+    function renderTimer() {
+      const segundos = Math.max(0, Number(timeLeft) || 0);
+      const minutes = Math.floor(segundos / 60);
+      const seconds = segundos % 60;
+      timerElement.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    }
+
+    function pauseTimerLocally() {
+      if (timerInterval) {
         clearInterval(timerInterval);
-        try {
-          alarmAudio.currentTime = 0;
-          alarmAudio.play();
-        } catch (e) {}
-        modalFin.style.display = "flex";
+        timerInterval = null;
       }
     }
 
-    const timerInterval = setInterval(updateTimer, 1000);
-    updateTimer();
+    function mostrarModalFin() {
+      if (modalMostrado) return;
+      modalMostrado = true;
+
+      try {
+        alarmAudio.currentTime = 0;
+        alarmAudio.play();
+      } catch (e) {}
+
+      modalFin.style.display = "flex";
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+
+      renderTimer();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        renderTimer();
+
+        if (timeLeft <= 0) {
+          pauseTimerLocally();
+          mostrarModalFin();
+        }
+      }, 1000);
+    }
+
+    function obtenerSesionId() {
+      return document.body.dataset.sesionId;
+    }
+
+    function procesarEstadoSesion(data) {
+      if (!data) return;
+
+      if (data.faseActual && data.faseActual !== "f3_lego") {
+        if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+          window.location.href = data.rutaAlumno;
+        }
+        return;
+      }
+
+      const backendSeconds = Number(data.segundosRestantes);
+
+      if (!timerStartedByProfesor || !data.timerCorriendo) {
+        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+          timeLeft = backendSeconds;
+          renderTimer();
+        }
+      }
+
+      if (!timerStartedByProfesor && data.timerCorriendo) {
+        timerStartedByProfesor = true;
+
+        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+          timeLeft = backendSeconds;
+          renderTimer();
+        }
+
+        startTimer();
+        return;
+      }
+
+      if (timerStartedByProfesor && !data.timerCorriendo) {
+        pauseTimerLocally();
+
+        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+          timeLeft = backendSeconds;
+          renderTimer();
+        }
+
+        timerStartedByProfesor = false;
+      }
+
+      if (Number(data.segundosRestantes) <= 0) {
+        mostrarModalFin();
+      }
+    }
+
+    async function revisarEstadoProfesor() {
+      try {
+        const sesionId = obtenerSesionId();
+        if (!sesionId) return;
+
+        const res = await fetch(`/sesion/${sesionId}/estado/`, {
+          credentials: "same-origin",
+          cache: "no-store"
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        procesarEstadoSesion(data);
+      } catch (error) {
+        console.error("Error sincronizando lego:", error);
+      }
+    }
+
+    renderTimer();
+    revisarEstadoProfesor();
+    setInterval(revisarEstadoProfesor, 1500);
   </script>
 
   <script>

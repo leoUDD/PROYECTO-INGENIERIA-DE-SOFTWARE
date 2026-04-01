@@ -10,29 +10,75 @@
 <body>
   <main class="ranking-scene">
     <section class="carrera-wrap" id="carreraWrap">
-      <h1 class="titulo">Resultados finales</h1>
-      <p class="subtitulo">Cada equipo dio lo mejor de sí. Veamos el cierre final.</p>
+      <h1 class="titulo">Gran final</h1>
+      <p class="subtitulo">Último tramo. Todos aceleran. La meta está a la vista.</p>
 
-      <div class="carril">
-        <span class="nombre-equipo">{{ ranking.0.nombregrupo }}</span>
-        <div class="pista"><div class="barra barra-1" id="barra1"></div></div>
+      <div class="race-badges">
+        <span class="race-badge">EN VIVO</span>
+        <span class="race-badge">PHOTO FINISH</span>
+        <span class="race-badge">MÁXIMA INTENSIDAD</span>
       </div>
 
-      <div class="carril">
-        <span class="nombre-equipo">{{ ranking.1.nombregrupo|default:"Equipo 2" }}</span>
-        <div class="pista"><div class="barra barra-2" id="barra2"></div></div>
+      <div class="hud-row">
+        <div class="hud-pill">🏁 Tramo final</div>
+        <div class="hud-pill">⚡ Sprint decisivo</div>
+        <div class="hud-pill">🎯 Solo un ganador</div>
       </div>
 
-      <div class="carril">
-        <span class="nombre-equipo">{{ ranking.2.nombregrupo|default:"Equipo 3" }}</span>
-        <div class="pista"><div class="barra barra-3" id="barra3"></div></div>
+      <div class="camera-frame">
+        <div class="speed-lines"></div>
+        <div class="flash-overlay" id="flashOverlay"></div>
+
+        <div class="track-world" id="trackWorld">
+          <div class="meta-glow"></div>
+          <div class="meta-line"></div>
+
+          <div class="carril carril-race">
+            <span class="nombre-equipo">{{ ranking.0.nombregrupo|default:"Equipo 1" }}</span>
+            <div class="pista">
+              <div class="lane-stripes"></div>
+              <div class="barra barra-1" id="barra1"></div>
+
+              <div class="runner runner-1" id="runner1">
+                <div class="runner-flame"></div>
+                <div class="runner-core">{{ ranking.0.nombregrupo|default:"Equipo 1" }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="carril carril-race">
+            <span class="nombre-equipo">{{ ranking.1.nombregrupo|default:"Equipo 2" }}</span>
+            <div class="pista">
+              <div class="lane-stripes"></div>
+              <div class="barra barra-2" id="barra2"></div>
+
+              <div class="runner runner-2" id="runner2">
+                <div class="runner-flame"></div>
+                <div class="runner-core">{{ ranking.1.nombregrupo|default:"Equipo 2" }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="carril carril-race">
+            <span class="nombre-equipo">{{ ranking.2.nombregrupo|default:"Equipo 3" }}</span>
+            <div class="pista">
+              <div class="lane-stripes"></div>
+              <div class="barra barra-3" id="barra3"></div>
+
+              <div class="runner runner-3" id="runner3">
+                <div class="runner-flame"></div>
+                <div class="runner-core">{{ ranking.2.nombregrupo|default:"Equipo 3" }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="ganador-overlay" id="ganadorOverlay">
       <div class="ganador-box">
         <p class="ganador-label">Ganador</p>
-        <h2 class="ganador-nombre">{{ ranking.0.nombregrupo }}</h2>
+        <h2 class="ganador-nombre">{{ ranking.0.nombregrupo|default:"Equipo 1" }}</h2>
       </div>
     </section>
 
@@ -47,7 +93,7 @@
 
         <div class="puesto puesto-1">
           <div class="caja">1</div>
-          <div class="equipo">{{ ranking.0.nombregrupo }}</div>
+          <div class="equipo">{{ ranking.0.nombregrupo|default:"Equipo 1" }}</div>
         </div>
 
         <div class="puesto puesto-3">
@@ -72,77 +118,109 @@
 
     <audio id="audioCelebracion" src="{% static 'sounds/celebracion.mp3' %}" preload="auto"></audio>
   </main>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const barras = [
-      { el: document.getElementById("barra1"), pos: 0, vel: 0.22 },
-      { el: document.getElementById("barra2"), pos: 0, vel: 0.18 },
-      { el: document.getElementById("barra3"), pos: 0, vel: 0.16 }
-    ];
 
-    const overlay = document.getElementById("ganadorOverlay");
-    const podio = document.getElementById("podioWrap");
-    const carrera = document.getElementById("carreraWrap");
-    const audio = document.getElementById("audioCelebracion");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const carrera = document.getElementById("carreraWrap");
+      const overlay = document.getElementById("ganadorOverlay");
+      const podio = document.getElementById("podioWrap");
+      const audio = document.getElementById("audioCelebracion");
+      const trackWorld = document.getElementById("trackWorld");
+      const flashOverlay = document.getElementById("flashOverlay");
 
-    let frame = 0;
-    let terminado = false;
+      const racers = [
+        { barra: document.getElementById("barra1"), runner: document.getElementById("runner1"), pos: 9, phase: 0.0 },
+        { barra: document.getElementById("barra2"), runner: document.getElementById("runner2"), pos: 8, phase: 1.4 },
+        { barra: document.getElementById("barra3"), runner: document.getElementById("runner3"), pos: 7.3, phase: 2.8 }
+      ];
 
-    function actualizarCarrera() {
-      if (terminado) return;
+      const TOTAL_FRAMES = 360;
+      const FINISH = 88;
+      let frame = 0;
+      let terminado = false;
 
-      frame++;
-
-      if (frame < 80) {
-        barras[0].vel = 0.28;
-        barras[1].vel = 0.17;
-        barras[2].vel = 0.15;
-      } else if (frame < 150) {
-        barras[0].vel = 0.18;
-        barras[1].vel = 0.29;
-        barras[2].vel = 0.19;
-      } else if (frame < 220) {
-        barras[0].vel = 0.27;
-        barras[1].vel = 0.22;
-        barras[2].vel = 0.26;
-      } else {
-        barras[0].vel = 0.24;
-        barras[1].vel = 0.235;
-        barras[2].vel = 0.23;
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
       }
 
-      barras.forEach((b) => {
-        b.pos += b.vel;
-        if (b.pos > 95) b.pos = 95;
-        if (b.el) b.el.style.width = `${b.pos}%`;
-      });
-
-      if (barras.every(b => b.pos >= 95)) {
-        terminado = true;
-
-        setTimeout(() => {
-          carrera.classList.add("fade-out");
-          overlay.classList.add("visible");
-          try {
-            audio.currentTime = 0;
-            audio.play();
-          } catch (_) {}
-        }, 400);
-
-        setTimeout(() => {
-          overlay.classList.remove("visible");
-          podio.classList.add("visible");
-        }, 3200);
-
-        return;
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
       }
 
-      requestAnimationFrame(actualizarCarrera);
-    }
+      function pulse(start, end, t, power) {
+        if (t < start || t > end) return 0;
+        const local = (t - start) / (end - start);
+        return Math.sin(local * Math.PI) * power;
+      }
 
-    requestAnimationFrame(actualizarCarrera);
-  });
-</script>
+      function flash() {
+        flashOverlay.classList.add("visible");
+        setTimeout(() => flashOverlay.classList.remove("visible"), 120);
+      }
+
+      function render() {
+        if (terminado) return;
+
+        frame++;
+        const t = clamp(frame / TOTAL_FRAMES, 0, 1);
+        const base = 9 + (FINISH - 9) * easeOutCubic(t);
+
+        const lead1 = pulse(0.06, 0.20, t, 4.6) - pulse(0.28, 0.40, t, 1.2);
+        const lead2 = pulse(0.22, 0.45, t, 5.0) - pulse(0.53, 0.63, t, 1.0);
+        const lead3 = pulse(0.48, 0.70, t, 5.4) - pulse(0.76, 0.83, t, 0.8);
+
+        racers[0].pos = base + lead1 + Math.sin(frame * 0.11 + racers[0].phase) * 0.22;
+        racers[1].pos = base + lead2 + Math.sin(frame * 0.125 + racers[1].phase) * 0.20;
+        racers[2].pos = base + lead3 + Math.sin(frame * 0.14 + racers[2].phase) * 0.18;
+
+        if (t > 0.88) {
+          const mix = (t - 0.88) / 0.12;
+          racers[0].pos = racers[0].pos * (1 - mix) + 86.0 * mix;
+          racers[1].pos = racers[1].pos * (1 - mix) + 86.5 * mix;
+          racers[2].pos = racers[2].pos * (1 - mix) + 85.8 * mix;
+        }
+
+        racers.forEach((r) => {
+          r.pos = clamp(r.pos, 7, FINISH);
+          r.barra.style.width = `${r.pos}%`;
+          r.runner.style.left = `${r.pos}%`;
+        });
+
+        const maxPos = Math.max(...racers.map(r => r.pos));
+        const cam = clamp((maxPos - 62) * 2.4, 0, 110);
+        trackWorld.style.transform = `translateX(${-cam}px)`;
+
+        if (frame === 70 || frame === 135 || frame === 210 || frame === 290 || frame === 338) {
+          flash();
+        }
+
+        if (frame >= TOTAL_FRAMES) {
+          terminado = true;
+
+          setTimeout(() => {
+            carrera.classList.add("fade-out");
+            overlay.classList.add("visible");
+            try {
+              audio.currentTime = 0;
+              audio.volume = 1;
+              audio.play().catch(() => {});
+            } catch (_) {}
+          }, 220);
+
+          setTimeout(() => {
+            overlay.classList.remove("visible");
+            podio.classList.add("visible");
+          }, 2800);
+
+          return;
+        }
+
+        requestAnimationFrame(render);
+      }
+
+      requestAnimationFrame(render);
+    });
+  </script>
 
   {% include "includes/sincronizacion_fase.html" %}
 </body>

@@ -36,12 +36,7 @@
       color: #1f2937;
     }
 
-    h2 {
-      color: #1f2937;
-    }
-
-    h3 {
-      margin: 0 0 10px 0;
+    h2, h3 {
       color: #1f2937;
     }
 
@@ -74,30 +69,11 @@
       cursor: pointer;
     }
 
-    .btn-azul {
-      background: #2563eb;
-      color: white;
-    }
-
-    .btn-gris {
-      background: #d1d5db;
-      color: #111827;
-    }
-
-    .btn-verde {
-      background: #16a34a;
-      color: white;
-    }
-
-    .btn-rojo {
-      background: #dc2626;
-      color: white;
-    }
-
-    .btn-morado {
-      background: #7c3aed;
-      color: white;
-    }
+    .btn-azul { background: #2563eb; color: white; }
+    .btn-gris { background: #d1d5db; color: #111827; }
+    .btn-verde { background: #16a34a; color: white; }
+    .btn-rojo { background: #dc2626; color: white; }
+    .btn-morado { background: #7c3aed; color: white; }
 
     .pantallas {
       display: flex;
@@ -136,16 +112,6 @@
       top: 0;
     }
 
-    .estado-debug {
-      background: #111827;
-      color: #f9fafb;
-      border-radius: 16px;
-      padding: 16px;
-      min-height: 180px;
-      white-space: pre-wrap;
-      font-family: Consolas, monospace;
-    }
-
     .nota {
       color: #4b5563;
       font-size: 14px;
@@ -168,135 +134,109 @@
       color: #166534;
     }
 
-
-
-
-
-    .panel-sorteo ol {
-      margin: 10px 0 0 18px;
-      padding: 0;
+    .panel-sorteo {
+      display: none;
+      margin-top: 18px;
+      padding: 24px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%);
+      border: 1px solid #c4b5fd;
+      box-shadow: 0 10px 24px rgba(124, 58, 237, 0.14);
+      text-align: center;
     }
 
-    .panel-sorteo li {
-      margin-bottom: 6px;
-      font-weight: 600;
+    .panel-sorteo.visible {
+      display: block;
+    }
+
+    .panel-sorteo h3 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      color: #312e81;
+      font-size: 24px;
+    }
+
+    .panel-sorteo .contenedor-boton-sorteo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 140px;
+    }
+
+    .panel-sorteo button {
+      font-size: 22px;
+      font-weight: 800;
+      padding: 18px 34px;
+      border-radius: 18px;
+      box-shadow: 0 10px 20px rgba(124, 58, 237, 0.22);
+    }
+
+    .placeholder-sorteo {
+      display: none;
+      margin-top: 12px;
+      padding: 22px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px dashed #a78bfa;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .placeholder-sorteo.visible {
+      display: block;
+    }
+
+    .placeholder-sorteo .icono {
+      font-size: 34px;
+      margin-bottom: 8px;
+    }
+
+    .placeholder-sorteo .titulo {
+      font-size: 18px;
+      font-weight: 800;
+      color: #5b21b6;
+      margin-bottom: 8px;
+    }
+
+    .placeholder-sorteo .texto {
+      font-size: 15px;
+      line-height: 1.45;
+      color: #6b7280;
+    }
+
+    .resultado-sorteo {
+      margin-top: 18px;
+      text-align: center;
+    }
+
+    .resultado-sorteo h4 {
+      margin-bottom: 10px;
+      color: #312e81;
+      font-size: 20px;
+    }
+
+    .resultado-sorteo ol {
+      display: inline-block;
+      text-align: left;
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .resultado-sorteo li {
+      margin-bottom: 7px;
+      font-size: 17px;
+      font-weight: 700;
       color: #374151;
     }
-
-    a.boton-link {
-      display: inline-block;
-      text-decoration: none;
-      text-align: center;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 16px;
-      font-weight: 700;
-      background: #d1d5db;
-      color: #111827;
-    }
-
-.panel-sorteo {
-  display: none;
-  margin-top: 18px;
-  padding: 24px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%);
-  border: 1px solid #c4b5fd;
-  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.14);
-  text-align: center;
-}
-
-.panel-sorteo.visible {
-  display: block;
-}
-
-.panel-sorteo h3 {
-  margin-top: 0;
-  margin-bottom: 18px;
-  color: #312e81;
-  font-size: 24px;
-}
-
-.panel-sorteo .contenedor-boton-sorteo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 140px;
-}
-
-.panel-sorteo button {
-  font-size: 22px;
-  font-weight: 800;
-  padding: 18px 34px;
-  border-radius: 18px;
-  box-shadow: 0 10px 20px rgba(124, 58, 237, 0.22);
-}
-
-.placeholder-sorteo {
-  display: none;
-  margin-top: 12px;
-  padding: 22px;
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px dashed #a78bfa;
-  max-width: 320px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.placeholder-sorteo.visible {
-  display: block;
-}
-
-.placeholder-sorteo .icono {
-  font-size: 34px;
-  margin-bottom: 8px;
-}
-
-.placeholder-sorteo .titulo {
-  font-size: 18px;
-  font-weight: 800;
-  color: #5b21b6;
-  margin-bottom: 8px;
-}
-
-.placeholder-sorteo .texto {
-  font-size: 15px;
-  line-height: 1.45;
-  color: #6b7280;
-}
-
-.resultado-sorteo {
-  margin-top: 18px;
-  text-align: center;
-}
-
-.resultado-sorteo h4 {
-  margin-bottom: 10px;
-  color: #312e81;
-  font-size: 20px;
-}
-
-.resultado-sorteo ol {
-  display: inline-block;
-  text-align: left;
-  margin: 0;
-  padding-left: 22px;
-}
-
-.resultado-sorteo li {
-  margin-bottom: 7px;
-  font-size: 17px;
-  font-weight: 700;
-  color: #374151;
-}
   </style>
 </head>
 <body>
   <div class="layout">
     <form id="csrfForm" style="display:none;">
-  {% csrf_token %}
-</form>
+      {% csrf_token %}
+    </form>
+
     <aside class="sidebar">
       <h1>Control de sesión</h1>
 
@@ -319,10 +259,6 @@
           El preview dentro de iframe está bloqueado por el navegador. Usa “Abrir preview” en otra pestaña.
         </p>
       </div>
-
-      <form style="display:none;">
-        {% csrf_token %}
-      </form>
 
       <div class="card">
         <h2 style="margin-top:0;">Pantallas del flujo</h2>
@@ -356,33 +292,31 @@
         </div>
 
         <div id="panelSorteoPitch" class="panel-sorteo">
-  <h3>Sorteo orden de pitch</h3>
+          <h3>Sorteo orden de pitch</h3>
 
-  <div id="contenedorBotonSorteo" class="contenedor-boton-sorteo">
-    <button type="button" class="btn-morado" onclick="sortearOrdenPitch()">
-      🎲 Sortear orden de pitch
-    </button>
-  </div>
+          <div id="contenedorBotonSorteo" class="contenedor-boton-sorteo">
+            <button type="button" class="btn-morado" onclick="sortearOrdenPitch()">
+              🎲 Sortear orden de pitch
+            </button>
+          </div>
 
-  <div id="placeholderSorteo" class="placeholder-sorteo">
-    <div class="icono">🎲✨</div>
-    <div class="titulo">Esperando el sorteo</div>
-    <div class="texto">
-      El profesor realizará el sorteo del orden de presentación.
-      Cuando esté listo, aquí aparecerá el resultado para tu equipo.
-    </div>
-  </div>
+          <div id="placeholderSorteo" class="placeholder-sorteo">
+            <div class="icono">🎲✨</div>
+            <div class="titulo">Esperando el sorteo</div>
+            <div class="texto">
+              El profesor realizará el sorteo del orden de presentación.
+              Cuando esté listo, aquí aparecerá el resultado para tu equipo.
+            </div>
+          </div>
 
-  <div class="card">
-  <h3>Estado ranking final</h3>
-  <p id="estadoListosRanking">0/0 grupos listos para ranking</p>
-</div>
+          <div class="card">
+            <h3>Estado ranking final</h3>
+            <p id="estadoListosRanking">0/0 grupos listos para ranking</p>
+          </div>
 
-  <div id="resultadoSorteoPitch" class="resultado-sorteo"></div>
-</div>
-
-
-</div>
+          <div id="resultadoSorteoPitch" class="resultado-sorteo"></div>
+        </div>
+      </div>
 
       <div class="card">
         <h2 style="margin-top:0;">Estado F2</h2>
@@ -427,44 +361,44 @@
     </aside>
 
     <main class="contenido">
-  <div class="card">
-    <h2 style="margin-top:0;">Presentación de pitch</h2>
+      <div class="card">
+        <h2 style="margin-top:0;">Presentación de pitch</h2>
 
-    <div id="panelPitchProfesor" style="display:grid; gap:16px;">
-      <div>
-        <div style="font-size:14px; opacity:.7;">Grupo presentando</div>
-        <div id="grupoActualNombre" style="font-size:32px; font-weight:700;">Aún no sorteado</div>
-        <div id="grupoActualOrden" style="font-size:16px; opacity:.8;">-</div>
-      </div>
+        <div id="panelPitchProfesor" style="display:grid; gap:16px;">
+          <div>
+            <div style="font-size:14px; opacity:.7;">Grupo presentando</div>
+            <div id="grupoActualNombre" style="font-size:32px; font-weight:700;">Aún no sorteado</div>
+            <div id="grupoActualOrden" style="font-size:16px; opacity:.8;">-</div>
+          </div>
 
-      <div style="display:flex; justify-content:center;">
-        <img
-          id="grupoActualFoto"
-          src=""
-          alt="Foto del lego del grupo actual"
-          style="max-width:420px; width:100%; max-height:320px; object-fit:contain; border-radius:16px; display:none;"
-        >
-      </div>
+          <div style="display:flex; justify-content:center;">
+            <img
+              id="grupoActualFoto"
+              src=""
+              alt="Foto del lego del grupo actual"
+              style="max-width:420px; width:100%; max-height:320px; object-fit:contain; border-radius:16px; display:none;"
+            >
+          </div>
 
-      <div style="text-align:center;">
-        <div style="font-size:14px; opacity:.7;">Tiempo de presentación</div>
-        <div id="timerPitchProfesor" style="font-size:64px; font-weight:800;">01:30</div>
-      </div>
+          <div style="text-align:center;">
+            <div style="font-size:14px; opacity:.7;">Tiempo de presentación</div>
+            <div id="timerPitchProfesor" style="font-size:64px; font-weight:800;">01:30</div>
+          </div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-        <button type="button" onclick="iniciarTimer()">Iniciar</button>
-        <button type="button" onclick="pausarTimer()">Pausar</button>
-        <button type="button" onclick="reiniciarTimerPitch()">Reiniciar</button>
-        <button type="button" onclick="siguienteGrupoPitch()">Siguiente grupo</button>
-      </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+            <button type="button" onclick="iniciarTimer()">Iniciar</button>
+            <button type="button" onclick="pausarTimer()">Pausar</button>
+            <button type="button" onclick="reiniciarTimerPitch()">Reiniciar</button>
+            <button type="button" onclick="siguienteGrupoPitch()">Siguiente grupo</button>
+          </div>
 
-      <div>
-        <h3 style="margin-bottom:8px;">Orden del pitch</h3>
-        <ol id="listaOrdenPitch" style="margin:0; padding-left:20px;"></ol>
+          <div>
+            <h3 style="margin-bottom:8px;">Orden del pitch</h3>
+            <ol id="listaOrdenPitch" style="margin:0; padding-left:20px;"></ol>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</main>
+    </main>
   </div>
 
   <script>
@@ -484,6 +418,11 @@
         }
       }
       return cookieValue;
+    }
+
+    function obtenerCSRFToken() {
+      const input = document.querySelector('#csrfForm input[name="csrfmiddlewaretoken"]');
+      return input ? input.value : "";
     }
 
     function marcarActiva(faseActual) {
@@ -540,173 +479,139 @@
       }
     }
 
-function actualizarEstadoPanelSorteo(data) {
-  const panel = document.getElementById("panelSorteoPitch");
-  const boton = document.getElementById("contenedorBotonSorteo");
-  const placeholder = document.getElementById("placeholderSorteo");
-  const resultado = document.getElementById("resultadoSorteoPitch");
+    function actualizarEstadoPanelSorteo(data) {
+      const panel = document.getElementById("panelSorteoPitch");
+      const boton = document.getElementById("contenedorBotonSorteo");
+      const placeholder = document.getElementById("placeholderSorteo");
+      const resultado = document.getElementById("resultadoSorteoPitch");
 
-  if (!panel || !boton || !placeholder || !resultado) return;
+      if (!panel || !boton || !placeholder || !resultado) return;
 
-  if (data.faseActual === "f4_orden_pitch") {
-    panel.classList.add("visible");
-  } else {
-    panel.classList.remove("visible");
-    boton.style.display = "none";
-    placeholder.classList.remove("visible");
-    resultado.innerHTML = "";
-    return;
-  }
+      if (data.faseActual === "f4_orden_pitch") {
+        panel.classList.add("visible");
+      } else {
+        panel.classList.remove("visible");
+        boton.style.display = "none";
+        placeholder.classList.remove("visible");
+        resultado.innerHTML = "";
+        return;
+      }
 
-  const esProfesor = (data.esProfesor === true) || esProfesorPanel === true;
+      const esProfesor = (data.esProfesor === true) || esProfesorPanel === true;
 
-  if (esProfesor) {
-    boton.style.display = "flex";
-    placeholder.classList.remove("visible");
-  } else {
-    boton.style.display = "none";
-    placeholder.classList.add("visible");
-  }
-}
+      if (esProfesor) {
+        boton.style.display = "flex";
+        placeholder.classList.remove("visible");
+      } else {
+        boton.style.display = "none";
+        placeholder.classList.add("visible");
+      }
+    }
 
     function formatearTiempo(totalSegundos) {
-  const segundos = Math.max(0, Number(totalSegundos || 0));
-  const min = String(Math.floor(segundos / 60)).padStart(2, "0");
-  const sec = String(segundos % 60).padStart(2, "0");
-  return `${min}:${sec}`;
-}
-
-function renderOrdenPitch(ordenPitch, grupoActual) {
-  const lista = document.getElementById("listaOrdenPitch");
-  if (!lista) return;
-
-  if (!ordenPitch || !ordenPitch.length) {
-    lista.innerHTML = "<li>Aún no se ha sorteado el orden.</li>";
-    return;
-  }
-
-  lista.innerHTML = ordenPitch.map(item => {
-    const esActual = grupoActual && grupoActual.id === item.id;
-    return `<li ${esActual ? 'style="font-weight:700;"' : ""}>${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
-  }).join("");
-}
-
-function renderPanelPitchProfesor(data) {
-  const grupoActual = data.grupoActual;
-  const nombre = document.getElementById("grupoActualNombre");
-  const orden = document.getElementById("grupoActualOrden");
-  const foto = document.getElementById("grupoActualFoto");
-  const timer = document.getElementById("timerPitchProfesor");
-
-  if (nombre) {
-    nombre.textContent = grupoActual ? grupoActual.nombre : "Aún no sorteado";
-  }
-
-  if (orden) {
-    orden.textContent = grupoActual ? `Orden ${grupoActual.orden}` : "-";
-  }
-
-  if (foto) {
-    if (grupoActual && grupoActual.fotoLego) {
-      foto.src = grupoActual.fotoLego;
-      foto.style.display = "block";
-    } else {
-      foto.removeAttribute("src");
-      foto.style.display = "none";
-    }
-  }
-
-  if (timer) {
-    timer.textContent = formatearTiempo(data.segundosRestantes);
-  }
-
-  renderOrdenPitch(data.ordenPitch, grupoActual);
-}
-
-async function siguienteGrupoPitch() {
-  try {
-    const res = await fetch(`/sesion/${sesionId}/siguiente-grupo-pitch/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": obtenerCSRFToken()
-      },
-      credentials: "same-origin",
-      body: JSON.stringify({})
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data.ok) {
-      alert(data.error || "No se pudo pasar al siguiente grupo.");
-      return;
+      const segundos = Math.max(0, Number(totalSegundos || 0));
+      const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+      const sec = String(segundos % 60).padStart(2, "0");
+      return `${min}:${sec}`;
     }
 
-    actualizarUI(data);
-  } catch (error) {
-    console.error("Error en siguienteGrupoPitch:", error);
-    alert("Error de red al pasar al siguiente grupo.");
-  }
-}
+    function renderOrdenPitch(ordenPitch, grupoActual) {
+      const lista = document.getElementById("listaOrdenPitch");
+      if (!lista) return;
 
-async function reiniciarTimerPitch() {
-  try {
-    const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": obtenerCSRFToken()
-      },
-      credentials: "same-origin",
-      body: JSON.stringify({
-        accionTimer: "reiniciar_pitch"
-      })
-    });
+      if (!ordenPitch || !ordenPitch.length) {
+        lista.innerHTML = "<li>Aún no se ha sorteado el orden.</li>";
+        return;
+      }
 
-    const data = await res.json();
-
-    if (!res.ok || !data.ok) {
-      alert(data.error || "No se pudo reiniciar el timer.");
-      return;
+      lista.innerHTML = ordenPitch.map(item => {
+        const esActual = grupoActual && grupoActual.id === item.id;
+        return `<li ${esActual ? 'style="font-weight:700;"' : ""}>${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
+      }).join("");
     }
 
-    actualizarUI(data);
-  } catch (error) {
-    console.error("Error en reiniciarTimerPitch:", error);
-    alert("Error de red al reiniciar timer.");
-  }
-}
+    function renderPanelPitchProfesor(data) {
+      const grupoActual = data.grupoActual;
+      const nombre = document.getElementById("grupoActualNombre");
+      const orden = document.getElementById("grupoActualOrden");
+      const foto = document.getElementById("grupoActualFoto");
+      const timer = document.getElementById("timerPitchProfesor");
 
+      if (nombre) {
+        nombre.textContent = grupoActual ? grupoActual.nombre : "Aún no sorteado";
+      }
+
+      if (orden) {
+        orden.textContent = grupoActual ? `Orden ${grupoActual.orden}` : "-";
+      }
+
+      if (foto) {
+        if (grupoActual && grupoActual.fotoLego) {
+          foto.src = grupoActual.fotoLego;
+          foto.style.display = "block";
+        } else {
+          foto.removeAttribute("src");
+          foto.style.display = "none";
+        }
+      }
+
+      if (timer) {
+        timer.textContent = formatearTiempo(data.segundosRestantes);
+      }
+
+      renderOrdenPitch(data.ordenPitch, grupoActual);
+    }
 
     function actualizarUI(data) {
-  console.log("esProfesor:", data.esProfesor);
+      document.getElementById("faseActual").textContent = data.faseActual;
+      document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
+      document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
+      document.getElementById("timerEstado").textContent = data.timerCorriendo ? "corriendo" : "detenido";
+      document.getElementById("segundosRestantes").textContent = data.segundosRestantes ?? 0;
 
-  document.getElementById("faseActual").textContent = data.faseActual;
-  document.getElementById("faseEtiqueta").textContent = data.faseEtiqueta || data.faseActual;
-  document.getElementById("rutaAlumno").textContent = data.rutaAlumno || "-";
-  document.getElementById("timerEstado").textContent = data.timerCorriendo ? "corriendo" : "detenido";
-  document.getElementById("segundosRestantes").textContent = data.segundosRestantes ?? 0;
+      marcarActiva(data.faseActual);
 
-  marcarActiva(data.faseActual);
+      if (data.grupos) {
+        actualizarTablaGrupos(data.grupos);
+      }
 
-  if (data.grupos) {
-    actualizarTablaGrupos(data.grupos);
-  }
+      actualizarResumenF2(data);
+      actualizarEstadoPanelSorteo(data);
+      renderPanelPitchProfesor(data);
 
-  actualizarResumenF2(data);
-  actualizarEstadoPanelSorteo(data);
-  renderPanelPitchProfesor(data);
+      const estadoRanking = document.getElementById("estadoListosRanking");
+      if (estadoRanking) {
+        estadoRanking.textContent = `${data.gruposListosRanking || 0}/${data.totalGrupos || 0} grupos listos para ranking`;
+      }
+    }
 
-  const estadoRanking = document.getElementById("estadoListosRanking");
-  if (estadoRanking) {
-    estadoRanking.textContent = `${data.gruposListosRanking || 0}/${data.totalGrupos || 0} grupos listos para ranking`;
-  }
-}
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, {
+        credentials: "same-origin",
+        cache: "no-store",
+        ...options
+      });
+
+      const contentType = res.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/json")) {
+        const texto = await res.text();
+        console.error("Respuesta no JSON:", texto);
+        throw new Error("El servidor devolvió HTML o una respuesta inválida.");
+      }
+
+      const data = await res.json();
+
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error || "No se pudo completar la operación.");
+      }
+
+      return data;
+    }
 
     async function cargarEstado() {
       try {
-        const res = await fetch(`/sesion/${sesionId}/estado/`);
-        const data = await res.json();
+        const data = await fetchJson(`/sesion/${sesionId}/estado/`);
         actualizarUI(data);
       } catch (error) {
         console.error("Error cargando estado:", error);
@@ -715,170 +620,143 @@ async function reiniciarTimerPitch() {
 
     async function irAPantalla(fase) {
       try {
-        const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+        const data = await fetchJson(`/sesion/${sesionId}/actualizar-estado/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": obtenerCSRFToken()
           },
-          credentials: "same-origin",
           body: JSON.stringify({ faseActual: fase })
         });
-
-        const data = await res.json();
-        console.log("irAPantalla response:", data);
-
-        if (!res.ok || !data.ok) {
-          alert("No se pudo cambiar la fase: " + (data.error || JSON.stringify(data)));
-          return;
-        }
 
         actualizarUI(data);
       } catch (error) {
         console.error("Error en irAPantalla:", error);
-        alert("Error de red al cambiar de fase");
+        alert(error.message || "Error al cambiar de fase");
       }
     }
-    
-    function obtenerCSRFToken() {
-  const input = document.querySelector('#csrfForm input[name="csrfmiddlewaretoken"]');
-  return input ? input.value : "";
-}
 
     async function siguientePantalla() {
-  try {
-    const csrfToken = obtenerCSRFToken();
-
-    const res = await fetch(`/sesion/${sesionId}/siguiente-fase/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken
-      },
-      credentials: "same-origin",
-      body: JSON.stringify({})
-    });
-
-    const contentType = res.headers.get("content-type") || "";
-
-    if (!contentType.includes("application/json")) {
-      const texto = await res.text();
-      console.error("Respuesta no JSON en siguientePantalla:", texto);
-      alert("Error CSRF o respuesta HTML del servidor.");
-      return;
-    }
-
-    const data = await res.json();
-    console.log("siguientePantalla response:", data);
-
-    if (!res.ok || !data.ok) {
-      alert("No se pudo avanzar: " + (data.error || JSON.stringify(data)));
-      return;
-    }
-
-    actualizarUI(data);
-  } catch (error) {
-    console.error("Error en siguientePantalla:", error);
-    alert("Error de red al avanzar de fase");
-  }
-}
-
-    async function sortearOrdenPitch() {
       try {
-        const res = await fetch(`/sesion/${sesionId}/sortear-orden/`, {
+        const data = await fetchJson(`/sesion/${sesionId}/siguiente-fase/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": obtenerCSRFToken()
           },
-          credentials: "same-origin",
           body: JSON.stringify({})
         });
 
-        const contentType = res.headers.get("content-type") || "";
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error en siguientePantalla:", error);
+        alert(error.message || "Error al avanzar de fase");
+      }
+    }
 
-        if (!contentType.includes("application/json")) {
-          const texto = await res.text();
-          console.error("Respuesta no JSON en sortearOrdenPitch:", texto);
-          alert("Error al sortear el orden.");
-          return;
-        }
+    async function sortearOrdenPitch() {
+      try {
+        const data = await fetchJson(`/sesion/${sesionId}/sortear-orden/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": obtenerCSRFToken()
+          },
+          body: JSON.stringify({})
+        });
 
-        const data = await res.json();
-
-if (!res.ok || !data.ok) {
-  alert(data.error || "No se pudo sortear el orden.");
-  return;
-}
-
-actualizarUI(data);
+        actualizarUI(data);
 
         const cont = document.getElementById("resultadoSorteoPitch");
-        cont.innerHTML = `
-  <h4>Orden sorteado</h4>
-  <ol>
-    ${data.orden.map(item => `<li>${item.nombre}</li>`).join("")}
-  </ol>
-`;
+        if (cont && Array.isArray(data.orden)) {
+          cont.innerHTML = `
+            <h4>Orden sorteado</h4>
+            <ol>
+              ${data.orden.map(item => `<li>${item.nombre}</li>`).join("")}
+            </ol>
+          `;
+        }
       } catch (error) {
         console.error("Error en sortearOrdenPitch:", error);
-        alert("Error de red al sortear el orden.");
+        alert(error.message || "Error al sortear el orden.");
       }
     }
 
     async function iniciarTimer() {
       try {
-        const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+        const data = await fetchJson(`/sesion/${sesionId}/actualizar-estado/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": obtenerCSRFToken()
           },
-          credentials: "same-origin",
           body: JSON.stringify({
             timerCorriendo: true
           })
         });
 
-        const data = await res.json();
-
-        if (!res.ok || !data.ok) {
-          alert("No se pudo iniciar el timer: " + (data.error || JSON.stringify(data)));
-          return;
-        }
-
         actualizarUI(data);
       } catch (error) {
         console.error("Error en iniciarTimer:", error);
-        alert("Error de red al iniciar timer");
+        alert(error.message || "Error al iniciar timer");
       }
     }
 
     async function pausarTimer() {
       try {
-        const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
+        const data = await fetchJson(`/sesion/${sesionId}/actualizar-estado/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": obtenerCSRFToken()
           },
-          credentials: "same-origin",
           body: JSON.stringify({
             timerCorriendo: false
           })
         });
 
-        const data = await res.json();
-
-        if (!res.ok || !data.ok) {
-          alert("No se pudo pausar el timer: " + (data.error || JSON.stringify(data)));
-          return;
-        }
-
         actualizarUI(data);
       } catch (error) {
         console.error("Error en pausarTimer:", error);
-        alert("Error de red al pausar timer");
+        alert(error.message || "Error al pausar timer");
+      }
+    }
+
+    async function siguienteGrupoPitch() {
+      try {
+        const data = await fetchJson(`/sesion/${sesionId}/siguiente-grupo-pitch/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": obtenerCSRFToken()
+          },
+          body: JSON.stringify({})
+        });
+
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error en siguienteGrupoPitch:", error);
+        alert(error.message || "No se pudo pasar al siguiente grupo.");
+      }
+    }
+
+    async function reiniciarTimerPitch() {
+      try {
+        const data = await fetchJson(`/sesion/${sesionId}/actualizar-estado/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": obtenerCSRFToken()
+          },
+          body: JSON.stringify({
+            accionTimer: "reiniciar_pitch"
+          })
+        });
+
+        actualizarUI(data);
+      } catch (error) {
+        console.error("Error en reiniciarTimerPitch:", error);
+        alert(error.message || "No se pudo reiniciar el timer.");
       }
     }
 
@@ -886,7 +764,7 @@ actualizarUI(data);
       window.open(`/sesion/${sesionId}/preview/`, "_blank");
     }
 
-    setInterval(cargarEstado, 2000);
+    setInterval(cargarEstado, 1500);
     cargarEstado();
   </script>
 </body>
