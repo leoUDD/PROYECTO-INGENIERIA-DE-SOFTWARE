@@ -1,237 +1,169 @@
-:root{
-  --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
-  --card: #081A2D;
-  --text: #E6EEF8;
-  --muted: #AAB7C8;
+/* ============================================================
+   Misión Emprende UDD — estilo_perfiles.css  FINAL
+   
+   Arquitectura sin costura ni franja:
+   - .phone usa el GIF como background-image
+   - .gif-spacer (invisible) le da el alto exacto al GIF
+   - .perfiles usa position:absolute sobre el GIF
+   - No hay color de fondo que no coincida → no hay franja
+   ============================================================ */
+
+:root {
+  --card:    #081A2D;
+  --text:    #E6EEF8;
   --primary: #00C8FF;
-  --accent: #FF7A1A;
-  --radius: 28px;
-  --shadow: 0 18px 40px rgba(0,0,0,.6);
-  --glow: 0 0 25px rgba(0,200,255,.35);
+  --glow:    0 0 25px rgba(0, 200, 255, .35);
+  --radius:  28px;
+  --shadow:  0 18px 40px rgba(0, 0, 0, .6);
 }
 
-/* Reset básico */
-*{ box-sizing:border-box }
-html,body{ height:100%; margin:0; padding:0; }
-img{ max-width:100%; display:block; height:auto; }
-a { text-decoration: none; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; padding: 0; }
+img { max-width: 100%; display: block; height: auto; }
+a   { text-decoration: none; }
 
-/* Estilos Generales (Base) */
-body{
-  background: var(--bg);
+body {
+  background:
+    url('/static/images/fondo_bienvenida.png') center / cover no-repeat fixed,
+    #000712;
   color: var(--text);
-  font-family: "Poppins", system-ui, -apple-system, sans-serif;
-
+  font-family: "Poppins", system-ui, sans-serif;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-
-  padding: 20px;
+  padding: clamp(12px, 3vw, 40px);
   overflow-x: hidden;
-  overflow-y: auto;
 }
 
-/* Card Principal */
-.phone{
-  position: relative;
-  width: clamp(380px, 94vw, 900px);
-  background: url('/static/images/mision_emprende_1536x1900_flicker.gif') center -300px/cover no-repeat;
-  background-color: var(--card);
+/* ---------- Card (.phone) ----------
+   El GIF es background-image → cubre toda la card.
+   La altura real la define .gif-spacer (invisible).
+   No hay background-color extra → no hay franja.
+   ---------------------------------------- */
+.phone {
+  position: relative;       /* contexto para .perfiles absoluto */
+  width: 100%;
+  max-width: 900px;
+
+  /* GIF como fondo: escala exacto con la card */
+  background-image: url('/static/images/mision_emprende_1536x1900_flicker.gif');
+  background-size: 100% 100%;  /* estira para cubrir exactamente el spacer */
+  background-repeat: no-repeat;
+  background-position: center top;
+
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 40px 30px;
-  text-align: center;
-  min-height: 800px;
+  overflow: visible;         /* permite que etiquetas se vean fuera si hace falta */
 }
 
-/* Encabezado */
-.logo{ 
-  width: clamp(180px, 40%, 260px); 
-  margin: 0 auto 14px;
+/* ---------- Spacer invisible ----------
+   Misma imagen, opacity 0.
+   Ocupa el espacio exacto del GIF → la card tiene
+   exactamente el mismo alto que el GIF. Sin trucos.
+   ---------------------------------------- */
+.gif-spacer {
   display: block;
-}
-h1{ 
-  margin: 8px 0; 
-  font-size: clamp(26px, 4vw, 40px); 
-  font-weight: 800;
-}
-.phone > p{ 
-  color: var(--muted); 
-  margin: 0 auto 28px;
-  max-width: 80%;
+  width: 100%;
+  height: auto;          /* alto proporcional: 1536:1900 */
+  opacity: 0;            /* invisible pero ocupa espacio */
+  pointer-events: none;
+  user-select: none;
 }
 
-.perfiles{
-  display: flex; 
-  flex-wrap: wrap; 
-  justify-content: center; 
-  gap: 36px;
-  margin-top: 60px;
-}
+/* ============================================================
+   PERFILES — position:absolute sobre el GIF
+   
+   El GIF mide 1536×1900px.
+   "EMPRENDE" termina aprox al 68% del alto del GIF.
+   Los círculos van desde el 68% hacia abajo.
+   
+   top: 70% → centro del grupo de perfiles al 70% del alto
+   transform: translateX(-50%) → solo centra horizontal
+   (no translateY para no subir los círculos)
+   ============================================================ */
+.perfiles {
+  position: absolute;
+  top: 70%;                      /* justo debajo de EMPRENDE */
+  left: 50%;
+  transform: translateX(-50%);   /* solo centrado horizontal */
+  z-index: 1;
 
-.perfil{
+  width: 90%;
   display: flex;
-  flex-direction: column; 
-  align-items: center; 
-  gap: 12px;
-  margin-top: 400px;
-  margin-bottom: -10px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: flex-start;       /* etiquetas alineadas arriba */
+  gap: clamp(10px, 3vw, 56px);
 }
 
-/* Círculos (Estilo base) */
-.perfil > a{
-  width: 160px;
-  height: 160px;
+/* ---------- Perfil ---------- */
+.perfil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1vw, 12px);
+  flex: 0 0 auto;
+}
+
+/* ---------- Círculos ---------- */
+.perfil > a {
+  width:  clamp(70px, 13vw, 160px);
+  height: clamp(70px, 13vw, 160px);
   border-radius: 50%;
   overflow: hidden;
-  border: 6px solid #fff;
-  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+  border: clamp(3px, .4vw, 6px) solid #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,.4);
   background: var(--card);
-  display: inline-flex; 
-  align-items: center; 
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
-.perfil > a:hover{
+.perfil > a:hover {
   transform: translateY(-6px);
-  box-shadow: 0 14px 32px rgba(0,0,0,.6), 0 0 18px rgba(0,200,255,.45);
+  box-shadow: 0 14px 32px rgba(0,0,0,.6), var(--glow);
   border-color: var(--primary);
 }
-.perfil > a:active{ transform: translateY(-2px); }
+.perfil > a:active { transform: translateY(-2px); }
 
-.perfil > a > img{
+.perfil > a > img {
   width: 100%; height: 100%; object-fit: cover;
 }
 
-.perfil-texto{
-  font-size: 18px; font-weight: 700; color: var(--text);
+/* ---------- Etiqueta ---------- */
+.perfil-texto {
+  font-size: clamp(11px, 1.4vw, 20px);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0,0,0,.9);
 }
 
+/* ============================================================
+   BREAKPOINTS
+   ============================================================ */
 
-@media (min-width: 900px){
-  body{
+@media (min-width: 900px) {
+  body {
     align-items: flex-start;
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: clamp(24px, 3vh, 50px);
+    padding-bottom: clamp(24px, 3vh, 50px);
   }
-
-  .phone{
-    margin-top: 0;
-  }
-
-  .perfil > a{ width: 180px; height: 180px; }
-  .perfil-texto{ font-size: 20px; }
 }
 
-@media (min-width: 768px) and (max-width: 899px){
-  .phone{
-    min-height: 700px;
-    background-position: center -200px !important;
+@media (max-width: 480px) {
+  .perfil > a {
+    width:  clamp(62px, 20vw, 95px);
+    height: clamp(62px, 20vw, 95px);
   }
-  .perfil{ margin-top: 300px; }
-  .perfil > a{ width: 140px; height: 140px; }
+  .perfil-texto { font-size: clamp(10px, 3vw, 13px); }
+  .perfiles     { gap: clamp(6px, 4vw, 18px); }
 }
 
-@media (max-width: 767px){
-
-  body{
-    align-items: center;
-    padding: 10px;
-    min-height: 100vh;
-  }
-
-  .phone{
-    width: 100%;
-    max-width: 480px;
-    min-height: auto;
-    height: auto;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-
-    padding: 40px 20px 50px; 
-    background-position: center top !important;
-    background-size: cover;
-  }
-
-  .logo{ width: 150px; }
-  h1{ font-size: 26px; }
-  .phone > p{ font-size: 14px; margin-bottom: 30px; }
-
-  .perfiles{
-    margin-top: 20px; 
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 20px 15px; 
-    justify-items: center;
-  }
-
-  .perfil{
-    margin-top: 0; 
-    margin-bottom: 0;
-  }
-
-  .perfil:nth-child(1){
-    grid-column: 1 / -1;
-  }
-
-  .perfil:nth-child(2),
-  .perfil:nth-child(3){
-    grid-column: auto;
-  }
-
-  .perfil > a{
-    width: 125px;
-    height: 125px;
-    border-width: 4px;
-  }
-  
-  .perfil-texto{ font-size: 15px; margin-top: 5px; }
-}
-
-/* Móviles muy pequeños */
-@media (max-width: 360px){
-  .perfil > a{ width: 105px; height: 105px; }
-  h1{ font-size: 22px; }
-}
-
-/* 📱 iPhone 12 / 13 / 14 / 15 — ancho 390px */
-@media (max-width: 390px){
-
-  .phone{
-    padding: 32px 18px 45px;
-    background-position: center top !important;
-    background-size: cover;
-  }
-
-  h1{
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-
-  .phone > p{
-    font-size: 13px;
-    margin-bottom: 22px;
-  }
-
-  .perfiles{
-    margin-top: 12px;
-    gap: 18px 12px;
-    transform: translateY(0);
-  }
-
-  .perfil > a{
-    width: 115px;
-    height: 115px;
-    border-width: 4px;
-  }
-
-  .perfil-texto{
-    font-size: 14px;
-    margin-top: 4px;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .perfil > a { transition: none; }
 }
