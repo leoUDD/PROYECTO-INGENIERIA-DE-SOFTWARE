@@ -55,14 +55,14 @@
       <div id="status" class="status">0/5</div>
     </div>
 
-    <div
+<div
   id="routes"
-  data-sopa-completada-url="{% url 'sopa_completada' %}"
+  data-registrar-palabra-url="{% url 'registrar_palabra_sopa' %}"
+  data-sopa-completada-api-url="{% url 'sopa_completada' %}"
+  data-sopa-completada-url="{% url 'transiciondesafio' %}"
   data-sesion-id="{{ grupo.sesion.idsesion }}"
   data-tiempo="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias }}">
 </div>
-  </main>
-  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
-  <script src="{% static 'js/sopadeletras.js' %}?v=4" defer></script>
+</main>
 </body>
 </html>

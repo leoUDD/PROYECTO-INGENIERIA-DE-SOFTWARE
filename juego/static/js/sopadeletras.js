@@ -3,6 +3,66 @@ const words = ["IDEA", "EQUIPO", "NEGOCIO", "CREATIVIDAD", "LIDERAZGO"];
 const gridEl = document.getElementById("grid");
 const statusEl = document.getElementById("status");
 
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+async function registrarPalabraEncontrada(palabra) {
+  const routes = document.getElementById("routes");
+  const url = routes?.dataset?.registrarPalabraUrl;
+  if (!url) return;
+
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken")
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({ palabra })
+    });
+  } catch (error) {
+    console.error("No se pudo registrar palabra:", error);
+  }
+}
+
+async function registrarSopaCompletada() {
+  const routes = document.getElementById("routes");
+  const url = routes?.dataset?.sopaCompletadaApiUrl;
+  if (!url) return true;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken")
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({})
+    });
+
+    return res.ok;
+  } catch (error) {
+    console.error("No se pudo registrar sopa completada:", error);
+    return false;
+  }
+}
+
+
 document.documentElement.style.setProperty("--cols", gridSize);
 document.documentElement.style.setProperty("--rows", gridSize);
 
@@ -188,6 +248,7 @@ function checkSelection() {
     });
 
     markWordAsFound(match);
+    registrarPalabraEncontrada(match);
     clearTempSelection();
     updateStatus();
 
@@ -278,12 +339,14 @@ function showWinModal() {
   btn.addEventListener("click", goNext, { once: true });
 }
 
-function goNext() {
+async function goNext() {
   const routes = document.getElementById("routes");
   const url = routes?.dataset.sopaCompletadaUrl;
-  if (url) {
-    window.location.href = url;
-  }
+
+  if (!url) return;
+
+  await registrarSopaCompletada();
+  window.location.href = url;
 }
 
 function showTimeUpModal() {

@@ -30,15 +30,15 @@
       display: block;
     }
 
-    .estado-espera-profesor{
-  margin-top: 14px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 209, 102, 0.12);
-  border: 1px solid rgba(255, 209, 102, 0.35);
-  color: #ffe29a;
-  font-weight: 700;
-}
+    .estado-espera-profesor {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 209, 102, 0.12);
+      border: 1px solid rgba(255, 209, 102, 0.35);
+      color: #ffe29a;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -51,26 +51,54 @@
       </p>
     </header>
 
+    {% if desafio_confirmado %}
+    <div class="estado-seleccion visible" id="estadoSeleccionConfirmado">
+      <strong>Desafío confirmado:</strong>
+      <span id="nombreDesafioConfirmado">{{ desafio_nombre_actual }}</span>
+      <div id="descripcionDesafioConfirmado" style="margin-top:8px;">
+        {{ desafio_descripcion_actual }}
+      </div>
+
+      <div class="estado-espera-profesor">
+        Tu equipo ya quedó listo en esta etapa.
+      </div>
+
+      <div style="margin-top:14px;">
+        <button id="btnCambiarDesafio" class="btn select" type="button">
+          Cambiar desafío
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
     <section class="challenges-grid" aria-label="Desafíos disponibles">
       {% for challenge in theme.challenges %}
-      <article class="challenge-card"
-               id="card-{{ challenge.id }}"
-               tabindex="0"
-               data-id="{{ challenge.id }}"
-               data-title="{{ challenge.name }}"
-               data-desc="{{ challenge.desc }}"
-               data-slug="{{ slug }}">
+      <article
+        class="challenge-card"
+        id="card-{{ challenge.id }}"
+        tabindex="0"
+        data-id="{{ challenge.id }}"
+        data-title="{{ challenge.name }}"
+        data-desc="{{ challenge.desc }}"
+        data-slug="{{ slug }}"
+      >
         <div class="content">
           <h2 class="title">{{ challenge.name }}</h2>
           <p class="desc">{{ challenge.summary|default:challenge.desc }}</p>
         </div>
+
         <div class="actions">
           <button
             class="btn select"
             type="button"
             data-desafio-id="{{ challenge.id }}"
+            {% if desafio_confirmado %}disabled{% endif %}
           >
-            Elegir
+            {% if desafio_confirmado and desafio_id_actual == challenge.id|stringformat:"s" %}
+              Confirmado
+            {% else %}
+              Elegir
+            {% endif %}
           </button>
         </div>
       </article>
@@ -80,15 +108,24 @@
     </section>
 
     <div id="estadoSeleccion" class="estado-seleccion" aria-live="polite">
-  <strong>Desafío seleccionado:</strong>
-  <span id="nombreDesafioSeleccionado">-</span>
-  <div id="descripcionDesafioSeleccionado" style="margin-top:8px;"></div>
+      <strong>Desafío seleccionado:</strong>
+      <span id="nombreDesafioSeleccionado">-</span>
+      <div id="descripcionDesafioSeleccionado" style="margin-top:8px;"></div>
 
-  <div id="estadoEsperaProfesor" class="estado-espera-profesor">
-    Esperando a que el profesor avance a la siguiente etapa.
-  </div>
-</div>
+      <div id="estadoEsperaProfesor" class="estado-espera-profesor">
+        Esperando a que el profesor avance a la siguiente etapa.
+      </div>
+    </div>
   </main>
+
+  <div
+    id="desafio-data"
+    data-desafio-confirmado="{% if desafio_confirmado %}true{% else %}false{% endif %}"
+    data-desafio-id-actual="{{ desafio_id_actual|default:'' }}"
+    data-desafio-nombre-actual="{{ desafio_nombre_actual|default:''|escape }}"
+    data-desafio-descripcion-actual="{{ desafio_descripcion_actual|default:''|escape }}"
+    hidden
+  ></div>
 
   <script>
     function getCookie(name) {
@@ -111,11 +148,19 @@
       const estadoSeleccion = document.getElementById("estadoSeleccion");
       const nombreDesafio = document.getElementById("nombreDesafioSeleccionado");
       const descripcionDesafio = document.getElementById("descripcionDesafioSeleccionado");
+      const btnCambiar = document.getElementById("btnCambiarDesafio");
+      const desafioData = document.getElementById("desafio-data");
+
+      const desafioConfirmado = desafioData?.dataset?.desafioConfirmado === "true";
+      const desafioIdActual = desafioData?.dataset?.desafioIdActual || "";
+      const desafioNombreActual = desafioData?.dataset?.desafioNombreActual || "";
+      const desafioDescripcionActual = desafioData?.dataset?.desafioDescripcionActual || "";
 
       let enviando = false;
+      let bloqueado = desafioConfirmado;
 
       function marcarSeleccion(cardId) {
-        document.querySelectorAll(".challenge-card").forEach(card => {
+        document.querySelectorAll(".challenge-card").forEach((card) => {
           card.classList.remove("seleccionado");
         });
 
@@ -123,15 +168,52 @@
         if (card) card.classList.add("seleccionado");
       }
 
+      function aplicarModoBloqueado(desafioId, nombre, descripcion) {
+        bloqueado = true;
+
+        botones.forEach((b) => {
+          b.disabled = true;
+          b.textContent = b.dataset.desafioId === String(desafioId) ? "Confirmado" : "Elegir";
+        });
+
+        if (nombreDesafio) nombreDesafio.textContent = nombre || "-";
+        if (descripcionDesafio) descripcionDesafio.textContent = descripcion || "";
+        if (estadoSeleccion) estadoSeleccion.classList.add("visible");
+
+        marcarSeleccion(`card-${desafioId}`);
+      }
+
+      function aplicarModoEditable() {
+        bloqueado = false;
+        botones.forEach((b) => {
+          b.disabled = false;
+          b.textContent = "Elegir";
+        });
+      }
+
+      if (desafioConfirmado) {
+        aplicarModoBloqueado(
+          desafioIdActual,
+          desafioNombreActual,
+          desafioDescripcionActual
+        );
+      }
+
       botones.forEach((btn) => {
         btn.addEventListener("click", async () => {
-          if (enviando) return;
+          if (enviando || bloqueado) return;
 
           const desafioId = btn.dataset.desafioId;
           if (!desafioId) return;
 
+          if (!confirm("¿Confirmar este desafío para tu equipo?")) {
+            return;
+          }
+
           enviando = true;
-          botones.forEach(b => b.disabled = true);
+          botones.forEach((b) => {
+            b.disabled = true;
+          });
 
           try {
             const res = await fetch("{% url 'guardar_desafio' %}", {
@@ -147,41 +229,61 @@
               })
             });
 
-            const contentType = res.headers.get("content-type") || "";
-            if (!contentType.includes("application/json")) {
-              const texto = await res.text();
-              console.error("guardar_desafio devolvió HTML/no JSON:", texto);
-              throw new Error("El servidor no devolvió JSON. Revisa la terminal de Django.");
-            }
-
             const data = await res.json();
 
             if (!res.ok || !data.ok) {
               throw new Error(data.error || "No se pudo guardar el desafío.");
             }
 
-            marcarSeleccion(`card-${desafioId}`);
-            nombreDesafio.textContent = data.desafio_nombre || "Desafío seleccionado";
-            descripcionDesafio.textContent = data.desafio_descripcion || "";
-            estadoSeleccion.classList.add("visible");
-
-            botones.forEach(b => {
-  b.disabled = false;
-  if (b.dataset.desafioId === desafioId) {
-    b.textContent = "Elegido";
-  } else {
-    b.textContent = "Elegir";
-  }
-});
-
+            aplicarModoBloqueado(
+              data.desafio_id,
+              data.desafio_nombre,
+              data.desafio_descripcion
+            );
           } catch (error) {
             console.error("Error guardando desafío:", error);
             alert(error.message || "Hubo un problema al guardar el desafío.");
-            botones.forEach(b => b.disabled = false);
+            aplicarModoEditable();
           } finally {
             enviando = false;
           }
         });
+      });
+
+      btnCambiar?.addEventListener("click", async () => {
+        if (!confirm("¿Desean cambiar el desafío? El equipo dejará de estar listo hasta confirmar otro.")) {
+          return;
+        }
+
+        try {
+          const res = await fetch("{% url 'desbloquear_desafio' %}", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken"),
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify({})
+          });
+
+          const data = await res.json();
+
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || "No se pudo desbloquear el desafío.");
+          }
+
+          aplicarModoEditable();
+          document.querySelectorAll(".challenge-card").forEach((card) => {
+            card.classList.remove("seleccionado");
+          });
+
+          if (estadoSeleccion) estadoSeleccion.classList.remove("visible");
+          location.reload();
+        } catch (error) {
+          console.error(error);
+          alert(error.message || "No se pudo cambiar el desafío.");
+        }
       });
     });
   </script>

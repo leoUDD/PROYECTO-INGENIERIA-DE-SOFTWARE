@@ -210,6 +210,8 @@ class Sesion(models.Model):
     fase_actual = models.CharField(max_length=40, default="f1_bienvenida")  
     timer_corriendo = models.BooleanField(default=False)
     segundos_restantes = models.IntegerField(default=0)
+    timer_inicio_at = models.DateTimeField(null=True, blank=True)
+    timer_fin_at = models.DateTimeField(null=True, blank=True)
 
     #Timer
     t_rompehielo = models.IntegerField(default=180)
@@ -253,9 +255,20 @@ class Evaluacion(models.Model):
     reflexion = models.TextField(null=True, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
         db_table = 'evaluacion'
         unique_together = ('sesion', 'grupo_evaluador', 'grupo_evaluado')
 
     def puntaje_total(self):
         return self.claridad + self.creatividad + self.viabilidad + self.equipo + self.presentacion
+
+class PalabraSopaEncontrada(models.Model):
+    sesion = models.ForeignKey('Sesion', on_delete=models.CASCADE, related_name='palabras_sopa')
+    grupo = models.ForeignKey('Grupo', on_delete=models.CASCADE, related_name='palabras_sopa')
+    palabra = models.CharField(max_length=80)
+    creada_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'palabra_sopa_encontrada'
+        unique_together = ('sesion', 'grupo', 'palabra')

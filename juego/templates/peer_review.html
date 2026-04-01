@@ -84,9 +84,14 @@
             </p>
 
             <div class="acciones-finales">
-              <a href="{% url 'mision_cumplida' %}" class="btn btn-primary">
-                Continuar
-              </a>
+              {% if submitted %}
+               <div class="alert alert-success">
+                  Ya terminaron de evaluar a todos los equipos.
+                </div>
+                <a href="{% url 'mision_cumplida' %}" class="btn btn-primary">
+                   Continuar
+                </a>
+              {% endif %}
             </div>
 
           {% else %}

@@ -2,6 +2,8 @@
 from .forms import FotoLegoForm
 from django.views.decorators.http import require_GET, require_POST
 import json
+from datetime import timedelta
+from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -13,7 +15,7 @@ from django.views.decorators.http import require_http_methods
 from .tematicas_data import get_theme
 import openpyxl
 import pandas as pd
-from .models import Alumno, Profesor, Usuario, Grupo, Desafio, Idadministrador, Sesion, Reto, Retogrupo, Evaluacion
+from .models import Alumno, Profesor, Usuario, Grupo, Desafio, Idadministrador, Sesion, Reto, Retogrupo, Evaluacion, PalabraSopaEncontrada
 from django.db import transaction
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -110,51 +112,110 @@ ETIQUETA_FASE = {
 
 def obtener_grupo_desde_session(request):
     grupo_id = request.session.get("grupo_id")
+    sesion_id = request.session.get("sesion_id")
+
     if not grupo_id:
         return None
+
     try:
-        return Grupo.objects.select_related("sesion").get(pk=grupo_id)
+        grupo = Grupo.objects.select_related("sesion").get(pk=grupo_id)
     except Grupo.DoesNotExist:
         request.session.flush()
         return None
+
+    if sesion_id and grupo.sesion_id != sesion_id:
+        request.session.flush()
+        return None
+
+    return grupo
+
 def salir_grupo(request):
     request.session.flush()
     messages.success(request, "Sesión del grupo cerrada correctamente.")
     return redirect("registro")
+
+def calcular_segundos_restantes(sesion):
+    if not sesion.timer_corriendo or not sesion.timer_fin_at:
+        return max(int(sesion.segundos_restantes or 0), 0)
+
+    restantes = int((sesion.timer_fin_at - timezone.now()).total_seconds())
+
+    if restantes <= 0:
+        sesion.timer_corriendo = False
+        sesion.segundos_restantes = 0
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
+        sesion.save(update_fields=[
+            "timer_corriendo",
+            "segundos_restantes",
+            "timer_inicio_at",
+            "timer_fin_at",
+        ])
+        return 0
+
+    return restantes
+
+
+def peer_review_completado(grupo):
+    sesion = grupo.sesion
+    all_targets = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo.pk)
+    evaluados_ids = set(
+        Evaluacion.objects.filter(
+            sesion=sesion,
+            grupo_evaluador=grupo,
+        ).values_list("grupo_evaluado_id", flat=True)
+    )
+    return not all_targets.exclude(pk__in=evaluados_ids).exists()
+
+
+def ruta_alumno_por_estado(grupo):
+    fase = grupo.sesion.fase_actual
+
+    if fase == "f2_tematicas":
+        if not (grupo.tema_elegido or "").strip():
+            return "tematicas"
+        return "desafios"
+
+    if fase == "f5_evaluacion_pitch":
+        if peer_review_completado(grupo):
+            return "mision_cumplida"
+        return "peer_review"
+
+    return RUTA_POR_FASE.get(fase, "pantalla_espera")
 
 def acceso_permitido(grupo, nombre_vista):
     if not grupo or not grupo.sesion:
         return False
 
     fases_por_vista = {
-    "pantalla_espera": ["lobby"],
+        "pantalla_espera": ["lobby"],
 
-    "pantalla_inicio": ["f1_bienvenida"],
-    "conocidos": ["f1_conocidos"],
-    "trabajoenequipo": ["f1_pre_sopa"],
-    "minijuego1": ["f1_sopa"],
+        "pantalla_inicio": ["f1_bienvenida"],
+        "conocidos": ["f1_conocidos"],
+        "trabajoenequipo": ["f1_pre_sopa"],
+        "minijuego1": ["f1_sopa"],
 
-    "transiciondesafio": ["f2_transicion"],
-    "tematicas": ["f2_tematicas"],
-    "desafios": ["f2_tematicas"],
-    "espera_eleccion": ["f2_tematicas"],
-    "transicionempatia": ["f2_transicion_empatia"],
-    "bubblemap": ["f2_bubblemap"],
+        "transiciondesafio": ["f2_transicion"],
+        "tematicas": ["f2_tematicas"],
+        "desafios": ["f2_tematicas"],
+        "transicionempatia": ["f2_transicion_empatia"],
+        "bubblemap": ["f2_bubblemap"],
 
-    "transicioncreatividad": ["f3_transicion_creatividad"],
-    "lego": ["f3_lego"],
+        "transicioncreatividad": ["f3_transicion_creatividad"],
+        "lego": ["f3_lego"],
 
-    "transicioncomunicacion": ["f4_transicion_comunicacion"],
-    "pitch": ["f4_construccion_pitch"],
-    "orden_presentacion_alumno": ["f4_orden_pitch"],
-    "presentar_pitch": ["f4_presentacion_pitch"],
+        "transicioncomunicacion": ["f4_transicion_comunicacion"],
+        "pitch": ["f4_construccion_pitch"],
+        "orden_presentacion_alumno": ["f4_orden_pitch"],
+        "presentar_pitch": ["f4_presentacion_pitch"],
 
-    "transicionapoyo": ["f5_transicion_apoyo"],
-    "peer_review": ["f5_evaluacion_pitch"],
+        "transicionapoyo": ["f5_transicion_apoyo"],
+        "peer_review": ["f5_evaluacion_pitch"],
+        "mision_cumplida": ["f5_evaluacion_pitch"],
 
-    "ranking": ["f6_ranking"],
-    "reflexion": ["reflexion"],
-}
+        "ranking": ["f6_ranking"],
+        "reflexion": ["reflexion"],
+    }
 
     return grupo.sesion.fase_actual in fases_por_vista.get(nombre_vista, [])
 
@@ -203,7 +264,7 @@ def serializar_estado_pitch(sesion, grupo_solicitante=None):
             for g in orden_pitch
         ],
         "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": sesion.segundos_restantes,
+        "segundosRestantes": calcular_segundos_restantes(sesion),
         "miPitch": grupo_solicitante.pitch_texto if grupo_solicitante else None,
     }
 
@@ -268,7 +329,11 @@ def estado_sesion(request, sesion_id):
     grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
 
     fase_actual = sesion.fase_actual
-    nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
+    grupo_actual = obtener_grupo_desde_session(request)
+    if grupo_actual and grupo_actual.sesion_id == sesion.idsesion:
+        nombre_url = ruta_alumno_por_estado(grupo_actual)
+    else:
+        nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
 
     grupos_data = [
         {
@@ -300,8 +365,8 @@ def estado_sesion(request, sesion_id):
         "faseEtiqueta": ETIQUETA_FASE.get(fase_actual, fase_actual),
         "rutaAlumno": reverse(nombre_url),
         "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": sesion.segundos_restantes,
-        "totalGrupos": total_grupos,
+        "segundosRestantes": calcular_segundos_restantes(sesion), 
+       "totalGrupos": total_grupos,
         "gruposListosF2": grupos_listos_f2,
         "todosListosF2": todos_listos_f2,
         "grupos": grupos_data,
@@ -317,8 +382,10 @@ def estado_sesion(request, sesion_id):
 def guardar_tematica(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
-        print("guardar_tematica -> SIN GRUPO EN SESION")
         return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
+
+    if grupo.sesion.fase_actual != "f2_tematicas":
+        return JsonResponse({"ok": False, "error": "La sesión no está en la etapa de temáticas."}, status=400)
 
     tema = ""
 
@@ -331,14 +398,11 @@ def guardar_tematica(request):
     else:
         tema = (request.POST.get("tema") or request.POST.get("slug") or "").strip().lower()
 
-    print(f"guardar_tematica -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | tema: {tema}")
-
     if not tema or not get_theme(tema):
         return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
 
     grupo.tema_elegido = tema
     grupo.listo_f2_tematica = True
-
     grupo.desafio_elegido = None
     grupo.desafio_id_externo = None
     grupo.desafio_nombre = None
@@ -364,16 +428,15 @@ def guardar_tematica(request):
 def guardar_desafio(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
-        print("guardar_desafio -> SIN GRUPO EN SESION")
         return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
 
-    print(f"guardar_desafio -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo}")
+    if grupo.sesion.fase_actual != "f2_tematicas":
+        return JsonResponse({"ok": False, "error": "La sesión no está en la etapa de desafíos."}, status=400)
 
     try:
         payload = json.loads(request.body or "{}")
-        desafio_id = payload.get("desafio_id")
-    except Exception as e:
-        print(f"guardar_desafio -> ERROR leyendo JSON: {e}")
+        desafio_id = str(payload.get("desafio_id") or "").strip()
+    except Exception:
         return JsonResponse({"ok": False, "error": "Solicitud inválida."}, status=400)
 
     if not desafio_id:
@@ -381,20 +444,16 @@ def guardar_desafio(request):
 
     tema = (grupo.tema_elegido or "").strip().lower()
     theme = get_theme(tema)
-
-    print(f"guardar_desafio -> tema grupo: {tema}")
-
     if not theme:
         return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
 
     challenge = None
     for c in theme.get("challenges", []):
-        if str(c.get("id")) == str(desafio_id):
+        if str(c.get("id")) == desafio_id:
             challenge = c
             break
 
     if not challenge:
-        print(f"guardar_desafio -> desafio no encontrado: {desafio_id}")
         return JsonResponse({"ok": False, "error": "Desafío no válido."}, status=404)
 
     grupo.desafio_id_externo = str(challenge.get("id"))
@@ -409,13 +468,27 @@ def guardar_desafio(request):
         "listo_f2_desafio",
     ])
 
-    print(f"guardar_desafio -> OK grupo {grupo.idgrupo} listo_f2_desafio=True")
-
     return JsonResponse({
         "ok": True,
-        "desafio_nombre": challenge.get("name", ""),
-        "desafio_descripcion": challenge.get("desc", ""),
+        "desafio_id": grupo.desafio_id_externo,
+        "desafio_nombre": grupo.desafio_nombre,
+        "desafio_descripcion": grupo.desafio_descripcion,
+        "bloqueado": True,
     })
+
+@require_POST
+def desbloquear_desafio(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
+
+    if grupo.sesion.fase_actual != "f2_tematicas":
+        return JsonResponse({"ok": False, "error": "No puedes cambiar el desafío en esta etapa."}, status=400)
+
+    grupo.listo_f2_desafio = False
+    grupo.save(update_fields=["listo_f2_desafio"])
+
+    return JsonResponse({"ok": True})
 
 @require_POST
 def profesor_actualizar_estado(request, sesion_id):
@@ -423,63 +496,82 @@ def profesor_actualizar_estado(request, sesion_id):
     payload = json.loads(request.body or "{}")
 
     fase_anterior = sesion.fase_actual
-    nueva_fase = None
+    nueva_fase = payload.get("faseActual")
 
-    if "faseActual" in payload:
-        nueva_fase = payload["faseActual"]
-
+    if nueva_fase:
         if nueva_fase not in FASES_ORDEN:
             return JsonResponse({"ok": False, "error": "Pantalla inválida"}, status=400)
-
         sesion.fase_actual = nueva_fase
 
-    if "timerCorriendo" in payload:
-        sesion.timer_corriendo = bool(payload["timerCorriendo"])
+    tiempos_por_fase = {
+        "f1_conocidos": 45,
+        "f1_pre_sopa": 0,
+        "f1_sopa": sesion.t_diferencias,
+        "f2_transicion": 0,
+        "f2_tematicas": 0,
+        "f2_transicion_empatia": 0,
+        "f2_bubblemap": sesion.t_empatia,
+        "f3_transicion_creatividad": 0,
+        "f3_lego": sesion.t_creatividad,
+        "f4_transicion_comunicacion": 0,
+        "f4_construccion_pitch": sesion.t_pitch,
+        "f4_orden_pitch": 0,
+        "f4_presentacion_pitch": 90,
+        "f5_transicion_apoyo": 0,
+        "f5_evaluacion_pitch": 60,
+        "f6_ranking": 0,
+        "reflexion": 0,
+    }
 
-    if "segundosRestantes" in payload:
-        sesion.segundos_restantes = int(payload["segundosRestantes"])
-
-    TIEMPOS_POR_FASE = {
-    "f1_conocidos": 45,
-    "f1_pre_sopa": 0,
-    "f1_sopa": sesion.t_diferencias,
-
-    "f2_transicion": 0,
-    "f2_tematicas": 0,
-    "f2_transicion_empatia": 0,
-    "f2_bubblemap": sesion.t_empatia,
-
-    "f3_transicion_creatividad": 0,
-    "f3_lego": sesion.t_creatividad,
-
-    "f4_transicion_comunicacion": 0,
-    "f4_construccion_pitch": sesion.t_pitch,
-    "f4_orden_pitch": 0,
-    "f4_presentacion_pitch": 90,
-
-    "f5_transicion_apoyo": 0,
-    "f5_evaluacion_pitch": 60,
-
-    "f6_ranking": 0,
-    "reflexion": 0,
-}
-
-    if nueva_fase and nueva_fase != fase_anterior and nueva_fase in TIEMPOS_POR_FASE:
-        sesion.segundos_restantes = TIEMPOS_POR_FASE[nueva_fase]
+    if nueva_fase and nueva_fase != fase_anterior:
+        sesion.segundos_restantes = int(tiempos_por_fase.get(nueva_fase, 0))
         sesion.timer_corriendo = False
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
+
+        if nueva_fase == "f5_evaluacion_pitch":
+            Grupo.objects.filter(sesion=sesion).update(
+                listo_ranking=False,
+                recompensa_peer_otorgada=False,
+            )
+
+    if "timerCorriendo" in payload:
+        timer_corriendo = bool(payload["timerCorriendo"])
+
+        if timer_corriendo:
+            segundos_base = int(payload.get("segundosRestantes", sesion.segundos_restantes or 0))
+            sesion.segundos_restantes = max(segundos_base, 0)
+            sesion.timer_corriendo = sesion.segundos_restantes > 0
+            sesion.timer_inicio_at = timezone.now() if sesion.timer_corriendo else None
+            sesion.timer_fin_at = (
+                timezone.now() + timedelta(seconds=sesion.segundos_restantes)
+                if sesion.timer_corriendo else None
+            )
+        else:
+            restantes = calcular_segundos_restantes(sesion)
+            sesion.segundos_restantes = restantes
+            sesion.timer_corriendo = False
+            sesion.timer_inicio_at = None
+            sesion.timer_fin_at = None
+
+    elif "segundosRestantes" in payload:
+        sesion.segundos_restantes = max(int(payload["segundosRestantes"]), 0)
+        sesion.timer_corriendo = False
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
 
     sesion.save()
 
     return JsonResponse({
-    "esProfesor": True,
-    "ok": True,
-    "faseActual": sesion.fase_actual,
-    "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
-    "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
-    "timerCorriendo": sesion.timer_corriendo,
-    "segundosRestantes": sesion.segundos_restantes,
-    **serializar_estado_pitch(sesion),
-})
+        "esProfesor": True,
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
+        "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": calcular_segundos_restantes(sesion),
+        **serializar_estado_pitch(sesion),
+    })
 
 
 @require_POST
@@ -507,7 +599,10 @@ def profesor_siguiente_fase(request, sesion_id):
     nueva_fase = FASES_ORDEN[idx + 1]
 
     if nueva_fase == "f5_evaluacion_pitch":
-        Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
+        Grupo.objects.filter(sesion=sesion).update(
+            listo_ranking=False,
+            recompensa_peer_otorgada=False,
+    )
 
     if nueva_fase == "f6_ranking":
         total = Grupo.objects.filter(sesion=sesion).count()
@@ -562,7 +657,7 @@ def profesor_siguiente_fase(request, sesion_id):
         "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
         "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
         "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": sesion.segundos_restantes,
+        "segundosRestantes": calcular_segundos_restantes(sesion),
         **serializar_estado_pitch(sesion),
     })
 
@@ -619,11 +714,16 @@ def marcar_grupo_listo(request, grupo_id):
 
 
 
+@never_cache
 def pantalla_espera(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
         messages.error(request, "Debes ingresar con tu código.")
         return redirect("registro")
+
+    ruta = ruta_alumno_por_estado(grupo)
+    if ruta != "pantalla_espera":
+        return redirect(ruta)
 
     return render(request, "pantalla_espera.html", {"grupo": grupo})
 
@@ -645,11 +745,22 @@ def trabajoenequipo(request):
         return redirect("pantalla_espera")
     return render(request, "trabajoenequipo.html", {"grupo": grupo})
 
+@never_cache
 def tematicas(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
-        print("tematicas -> SIN GRUPO EN SESION")
         return redirect("registro")
+
+    if not acceso_permitido(grupo, "tematicas"):
+        return redirect("pantalla_espera")
+
+    if (grupo.tema_elegido or "").strip():
+        return redirect("desafios")
+
+    return render(request, "tematicas.html", {
+        "grupo": grupo,
+        "tema_actual": (grupo.tema_elegido or "").strip().lower(),
+    })
 
     print(f"tematicas -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | sesion: {grupo.sesion.idsesion}")
 
@@ -716,7 +827,10 @@ def registro(request):
             return render(request, "registro.html", {"error": error})
 
         request.session.flush()
+        request.session.cycle_key()
         request.session["grupo_id"] = grupo.idgrupo
+        request.session["sesion_id"] = grupo.sesion_id
+        request.session["ranking_flags_reseteados"] = False
         request.session.modified = True
 
         print(f"registro -> codigo={codigo} | grupo={grupo.idgrupo} | nombre={grupo.nombregrupo} | sesion={grupo.sesion.idsesion if grupo.sesion else 'SIN SESION'}")
@@ -760,22 +874,66 @@ def minijuego1(request):
         return redirect("pantalla_espera")
     return render(request, "minijuego1.html", {"grupo": grupo})
 
+@require_POST
 def sopa_completada(request):
-    grupo_id = request.session.get("grupo_id")
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "No se pudo identificar tu grupo."}, status=403)
 
-    if not grupo_id:
-        messages.error(request, "No se pudo identificar tu grupo.")
-        return redirect("registro")
+    with transaction.atomic():
+        grupo = Grupo.objects.select_for_update().get(pk=grupo.pk)
 
-    grupo = get_object_or_404(Grupo, pk=grupo_id)
+        if grupo.sopa_ganada:
+            return JsonResponse({"ok": True, "ya_completada": True})
 
-    if not grupo.sopa_ganada:
-        grupo.tokensgrupo = (grupo.tokensgrupo or 0) + 3
+        ya_habia_otro = Grupo.objects.select_for_update().filter(
+            sesion=grupo.sesion,
+            sopa_ganada=True
+        ).exclude(pk=grupo.pk).exists()
+
+        bonus = 3
+        if not ya_habia_otro:
+            bonus += 2
+
+        grupo.tokensgrupo = (grupo.tokensgrupo or 0) + bonus
         grupo.sopa_ganada = True
-        grupo.save()
+        grupo.save(update_fields=["tokensgrupo", "sopa_ganada"])
 
-    return redirect("transiciondesafio")
+    return JsonResponse({
+        "ok": True,
+        "bonus_otorgado": bonus,
+        "primer_equipo": not ya_habia_otro,
+    })
 
+@require_POST
+def registrar_palabra_sopa(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "No se pudo identificar tu grupo."}, status=403)
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except Exception:
+        payload = {}
+
+    palabra = (payload.get("palabra") or "").strip().upper()
+    if not palabra:
+        return JsonResponse({"ok": False, "error": "Palabra inválida."}, status=400)
+
+    with transaction.atomic():
+        _, creada = PalabraSopaEncontrada.objects.get_or_create(
+            sesion=grupo.sesion,
+            grupo=grupo,
+            palabra=palabra,
+        )
+
+        if creada:
+            Grupo.objects.filter(pk=grupo.pk).update(tokensgrupo=F("tokensgrupo") + 1)
+
+    return JsonResponse({
+        "ok": True,
+        "nueva": creada,
+    })
 
 def dashboardprofesor(request):
     profesor = Profesor.objects.first()
@@ -1129,30 +1287,31 @@ def agregar_alumno_manual(request):
 
     return redirect("registraralumnos")
 
+@never_cache
 def desafios(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
-        print("desafios -> SIN GRUPO EN SESION")
         return redirect("registro")
 
+    if not acceso_permitido(grupo, "desafios"):
+        return redirect("pantalla_espera")
+
     slug = (grupo.tema_elegido or "").strip().lower()
-
-    print(f"desafios -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | tema en BD: {slug}")
-
     if not slug:
-        print(f"desafios -> grupo {grupo.idgrupo} no tiene temática elegida")
         return redirect("tematicas")
 
     theme = get_theme(slug)
-
     if not theme:
-        print(f"desafios -> tema invalido para grupo {grupo.idgrupo}: {slug}")
         return redirect("tematicas")
 
     return render(request, "desafios.html", {
         "grupo": grupo,
         "theme": theme,
         "slug": slug,
+        "desafio_confirmado": bool(grupo.listo_f2_desafio),
+        "desafio_id_actual": str(grupo.desafio_id_externo or ""),
+        "desafio_nombre_actual": grupo.desafio_nombre or "",
+        "desafio_descripcion_actual": grupo.desafio_descripcion or "",
     })
 
 
@@ -1328,115 +1487,82 @@ def issue_challenge_view(request, challenge_id):
     )
     return redirect("market")
 
+@never_cache
 def peer_review_view(request):
     grupo_evaluador = obtener_grupo_desde_session(request)
     if not grupo_evaluador:
-        messages.error(request, "No pudimos identificar tu grupo.")
         return redirect("registro")
 
-    print("PEER REVIEW -> grupo session:", grupo_evaluador.idgrupo, grupo_evaluador.nombregrupo)
+    if not acceso_permitido(grupo_evaluador, "peer_review"):
+        return redirect("pantalla_espera")
 
     sesion = grupo_evaluador.sesion
-
-    if not sesion:
-        messages.error(request, "Tu grupo no está asociado a ninguna sesión.")
-        return redirect("registro")
-
-    criteria = [
-        {"key": "claridad",     "label": "Claridad de la solución"},
-        {"key": "creatividad",  "label": "Creatividad / innovación"},
-        {"key": "viabilidad",   "label": "Viabilidad del proyecto"},
-        {"key": "equipo",       "label": "Trabajo en equipo"},
-        {"key": "presentacion", "label": "Calidad de la presentación / pitch"},
-    ]
-
-    all_targets = (
-        Grupo.objects
-        .filter(sesion=sesion)
-        .exclude(pk=grupo_evaluador.pk)
-        .order_by("pk")
-    )
-
-    evaluaciones_hechas = Evaluacion.objects.filter(
-        sesion=sesion,
-        grupo_evaluador=grupo_evaluador,
-    )
+    all_targets = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo_evaluador.pk)
 
     evaluados_ids = set(
-        evaluaciones_hechas.values_list("grupo_evaluado_id", flat=True)
+        Evaluacion.objects.filter(
+            sesion=sesion,
+            grupo_evaluador=grupo_evaluador,
+        ).values_list("grupo_evaluado_id", flat=True)
     )
 
     pending_targets = all_targets.exclude(pk__in=evaluados_ids)
     completed = not pending_targets.exists()
 
-    if completed and not getattr(grupo_evaluador, "recompensa_peer_otorgada", False):
-        otorgar_tokens_peer_review(grupo_evaluador)
+    if completed:
+        if not grupo_evaluador.listo_f5:
+            grupo_evaluador.listo_f5 = True
+            grupo_evaluador.save(update_fields=["listo_f5"])
+        return redirect("mision_cumplida")
+
+    criteria = [
+        {"key": "claridad", "label": "Claridad"},
+        {"key": "creatividad", "label": "Creatividad"},
+        {"key": "viabilidad", "label": "Viabilidad"},
+        {"key": "equipo", "label": "Trabajo en equipo"},
+        {"key": "presentacion", "label": "Presentación"},
+    ]
 
     if request.method == "POST":
-        if completed:
-            messages.info(request, "Tu grupo ya completó todas las evaluaciones.")
-            return redirect("peer_review")
-
-        target_team_id = request.POST.get("target_team_id")
-        comment = request.POST.get("comment", "").strip()
-        reflection = request.POST.get("reflection", "").strip()
-        confirm = request.POST.get("confirm_honesty")
-
-        try:
-            target_team_id = int(target_team_id)
-        except (TypeError, ValueError):
-            messages.error(request, "Debes seleccionar un equipo válido.")
-            return redirect("peer_review")
-
-        try:
-            grupo_evaluado = Grupo.objects.get(pk=target_team_id, sesion=sesion)
-        except Grupo.DoesNotExist:
-            messages.error(request, "El equipo seleccionado no es válido para esta sesión.")
-            return redirect("peer_review")
+        team_id = request.POST.get("team_id")
+        grupo_evaluado = get_object_or_404(
+            Grupo,
+            pk=team_id,
+            sesion=sesion,
+        )
 
         if grupo_evaluado.pk == grupo_evaluador.pk:
             messages.error(request, "No puedes evaluar a tu propio equipo.")
             return redirect("peer_review")
 
-        if grupo_evaluado.pk in evaluados_ids:
-            messages.info(request, "Ese equipo ya fue evaluado por tu grupo.")
-            return redirect("peer_review")
-
-        if not comment:
-            messages.error(request, "El comentario es obligatorio.")
-            return redirect("peer_review")
-
-        if not confirm:
-            messages.error(request, "Debes confirmar que la evaluación es honesta.")
-            return redirect("peer_review")
-
         scores = {}
         for c in criteria:
-            val = request.POST.get(f"score_{c['key']}")
-            if val not in ["1", "2", "3", "4", "5"]:
-                messages.error(request, "Debes completar todos los criterios.")
+            raw = request.POST.get(f"score_{c['key']}")
+            if raw not in {"1", "2", "3", "4", "5"}:
+                messages.error(request, f"Debes completar el criterio: {c['label']}.")
                 return redirect("peer_review")
-            scores[c["key"]] = int(val)
+            scores[c["key"]] = int(raw)
 
-        if Evaluacion.objects.filter(
-            sesion=sesion,
-            grupo_evaluador=grupo_evaluador,
-            grupo_evaluado=grupo_evaluado
-        ).exists():
-            messages.info(request, "Ese equipo ya fue evaluado por tu grupo.")
+        comment = (request.POST.get("comment") or "").strip()
+        reflection = (request.POST.get("reflection") or "").strip()
+
+        if not comment:
+            messages.error(request, "Debes escribir un comentario.")
             return redirect("peer_review")
 
-        Evaluacion.objects.create(
+        Evaluacion.objects.update_or_create(
             sesion=sesion,
             grupo_evaluador=grupo_evaluador,
             grupo_evaluado=grupo_evaluado,
-            claridad=scores["claridad"],
-            creatividad=scores["creatividad"],
-            viabilidad=scores["viabilidad"],
-            equipo=scores["equipo"],
-            presentacion=scores["presentacion"],
-            comentario=comment,
-            reflexion=reflection or None,
+            defaults={
+                "claridad": scores["claridad"],
+                "creatividad": scores["creatividad"],
+                "viabilidad": scores["viabilidad"],
+                "equipo": scores["equipo"],
+                "presentacion": scores["presentacion"],
+                "comentario": comment,
+                "reflexion": reflection or None,
+            }
         )
 
         evaluados_ids = set(
@@ -1445,12 +1571,14 @@ def peer_review_view(request):
                 grupo_evaluador=grupo_evaluador,
             ).values_list("grupo_evaluado_id", flat=True)
         )
-
         pending_targets = all_targets.exclude(pk__in=evaluados_ids)
         completed = not pending_targets.exists()
 
-        if completed and not getattr(grupo_evaluador, "recompensa_peer_otorgada", False):
+        if completed and not grupo_evaluador.recompensa_peer_otorgada:
             otorgar_tokens_peer_review(grupo_evaluador)
+            grupo_evaluador.listo_f5 = True
+            grupo_evaluador.save(update_fields=["listo_f5"])
+            return redirect("mision_cumplida")
 
         messages.success(request, "¡Evaluación enviada para ese equipo!")
         return redirect("peer_review")
@@ -1460,13 +1588,10 @@ def peer_review_view(request):
         "evaluator_team": grupo_evaluador,
         "target_teams": pending_targets,
         "criteria": criteria,
-        "submitted": completed,
+        "submitted": False,
         "evaluados_count": len(evaluados_ids),
         "total_targets": all_targets.count(),
     }
-
-    print("PEER REVIEW -> enviado al template:", grupo_evaluador.idgrupo, grupo_evaluador.nombregrupo)
-
     return render(request, "peer_review.html", context)
 
 def ranking(request):
@@ -1700,17 +1825,18 @@ def ranking_view(request):
     }
     return render(request, "ranking.html", context)
 
+@never_cache
 def mision_cumplida_view(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
         messages.error(request, "No pudimos identificar tu grupo.")
         return redirect("registro")
 
-    sesion = grupo.sesion
+    if not acceso_permitido(grupo, "mision_cumplida"):
+        return redirect("pantalla_espera")
 
-    if not request.session.get("ranking_flags_reseteados"):
-        Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
-        request.session["ranking_flags_reseteados"] = True
+    if not peer_review_completado(grupo):
+        return redirect("peer_review")
 
     return render(request, "mision_cumplida.html", {
         "grupo": grupo,

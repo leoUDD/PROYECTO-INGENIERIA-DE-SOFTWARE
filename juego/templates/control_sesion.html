@@ -659,8 +659,7 @@ async function reiniciarTimerPitch() {
       },
       credentials: "same-origin",
       body: JSON.stringify({
-        timerCorriendo: false,
-        segundosRestantes: 90
+        accionTimer: "reiniciar_pitch"
       })
     });
 
@@ -829,8 +828,6 @@ actualizarUI(data);
 
     async function iniciarTimer() {
       try {
-        const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
-
         const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
           method: "POST",
           headers: {
@@ -839,8 +836,7 @@ actualizarUI(data);
           },
           credentials: "same-origin",
           body: JSON.stringify({
-            timerCorriendo: true,
-            segundosRestantes: segundos
+            timerCorriendo: true
           })
         });
 
@@ -860,8 +856,6 @@ actualizarUI(data);
 
     async function pausarTimer() {
       try {
-        const segundos = Number(document.getElementById("segundosRestantes").textContent || "0");
-
         const res = await fetch(`/sesion/${sesionId}/actualizar-estado/`, {
           method: "POST",
           headers: {
@@ -870,8 +864,7 @@ actualizarUI(data);
           },
           credentials: "same-origin",
           body: JSON.stringify({
-            timerCorriendo: false,
-            segundosRestantes: segundos
+            timerCorriendo: false
           })
         });
 
