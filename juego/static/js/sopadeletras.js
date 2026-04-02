@@ -162,7 +162,7 @@ function render() {
 
       cell.addEventListener("touchend", (e) => {
         e.preventDefault();
-        handleUp();
+        handleUp(e);
       }, { passive: false });
 
       gridEl.appendChild(cell);
@@ -329,16 +329,28 @@ function allFound() {
   return [...list].every(li => li.classList.contains("found"));
 }
 
+function bloquearJuego() {
+  const grid = document.getElementById("grid");
+  if (grid) {
+    grid.style.pointerEvents = "none";
+    grid.style.opacity = "0.4";
+  }
+}
+
+function mostrarEsperandoProfesor() {
+  const overlay = document.getElementById("esperandoOverlay");
+  if (overlay) {
+    overlay.classList.add("visible");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+}
+
 function endGame(won, alarmAudio = null) {
   if (gameEnded) return;
 
   gameEnded = true;
+  bloquearJuego();
   pauseTimerLocally();
-
-  if (syncInterval) {
-    clearInterval(syncInterval);
-    syncInterval = null;
-  }
 
   if (alarmAudio && !won) {
     try {
@@ -358,8 +370,7 @@ function showWinModal() {
   if (!gameEnded) return;
 
   const modal = document.getElementById("winModal");
-  const btn = document.getElementById("btnNext");
-  if (!modal || !btn) return;
+  if (!modal) return;
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
@@ -372,18 +383,13 @@ function showWinModal() {
     } catch (_) {}
   }
 
-  setTimeout(() => btn.focus(), 50);
-  btn.addEventListener("click", goNext, { once: true });
-}
+  registrarSopaCompletada();
 
-async function goNext() {
-  const routes = document.getElementById("routes");
-  const url = routes?.dataset?.sopaCompletadaUrl;
-
-  if (!url) return;
-
-  await registrarSopaCompletada();
-  window.location.href = url;
+  setTimeout(() => {
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+    mostrarEsperandoProfesor();
+  }, 4000);
 }
 
 function showTimeUpModal() {
@@ -395,7 +401,12 @@ function showTimeUpModal() {
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
-  btn.addEventListener("click", goNext, { once: true });
+
+  btn.addEventListener("click", () => {
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+    mostrarEsperandoProfesor();
+  }, { once: true });
 }
 
 function renderTimer() {
@@ -508,7 +519,7 @@ function obtenerSesionId() {
 }
 
 function procesarEstadoSesion(data) {
-  if (!data || gameEnded) return;
+  if (!data) return;
 
   const faseActual = data.faseActual;
   ultimaFaseDetectada = faseActual;
@@ -519,6 +530,8 @@ function procesarEstadoSesion(data) {
     }
     return;
   }
+
+  if (gameEnded) return;
 
   const backendSeconds = Number(data.segundosRestantes);
 

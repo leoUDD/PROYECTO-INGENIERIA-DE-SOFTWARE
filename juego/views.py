@@ -526,7 +526,7 @@ def profesor_actualizar_estado(request, sesion_id):
         "f3_transicion_creatividad": 0,
         "f3_lego": 600,
         "f4_transicion_comunicacion": 0,
-        "f4_construccion_pitch": sesion.t_pitch,
+        "f4_construccion_pitch": 300,
         "f4_orden_pitch": 0,
         "f4_presentacion_pitch": 90,
         "f5_transicion_apoyo": 0,
@@ -646,7 +646,7 @@ def profesor_siguiente_fase(request, sesion_id):
         "f3_lego": 600,
 
         "f4_transicion_comunicacion": 0,
-        "f4_construccion_pitch": sesion.t_pitch,
+        "f4_construccion_pitch": 300,
         "f4_orden_pitch": 0,
         "f4_presentacion_pitch": 90,
 

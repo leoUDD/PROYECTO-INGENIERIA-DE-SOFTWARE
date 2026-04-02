@@ -44,7 +44,12 @@
         >
         <h2 id="winTitle">Felicitaciones, tu equipo recibió 3 tokens!</h2>
         <p>Se han encontrado todas las palabras. ¡Impresionante!</p>
-        <button id="btnNext" type="button">Avanzar</button>
+      </div>
+    </div>
+
+    <div id="esperandoOverlay" class="esperando-overlay" aria-hidden="true">
+      <div class="esperando-box">
+        Esperando al profesor...
       </div>
     </div>
 
@@ -64,7 +69,6 @@
       id="routes"
       data-registrar-palabra-url="{% url 'registrar_palabra_sopa' %}"
       data-sopa-completada-api-url="{% url 'sopa_completada' %}"
-      data-sopa-completada-url="{% url 'transiciondesafio' %}"
       data-sesion-id="{{ grupo.sesion.idsesion }}"
       data-tiempo="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias|default:300 }}"
       data-tiempo-inicial="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias|default:300 }}"
