@@ -1,0 +1,26 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esperando a los demás equipos</title>
+</head>
+<body>
+    <main style="max-width: 800px; margin: 60px auto; text-align: center;">
+        <h2>Esperando a los demás equipos</h2>
+<h1>Esperando a los demás equipos</h1>
+
+<p>Han elegido {{ grupos_listos }} de {{ total_grupos }} grupos.</p>
+
+<p>Tu temática: {{ tema }}</p>
+
+<p>Tu desafío: {{ desafio_nombre }}</p>
+
+<p>Cuando todos terminen, el profesor podrá hacer avanzar la actividad.</p>
+    </main>
+<div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+{% include "includes/sincronizacion_fase.html" %}
+</body>
+</html>

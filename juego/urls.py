@@ -1,8 +1,47 @@
 # juego/urls.py
 from django.urls import path
 from . import views
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
+    #NUEVO
+    path("presentar-pitch/", views.presentar_pitch, name="presentar_pitch"),
+    path("guardar-pitch/", views.guardar_pitch, name="guardar_pitch"),
+    path("desbloquear-desafio/", views.desbloquear_desafio, name="desbloquear_desafio"),
+    path("sopa/registrar-palabra/", views.registrar_palabra_sopa, name="registrar_palabra_sopa"),
+    path("grupo/<int:grupo_id>/listo-ranking/", views.marcar_listo_ranking, name="marcar_listo_ranking"),
+    path("espera/", views.pantalla_espera, name="pantalla_espera"),
+    path("guardar-tematica/", views.guardar_tematica, name="guardar_tematica"),
+    path("guardar-desafio/", views.guardar_desafio, name="guardar_desafio"),
+    path("sesion/<int:sesion_id>/estado/", views.estado_sesion, name="estado_sesion"),
+    path("sesion/<int:sesion_id>/actualizar-estado/", views.profesor_actualizar_estado, name="profesor_actualizar_estado"),
+    path("sesion/<int:sesion_id>/siguiente-fase/", views.profesor_siguiente_fase, name="profesor_siguiente_fase"),
+    path("finalizar-mision/", views.finalizar_mision, name="finalizar_mision"),
+    path("grupo/<int:grupo_id>/listo/", views.marcar_grupo_listo, name="marcar_grupo_listo"),
+    path("salir/", views.salir_grupo, name="salir_grupo"),
+    path("sesion/<int:sesion_id>/control/", views.control_sesion, name="control_sesion"),
+    path("sesion/<int:sesion_id>/preview/", views.preview_pantalla_profesor, name="preview_pantalla_profesor"),
+    path("espera-eleccion/", views.espera_eleccion, name="espera_eleccion"),
+    path(
+    "sesion/<int:sesion_id>/sortear-orden/",
+    views.profesor_sortear_orden_pitch,
+    name="profesor_sortear_orden_pitch"
+),
+
+
+path(
+    "sesion/<int:sesion_id>/estado-presentacion/",
+    views.estado_presentacion_pitch,
+    name="estado_presentacion_pitch",
+),
+path(
+    "sesion/<int:sesion_id>/siguiente-grupo-pitch/",
+    views.siguiente_grupo_pitch,
+    name="siguiente_grupo_pitch",
+),
+    #NUEVO CIERRE 
+
+
     path('', views.perfiles, name='perfiles'),
     path('bienvenida/', views.bienvenida, name='bienvenida'),
     path('registro/', views.registro, name='registro'),

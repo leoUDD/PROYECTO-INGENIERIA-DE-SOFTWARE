@@ -22,10 +22,8 @@
       </div>
 
       <div class="next-step">
-        <p>
-          Haz click en <strong>Continuar</strong> para apoyar a otros equipos con tu evaluación.
-        </p>
-        <button class="btn primary" id="btnContinuar">Continuar</button>
+                  <p>Espera la indicación del profesor para avanzar.</p>
+
       </div>
     </section>
   </main>
@@ -36,5 +34,6 @@
       window.location.href = "{% url 'peer_review' %}";
     });
   </script>
+{% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

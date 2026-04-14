@@ -1,0 +1,72 @@
+<script>
+  async function revisarEstadoSesion() {
+    try {
+      const res = await fetch("/sesion/{{ grupo.sesion.idsesion }}/estado/");
+      const data = await res.json();
+      const fase = data.faseActual;
+
+      if (fase === "f1_bienvenida") {
+        window.location.href = "{% url 'pantalla_inicio' %}";
+        return;
+      }
+
+      if (fase === "f1_conocidos") {
+        window.location.href = "{% url 'conocidos' %}";
+        return;
+      }
+
+      if (fase === "f1_pre_sopa") {
+        window.location.href = "{% url 'trabajoenequipo' %}";
+        return;
+      }
+
+      if (fase === "f1_sopa") {
+        window.location.href = "{% url 'minijuego1' %}";
+        return;
+      }
+
+      if (fase === "f2_tematicas") {
+        window.location.href = "{% url 'tematicas' %}";
+        return;
+      }
+
+      if (fase === "f2_desafios") {
+        window.location.href = "{% url 'desafios' %}";
+        return;
+      }
+
+      if (fase === "f2_espera") {
+        window.location.href = "{% url 'espera_eleccion' %}";
+        return;
+      }
+
+      if (fase === "f2_bubblemap") {
+        window.location.href = "{% url 'bubblemap' %}";
+        return;
+      }
+
+      if (fase === "f3_lego" || fase === "f3_juego") {
+        window.location.href = "{% url 'lego' %}";
+        return;
+      }
+
+      if (
+        fase === "f4_construccion_pitch" ||
+        fase === "f4_presentacion_pitch" ||
+        fase === "f4_evaluacion_pitch"
+      ) {
+        window.location.href = "{% url 'pitch' %}";
+        return;
+      }
+
+      if (fase === "reflexion") {
+        window.location.href = "{% url 'reflexion' %}";
+      }
+    } catch (error) {
+      console.error("Error consultando sesión:", error);
+    }
+  }
+
+  setInterval(revisarEstadoSesion, 2000);
+  revisarEstadoSesion();
+</script>

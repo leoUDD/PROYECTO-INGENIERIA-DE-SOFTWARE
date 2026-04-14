@@ -51,22 +51,28 @@
       {% if sesiones %}
       <table class="table-sesiones">
         <thead>
-          <tr>
-            <th>Nombre de sesión</th>
-            <th>Fecha de creación</th>
-            <th>ID</th>
-          </tr>
-        </thead>
+  <tr>
+    <th>Nombre de sesión</th>
+    <th>Fecha de creación</th>
+    <th>ID</th>
+    <th>Control</th>
+  </tr>
+</thead>
 
         <tbody>
-          {% for s in sesiones %}
-          <tr>
-            <td data-label="Nombre">{{ s.nombre }}</td>
-            <td data-label="Fecha">{{ s.fecha_creacion|date:"d/m/Y H:i" }}</td>
-            <td data-label="ID">{{ s.idsesion }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
+  {% for s in sesiones %}
+  <tr>
+    <td data-label="Nombre">{{ s.nombre }}</td>
+    <td data-label="Fecha">{{ s.fecha_creacion|date:"d/m/Y H:i" }}</td>
+    <td data-label="ID">{{ s.idsesion }}</td>
+    <td data-label="Control">
+      <a href="{% url 'control_sesion' s.idsesion %}" class="btn-primary">
+        Controlar
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
       </table>
 
       {% else %}

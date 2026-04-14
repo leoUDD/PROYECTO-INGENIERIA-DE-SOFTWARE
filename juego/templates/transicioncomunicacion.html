@@ -10,7 +10,6 @@
 </head>
 <body>
   <main class="team-container" role="region" aria-label="Introducción a comunicación">
-    <a href="{% url 'market' %}" class="market-button">🛒 Mercado</a>
 
     <section class="team-section">
       <h1 class="title">Comunicación</h1>
@@ -23,8 +22,8 @@
       </div>
 
       <div class="next-step">
-        <p>Haz click en <strong>Continuar</strong> para compartir tu visión.</p>
-        <button class="btn primary" id="btnContinuar">Continuar</button>
+          <p>Espera la indicación del profesor para avanzar.</p>
+
       </div>
     </section>
 
@@ -35,6 +34,6 @@
       window.location.href = "{% url 'pitch' %}";
     });
   </script>
-
+{% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

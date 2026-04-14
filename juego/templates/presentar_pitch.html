@@ -8,34 +8,57 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_presentar_pitch.css' %}">
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="pitch-container" role="main" aria-labelledby="page-title">
     <header class="header">
       <div>
         <h1 id="page-title" class="title">Pitch del equipo</h1>
         <p class="subtitle">Presenten su solución usando el texto que prepararon.</p>
       </div>
-      <button class="btn ghost" onclick="window.history.back()">⟵ Volver</button>
     </header>
 
     <section class="content-grid">
-      <!-- Panel del pitch guardado -->
       <article class="panel">
-        <h3>Pitch guardado</h3>
+        <h3>Pitch de mi equipo</h3>
         <div id="textoGuardado" class="pitch-text" aria-live="polite">
-          <em>Buscando contenido guardado…</em>
+          {% if miPitch %}
+            <div style="white-space: pre-wrap;">{{ miPitch }}</div>
+          {% else %}
+            <em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>
+          {% endif %}
         </div>
       </article>
 
-      <!-- Temporizador -->
+      <article class="panel">
+        <h3>Orden del pitch</h3>
+        <ol id="ordenPitchAlumno">
+          <li>Esperando sorteo...</li>
+        </ol>
+      </article>
+
       <aside class="timer-card" aria-label="Temporizador de Pitch">
+        <h3>Presentación actual</h3>
+
+        <div id="grupoActualAlumnoNombre" style="font-size:28px; font-weight:700; margin-bottom:8px;">
+          Esperando sorteo...
+        </div>
+
+        <div id="grupoActualAlumnoOrden" style="opacity:.8; margin-bottom:12px;">
+          -
+        </div>
+
+        <div style="display:flex; justify-content:center; margin-bottom:16px;">
+          <img
+            id="grupoActualAlumnoFoto"
+            src=""
+            alt="Foto del lego del grupo que está presentando"
+            style="max-width:320px; width:100%; max-height:240px; object-fit:contain; border-radius:16px; display:none;"
+          >
+        </div>
+
         <h3>Temporizador</h3>
         <div id="timer" class="timer-display" data-seconds="90">01:30</div>
-        <div class="timer-controls">
-          <button id="btnStart" class="btn">Iniciar</button>
-          <button id="btnPause" class="btn ghost" disabled>Pausar</button>
-          <button id="btnReset" class="btn ghost">Reiniciar</button>
-        </div>
+
         <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
       </aside>
     </section>
@@ -44,30 +67,116 @@
       <div class="left-actions">
         <span class="subtitle">Consejo: enfoquen problema, solución, impacto y próximos pasos.</span>
       </div>
-      <div class="right-actions">
-        <button class="btn primary" id="btnContinuar">Continuar</button>
-      </div>
     </footer>
   </main>
 
-  <!-- Modal fin de tiempo -->
-  <div id="timeModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <h4>⏰ ¡Tiempo terminado!</h4>
-      <p>Concluyan la idea principal en una frase. ¿Listos para compartir?</p>
-      <div class="modal-actions">
-        <button class="btn ghost" id="btnCerrarModal">Cerrar</button>
-        <a class="btn" href="{% url 'transicionapoyo' %}">Continuar</a>
-      </div>
-    </div>
-  </div>
-
-  <script>const ALARM_URL = "{% static 'sounds/alarma.mp3' %}";</script>
   <script src="{% static 'js/presentar_pitch.js' %}"></script>
+
   <script>
-  document.getElementById("btnContinuar").addEventListener("click", () => {
-    window.location.href = "{% url 'transicionapoyo' %}";
-  });
-</script>
+    const sesionId = "{{ grupo.sesion.idsesion }}";
+
+    function formatearTiempo(totalSegundos) {
+      const segundos = Math.max(0, Number(totalSegundos || 0));
+      const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+      const sec = String(segundos % 60).padStart(2, "0");
+      return `${min}:${sec}`;
+    }
+
+    function renderOrdenAlumno(ordenPitch, grupoActual) {
+      const lista = document.getElementById("ordenPitchAlumno");
+      if (!lista) return;
+
+      if (!ordenPitch || !ordenPitch.length) {
+        lista.innerHTML = "<li>Esperando sorteo...</li>";
+        return;
+      }
+
+      lista.innerHTML = ordenPitch.map(item => {
+        const esActual = grupoActual && grupoActual.id === item.id;
+        return `<li ${esActual ? 'style="font-weight:700;"' : ""}>${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
+      }).join("");
+    }
+
+    function renderEstadoPresentacion(data) {
+      if (data.faseActual && data.faseActual !== "f4_presentacion_pitch") {
+        window.location.replace(data.rutaAlumno || "{% url 'pantalla_espera' %}");
+        return;
+      }
+
+      const grupoActual = data.grupoActual;
+
+      const nombre = document.getElementById("grupoActualAlumnoNombre");
+      const orden = document.getElementById("grupoActualAlumnoOrden");
+      const foto = document.getElementById("grupoActualAlumnoFoto");
+      const timer = document.getElementById("timer");
+      const textoGuardado = document.getElementById("textoGuardado");
+
+      if (nombre) {
+        nombre.textContent = grupoActual ? grupoActual.nombre : "Esperando sorteo...";
+      }
+
+      if (orden) {
+        orden.textContent = grupoActual ? `Orden ${grupoActual.orden}` : "-";
+      }
+
+      if (foto) {
+        if (grupoActual && grupoActual.fotoLego) {
+          foto.src = grupoActual.fotoLego;
+          foto.style.display = "block";
+        } else {
+          foto.removeAttribute("src");
+          foto.style.display = "none";
+        }
+      }
+
+      if (window.presentarPitchUI && typeof window.presentarPitchUI.actualizarTimer === "function") {
+        window.presentarPitchUI.actualizarTimer(data.segundosRestantes);
+      } else if (timer) {
+        timer.textContent = formatearTiempo(data.segundosRestantes);
+        timer.dataset.seconds = Number(data.segundosRestantes || 0);
+      }
+
+      if (textoGuardado) {
+        const miPitch = (data.miPitch || "").trim();
+        textoGuardado.innerHTML = miPitch
+          ? `<div style="white-space: pre-wrap;">${miPitch
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")}</div>`
+          : `<em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>`;
+      }
+
+      renderOrdenAlumno(data.ordenPitch, grupoActual);
+    }
+
+    async function cargarEstadoPresentacion() {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado-presentacion/`, {
+          credentials: "same-origin",
+          cache: "no-store"
+        });
+
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          return;
+        }
+
+        renderEstadoPresentacion(data);
+      } catch (error) {
+        console.error("Error cargando estado de presentación:", error);
+      }
+    }
+
+    setInterval(cargarEstadoPresentacion, 1000);
+    document.addEventListener("DOMContentLoaded", cargarEstadoPresentacion);
+  </script>
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

@@ -1,49 +1,24 @@
-// tematica.js — selección SOLO con el botón "Elegir"
-(function () {
-  const cards = Array.from(document.querySelectorAll('.theme-card'));
-  const cta = document.getElementById('btnContinuar');
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.getElementById("themesTrack");
+  const prev = document.querySelector(".carousel-btn.prev");
+  const next = document.querySelector(".carousel-btn.next");
 
-  // Estado inicial limpio (sin preseleccionar nada)
-  try { localStorage.removeItem('temaSeleccionado'); } catch (_) {}
-  if (cta) cta.disabled = true;
+  function moverCarrusel(direccion) {
+    if (!track) return;
+    const primera = track.querySelector(".theme-card");
+    if (!primera) return;
 
-  window.guardarTema = function (slugRaw) {
-    const slug = norm(slugRaw);
-    selectBySlug(slug);
-  };
-
-  function norm(s) { return (s || '').toString().trim().toLowerCase(); }
-
-  function selectBySlug(slug) {
-    const card = cards.find(c => norm(c.dataset.slug) === slug);
-    if (!card) return;
-    cards.forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    try { localStorage.setItem('temaSeleccionado', slug); } catch (_) {}
-    if (cta) cta.disabled = false;
-    updateSelectButtons(card);
+    const ancho = primera.offsetWidth + 24;
+    track.scrollLeft += direccion * ancho;
   }
 
-  function updateSelectButtons(selectedCard) {
-    const allButtons = document.querySelectorAll('.theme-card .btn.select');
-    allButtons.forEach(btn => {
-      btn.textContent = 'Elegir';
-      btn.disabled = false;
-    });
-    const btn = selectedCard.querySelector('.btn.select');
-    if (btn) {
-      btn.textContent = 'Seleccionado ✅';
-      btn.disabled = true;
-    }
-  }
-
-  window.addEventListener('storage', () => {
-    const saved = localStorage.getItem('temaSeleccionado');
-    if (!saved) {
-      cards.forEach(c => c.classList.remove('selected'));
-      if (cta) cta.disabled = true;
-      const allButtons = document.querySelectorAll('.theme-card .btn.select');
-      allButtons.forEach(b => { b.textContent = 'Elegir'; b.disabled = false; });
-    }
+  prev?.addEventListener("click", (e) => {
+    e.preventDefault();
+    moverCarrusel(-1);
   });
-})();
+
+  next?.addEventListener("click", (e) => {
+    e.preventDefault();
+    moverCarrusel(1);
+  });
+});

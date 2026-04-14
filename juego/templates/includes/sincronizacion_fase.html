@@ -1,0 +1,124 @@
+<script>
+  const sesionId = "{{ grupo.sesion.idsesion|default:'' }}";
+  let redirigiendo = false;
+
+  function normalizarRuta(ruta) {
+    if (!ruta) return "";
+    let limpia = ruta.split("?")[0].split("#")[0];
+    if (limpia.length > 1 && limpia.endsWith("/")) {
+      limpia = limpia.slice(0, -1);
+    }
+    return limpia;
+  }
+
+  async function revisarFaseGlobal() {
+    if (!sesionId || redirigiendo) return;
+
+    try {
+      const res = await fetch(`/sesion/${sesionId}/estado/`, {
+        cache: "no-store",
+        credentials: "same-origin"
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      const fase = data.faseActual;
+      const rutaActual = normalizarRuta(window.location.pathname);
+      const rutaDestino = normalizarRuta(data.rutaAlumno || "");
+
+      const rutasValidasPorFase = {
+        "lobby": [
+          normalizarRuta("{% url 'pantalla_espera' %}")
+        ],
+
+        "f1_bienvenida": [
+          normalizarRuta("{% url 'pantalla_inicio' %}")
+        ],
+
+        "f1_conocidos": [
+          normalizarRuta("{% url 'conocidos' %}")
+        ],
+
+        "f1_pre_sopa": [
+          normalizarRuta("{% url 'trabajoenequipo' %}")
+        ],
+
+        "f1_sopa": [
+          normalizarRuta("{% url 'minijuego1' %}")
+        ],
+
+        "f2_transicion": [
+          normalizarRuta("{% url 'transiciondesafio' %}")
+        ],
+
+        "f2_tematicas": [
+          normalizarRuta("{% url 'tematicas' %}"),
+          normalizarRuta("{% url 'desafios' %}"),
+          normalizarRuta("{% url 'pantalla_espera' %}")
+        ],
+
+        "f2_transicion_empatia": [
+          normalizarRuta("{% url 'transicionempatia' %}")
+        ],
+
+        "f2_bubblemap": [
+          normalizarRuta("{% url 'bubblemap' %}")
+        ],
+
+        "f3_transicion_creatividad": [
+          normalizarRuta("{% url 'transicioncreatividad' %}")
+        ],
+
+        "f3_lego": [
+          normalizarRuta("{% url 'lego' %}")
+        ],
+
+        "f4_transicion_comunicacion": [
+          normalizarRuta("{% url 'transicioncomunicacion' %}")
+        ],
+
+        "f4_construccion_pitch": [
+          normalizarRuta("{% url 'pitch' %}")
+        ],
+
+        "f4_orden_pitch": [
+          normalizarRuta("{% url 'orden_presentacion_alumno' %}")
+        ],
+
+        "f4_presentacion_pitch": [
+          normalizarRuta("{% url 'presentar_pitch' %}")
+        ],
+
+        "f5_transicion_apoyo": [
+          normalizarRuta("{% url 'transicionapoyo' %}")
+        ],
+
+        "f5_evaluacion_pitch": [
+          normalizarRuta("{% url 'peer_review' %}")
+        ],
+
+        "f6_ranking": [
+          normalizarRuta("{% url 'ranking' %}")
+        ],
+
+        "reflexion": [
+          normalizarRuta("{% url 'reflexion' %}")
+        ]
+      };
+
+      const rutasValidas = rutasValidasPorFase[fase] || [];
+      const estaEnRutaValida = rutasValidas.includes(rutaActual);
+
+      if (!estaEnRutaValida && rutaDestino && rutaActual !== rutaDestino) {
+        redirigiendo = true;
+        window.location.replace(data.rutaAlumno);
+      }
+    } catch (error) {
+      console.error("Error consultando estado de sesión:", error);
+    }
+  }
+
+  setInterval(revisarFaseGlobal, 1000);
+  revisarFaseGlobal();
+</script>

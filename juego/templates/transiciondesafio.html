@@ -13,22 +13,20 @@
   <main class="team-container" role="region" aria-label="Introducción a desafíos">
     <section class="team-section">
       <h1 class="title">Desafíos</h1>
+
       <div class="speech-bubble">
-          <p>Agentes, toda misión inicia con un desafío.
-          Ahora elegirán su siguiente objetivo.</p>
+        <p>
+          Agentes, toda misión inicia con un desafío.
+          Ahora elegirán su siguiente objetivo.
+        </p>
       </div>
 
       <div class="next-step">
-        <p>Haz click en <strong>Continuar</strong> para enfrentar tu siguiente reto.</p>
-        <button class="btn primary" id="btnContinuar">Continuar</button>
+        <p>Esperen la señal del profesor para pasar a la selección de temática.</p>
       </div>
     </section>
   </main>
-
-  <script>
-    document.getElementById('btnContinuar').addEventListener('click', () => {
-      window.location.href = "{% url 'tematicas' %}";
-    });
-  </script>
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

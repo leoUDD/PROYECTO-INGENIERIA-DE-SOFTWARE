@@ -1,10 +1,22 @@
+#NUEVO
+from django.shortcuts import render, redirect
+from .forms import FotoLegoForm
+from django.views.decorators.http import require_GET, require_POST
+import json
+from datetime import timedelta
+from django.views.decorators.cache import never_cache
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+#NUEVO CIERRRE
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .tematicas_data import get_theme
 import openpyxl
 import pandas as pd
-from .models import Alumno, Profesor, Usuario, Grupo, Desafio, Idadministrador, Sesion, Reto, Retogrupo, Evaluacion
+from .models import Alumno, Profesor, Usuario, Grupo, Desafio, Idadministrador, Sesion, Reto, Retogrupo, Evaluacion, PalabraSopaEncontrada
 from django.db import transaction
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -18,6 +30,795 @@ from django.db.models import F
 
 
 
+FASES_ORDEN = [
+    "f1_bienvenida",
+    "f1_conocidos",
+    "f1_pre_sopa",
+    "f1_sopa",
+
+    "f2_transicion",
+    "f2_tematicas",
+    "f2_transicion_empatia",
+    "f2_bubblemap",
+
+    "f3_transicion_creatividad",
+    "f3_lego",
+
+    "f4_transicion_comunicacion",
+    "f4_construccion_pitch",
+    "f4_orden_pitch",
+    "f4_presentacion_pitch",
+
+    "f5_transicion_apoyo",
+    "f5_evaluacion_pitch",
+
+    "f6_ranking",
+    "reflexion",
+]
+
+RUTA_POR_FASE = {
+    "lobby": "pantalla_espera",
+
+    "f1_bienvenida": "pantalla_inicio",
+    "f1_conocidos": "conocidos",
+    "f1_pre_sopa": "trabajoenequipo",
+    "f1_sopa": "minijuego1",
+
+    "f2_transicion": "transiciondesafio",
+    "f2_tematicas": "tematicas",
+    "f2_transicion_empatia": "transicionempatia",
+    "f2_bubblemap": "bubblemap",
+
+    "f3_transicion_creatividad": "transicioncreatividad",
+    "f3_lego": "lego",
+
+    "f4_transicion_comunicacion": "transicioncomunicacion",
+    "f4_construccion_pitch": "pitch",
+    "f4_orden_pitch": "orden_presentacion_alumno",
+    "f4_presentacion_pitch": "presentar_pitch",
+
+    "f5_transicion_apoyo": "transicionapoyo",
+    "f5_evaluacion_pitch": "peer_review",
+
+    "f6_ranking": "ranking",
+    "reflexion": "reflexion",
+}
+
+ETIQUETA_FASE = {
+
+    "f1_bienvenida": "F1 · Bienvenida",
+    "f1_conocidos": "F1 · Conocerse",
+    "f1_pre_sopa": "F1 · Trabajo en equipo",
+    "f1_sopa": "F1 · Sopa de letras",
+
+    "f2_transicion": "F2 · Desafíos",
+    "f2_tematicas": "F2 · Temáticas",
+    "f2_transicion_empatia": "F2 · Transición Empatía",
+    "f2_bubblemap": "F2 · Bubble Map",
+
+    "f3_transicion_creatividad": "F3 · Transición Creatividad",
+    "f3_lego": "F3 · Lego",
+
+    "f4_transicion_comunicacion": "F4 · Transición Comunicación",
+    "f4_construccion_pitch": "F4 · Construcción pitch",
+    "f4_orden_pitch": "F4 · Sorteo orden pitch",
+    "f4_presentacion_pitch": "F4 · Presentación pitch",
+
+    "f5_transicion_apoyo": "F5 · Transición Apoyo",
+    "f5_evaluacion_pitch": "F5 · Evaluación pitch",
+
+    "f6_ranking": "Ranking",
+    "reflexion": "Cierre",
+}
+
+def obtener_grupo_desde_session(request):
+    grupo_id = request.session.get("grupo_id")
+    sesion_id = request.session.get("sesion_id")
+
+    print("obtener_grupo_desde_session -> grupo_id:", grupo_id, "| sesion_id:", sesion_id)
+
+    if not grupo_id or not sesion_id:
+        return None
+
+    try:
+        grupo = Grupo.objects.select_related("sesion").get(
+            pk=grupo_id,
+            sesion_id=sesion_id,
+        )
+    except Grupo.DoesNotExist:
+        print("obtener_grupo_desde_session -> grupo no existe, flush session")
+        request.session.flush()
+        return None
+
+    print("obtener_grupo_desde_session -> grupo real:", grupo.idgrupo, "| nombre:", grupo.nombregrupo)
+    return grupo
+
+def salir_grupo(request):
+    request.session.flush()
+    messages.success(request, "Sesión del grupo cerrada correctamente.")
+    return redirect("registro")
+
+def calcular_segundos_restantes(sesion):
+    if not sesion.timer_corriendo or not sesion.timer_fin_at:
+        return max(int(sesion.segundos_restantes or 0), 0)
+
+    restantes = int((sesion.timer_fin_at - timezone.now()).total_seconds())
+
+    if restantes <= 0:
+        sesion.timer_corriendo = False
+        sesion.segundos_restantes = 0
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
+        sesion.save(update_fields=[
+            "timer_corriendo",
+            "segundos_restantes",
+            "timer_inicio_at",
+            "timer_fin_at",
+        ])
+        return 0
+
+    return restantes
+
+
+def peer_review_completado(grupo):
+    sesion = grupo.sesion
+    all_targets = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo.pk)
+    evaluados_ids = set(
+        Evaluacion.objects.filter(
+            sesion=sesion,
+            grupo_evaluador=grupo,
+        ).values_list("grupo_evaluado_id", flat=True)
+    )
+    return not all_targets.exclude(pk__in=evaluados_ids).exists()
+
+
+def ruta_alumno_por_estado(grupo):
+    fase = grupo.sesion.fase_actual
+
+    if fase == "f2_tematicas":
+        if not (grupo.tema_elegido or "").strip():
+            return "tematicas"
+        return "desafios"
+
+    if fase == "f5_evaluacion_pitch":
+        if peer_review_completado(grupo):
+            return "mision_cumplida"
+        return "peer_review"
+
+    return RUTA_POR_FASE.get(fase, "pantalla_espera")
+
+def acceso_permitido(grupo, nombre_vista):
+    if not grupo or not grupo.sesion:
+        return False
+
+    fases_por_vista = {
+        "pantalla_espera": ["lobby"],
+
+        "pantalla_inicio": ["f1_bienvenida"],
+        "conocidos": ["f1_conocidos"],
+        "trabajoenequipo": ["f1_pre_sopa"],
+        "minijuego1": ["f1_sopa"],
+
+        "transiciondesafio": ["f2_transicion"],
+        "tematicas": ["f2_tematicas"],
+        "desafios": ["f2_tematicas"],
+        "transicionempatia": ["f2_transicion_empatia"],
+        "bubblemap": ["f2_bubblemap"],
+
+        "transicioncreatividad": ["f3_transicion_creatividad"],
+        "lego": ["f3_lego"],
+
+        "transicioncomunicacion": ["f4_transicion_comunicacion"],
+        "pitch": ["f4_construccion_pitch"],
+        "orden_presentacion_alumno": ["f4_orden_pitch"],
+        "presentar_pitch": ["f4_presentacion_pitch"],
+
+        "transicionapoyo": ["f5_transicion_apoyo"],
+        "peer_review": ["f5_evaluacion_pitch"],
+        "mision_cumplida": ["f5_evaluacion_pitch"],
+
+        "ranking": ["f6_ranking"],
+        "reflexion": ["reflexion"],
+    }
+
+    return grupo.sesion.fase_actual in fases_por_vista.get(nombre_vista, [])
+
+def espera_eleccion(request):
+    grupo = obtener_grupo_desde_session(request)
+
+    if not grupo:
+        return redirect("registro")
+
+    sesion = grupo.sesion
+    grupos = Grupo.objects.filter(sesion=sesion)
+
+    grupos_listos = grupos.filter(listo_f2_desafio=True).count()
+    total_grupos = grupos.count()
+
+    return render(request, "espera_eleccion.html", {
+        "grupo": grupo,
+        "tema": grupo.tema_elegido or "No seleccionada",
+        "desafio_nombre": grupo.desafio_nombre or "No seleccionado",
+        "grupos_listos": grupos_listos,
+        "total_grupos": total_grupos,
+    })
+
+def serializar_estado_pitch(sesion, grupo_solicitante=None):
+    grupo_actual = sesion.grupo_presentando
+
+    orden_pitch = list(
+        Grupo.objects.filter(sesion=sesion, orden_presentacion__isnull=False)
+        .order_by("orden_presentacion")
+        .values("idgrupo", "nombregrupo", "orden_presentacion")
+    )
+
+    foto_lego_url = None
+    if grupo_actual and grupo_actual.foto_lego:
+        try:
+            foto_lego_url = grupo_actual.foto_lego.url
+        except Exception:
+            foto_lego_url = None
+
+    return {
+        "grupoActual": {
+            "id": grupo_actual.idgrupo,
+            "nombre": grupo_actual.nombregrupo,
+            "fotoLego": foto_lego_url,
+            "orden": grupo_actual.orden_presentacion,
+        } if grupo_actual else None,
+        "ordenPitch": [
+            {
+                "id": g["idgrupo"],
+                "nombre": g["nombregrupo"],
+                "orden": g["orden_presentacion"],
+            }
+            for g in orden_pitch
+        ],
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": calcular_segundos_restantes(sesion),
+        "miPitch": grupo_solicitante.pitch_texto if grupo_solicitante else "",
+    }
+
+
+
+#PRESENTACION PITCH/LEGO
+@require_GET
+@never_cache
+def estado_presentacion_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    grupo_solicitante = None
+    grupo_id = request.session.get("grupo_id")
+    if grupo_id:
+        grupo_solicitante = Grupo.objects.filter(pk=grupo_id, sesion=sesion).first()
+
+    nombre_url = RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")
+
+    data = {
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "rutaAlumno": reverse(nombre_url),
+        **serializar_estado_pitch(sesion, grupo_solicitante=grupo_solicitante),
+    }
+    return JsonResponse(data)
+
+@require_POST
+def siguiente_grupo_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    actual = sesion.grupo_presentando
+
+    if actual is None:
+        siguiente = Grupo.objects.filter(
+            sesion=sesion,
+            orden_presentacion__isnull=False
+        ).order_by("orden_presentacion").first()
+    else:
+        siguiente = Grupo.objects.filter(
+            sesion=sesion,
+            orden_presentacion__gt=actual.orden_presentacion
+        ).order_by("orden_presentacion").first()
+
+    if siguiente is None:
+        return JsonResponse({
+            "ok": False,
+            "error": "Ya no quedan más grupos por presentar."
+        }, status=400)
+
+    sesion.grupo_presentando = siguiente
+    sesion.segundos_restantes = 90
+    sesion.timer_corriendo = False
+    sesion.save(update_fields=["grupo_presentando", "segundos_restantes", "timer_corriendo"])
+
+    return JsonResponse({
+        "ok": True,
+        **serializar_estado_pitch(sesion),
+    })
+
+@require_GET
+def estado_sesion(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+    grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
+
+    fase_actual = sesion.fase_actual
+    grupo_actual = obtener_grupo_desde_session(request)
+    if grupo_actual and grupo_actual.sesion_id == sesion.idsesion:
+        nombre_url = ruta_alumno_por_estado(grupo_actual)
+    else:
+        nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
+
+    grupos_data = [
+        {
+            "esProfesor": True,
+            "id": g.idgrupo,
+            "nombre": g.nombregrupo,
+            "tokens": g.tokensgrupo or 0,
+            "listoLobby": g.listo_lobby,
+            "listoF1": g.listo_f1,
+            "listoF2": g.listo_f2_desafio,
+            "listoF3": g.listo_f3,
+            "listoF4": g.listo_f4,
+            "listoF5": getattr(g, "listo_f5", False),
+            "listoF6": getattr(g, "listo_f6", False),
+            
+        }
+        for g in grupos
+    ]
+
+    total_grupos = len(grupos_data)
+    grupos_listos_f2 = sum(1 for g in grupos_data if g["listoF2"])
+    todos_listos_f2 = total_grupos > 0 and grupos_listos_f2 == total_grupos
+    grupos_listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
+    todos_listos_ranking = total_grupos > 0 and grupos_listos_ranking == total_grupos
+
+    data = {
+        "sesionId": sesion.idsesion,
+        "faseActual": fase_actual,
+        "faseEtiqueta": ETIQUETA_FASE.get(fase_actual, fase_actual),
+        "rutaAlumno": reverse(nombre_url),
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": calcular_segundos_restantes(sesion), 
+       "totalGrupos": total_grupos,
+        "gruposListosF2": grupos_listos_f2,
+        "todosListosF2": todos_listos_f2,
+        "grupos": grupos_data,
+        "esProfesor": request.user.is_staff,
+        "gruposListosRanking": grupos_listos_ranking,
+        "todosListosRanking": todos_listos_ranking,
+        **serializar_estado_pitch(sesion),
+    }
+
+    return JsonResponse(data)
+
+@require_POST
+def guardar_tematica(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
+
+    if grupo.sesion.fase_actual != "f2_tematicas":
+        return JsonResponse({"ok": False, "error": "La sesión no está en la etapa de temáticas."}, status=400)
+
+    tema = ""
+
+    if request.content_type and "application/json" in request.content_type:
+        try:
+            payload = json.loads(request.body or "{}")
+            tema = (payload.get("tema") or payload.get("slug") or "").strip().lower()
+        except Exception:
+            tema = ""
+    else:
+        tema = (request.POST.get("tema") or request.POST.get("slug") or "").strip().lower()
+
+    if not tema or not get_theme(tema):
+        return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
+
+    grupo.tema_elegido = tema
+    grupo.listo_f2_tematica = True
+    grupo.desafio_elegido = None
+    grupo.desafio_id_externo = None
+    grupo.desafio_nombre = None
+    grupo.desafio_descripcion = None
+    grupo.listo_f2_desafio = False
+
+    grupo.save(update_fields=[
+        "tema_elegido",
+        "listo_f2_tematica",
+        "desafio_elegido",
+        "desafio_id_externo",
+        "desafio_nombre",
+        "desafio_descripcion",
+        "listo_f2_desafio",
+    ])
+
+    return JsonResponse({
+        "ok": True,
+        "redirect_url": reverse("desafios")
+    })
+
+@require_POST
+def guardar_desafio(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
+
+    if grupo.sesion.fase_actual != "f2_tematicas":
+        return JsonResponse({"ok": False, "error": "La sesión no está en la etapa de desafíos."}, status=400)
+
+    try:
+        payload = json.loads(request.body or "{}")
+        desafio_id = str(payload.get("desafio_id") or "").strip()
+    except Exception:
+        return JsonResponse({"ok": False, "error": "Solicitud inválida."}, status=400)
+
+    if not desafio_id:
+        return JsonResponse({"ok": False, "error": "Debes seleccionar un desafío."}, status=400)
+
+    tema = (grupo.tema_elegido or "").strip().lower()
+    theme = get_theme(tema)
+    if not theme:
+        return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
+
+    challenge = None
+    for c in theme.get("challenges", []):
+        if str(c.get("id")) == desafio_id:
+            challenge = c
+            break
+
+    if not challenge:
+        return JsonResponse({"ok": False, "error": "Desafío no válido."}, status=404)
+
+    grupo.desafio_id_externo = str(challenge.get("id"))
+    grupo.desafio_nombre = challenge.get("name", "")
+    grupo.desafio_descripcion = challenge.get("desc", "")
+    grupo.listo_f2_desafio = True
+
+    grupo.save(update_fields=[
+        "desafio_id_externo",
+        "desafio_nombre",
+        "desafio_descripcion",
+        "listo_f2_desafio",
+    ])
+
+    return JsonResponse({
+        "ok": True,
+        "desafio_id": grupo.desafio_id_externo,
+        "desafio_nombre": grupo.desafio_nombre,
+        "desafio_descripcion": grupo.desafio_descripcion,
+        "bloqueado": True,
+    })
+
+@require_POST
+def desbloquear_desafio(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
+
+    if grupo.sesion.fase_actual != "f2_tematicas":
+        return JsonResponse({"ok": False, "error": "No puedes cambiar el desafío en esta etapa."}, status=400)
+
+    grupo.listo_f2_desafio = False
+    grupo.save(update_fields=["listo_f2_desafio"])
+
+    return JsonResponse({"ok": True})
+
+@require_POST
+def profesor_actualizar_estado(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+    payload = json.loads(request.body or "{}")
+
+    fase_anterior = sesion.fase_actual
+    nueva_fase = payload.get("faseActual")
+
+    if nueva_fase:
+        if nueva_fase not in FASES_ORDEN:
+            return JsonResponse({"ok": False, "error": "Pantalla inválida"}, status=400)
+        sesion.fase_actual = nueva_fase
+#CAMBIAR TIMERS
+    tiempos_por_fase = {
+        "f1_conocidos": 180,
+        "f1_pre_sopa": 0,
+        "f1_sopa": 90,
+        "f2_transicion": 0,
+        "f2_tematicas": 0,
+        "f2_transicion_empatia": 0,
+        "f2_bubblemap": 300,
+        "f3_transicion_creatividad": 0,
+        "f3_lego": 600,
+        "f4_transicion_comunicacion": 0,
+        "f4_construccion_pitch": 300,
+        "f4_orden_pitch": 0,
+        "f4_presentacion_pitch": 90,
+        "f5_transicion_apoyo": 0,
+        "f5_evaluacion_pitch": 0,
+        "f6_ranking": 0,
+        "reflexion": 0,
+    }
+
+    if nueva_fase and nueva_fase != fase_anterior:
+        sesion.segundos_restantes = int(tiempos_por_fase.get(nueva_fase, 0))
+        sesion.timer_corriendo = False
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
+
+        if nueva_fase == "f5_evaluacion_pitch":
+            Grupo.objects.filter(sesion=sesion).update(
+                listo_ranking=False,
+                recompensa_peer_otorgada=False,
+            )
+
+    if "timerCorriendo" in payload:
+        timer_corriendo = bool(payload["timerCorriendo"])
+
+        if timer_corriendo:
+            segundos_base = int(payload.get("segundosRestantes", sesion.segundos_restantes or 0))
+            sesion.segundos_restantes = max(segundos_base, 0)
+            sesion.timer_corriendo = sesion.segundos_restantes > 0
+            sesion.timer_inicio_at = timezone.now() if sesion.timer_corriendo else None
+            sesion.timer_fin_at = (
+                timezone.now() + timedelta(seconds=sesion.segundos_restantes)
+                if sesion.timer_corriendo else None
+            )
+        else:
+            restantes = calcular_segundos_restantes(sesion)
+            sesion.segundos_restantes = restantes
+            sesion.timer_corriendo = False
+            sesion.timer_inicio_at = None
+            sesion.timer_fin_at = None
+
+    elif "segundosRestantes" in payload:
+        sesion.segundos_restantes = max(int(payload["segundosRestantes"]), 0)
+        sesion.timer_corriendo = False
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
+
+    sesion.save()
+
+    return JsonResponse({
+        "esProfesor": True,
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
+        "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": calcular_segundos_restantes(sesion),
+        **serializar_estado_pitch(sesion),
+    })
+
+
+@require_POST
+def profesor_siguiente_fase(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    if sesion.fase_actual == "f2_tematicas":
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f2_desafio=True).count()
+
+        if total == 0 or listos < total:
+            return JsonResponse({
+                "ok": False,
+                "error": f"Aún faltan grupos por elegir desafío ({listos}/{total})."
+            }, status=400)
+
+    try:
+        idx = FASES_ORDEN.index(sesion.fase_actual)
+    except ValueError:
+        return JsonResponse({"ok": False, "error": "Fase actual inválida"}, status=400)
+
+    if idx + 1 >= len(FASES_ORDEN):
+        return JsonResponse({"ok": False, "error": "Ya está en la última fase"}, status=400)
+
+    nueva_fase = FASES_ORDEN[idx + 1]
+
+    if nueva_fase == "f5_evaluacion_pitch":
+        Grupo.objects.filter(sesion=sesion).update(
+            listo_ranking=False,
+            recompensa_peer_otorgada=False,
+    )
+
+    if nueva_fase == "f6_ranking":
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
+
+        if total == 0 or listos_ranking < total:
+            return JsonResponse({
+                "ok": False,
+                "error": f"Aún faltan grupos por presionar Ranking final ({listos_ranking}/{total})."
+            }, status=400)
+
+    if nueva_fase == "mision_cumplida":
+        Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
+
+    sesion.fase_actual = nueva_fase
+#CAMBIAR TIMERS
+
+    tiempos = {
+        "f1_conocidos": 180,
+        "f1_pre_sopa": 0,
+        "f1_sopa": 90,
+
+        "f2_transicion": 0,
+        "f2_tematicas": 0,
+        "f2_transicion_empatia": 0,
+        "f2_bubblemap": 300,
+
+        "f3_transicion_creatividad": 0,
+        "f3_lego": 600,
+
+        "f4_transicion_comunicacion": 0,
+        "f4_construccion_pitch": 300,
+        "f4_orden_pitch": 0,
+        "f4_presentacion_pitch": 90,
+
+        "f5_transicion_apoyo": 0,
+        "f5_evaluacion_pitch": 0,
+
+        "f6_ranking": 0,
+        "reflexion": 0,
+    }
+
+    if sesion.fase_actual in tiempos:
+        sesion.segundos_restantes = tiempos[sesion.fase_actual]
+        sesion.timer_corriendo = False
+
+    sesion.save()
+
+    return JsonResponse({
+        "esProfesor": True,
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "faseEtiqueta": ETIQUETA_FASE.get(sesion.fase_actual, sesion.fase_actual),
+        "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": calcular_segundos_restantes(sesion),
+        **serializar_estado_pitch(sesion),
+    })
+
+
+
+@require_POST
+def marcar_listo_ranking(request, grupo_id):
+    grupo = get_object_or_404(Grupo, pk=grupo_id)
+
+    grupo.listo_ranking = True
+    grupo.save(update_fields=["listo_ranking"])
+
+    sesion = grupo.sesion
+    total_grupos = Grupo.objects.filter(sesion=sesion).count()
+    grupos_listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
+
+
+    return JsonResponse({
+        "ok": True,
+        "grupoId": grupo.idgrupo,
+        "listoRanking": True,
+        "gruposListosRanking": grupos_listos_ranking,
+        "totalGrupos": total_grupos,
+        "todosListosRanking": total_grupos > 0 and grupos_listos_ranking == total_grupos,
+    })
+
+
+@require_POST
+def marcar_grupo_listo(request, grupo_id):
+    grupo = get_object_or_404(Grupo, pk=grupo_id)
+    payload = json.loads(request.body or "{}")
+    fase = payload.get("fase")
+
+    if fase == "lobby":
+        grupo.listo_lobby = True
+    elif fase == "f1":
+        grupo.listo_f1 = True
+    elif fase == "f2":
+        grupo.listo_f2 = True
+    elif fase == "f3":
+        grupo.listo_f3 = True
+    elif fase == "f4":
+        grupo.listo_f4 = True
+    else:
+        return JsonResponse({"ok": False, "error": "Fase inválida"}, status=400)
+
+    grupo.save()
+    return JsonResponse({"ok": True})
+
+
+
+
+
+
+
+
+@never_cache
+def pantalla_espera(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        messages.error(request, "Debes ingresar con tu código.")
+        return redirect("registro")
+
+    ruta = ruta_alumno_por_estado(grupo)
+    if ruta != "pantalla_espera":
+        return redirect(ruta)
+
+    return render(request, "pantalla_espera.html", {"grupo": grupo})
+
+
+def pantalla_inicio(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "pantalla_inicio"):
+        return redirect("pantalla_espera")
+    return render(request, "pantalla_inicio.html", {"grupo": grupo})
+
+
+def trabajoenequipo(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "trabajoenequipo"):
+        return redirect("pantalla_espera")
+    return render(request, "trabajoenequipo.html", {"grupo": grupo})
+
+@never_cache
+def tematicas(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "tematicas"):
+        return redirect("pantalla_espera")
+
+    if (grupo.tema_elegido or "").strip():
+        return redirect("desafios")
+
+    return render(request, "tematicas.html", {
+        "grupo": grupo,
+        "tema_actual": (grupo.tema_elegido or "").strip().lower(),
+    })
+
+    print(f"tematicas -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | sesion: {grupo.sesion.idsesion}")
+
+    if not acceso_permitido(grupo, "tematicas"):
+        print(f"tematicas -> acceso no permitido para grupo {grupo.idgrupo}")
+        return redirect("pantalla_espera")
+
+    return render(request, "tematicas.html", {"grupo": grupo})
+
+@never_cache
+def lego(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "lego"):
+        return redirect("pantalla_espera")
+
+    if request.method == "POST":
+        sin_foto = request.POST.get("sin_foto_lego") == "on"
+        foto = request.FILES.get("foto_lego")
+
+        if sin_foto:
+            grupo.foto_lego = None
+            grupo.listo_f3 = True
+            grupo.save(update_fields=["foto_lego", "listo_f3"])
+            return redirect("pantalla_espera")
+
+        if foto:
+            grupo.foto_lego = foto
+            grupo.listo_f3 = True
+            grupo.save(update_fields=["foto_lego", "listo_f3"])
+            return redirect("pantalla_espera")
+
+        messages.error(request, "Debes subir una foto o marcar que no pudieron subirla.")
+
+    return render(request, "lego.html", {
+        "grupo": grupo,
+        "desafio_nombre_actual": grupo.desafio_nombre or "Desafío no seleccionado",
+        "desafio_descripcion_actual": grupo.desafio_descripcion or "Aún no hay descripción disponible para este desafío.",
+        "tiempo_inicial_lego": grupo.sesion.segundos_restantes or 15,
+    })
+
+
+#NUEVO CIERRRE
 def perfiles(request):
     return render(request, 'perfiles.html')
 
@@ -29,78 +830,146 @@ def bienvenida(request):
 def registro(request):
     error = None
 
-    if request.method == 'POST':
-        codigo = request.POST.get('id_grupo', '').strip()
+    if request.method == "POST":
+        codigo = (request.POST.get("id_grupo") or "").strip().upper()
 
         if not codigo:
             error = "Debes ingresar un código."
-            return render(request, 'registro.html', {'error': error})
+            return render(request, "registro.html", {"error": error})
 
         try:
-            grupo = Grupo.objects.get(codigoacceso=codigo)
+            grupo = Grupo.objects.select_related("sesion").get(codigoacceso__iexact=codigo)
         except Grupo.DoesNotExist:
-            error = 'Código de grupo inválido'
-            return render(request, 'registro.html', {'error': error})
+            error = "Código de grupo inválido"
+            return render(request, "registro.html", {"error": error})
 
-        request.session['grupo_id'] = grupo.idgrupo
+        request.session.flush()
+        request.session.cycle_key()
+        request.session["grupo_id"] = grupo.idgrupo
+        request.session["sesion_id"] = grupo.sesion_id
+        request.session["ranking_flags_reseteados"] = False
+        request.session.modified = True
 
-        return redirect('pantalla_inicio')  # <-- ajusta al name de tu URL real
+        print(f"registro -> codigo={codigo} | grupo={grupo.idgrupo} | nombre={grupo.nombregrupo} | sesion={grupo.sesion.idsesion if grupo.sesion else 'SIN SESION'}")
 
-    return render(request, 'registro.html', {'error': error})
+        return redirect("pantalla_inicio")
 
-
-
-def trabajoenequipo(request):
-    return render(request, 'trabajoenequipo.html')
+    return render(request, "registro.html", {"error": error})
 
 
-def lego(request):
-    return render(request, 'lego.html')
 
 
 def introducciones(request):
-    return render(request, 'introducciones.html')
-
-
-def pantalla_inicio(request):
-    return render(request, 'pantalla_inicio.html')
-
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "introducciones"):
+        return redirect("pantalla_espera")
+    return render(request, "introducciones.html", {"grupo": grupo})
 
 def promptconocidos(request):
-    return render(request, 'promptconocidos.html')
-
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "promptconocidos"):
+        return redirect("pantalla_espera")
+    return render(request, "promptconocidos.html", {"grupo": grupo})
 
 def conocidos(request):
-    return render(request, 'conocidos.html')
-
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "conocidos"):
+        return redirect("pantalla_espera")
+    return render(request, "conocidos.html", {"grupo": grupo})
 
 def minijuego1(request):
-    return render(request, 'minijuego1.html')
-
-def sopa_completada(request):
-    grupo_id = request.session.get("grupo_id")
-
-    if not grupo_id:
-        messages.error(request, "No se pudo identificar tu grupo.")
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
         return redirect("registro")
+    if not acceso_permitido(grupo, "minijuego1"):
+        return redirect("pantalla_espera")
+    return render(request, "minijuego1.html", {"grupo": grupo})
 
-    grupo = get_object_or_404(Grupo, pk=grupo_id)
+@require_POST
+def sopa_completada(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "No se pudo identificar tu grupo."}, status=403)
 
-    if not grupo.sopa_ganada:
-        grupo.tokensgrupo = (grupo.tokensgrupo or 0) + 3
+    with transaction.atomic():
+        grupo = Grupo.objects.select_for_update().get(pk=grupo.pk)
+
+        if grupo.sopa_ganada:
+            return JsonResponse({"ok": True, "ya_completada": True})
+
+        ya_habia_otro = Grupo.objects.select_for_update().filter(
+            sesion=grupo.sesion,
+            sopa_ganada=True
+        ).exclude(pk=grupo.pk).exists()
+
+        bonus = 3
+        if not ya_habia_otro:
+            bonus += 2
+
+        grupo.tokensgrupo = (grupo.tokensgrupo or 0) + bonus
         grupo.sopa_ganada = True
-        grupo.save()
+        grupo.save(update_fields=["tokensgrupo", "sopa_ganada"])
 
-    return redirect("transiciondesafio")
+    return JsonResponse({
+        "ok": True,
+        "bonus_otorgado": bonus,
+        "primer_equipo": not ya_habia_otro,
+    })
 
+@require_POST
+def registrar_palabra_sopa(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "No se pudo identificar tu grupo."}, status=403)
 
-def tematicas(request):
-    return render(request, 'tematicas.html')
+    try:
+        payload = json.loads(request.body or "{}")
+    except Exception:
+        payload = {}
 
+    palabra = (payload.get("palabra") or "").strip().upper()
+    if not palabra:
+        return JsonResponse({"ok": False, "error": "Palabra inválida."}, status=400)
+
+    with transaction.atomic():
+        _, creada = PalabraSopaEncontrada.objects.get_or_create(
+            sesion=grupo.sesion,
+            grupo=grupo,
+            palabra=palabra,
+        )
+
+        if creada:
+            Grupo.objects.filter(pk=grupo.pk).update(tokensgrupo=F("tokensgrupo") + 1)
+
+    return JsonResponse({
+        "ok": True,
+        "nueva": creada,
+    })
 
 def dashboardprofesor(request):
-    return render(request, 'dashboardprofesor.html')
+    profesor = Profesor.objects.first()
+    sesion = None
 
+    if profesor:
+        sesion = Sesion.objects.filter(profesor=profesor).order_by("-fecha_creacion").first()
+
+    return render(request, "dashboardprofesor.html", {"sesion": sesion})
+
+def control_sesion(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+    grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
+
+    return render(request, "control_sesion.html", {
+        "sesion": sesion,
+        "grupos": grupos,
+        "es_profesor_panel": True,
+    })
 
 def dashboardadmin(request):
     return render(request, 'dashboardadmin.html')
@@ -149,23 +1018,47 @@ def eliminar_desafio(request, iddesafio):
     return redirect('lista_desafios')
 
 def transicionempatia(request):
-    return render(request, 'transicionempatia.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "transicionempatia"):
+        return redirect("pantalla_espera")
+    return render(request, "transicionempatia.html", {"grupo": grupo})
 
 
 def transicioncreatividad(request):
-    return render(request, 'transicioncreatividad.html')
-
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "transicioncreatividad"):
+        return redirect("pantalla_espera")
+    return render(request, "transicioncreatividad.html", {"grupo": grupo})
 
 def transicioncomunicacion(request):
-    return render(request, 'transicioncomunicacion.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "transicioncomunicacion"):
+        return redirect("pantalla_espera")
+    return render(request, "transicioncomunicacion.html", {"grupo": grupo})
 
 
 def transiciondesafio(request):
-    return render(request, 'transiciondesafio.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "transiciondesafio"):
+        return redirect("pantalla_espera")
+    return render(request, "transiciondesafio.html", {"grupo": grupo})
 
 
 def transicionapoyo(request):
-    return render(request, 'transicionapoyo.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "transicionapoyo"):
+        return redirect("pantalla_espera")
+    return render(request, "transicionapoyo.html", {"grupo": grupo})
 
 @transaction.atomic
 def asignar_alumnos_a_grupos(sesion: Sesion):
@@ -411,60 +1304,185 @@ def agregar_alumno_manual(request):
 
     return redirect("registraralumnos")
 
+@never_cache
 def desafios(request):
-    slug = (request.GET.get('tema') or request.session.get('tema') or '').lower()
-    theme = get_theme(slug)
-    if not theme:
-        return redirect('tematicas')
-    request.session['tema'] = slug
-    return render(request, 'desafios.html', {'theme': theme, 'slug': slug})
-
-
-def bubblemap(request):
-    return render(request, 'bubblemap.html')
-
-def orden_presentacion_alumno(request):
-    grupo_id = request.session.get("grupo_id")
-    if not grupo_id:
-        messages.error(request, "No se pudo identificar tu grupo.")
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
         return redirect("registro")
 
-    grupo_actual = get_object_or_404(Grupo, pk=grupo_id)
-    sesion = grupo_actual.sesion
+    if not acceso_permitido(grupo, "desafios"):
+        return redirect("pantalla_espera")
 
-    grupos = Grupo.objects.filter(sesion=sesion).order_by('idgrupo')
+    slug = (grupo.tema_elegido or "").strip().lower()
+    if not slug:
+        return redirect("tematicas")
 
-    orden_existente = any(g.orden_presentacion for g in grupos)
+    theme = get_theme(slug)
+    if not theme:
+        return redirect("tematicas")
 
-    if request.method == "POST":
-        if orden_existente:
-            messages.warning(request, "El orden ya fue sorteado y no puede modificarse.")
-            return redirect("orden_presentacion_alumno")
+    return render(request, "desafios.html", {
+        "grupo": grupo,
+        "theme": theme,
+        "slug": slug,
+        "desafio_confirmado": bool(grupo.listo_f2_desafio),
+        "desafio_id_actual": str(grupo.desafio_id_externo or ""),
+        "desafio_nombre_actual": grupo.desafio_nombre or "",
+        "desafio_descripcion_actual": grupo.desafio_descripcion or "",
+    })
 
-        lista = list(grupos)
-        random.shuffle(lista)
 
-        for pos, g in enumerate(lista, start=1):
-            g.orden_presentacion = pos
-            g.save()
 
-        messages.success(request, "Orden sorteado correctamente.")
-        return redirect("orden_presentacion_alumno")
 
-    context = {
-        "grupos": grupos.order_by('orden_presentacion'),
-        "grupo_actual": grupo_actual,
-        "orden_existente": orden_existente,
-    }
 
-    return render(request, "orden_presentacion_alumno.html", context)
+@never_cache
+def bubblemap(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
 
+    if not acceso_permitido(grupo, "bubblemap"):
+        return redirect("pantalla_espera")
+
+    sesion = grupo.sesion
+
+    desafio_id = request.GET.get("desafio")
+
+    if desafio_id:
+        request.session["desafio_id"] = desafio_id
+        request.session["desafio_nombre"] = grupo.desafio_nombre
+        request.session["desafio_descripcion"] = getattr(grupo, "desafio_descripcion", "") or ""
+        request.session.modified = True
+
+    desafio_nombre = (
+        grupo.desafio_nombre
+        or request.session.get("desafio_nombre")
+        or "Desafío no seleccionado"
+    )
+
+    desafio_descripcion = (
+        getattr(grupo, "desafio_descripcion", None)
+        or request.session.get("desafio_descripcion")
+        or "Aún no hay descripción disponible para este desafío."
+    )
+
+    segundos = 180
+    if sesion and sesion.segundos_restantes is not None:
+        segundos = sesion.segundos_restantes
+
+    return render(request, "bubblemap.html", {
+        "grupo": grupo,
+        "sesion": sesion,
+        "desafio_nombre_actual": desafio_nombre,
+        "desafio_descripcion_actual": desafio_descripcion,
+        "segundos_restantes": segundos,
+    })
+def orden_presentacion_alumno(request):
+    grupo = obtener_grupo_desde_session(request)
+
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "orden_presentacion_alumno"):
+        return redirect("pantalla_espera")
+
+    grupos_ordenados = Grupo.objects.filter(
+        sesion=grupo.sesion
+    ).exclude(
+        orden_presentacion__isnull=True
+    ).order_by("orden_presentacion")
+
+    return render(request, "orden_presentacion.html", {
+        "grupo": grupo,
+        "grupos_ordenados": grupos_ordenados,
+    })
+
+@never_cache
 def pitch(request):
-    return render(request, 'pitch.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "pitch"):
+        return redirect("pantalla_espera")
+
+    return render(request, "pitch.html", {
+        "grupo": grupo,
+        "pitch_guardado": grupo.pitch_texto or "",
+        "desafio_nombre_actual": grupo.desafio_nombre or "Desafío no seleccionado",
+        "desafio_descripcion_actual": grupo.desafio_descripcion or "Aún no hay descripción disponible para este desafío.",
+    })
 
 
+@require_POST
+def guardar_pitch(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=401)
+
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return JsonResponse({"ok": False, "error": "JSON inválido."}, status=400)
+
+    texto = (data.get("pitch_texto") or "").strip()
+
+    grupo.pitch_texto = texto
+    grupo.save(update_fields=["pitch_texto"])
+
+    return JsonResponse({
+        "ok": True,
+        "pitch_texto": grupo.pitch_texto or "",
+    })
+
+
+@require_POST
+def profesor_sortear_orden_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    grupos = list(Grupo.objects.filter(sesion=sesion).order_by("idgrupo"))
+    if not grupos:
+        return JsonResponse({"ok": False, "error": "No hay grupos en la sesión."}, status=400)
+
+    random.shuffle(grupos)
+
+    for i, grupo in enumerate(grupos, start=1):
+        grupo.orden_presentacion = i
+        grupo.save(update_fields=["orden_presentacion"])
+
+    primer_grupo = sorted(grupos, key=lambda g: g.orden_presentacion)[0]
+
+    sesion.grupo_presentando = primer_grupo
+    sesion.segundos_restantes = 90
+    sesion.timer_corriendo = False
+    sesion.save(update_fields=["grupo_presentando", "segundos_restantes", "timer_corriendo"])
+
+    return JsonResponse({
+        "ok": True,
+        "orden": [
+            {
+                "id": g.idgrupo,
+                "nombre": g.nombregrupo,
+                "orden": g.orden_presentacion,
+            }
+            for g in sorted(grupos, key=lambda x: x.orden_presentacion)
+        ],
+        **serializar_estado_pitch(sesion),
+    })
+
+@never_cache
 def presentar_pitch(request):
-    return render(request, 'presentar_pitch.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "presentar_pitch"):
+        return redirect("pantalla_espera")
+
+    return render(request, "presentar_pitch.html", {
+        "grupo": grupo,
+        "miPitch": grupo.pitch_texto or "",
+    })
 
 
 def registraralumnos(request):
@@ -552,98 +1570,105 @@ def issue_challenge_view(request, challenge_id):
     )
     return redirect("market")
 
+@never_cache
 def peer_review_view(request):
-    grupo_id = request.session.get("grupo_id")
-    if not grupo_id:
-        messages.error(request, "No pudimos identificar tu grupo.")
+    grupo_evaluador = obtener_grupo_desde_session(request)
+    if not grupo_evaluador:
         return redirect("registro")
 
-    grupo_evaluador = get_object_or_404(Grupo, pk=grupo_id)
+    if not acceso_permitido(grupo_evaluador, "peer_review"):
+        return redirect("pantalla_espera")
+
     sesion = grupo_evaluador.sesion
 
-    if not sesion:
-        messages.error(request, "Tu grupo no está asociado a ninguna sesión.")
-        return redirect("registro")
+    all_targets = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo_evaluador.pk)
 
-    all_targets = (
-        Grupo.objects
-        .filter(sesion=sesion)
-        .exclude(pk=grupo_evaluador.pk)
-    )
-
-    evaluaciones_hechas = Evaluacion.objects.filter(
-        sesion=sesion,
-        grupo_evaluador=grupo_evaluador,
-    )
     evaluados_ids = set(
-        evaluaciones_hechas.values_list("grupo_evaluado_id", flat=True)
+        Evaluacion.objects.filter(
+            sesion=sesion,
+            grupo_evaluador=grupo_evaluador,
+        ).values_list("grupo_evaluado_id", flat=True)
     )
 
     pending_targets = all_targets.exclude(pk__in=evaluados_ids)
-    completed = not pending_targets.exists()  # True si ya evaluó a todos
+    completed = not pending_targets.exists()
 
-    if completed and not getattr(grupo_evaluador, "recompensa_peer_otorgada", False):
-        otorgar_tokens_peer_review(grupo_evaluador)
+    if completed:
+        if not grupo_evaluador.listo_f5:
+            grupo_evaluador.listo_f5 = True
+            grupo_evaluador.save(update_fields=["listo_f5"])
+        return redirect("mision_cumplida")
 
     criteria = [
-        {"key": "claridad",     "label": "Claridad de la solución"},
-        {"key": "creatividad",  "label": "Creatividad / innovación"},
-        {"key": "viabilidad",   "label": "Viabilidad del proyecto"},
-        {"key": "equipo",       "label": "Trabajo en equipo"},
-        {"key": "presentacion", "label": "Calidad de la presentación / pitch"},
+        {"key": "claridad", "label": "Claridad"},
+        {"key": "creatividad", "label": "Creatividad"},
+        {"key": "viabilidad", "label": "Viabilidad"},
+        {"key": "equipo", "label": "Trabajo en equipo"},
+        {"key": "presentacion", "label": "Presentación"},
     ]
 
-    if request.method == "POST" and not completed:
-        target_team_id = request.POST.get("target_team_id")
-        comment = request.POST.get("comment", "").strip()
-        reflection = request.POST.get("reflection", "").strip()
-        confirm = request.POST.get("confirm_honesty")
+    if request.method == "POST":
+        team_id = (request.POST.get("team_id") or "").strip()
 
-        try:
-            grupo_evaluado = pending_targets.get(pk=target_team_id)
-        except (Grupo.DoesNotExist, ValueError, TypeError):
-            messages.error(
-                request,
-                "Debes seleccionar un equipo válido que aún no hayas evaluado."
-            )
+        if not team_id.isdigit():
+            messages.error(request, "Equipo inválido.")
             return redirect("peer_review")
 
-        if not comment:
-            messages.error(request, "El comentario es obligatorio.")
+        grupo_evaluado = pending_targets.filter(pk=int(team_id)).first()
+
+        if not grupo_evaluado:
+            messages.error(request, "Ese equipo ya fue evaluado o no es válido.")
             return redirect("peer_review")
 
-        if not confirm:
-            messages.error(request, "Debes confirmar que la evaluación es honesta.")
+        if grupo_evaluado.pk == grupo_evaluador.pk:
+            messages.error(request, "No puedes evaluar a tu propio equipo.")
             return redirect("peer_review")
 
         scores = {}
         for c in criteria:
-            val = request.POST.get(f"score_{c['key']}")
-            if val not in ["1", "2", "3", "4", "5"]:
-                messages.error(request, "Debes completar todos los criterios.")
+            raw = request.POST.get(f"score_{c['key']}")
+            if raw not in {"1", "2", "3", "4", "5"}:
+                messages.error(request, f"Debes completar el criterio: {c['label']}.")
                 return redirect("peer_review")
-            scores[c["key"]] = int(val)
+            scores[c["key"]] = int(raw)
 
-        if Evaluacion.objects.filter(
-            sesion=sesion,
-            grupo_evaluador=grupo_evaluador,
-            grupo_evaluado=grupo_evaluado
-        ).exists():
-            messages.info(request, "Ya habías evaluado a ese equipo.")
+        comment = (request.POST.get("comment") or "").strip()
+        reflection = (request.POST.get("reflection") or "").strip()
+
+        if not comment:
+            messages.error(request, "Debes escribir un comentario.")
             return redirect("peer_review")
 
-        Evaluacion.objects.create(
+        Evaluacion.objects.update_or_create(
             sesion=sesion,
             grupo_evaluador=grupo_evaluador,
             grupo_evaluado=grupo_evaluado,
-            claridad=scores["claridad"],
-            creatividad=scores["creatividad"],
-            viabilidad=scores["viabilidad"],
-            equipo=scores["equipo"],
-            presentacion=scores["presentacion"],
-            comentario=comment,
-            reflexion=reflection or None,
+            defaults={
+                "claridad": scores["claridad"],
+                "creatividad": scores["creatividad"],
+                "viabilidad": scores["viabilidad"],
+                "equipo": scores["equipo"],
+                "presentacion": scores["presentacion"],
+                "comentario": comment,
+                "reflexion": reflection or None,
+            }
         )
+
+        evaluados_ids = set(
+            Evaluacion.objects.filter(
+                sesion=sesion,
+                grupo_evaluador=grupo_evaluador,
+            ).values_list("grupo_evaluado_id", flat=True)
+        )
+
+        pending_targets = all_targets.exclude(pk__in=evaluados_ids)
+        completed = not pending_targets.exists()
+
+        if completed and not grupo_evaluador.recompensa_peer_otorgada:
+            otorgar_tokens_peer_review(grupo_evaluador)
+            grupo_evaluador.listo_f5 = True
+            grupo_evaluador.save(update_fields=["listo_f5"])
+            return redirect("mision_cumplida")
 
         messages.success(request, "¡Evaluación enviada para ese equipo!")
         return redirect("peer_review")
@@ -653,11 +1678,13 @@ def peer_review_view(request):
         "evaluator_team": grupo_evaluador,
         "target_teams": pending_targets,
         "criteria": criteria,
-        "submitted": completed,
+        "submitted": False,
         "evaluados_count": len(evaluados_ids),
         "total_targets": all_targets.count(),
     }
     return render(request, "peer_review.html", context)
+
+
 
 def ranking(request):
     return render(request, 'ranking.html')
@@ -740,8 +1767,19 @@ def eliminar_alumno(request, idalumno):
         messages.error(request, f"Ocurrió un error al eliminar: {e}")
     return redirect("registraralumnos")
 
+def finalizar_mision(request):
+    request.session.pop("grupo_id", None)
+    return redirect("perfiles")
+
 def reflexion(request):
-    return render(request, 'reflexion.html')
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "reflexion"):
+        return redirect("pantalla_espera")
+
+    return render(request, "reflexion.html", {"grupo": grupo})
 
 def crear_sesion(request):
     profesor = Profesor.objects.first()
@@ -759,11 +1797,14 @@ def crear_sesion(request):
 
         Sesion.objects.create(
             profesor=profesor,
-            nombre=nombre
+            nombre=nombre,
+            fase_actual="f1_bienvenida",
+            timer_corriendo=False,
+            segundos_restantes=0
         )
 
         messages.success(request, "Sesión creada correctamente.")
-        return redirect('listar_sesiones')
+        return redirect("listar_sesiones")
 
     return render(request, "crear_sesion.html")
 
@@ -835,7 +1876,6 @@ def ranking_view(request):
     )
 
     rankings = []
-
     last_tokens = None
     current_rank = 0
     position = 0
@@ -848,36 +1888,82 @@ def ranking_view(request):
             current_rank = position
             last_tokens = tokens
 
-        if current_rank == 1:
-            medal = "🏆"
-            podium_class = "podium-1"
-        elif current_rank == 2:
-            medal = "🥈"
-            podium_class = "podium-2"
-        elif current_rank == 3:
-            medal = "🥉"
-            podium_class = "podium-3"
-        else:
-            medal = ""
-            podium_class = ""
-
         rankings.append({
             "team_name": g.nombregrupo or f"Grupo {g.idgrupo}",
             "tokens": tokens,
             "is_me": g.idgrupo == grupo_actual.idgrupo,
             "rank": current_rank,
-            "medal": medal,
-            "podium_class": podium_class,
         })
 
     context = {
         "session": sesion,
+        "grupo": grupo_actual,
         "rankings": rankings,
     }
     return render(request, "ranking.html", context)
 
+@never_cache
 def mision_cumplida_view(request):
-    """
-    Pantalla final de cierre de misión antes del ranking.
-    """
-    return render(request, "mision_cumplida.html")
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        messages.error(request, "No pudimos identificar tu grupo.")
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "mision_cumplida"):
+        return redirect("pantalla_espera")
+
+    if not peer_review_completado(grupo):
+        return redirect("peer_review")
+
+    return render(request, "mision_cumplida.html", {
+        "grupo": grupo,
+    })
+
+def preview_pantalla_profesor(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    plantilla_por_fase = {
+        "lobby": "pantalla_espera_preview.html",
+
+        "f1_bienvenida": "pantalla_inicio.html",
+        "f1_conocidos": "conocidos.html",
+        "f1_pre_sopa": "trabajoenequipo.html",
+        "f1_sopa": "minijuego1.html",
+
+        "f2_transicion": "transiciondesafio.html",
+        "f2_tematicas": "tematicas.html",
+        "f2_transicion_empatia": "transicionempatia.html",
+        "f2_bubblemap": "bubblemap.html",
+
+        "f3_transicion_creatividad": "transicioncreatividad.html",
+        "f3_lego": "lego.html",
+
+        "f4_transicion_comunicacion": "transicioncomunicacion.html",
+        "f4_construccion_pitch": "pitch.html",
+        "f4_orden_pitch": "orden_presentacion.html",
+        "f4_presentacion_pitch": "presentar_pitch.html",
+
+        "f5_transicion_apoyo": "transicionapoyo.html",
+        "f5_evaluacion_pitch": "peer_review.html",
+
+        "f6_ranking": "ranking.html",
+        "reflexion": "reflexion.html",
+    }
+
+    template_name = plantilla_por_fase.get(sesion.fase_actual, "pantalla_espera_preview.html")
+
+    grupo_dummy = Grupo.objects.filter(sesion=sesion).order_by("idgrupo").first()
+
+    if not grupo_dummy:
+        grupo_dummy = Grupo(
+            sesion=sesion,
+            nombregrupo="Grupo preview",
+            tokensgrupo=10,
+        )
+
+    context = {
+        "grupo": grupo_dummy,
+        "preview_profesor": True,
+    }
+
+    return render(request, template_name, context)

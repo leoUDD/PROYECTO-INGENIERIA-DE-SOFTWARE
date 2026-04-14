@@ -15,6 +15,17 @@
 
     {% include "desafio_badge.html" %}
 
+    <div
+      id="bubblemap-desafio-data"
+      data-nombre="{{ desafio_nombre_actual|default:'Desafío no seleccionado'|escape }}"
+      data-descripcion="{{ desafio_descripcion_actual|default:'Aún no hay descripción disponible para este desafío.'|escape }}"
+      hidden
+    ></div>
+
+    <div class="timer-wrap">
+      <div class="timer-bubblemap" id="timer">03:00</div>
+    </div>
+
     <section class="bubbles">
       <div class="bubble central">
         <img src="{% static 'images/personas.png' %}" alt="Persona" />
@@ -28,9 +39,13 @@
       <div class="bubble"><textarea placeholder="Otros"></textarea></div>
     </section>
 
-    <footer class="footer-actions">
-      <button id="btnContinuar" class="btn primary">Continuar</button>
-    </footer>
+    <footer class="footer-actions"></footer>
+
+    <div
+      id="routes"
+      data-sesion-id="{{ sesion.idsesion }}"
+      data-tiempo="{{ segundos_restantes|default:180 }}"
+    ></div>
   </main>
 
   <script>
@@ -62,30 +77,145 @@
 
     localStorage.setItem(SESSION_KEY, currentSession);
 
+    document.addEventListener("DOMContentLoaded", () => {
+      const bubbles = document.querySelectorAll(".bubble textarea");
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
-    /* ========= GUARDAR DATOS ========= */
-
-    const bubbles = document.querySelectorAll(".bubble textarea");
-
-    // Restaurar si existe
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    bubbles.forEach((area, i) => {
-      if (saved[i]) area.value = saved[i];
-    });
-
-    // Guardar al escribir
-    bubbles.forEach((area, i) => {
-      area.addEventListener("input", () => {
-        const data = {};
-        bubbles.forEach((a, idx) => data[idx] = a.value.trim());
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      bubbles.forEach((area, i) => {
+        if (saved[i]) area.value = saved[i];
       });
-    });
 
-    // Botón siguiente
-    document.getElementById("btnContinuar").addEventListener("click", () => {
-      window.location.href = "{% url 'transicioncreatividad' %}";
+      bubbles.forEach((area, i) => {
+        area.addEventListener("input", () => {
+          const data = {};
+          bubbles.forEach((a, idx) => data[idx] = a.value.trim());
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        });
+      });
+
+      /* ===== RELLENAR BADGE DEL DESAFÍO DESDE DJANGO ===== */
+      const dataNode = document.getElementById("bubblemap-desafio-data");
+      const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
+      const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
+
+      const dbTitle = document.getElementById("dbTitle");
+      const dbShort = document.getElementById("dbShort");
+      const dbDesc = document.getElementById("dbDesc");
+
+      if (dbTitle) dbTitle.textContent = nombre;
+
+      if (dbShort) {
+        const corto = descripcion.length > 90
+          ? descripcion.slice(0, 90).trim() + "..."
+          : descripcion;
+        dbShort.textContent = corto;
+      }
+
+      if (dbDesc) dbDesc.textContent = descripcion;
+
+      const routesEl = document.getElementById("routes");
+      const sesionId = routesEl?.dataset?.sesionId;
+      const timerElement = document.getElementById("timer");
+
+      if (!sesionId || !timerElement) return;
+
+      let timeLeft = Number(routesEl.dataset.tiempo || 180);
+      let timerInterval = null;
+      let timerIniciado = false;
+      let redirigiendo = false;
+
+      function pintarTiempo() {
+        const minutes = Math.floor(Math.max(0, timeLeft) / 60);
+        const seconds = Math.max(0, timeLeft) % 60;
+        timerElement.textContent =
+          `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      function pausarTimerLocal() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function iniciarTimerLocal() {
+        if (timerInterval || redirigiendo) return;
+
+        timerIniciado = true;
+        pintarTiempo();
+
+        timerInterval = setInterval(() => {
+          if (redirigiendo) {
+            pausarTimerLocal();
+            return;
+          }
+
+          if (timeLeft > 0) {
+            timeLeft--;
+            pintarTiempo();
+          }
+        }, 1000);
+      }
+
+      function procesarEstadoSesion(data) {
+        if (!data) return;
+
+        const faseActual = data.faseActual;
+
+        if (faseActual && faseActual !== "f2_bubblemap") {
+          if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.href = data.rutaAlumno;
+          }
+          return;
+        }
+
+        const backendSeconds = Number(data.segundosRestantes);
+
+        if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+          timeLeft = backendSeconds;
+          pintarTiempo();
+        }
+
+        if (!timerIniciado && data.timerCorriendo) {
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+          iniciarTimerLocal();
+          return;
+        }
+
+        if (timerIniciado && !data.timerCorriendo) {
+          pausarTimerLocal();
+
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+
+          timerIniciado = false;
+        }
+      }
+
+      async function consultarEstadoSesion() {
+        if (redirigiendo) return;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`);
+          const data = await res.json();
+          procesarEstadoSesion(data);
+        } catch (err) {
+          console.error("Error consultando estado de sesión:", err);
+        }
+      }
+
+      pintarTiempo();
+      setInterval(consultarEstadoSesion, 1500);
+      consultarEstadoSesion();
     });
   </script>
+
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

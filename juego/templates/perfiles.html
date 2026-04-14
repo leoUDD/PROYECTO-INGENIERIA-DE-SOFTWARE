@@ -10,30 +10,44 @@
   <link rel="stylesheet" href="{% static 'css/estilo_perfiles.css' %}" />
 </head>
 <body>
-    <main class="phone" role="region" aria-label="Pantalla de perfiles">
-      
-        <section class="perfiles">
-            <div class="perfil alumno">
-                <a href="{% url 'bienvenida' %}" class="alumno">
-                    <img src="{% static 'images/alumno.png' %}" alt="Alumno">
-                </a>
-                <p class="perfil-texto">Alumno</p>
-            </div>
+  <main class="phone" role="region" aria-label="Pantalla de perfiles">
 
-            <div class="perfil profesor">
-                <a href="dashboardprofesor" class="profesor"> 
-                    <img src="{% static 'images/proofe.png' %}" alt="Icono de Profesor" class="icon">
-                </a>
-                <p class="perfil-texto">Profesor</p>
-            </div>
+    <!--
+      SPACER INVISIBLE:
+      Mismo GIF pero invisible (opacity:0).
+      Su único trabajo es darle altura real a .phone
+      para que position:absolute funcione correctamente.
+      El GIF visible es background-image de .phone.
+    -->
+    <img
+      class="gif-spacer"
+      src="{% static 'images/mision_emprende_1536x1900_flicker.gif' %}"
+      alt=""
+      aria-hidden="true"
+    />
 
-            <div class="perfil administrador">
-                <a href="dashboardadmin" class="administrador">
-                    <img src="{% static 'images/admin.png' %}" alt="Icono de Administrador" class="icon">
-                </a>
-                <p class="perfil-texto">Administrador</p>
-            </div>
-        </section>
-    </main>
+    <!-- Círculos superpuestos sobre el GIF de fondo -->
+    <section class="perfiles">
+      <div class="perfil">
+        <a href="{% url 'bienvenida' %}">
+          <img src="{% static 'images/alumno.png' %}" alt="Alumno">
+        </a>
+        <p class="perfil-texto">Alumno</p>
+      </div>
+      <div class="perfil">
+        <a href="dashboardprofesor">
+          <img src="{% static 'images/proofe.png' %}" alt="Profesor">
+        </a>
+        <p class="perfil-texto">Profesor</p>
+      </div>
+      <div class="perfil">
+        <a href="dashboardadmin">
+          <img src="{% static 'images/admin.png' %}" alt="Administrador">
+        </a>
+        <p class="perfil-texto">Administrador</p>
+      </div>
+    </section>
+
+  </main>
 </body>
 </html>

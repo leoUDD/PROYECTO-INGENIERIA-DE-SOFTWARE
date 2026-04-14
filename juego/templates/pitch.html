@@ -3,19 +3,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Misión Emprende UDD — Pitch</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}">
 </head>
-<body>
-  <main class="pitch-editor" role="region" aria-label="Editor de Pitch">
-    
-    <!-- Imagen superior -->
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-tiempo-inicial="{{ tiempo_inicial_pitch|default:300 }}"
+>
+
+  <main class="pitch-editor">
+
+    <!-- TIMER -->
+    <div class="timer-wrap">
+      <div id="timer" class="timer">05:00</div>
+    </div>
+
     <h1 class="title">¡Crea tu pitch!</h1>
-    <p class="subtitle">Escribe un pitch, o simplemente prepara algunas notas para tu presentación.</p>
-        {% include "desafio_badge.html" %}
+    <p class="subtitle">
+      Escribe un pitch, o simplemente prepara algunas notas para tu presentación.
+    </p>
+
+    {% include "desafio_badge.html" %}
+
     <section class="tips">
       <h2>Consejos para un buen pitch</h2>
       <ul>
@@ -27,18 +41,159 @@
     </section>
 
     <form class="pitch-form" onsubmit="return false;">
-      <textarea id="pitch-text" name="pitch-text" placeholder="Escribe tu pitch, o simplemente unas notas…" rows="10"></textarea>
+      <textarea
+        id="pitch-text"
+        name="pitch-text"
+        placeholder="Escribe tu pitch..."
+        rows="10"
+      >{{ pitch_guardado }}</textarea>
+
       <div class="actions">
         <button type="button" class="btn ghost" id="btnLimpiar">Limpiar</button>
-        <button type="button" class="btn primary" id="btnPresentar">Presentar</button>
       </div>
-      <p id="saveHint" class="save-hint" aria-live="polite">Los cambios se guardan automáticamente.</p>
     </form>
+
   </main>
-  
+
+  <!-- AUDIO -->
+  <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+
+  <!-- MODAL -->
+  <div id="modal-fin" class="modal-fin">
+    <div class="modal-fin-box">
+      <h2>¡Tiempo terminado!</h2>
+      <p>Prepárate para presentar tu pitch.</p>
+    </div>
+  </div>
+
   <script>
-    const PRESENTAR_URL = "{% url 'orden_presentacion_alumno' %}";
+    const alarmAudio = document.getElementById("alarm-audio");
+    const timerElement = document.getElementById("timer");
+    const modalFin = document.getElementById("modal-fin");
+
+    let timeLeft = Number(document.body.dataset.tiempoInicial || 300);
+    let timerInterval = null;
+    let timerStartedByProfesor = false;
+    let modalMostrado = false;
+
+    function renderTimer() {
+      const segundos = Math.max(0, Number(timeLeft) || 0);
+      const minutes = Math.floor(segundos / 60);
+      const seconds = segundos % 60;
+      timerElement.textContent =
+        `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    }
+
+    function pauseTimerLocally() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function mostrarModalFin() {
+      if (modalMostrado) return;
+      modalMostrado = true;
+
+      try {
+        alarmAudio.currentTime = 0;
+        alarmAudio.play();
+      } catch (e) {}
+
+      modalFin.style.display = "flex";
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+
+      renderTimer();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        renderTimer();
+
+        if (timeLeft <= 0) {
+          pauseTimerLocally();
+          mostrarModalFin();
+        }
+      }, 1000);
+    }
+
+    function obtenerSesionId() {
+      return document.body.dataset.sesionId;
+    }
+
+    function procesarEstadoSesion(data) {
+      if (!data) return;
+
+      // 🔥 CAMBIO CLAVE AQUÍ
+      if (data.faseActual && data.faseActual !== "f4_construccion_pitch") {
+        if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+          window.location.href = data.rutaAlumno;
+        }
+        return;
+      }
+
+      const backendSeconds = Number(data.segundosRestantes);
+
+      if (!timerStartedByProfesor || !data.timerCorriendo) {
+        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+          timeLeft = backendSeconds;
+          renderTimer();
+        }
+      }
+
+      if (!timerStartedByProfesor && data.timerCorriendo) {
+        timerStartedByProfesor = true;
+
+        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+          timeLeft = backendSeconds;
+          renderTimer();
+        }
+
+        startTimer();
+        return;
+      }
+
+      if (timerStartedByProfesor && !data.timerCorriendo) {
+        pauseTimerLocally();
+
+        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+          timeLeft = backendSeconds;
+          renderTimer();
+        }
+
+        timerStartedByProfesor = false;
+      }
+
+      if (Number(data.segundosRestantes) <= 0) {
+        mostrarModalFin();
+      }
+    }
+
+    async function revisarEstadoProfesor() {
+      try {
+        const sesionId = obtenerSesionId();
+        if (!sesionId) return;
+
+        const res = await fetch(`/sesion/${sesionId}/estado/`, {
+          credentials: "same-origin",
+          cache: "no-store"
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        procesarEstadoSesion(data);
+      } catch (error) {
+        console.error("Error sincronizando pitch:", error);
+      }
+    }
+
+    renderTimer();
+    revisarEstadoProfesor();
+    setInterval(revisarEstadoProfesor, 1500);
   </script>
-  <script src="{% static 'js/pitch_edit.js' %}"></script>
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

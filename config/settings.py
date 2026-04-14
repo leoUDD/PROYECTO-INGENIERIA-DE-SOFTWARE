@@ -10,33 +10,35 @@ import pymysql
 pymysql.install_as_MySQLdb()
 from dotenv import load_dotenv
 
-
-
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-secret-unsafe')
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',') if h.strip()]
+#NUEVO
+CSRF_TRUSTED_ORIGINS = [
+    "https://localhost:8000",
+    "http://localhost:8000",
+]
+#NUEVO CIERRE
 
 
 # ========================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'misionemprende'), 
-        'USER': os.environ.get('DB_USER', 'root'),           
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'pass123'),            
-        'HOST': os.environ.get('DB_HOST', 'localhost'),       
-        'PORT': os.environ.get('DB_PORT', '3306'),           
+        'NAME': os.getenv('DB_NAME', 'mision_emprende'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }
-
 # ========================
-
+#
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'juego',
 ]
-
 
 # ========================
 
@@ -59,7 +60,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 
 # ========================
 
@@ -83,7 +83,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # ========================
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -93,20 +92,19 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 # ========================
 
-LANGUAGE_CODE = 'es-cl'  
+LANGUAGE_CODE = 'es-cl'
 TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
 
-
 # ========================
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = [BASE_DIR / 'juego' / 'static']
 # ========================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
