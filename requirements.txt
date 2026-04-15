@@ -13,3 +13,5 @@ pytz==2025.2
 six==1.17.0
 sqlparse==0.5.3
 tzdata==2025.2
+cryptography==41.0.3
+whitenoise==6.4.0
