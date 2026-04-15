@@ -373,7 +373,7 @@ function showWinModal() {
   }
 
   setTimeout(() => btn.focus(), 50);
-  btn.addEventListener("click", goNext, { once: true });
+  btn.onclick = goNext;
 }
 
 async function goNext() {
@@ -395,7 +395,7 @@ function showTimeUpModal() {
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
-  btn.addEventListener("click", goNext, { once: true });
+  btn.onclick = goNext;
 }
 
 function renderTimer() {
@@ -522,14 +522,12 @@ function procesarEstadoSesion(data) {
 
   const backendSeconds = Number(data.segundosRestantes);
 
-  if (!timerStartedByProfesor || !data.timerCorriendo) {
-    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-      timeLeft = backendSeconds;
-      renderTimer();
-    }
+  if ((!timerStartedByProfesor || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+    timeLeft = backendSeconds;
+    renderTimer();
   }
 
-  if (!timerStartedByProfesor && data.timerCorriendo) {
+  if (!timerStartedByProfesor && data.timerCorriendo && data.inicioFaseHabilitado) {
     timerStartedByProfesor = true;
 
     if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {

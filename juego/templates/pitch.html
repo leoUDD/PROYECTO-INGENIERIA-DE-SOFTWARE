@@ -12,16 +12,254 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}">
+  <style>
+    .pitch-editor {
+      position: relative;
+    }
+
+    .inicio-fase-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 26px 18px 18px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .inicio-fase-card {
+      width: min(92%, 960px);
+      background: rgba(8, 24, 48, 0.88);
+      border: 1px solid rgba(0, 200, 255, 0.30);
+      box-shadow: 0 12px 30px rgba(0,0,0,.24);
+      border-radius: 22px;
+      padding: 18px 22px;
+      color: #fff;
+      backdrop-filter: blur(6px);
+      pointer-events: auto;
+    }
+
+    .inicio-fase-badge {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(0, 200, 255, 0.12);
+      border: 1px solid rgba(0, 200, 255, 0.28);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #dff7ff;
+    }
+
+    .inicio-fase-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .inicio-fase-card p {
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+
+    .btn-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 255, 0.4);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
+      color: #E6F7FF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-chip:hover {
+      transform: translateY(-1px) scale(1.03);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
+    }
+
+    .btn-chip:active {
+      transform: scale(0.97);
+    }
+
+    .btn-chip:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .contador-fase {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .blur-target-bloqueado {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      opacity: .70;
+      transition: all .3s ease;
+    }
+
+    .blur-target-activo {
+      filter: none;
+      pointer-events: auto;
+      user-select: auto;
+      opacity: 1;
+      transition: all .3s ease;
+    }
+
+    .timer-esperando {
+      opacity: .55;
+    }
+
+    .overlay-hidden {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .inicio-fase-card {
+        width: min(94%, 760px);
+        padding: 16px 18px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .inicio-fase-overlay {
+        padding: 14px 12px 12px;
+      }
+
+      .inicio-fase-card {
+        width: 100%;
+        border-radius: 18px;
+        padding: 14px 14px 16px;
+      }
+
+      .inicio-fase-card h3 {
+        font-size: 1rem;
+      }
+
+      .inicio-fase-card p {
+        font-size: 0.92rem;
+        line-height: 1.4;
+      }
+
+      .btn-chip {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .contador-fase {
+        font-size: 0.9rem;
+      }
+
+      .timer-wrap-pitch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0 18px;
+}
+
+.timer-label-pitch {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e8f7ff;
+}
+
+.timer-box-pitch {
+  min-width: 190px;
+  padding: 16px 26px;
+  border-radius: 22px;
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(5, 18, 35, 0.92);
+  border: 3px solid rgba(0, 200, 255, 0.85);
+  box-shadow:
+    0 0 18px rgba(0, 200, 255, 0.35),
+    inset 0 0 18px rgba(0, 200, 255, 0.12);
+  letter-spacing: 1px;
+}
+
+@media (max-width: 640px) {
+  .timer-label-pitch {
+    font-size: 0.95rem;
+  }
+
+  .timer-box-pitch {
+    min-width: 150px;
+    font-size: 1.75rem;
+    padding: 14px 20px;
+    border-radius: 18px;
+  }
+}  
+
+
+    }
+  </style>
 </head>
 <body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="pitch-editor">
 
-    <h1 class="title">¡Crea tu pitch!</h1>
-    <p class="subtitle">
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge">Fase de activación</div>
+
+        <h3>Antes de comenzar</h3>
+
+        <p>
+          Redacten un pitch claro, breve y persuasivo para presentar su solución.
+        </p>
+
+        <p>
+          Tendrán el tiempo configurado para esta fase. Cuando todos los equipos presionen
+          <strong>“Listo para comenzar”</strong>, la redacción se habilitará automáticamente.
+        </p>
+
+        <button type="button" id="btn-listo-fase" class="btn-chip">
+          ⚡ Listo para comenzar
+        </button>
+
+        <div id="texto-espera-fase" class="contador-fase">
+          Esperando a los demás equipos...
+        </div>
+
+        <div id="contador-listos-fase" class="contador-fase">
+          0/0 grupos listos
+        </div>
+      </section>
+    </div>
+
+    <h1 id="tituloPitch" class="title blur-target-bloqueado">¡Crea tu pitch!</h1>
+
+    <p id="subtituloPitch" class="subtitle blur-target-bloqueado">
       Escribe un pitch, o simplemente prepara algunas notas para tu presentación.
     </p>
 
-    {% include "desafio_badge.html" %}
+<div id="timer-wrap-pitch" class="timer-wrap-pitch blur-target-bloqueado timer-esperando">
+  <div class="timer-label-pitch">Tiempo restante</div>
+  <div id="timer" class="timer-box-pitch">00:00</div>
+</div>
+
+    <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+
+    <div id="desafioPitchWrap" class="blur-target-bloqueado">
+      {% include "desafio_badge.html" %}
+    </div>
 
     <div
       id="pitch-desafio-data"
@@ -30,17 +268,17 @@
       hidden
     ></div>
 
-    <section class="tips">
+    <section id="tipsPitch" class="tips blur-target-bloqueado">
       <h2>Consejos para un buen pitch</h2>
       <ul>
         <li>Comienza explicando claramente tu problema.</li>
         <li>Explica brevemente tu solución construida con LEGOs.</li>
         <li>Destaca por qué tu solución es especial y sus beneficios.</li>
-        <li>Manténlo breve (menos de 2 minutos).</li>
+        <li>Manténlo breve (Tendrás 1 minuto y 30 segundos para decir tu pitch).</li>
       </ul>
     </section>
 
-    <form class="pitch-form" onsubmit="return false;">
+    <form id="pitchFormWrap" class="pitch-form blur-target-bloqueado" onsubmit="return false;">
       <textarea
         id="pitch-text"
         name="pitch-text"
@@ -65,19 +303,96 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      const sesionId = "{{ grupo.sesion.idsesion }}";
+      const grupoId = "{{ grupo.idgrupo }}";
+      const csrfToken = "{{ csrf_token }}";
+
       const dataNode = document.getElementById("pitch-desafio-data");
       const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
       const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
 
-      const dbToggle = document.getElementById("dbToggle");
-      const dbDrawer = document.getElementById("dbDrawer");
       const dbTitle = document.getElementById("dbTitle");
       const dbShort = document.getElementById("dbShort");
       const dbDesc = document.getElementById("dbDesc");
-      const dbClose = document.getElementById("dbClose");
 
       const textarea = document.getElementById("pitch-text");
       const btnLimpiar = document.getElementById("btnLimpiar");
+
+      const boton = document.getElementById("btn-listo-fase");
+      const textoEspera = document.getElementById("texto-espera-fase");
+      const contador = document.getElementById("contador-listos-fase");
+      const timerContainer = document.getElementById("timer-wrap-pitch");
+      const timerElement = document.getElementById("timer");
+      const alarmAudio = document.getElementById("alarm-audio");
+      const overlay = document.getElementById("inicio-fase-overlay");
+
+      const blurTargets = [
+        document.getElementById("tituloPitch"),
+        document.getElementById("subtituloPitch"),
+        document.getElementById("timer-container"),
+        document.getElementById("desafioPitchWrap"),
+        document.getElementById("tipsPitch"),
+        document.getElementById("pitchFormWrap"),
+      ];
+
+      let timeLeft = 0;
+      let timerInterval = null;
+      let timerStarted = false;
+      let redirigiendo = false;
+
+      function activarFase() {
+        blurTargets.forEach(el => {
+          if (!el) return;
+          el.classList.remove("blur-target-bloqueado", "timer-esperando");
+          el.classList.add("blur-target-activo");
+        });
+
+        if (timerContainer) {
+          timerContainer.classList.remove("timer-esperando");
+        }
+
+        if (overlay) {
+          overlay.classList.add("overlay-hidden");
+        }
+      }
+
+      function bloquearFase() {
+        blurTargets.forEach(el => {
+          if (!el) return;
+          el.classList.remove("blur-target-activo");
+          el.classList.add("blur-target-bloqueado");
+        });
+
+        if (timerContainer) {
+          timerContainer.classList.add("timer-esperando");
+        }
+
+        if (overlay) {
+          overlay.classList.remove("overlay-hidden");
+        }
+      }
+
+      function renderTimer() {
+        const min = Math.floor(Math.max(0, timeLeft) / 60);
+        const sec = Math.max(0, timeLeft) % 60;
+        timerElement.textContent =
+          `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+      }
+
+      function startTimer() {
+        if (timerInterval) return;
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          renderTimer();
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            alarmAudio.play().catch(() => {});
+          }
+        }, 1000);
+      }
 
       if (dbTitle) dbTitle.textContent = nombre;
 
@@ -90,8 +405,6 @@
 
       if (dbDesc) dbDesc.textContent = descripcion;
 
-
-
       btnLimpiar?.addEventListener("click", () => {
         const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");
         if (!confirmar) return;
@@ -99,6 +412,128 @@
         textarea.value = "";
         textarea.dispatchEvent(new Event("input"));
       });
+
+      async function syncTimer() {
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`, {
+            cache: "no-store",
+            credentials: "same-origin"
+          });
+
+          if (!res.ok) return;
+
+          const data = await res.json();
+
+          if (contador) {
+            contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
+          }
+
+          const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+          if (miGrupo && miGrupo.listoF4) {
+            boton.disabled = true;
+            boton.textContent = "Esperando...";
+            if (textoEspera) {
+              textoEspera.textContent = "Esperando a los demás equipos...";
+            }
+          }
+
+          if (data.faseActual && data.faseActual !== "f4_construccion_pitch") {
+            if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+              redirigiendo = true;
+              window.location.href = data.rutaAlumno;
+            }
+            return;
+          }
+
+          if (data.inicioFaseHabilitado) {
+            activarFase();
+          } else {
+            bloquearFase();
+          }
+
+          const backendTime = Number(data.segundosRestantes);
+
+          if (!timerStarted) {
+            timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
+            renderTimer();
+          }
+
+          if (!timerStarted && data.timerCorriendo && data.inicioFaseHabilitado) {
+            timerStarted = true;
+            timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
+            renderTimer();
+            startTimer();
+            return;
+          }
+
+          if (timerStarted && !data.timerCorriendo) {
+            if (timerInterval) {
+              clearInterval(timerInterval);
+              timerInterval = null;
+            }
+
+            timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
+            renderTimer();
+            timerStarted = false;
+          }
+
+          if (backendTime <= 0) {
+            timeLeft = 0;
+            renderTimer();
+          }
+        } catch (e) {
+          console.error("Error timer pitch:", e);
+        }
+      }
+
+      if (boton) {
+        boton.addEventListener("click", async () => {
+          boton.disabled = true;
+          boton.textContent = "Esperando...";
+
+          try {
+            const res = await fetch(`/grupo/${grupoId}/listo/`, {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+              },
+              body: JSON.stringify({})
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.ok) {
+              throw new Error(data.error || "No se pudo marcar listo.");
+            }
+
+            if (contador) {
+              contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
+            }
+
+            if (textoEspera) {
+              textoEspera.textContent = "Esperando a los demás equipos...";
+            }
+
+            if (data.inicio_fase_habilitado) {
+              activarFase();
+            }
+          } catch (err) {
+            console.error("Error marcando listo:", err);
+            boton.disabled = false;
+            boton.textContent = "⚡ Listo para comenzar";
+            if (textoEspera) {
+              textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
+            }
+          }
+        });
+      }
+
+      bloquearFase();
+      renderTimer();
+      setInterval(syncTimer, 1000);
+      syncTimer();
     });
   </script>
 

@@ -105,41 +105,61 @@ body {
 }
 
 /* ================== BLOQUE SIGUIENTE PASO ================== */
-.next-step {
-  background:#081A2D;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:inset 0 0 0 2px #e8edf9;
+.next-step{
   margin-top: 260px;
-  margin-bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
-.next-step p {
+.next-step-inner{
+  background:#081A2D;
+  border-radius:20px;
+  padding:16px 20px 14px;
+
+  box-shadow:inset 0 0 0 2px #e8edf9;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:fit-content;
+  min-width:260px;
+}
+
+.estado-listo {
   font-size:clamp(15px, 1.8vw, 18px);
   color:var(--text);
+  font-weight:600;
+  text-align:center;
+  margin:0;
 }
 
 /* ================== BOTÓN ================== */
-.btn.primary {
-  background:var(--primary);
+.btn-chip{
+  background:linear-gradient(135deg, #00C8FF, #0090FF);
   color:#fff;
   border:none;
-  padding:14px 30px;
+  padding:12px 26px;
   border-radius:14px;
-  font-size:clamp(15px, 1.8vw, 18px);
-  font-weight:700;
+  font-size:clamp(16px, 1.8vw, 20px);
+  font-weight:800;
   cursor:pointer;
-  box-shadow:0 8px 16px rgba(75,116,170,.25);
-  transition:background .25s ease, transform .2s ease;
+  box-shadow:0 10px 20px rgba(0, 140, 255, .35);
+  transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+  min-width:180px;
 }
 
-.btn.primary:hover {
-  background:var(--primary-pressed);
+.btn-chip:hover{
   transform:translateY(-2px);
+  box-shadow:0 14px 26px rgba(0, 140, 255, .45);
+}
+
+.btn-chip:disabled{
+  background:linear-gradient(135deg, #00C8FF, #0090FF);
+  opacity:0.9;
+  cursor:default;
+  transform:none;
 }
 
 /* ================== GLOBO DE DIÁLOGO ================== */
@@ -266,6 +286,17 @@ body {
     margin-top: 140px;
     padding:16px 14px;
   }
+
+    .btn-chip{
+    min-width:190px;
+    font-size:18px;
+    padding:12px 24px;
+  }
+
+  .estado-listo{
+    font-size:15px;
+  }
+
 }
 @media (max-width: 480px){
 
@@ -323,10 +354,14 @@ body {
 
   /* Next-step no se toca salvo ajuste fino */
   .next-step{
-    margin-top: 180px;
-    width: 100%;
-  }
+  margin-top: 140px;
+  width:auto;
+}
 
+  .next-step-inner{
+  min-width:220px;
+  padding:14px 16px 12px;
+}
   /* Personajes mantienen tamaño estable */
   .team-container::before,
   .team-container::after{
@@ -345,7 +380,9 @@ body {
     top: 50%;
   }
 }
-
+  .btn-chip{
+    min-width:210px;
+  }
 
 @media (width: 768px) {
 

@@ -267,3 +267,15 @@ p{
   display: block;
   margin: 0 auto 1rem auto;
 }
+.tablero-bloqueado {
+  opacity: 0.95;
+}
+
+.celda.bloqueada {
+  cursor: default !important;
+}
+
+.celda.encontrada {
+  background: rgba(0, 200, 255, 0.35);
+  border-color: rgba(0, 200, 255, 0.8);
+}

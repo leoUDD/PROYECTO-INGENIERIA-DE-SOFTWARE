@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_transicionempatia.css' %}" />
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a empatía">
     <section class="team-section">
       <div class="title">
@@ -17,14 +17,19 @@
       </div>
 
       <div class="speech-bubble">
-        <p>La empatía te ayuda a entender mejor a tus clientes y crear soluciones que realmente necesitan. Ahora completarás un Bubble Map sobre tu persona objetivo.</p>
-        <p>Espera la indicación del profesor para avanzar.</p>
+        <p>
+          La empatía te ayuda a entender mejor a tus clientes y crear soluciones que realmente necesitan.
+          Ahora completarás un Bubble Map sobre tu persona objetivo.
+        </p>
       </div>
 
-
+      <div class="next-step">
+        {% include "includes/boton_listo_fase.html" with fase_clave="f2_empatia" fase_actual_esperada="f2_transicion_empatia" campo_listos="gruposListosF2Empatia" campo_mi_grupo="listoF2Empatia" texto_boton="¡Estoy listo!" %}
+      </div>
     </section>
   </main>
 
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

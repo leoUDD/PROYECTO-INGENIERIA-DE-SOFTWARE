@@ -17,23 +17,16 @@
 
       <div class="speech-bubble">
         <p>
-         En esta misión evaluarán a otros equipos y entregarán un TOKEN al que tenga el mejor desempeño según su rúbrica.
+          En esta misión evaluarán a otros equipos y entregarán un TOKEN al que tenga el mejor desempeño según su rúbrica.
         </p>
       </div>
 
       <div class="next-step">
-                  <p>Espera la indicación del profesor para avanzar.</p>
-
+        {% include "includes/boton_listo_fase.html" with fase_clave="f5" fase_actual_esperada="f5_transicion_apoyo" campo_listos="gruposListosF5" campo_mi_grupo="listoF5" texto_boton="¡Estoy listo!" %}
       </div>
     </section>
   </main>
 
-  <script>
-    document.getElementById('btnContinuar').addEventListener('click', () => {
-      // Redirige al paso de peer review
-      window.location.href = "{% url 'peer_review' %}";
-    });
-  </script>
-{% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

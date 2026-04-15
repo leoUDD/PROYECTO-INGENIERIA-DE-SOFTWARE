@@ -7,11 +7,194 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Bubble Map</title>
   <link rel="stylesheet" href="{% static 'css/estilo_bubblemap.css' %}">
+  <style>
+    .bubblemap-container {
+      position: relative;
+    }
+
+    .inicio-fase-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 26px 18px 18px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .inicio-fase-card {
+      width: min(92%, 860px);
+      background: rgba(8, 24, 48, 0.88);
+      border: 1px solid rgba(0, 200, 255, 0.30);
+      box-shadow: 0 12px 30px rgba(0,0,0,.24);
+      border-radius: 22px;
+      padding: 18px 22px;
+      color: #fff;
+      backdrop-filter: blur(6px);
+      pointer-events: auto;
+    }
+
+    .inicio-fase-badge {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(0, 200, 255, 0.12);
+      border: 1px solid rgba(0, 200, 255, 0.28);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #dff7ff;
+    }
+
+    .inicio-fase-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .inicio-fase-card p {
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+
+    .btn-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 255, 0.4);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
+      color: #E6F7FF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-chip:hover {
+      transform: translateY(-1px) scale(1.03);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
+    }
+
+    .btn-chip:active {
+      transform: scale(0.97);
+    }
+
+    .btn-chip:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .contador-fase {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .blur-target-bloqueado {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      opacity: .70;
+      transition: all .3s ease;
+    }
+
+    .blur-target-activo {
+      filter: none;
+      pointer-events: auto;
+      user-select: auto;
+      opacity: 1;
+      transition: all .3s ease;
+    }
+
+    .timer-esperando {
+      opacity: .55;
+    }
+
+    .overlay-hidden {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .inicio-fase-card {
+        width: min(94%, 760px);
+        padding: 16px 18px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .inicio-fase-overlay {
+        padding: 14px 12px 12px;
+      }
+
+      .inicio-fase-card {
+        width: 100%;
+        border-radius: 18px;
+        padding: 14px 14px 16px;
+      }
+
+      .inicio-fase-card h3 {
+        font-size: 1rem;
+      }
+
+      .inicio-fase-card p {
+        font-size: 0.92rem;
+        line-height: 1.4;
+      }
+
+      .btn-chip {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .contador-fase {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="bubblemap-container">
-    <h1>💭 Bubble Map — Genera tus ideas</h1>
-    <p class="subtitle">Escribe palabras clave relacionadas con tu persona del desafío.</p>
+
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge">Fase de activación</div>
+
+        <h3>Antes de comenzar</h3>
+
+        <p>
+          Lean el desafío y completen un Bubble Map sobre su persona objetivo.
+        </p>
+
+        <p>
+          Tendrán <strong>3 minutos</strong> para escribir ideas clave. Cuando todos los equipos presionen
+          <strong>“Listo para comenzar”</strong>, la actividad se habilitará automáticamente.
+        </p>
+
+        <button type="button" id="btn-listo-fase" class="btn-chip">
+          ⚡ Listo para comenzar
+        </button>
+
+        <div id="texto-espera-fase" class="contador-fase">
+          Esperando a los demás equipos...
+        </div>
+
+        <div id="contador-listos-fase" class="contador-fase">
+          0/0 grupos listos
+        </div>
+      </section>
+    </div>
+
+    <h1 id="tituloBubble" class="blur-target-bloqueado">💭 Bubble Map — Genera tus ideas</h1>
+    <p id="subtituloBubble" class="subtitle blur-target-bloqueado">Escribe palabras clave relacionadas con tu persona del desafío.</p>
 
     {% include "desafio_badge.html" %}
 
@@ -22,11 +205,11 @@
       hidden
     ></div>
 
-    <div class="timer-wrap">
+    <div class="timer-wrap blur-target-bloqueado timer-esperando" id="timerWrap">
       <div class="timer-bubblemap" id="timer">03:00</div>
     </div>
 
-    <section class="bubbles">
+    <section id="bubblesSection" class="bubbles blur-target-bloqueado">
       <div class="bubble central">
         <img src="{% static 'images/personas.png' %}" alt="Persona" />
       </div>
@@ -39,11 +222,11 @@
       <div class="bubble"><textarea placeholder="Otros"></textarea></div>
     </section>
 
-    <footer class="footer-actions"></footer>
+    <footer id="footerBubble" class="footer-actions blur-target-bloqueado"></footer>
 
     <div
       id="routes"
-      data-sesion-id="{{ sesion.idsesion }}"
+      data-sesion-id="{{ grupo.sesion.idsesion }}"
       data-tiempo="{{ segundos_restantes|default:180 }}"
     ></div>
   </main>
@@ -78,6 +261,24 @@
     localStorage.setItem(SESSION_KEY, currentSession);
 
     document.addEventListener("DOMContentLoaded", () => {
+      const sesionId = "{{ grupo.sesion.idsesion }}";
+      const grupoId = "{{ grupo.idgrupo }}";
+      const csrfToken = "{{ csrf_token }}";
+
+      const boton = document.getElementById("btn-listo-fase");
+      const textoEspera = document.getElementById("texto-espera-fase");
+      const contador = document.getElementById("contador-listos-fase");
+      const overlay = document.getElementById("inicio-fase-overlay");
+      const timerWrap = document.getElementById("timerWrap");
+
+      const blurTargets = [
+        document.getElementById("tituloBubble"),
+        document.getElementById("subtituloBubble"),
+        document.getElementById("timerWrap"),
+        document.getElementById("bubblesSection"),
+        document.getElementById("footerBubble"),
+      ];
+
       const bubbles = document.querySelectorAll(".bubble textarea");
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
@@ -93,7 +294,6 @@
         });
       });
 
-      /* ===== RELLENAR BADGE DEL DESAFÍO DESDE DJANGO ===== */
       const dataNode = document.getElementById("bubblemap-desafio-data");
       const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
       const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
@@ -114,15 +314,46 @@
       if (dbDesc) dbDesc.textContent = descripcion;
 
       const routesEl = document.getElementById("routes");
-      const sesionId = routesEl?.dataset?.sesionId;
       const timerElement = document.getElementById("timer");
 
-      if (!sesionId || !timerElement) return;
+      if (!routesEl || !timerElement) return;
 
       let timeLeft = Number(routesEl.dataset.tiempo || 180);
       let timerInterval = null;
       let timerIniciado = false;
       let redirigiendo = false;
+
+      function activarFase() {
+        blurTargets.forEach(el => {
+          if (!el) return;
+          el.classList.remove("blur-target-bloqueado", "timer-esperando");
+          el.classList.add("blur-target-activo");
+        });
+
+        if (timerWrap) {
+          timerWrap.classList.remove("timer-esperando");
+        }
+
+        if (overlay) {
+          overlay.classList.add("overlay-hidden");
+        }
+      }
+
+      function bloquearFase() {
+        blurTargets.forEach(el => {
+          if (!el) return;
+          el.classList.remove("blur-target-activo");
+          el.classList.add("blur-target-bloqueado");
+        });
+
+        if (timerWrap) {
+          timerWrap.classList.add("timer-esperando");
+        }
+
+        if (overlay) {
+          overlay.classList.remove("overlay-hidden");
+        }
+      }
 
       function pintarTiempo() {
         const minutes = Math.floor(Math.max(0, timeLeft) / 60);
@@ -160,6 +391,19 @@
       function procesarEstadoSesion(data) {
         if (!data) return;
 
+        if (contador) {
+          contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
+        }
+
+const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+if (miGrupo && miGrupo.listoF2Generico) {
+  boton.disabled = true;
+  boton.textContent = "Esperando...";
+  if (textoEspera) {
+    textoEspera.textContent = "Esperando a los demás equipos...";
+  }
+}
+
         const faseActual = data.faseActual;
 
         if (faseActual && faseActual !== "f2_bubblemap") {
@@ -170,6 +414,12 @@
           return;
         }
 
+        if (data.inicioFaseHabilitado) {
+          activarFase();
+        } else {
+          bloquearFase();
+        }
+
         const backendSeconds = Number(data.segundosRestantes);
 
         if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
@@ -177,7 +427,7 @@
           pintarTiempo();
         }
 
-        if (!timerIniciado && data.timerCorriendo) {
+        if (!timerIniciado && data.timerCorriendo && data.inicioFaseHabilitado) {
           if (!Number.isNaN(backendSeconds)) {
             timeLeft = backendSeconds;
             pintarTiempo();
@@ -202,7 +452,12 @@
         if (redirigiendo) return;
 
         try {
-          const res = await fetch(`/sesion/${sesionId}/estado/`);
+          const res = await fetch(`/sesion/${sesionId}/estado/`, {
+            credentials: "same-origin",
+            cache: "no-store"
+          });
+          if (!res.ok) return;
+
           const data = await res.json();
           procesarEstadoSesion(data);
         } catch (err) {
@@ -210,6 +465,51 @@
         }
       }
 
+      if (boton) {
+        boton.addEventListener("click", async () => {
+          boton.disabled = true;
+          boton.textContent = "Esperando...";
+
+          try {
+            const res = await fetch(`/grupo/${grupoId}/listo/`, {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+              },
+              body: JSON.stringify({})
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.ok) {
+              throw new Error(data.error || "No se pudo marcar listo.");
+            }
+
+            if (contador) {
+              contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
+            }
+
+            if (textoEspera) {
+              textoEspera.textContent = "Esperando a los demás equipos...";
+            }
+
+            if (data.inicio_fase_habilitado) {
+              activarFase();
+            }
+          } catch (err) {
+            console.error("Error marcando listo:", err);
+            boton.disabled = false;
+            boton.textContent = "⚡ Listo para comenzar";
+            if (textoEspera) {
+              textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
+            }
+          }
+        });
+      }
+
+      bloquearFase();
       pintarTiempo();
       setInterval(consultarEstadoSesion, 1500);
       consultarEstadoSesion();

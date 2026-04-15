@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,9 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_transicioncomunicacion.css' %}" />
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a comunicación">
-
     <section class="team-section">
       <h1 class="title">Comunicación</h1>
 
@@ -22,18 +22,12 @@
       </div>
 
       <div class="next-step">
-          <p>Espera la indicación del profesor para avanzar.</p>
-
+        {% include "includes/boton_listo_fase.html" with fase_clave="f4" fase_actual_esperada="f4_transicion_comunicacion" campo_listos="gruposListosF4" campo_mi_grupo="listoF4" texto_boton="¡Estoy listo!" %}
       </div>
     </section>
-
   </main>
 
-  <script>
-    document.getElementById('btnContinuar').addEventListener('click', () => {
-      window.location.href = "{% url 'pitch' %}";
-    });
-  </script>
-{% include "includes/sincronizacion_fase.html" %}
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+  {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

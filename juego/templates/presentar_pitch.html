@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,8 +8,118 @@
   <title>Misión Emprende UDD — Presentar Pitch</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_presentar_pitch.css' %}">
+  <style>
+    .pitch-media-wrap{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin-bottom:16px;
+      min-height:240px;
+    }
+
+    .pitch-media-fallback{
+      width:100%;
+      max-width:320px;
+      min-height:180px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:18px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.22);
+      background:rgba(255,255,255,.06);
+      color:#d9e6f2;
+      font-weight:600;
+      line-height:1.4;
+    }
+
+    .pitch-start-wrap{
+      margin-top: 14px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+    }
+
+    .btn-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 255, 0.4);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
+      color: #E6F7FF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-chip:hover {
+      transform: translateY(-1px) scale(1.03);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
+    }
+
+    .btn-chip:active {
+      transform: scale(0.97);
+    }
+
+    .btn-chip:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .pitch-start-help{
+      color:#d9e6f2;
+      opacity:.95;
+      text-align:center;
+      font-size:.95rem;
+      line-height:1.35;
+      margin:0;
+    }
+
+    .pitch-start-help strong{
+      color:#fff;
+    }
+
+    .timer-label-pitch{
+      margin-bottom:10px;
+      color:#16c5ff;
+      font-weight:700;
+      font-size:1.05rem;
+    }
+
+    .timer-display-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+
+    @media (max-width: 720px){
+      .pitch-media-wrap{
+        min-height: 180px;
+      }
+
+      .pitch-media-fallback{
+        min-height: 140px;
+        font-size: .92rem;
+      }
+
+      .btn-chip{
+        width:100%;
+        justify-content:center;
+      }
+    }
+  </style>
 </head>
-<body data-sesion-id="{{ grupo.sesion.idsesion }}">
+<body data-sesion-id="{{ grupo.sesion.idsesion }}" data-grupo-id="{{ grupo.idgrupo }}">
   <main class="pitch-container" role="main" aria-labelledby="page-title">
     <header class="header">
       <div>
@@ -47,17 +158,31 @@
           -
         </div>
 
-        <div style="display:flex; justify-content:center; margin-bottom:16px;">
+        <div class="pitch-media-wrap">
           <img
             id="grupoActualAlumnoFoto"
             src=""
             alt="Foto del lego del grupo que está presentando"
             style="max-width:320px; width:100%; max-height:240px; object-fit:contain; border-radius:16px; display:none;"
           >
+          <div id="grupoActualAlumnoSinFoto" class="pitch-media-fallback" style="display:none;">
+            Este equipo no subió foto de su solución LEGO.
+          </div>
         </div>
 
-        <h3>Temporizador</h3>
-        <div id="timer" class="timer-display" data-seconds="90">01:30</div>
+        <div class="timer-display-wrap">
+          <div class="timer-label-pitch">Temporizador</div>
+          <div id="timer" class="timer-display" data-seconds="90">01:30</div>
+        </div>
+
+        <div id="pitchStartWrap" class="pitch-start-wrap" style="display:none;">
+          <button id="btnIniciarPresentacion" type="button" class="btn-chip">
+            ⚡ Iniciar presentación
+          </button>
+          <p id="pitchStartHelp" class="pitch-start-help">
+            Solo el equipo que está presentando puede iniciar el temporizador.
+          </p>
+        </div>
 
         <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
       </aside>
@@ -74,6 +199,8 @@
 
   <script>
     const sesionId = "{{ grupo.sesion.idsesion }}";
+    const grupoId = "{{ grupo.idgrupo }}";
+    let redirigiendoPitch = false;
 
     function formatearTiempo(totalSegundos) {
       const segundos = Math.max(0, Number(totalSegundos || 0));
@@ -92,14 +219,73 @@
       }
 
       lista.innerHTML = ordenPitch.map(item => {
-        const esActual = grupoActual && grupoActual.id === item.id;
+        const esActual = grupoActual && String(grupoActual.id) === String(item.id);
         return `<li ${esActual ? 'style="font-weight:700;"' : ""}>${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
       }).join("");
     }
 
+    function renderFotoOTexto(grupoActual) {
+      const foto = document.getElementById("grupoActualAlumnoFoto");
+      const sinFoto = document.getElementById("grupoActualAlumnoSinFoto");
+
+      if (!foto || !sinFoto) return;
+
+      if (grupoActual && grupoActual.fotoLego) {
+        foto.src = grupoActual.fotoLego;
+        foto.style.display = "block";
+        sinFoto.style.display = "none";
+        return;
+      }
+
+      foto.removeAttribute("src");
+      foto.style.display = "none";
+      sinFoto.style.display = "flex";
+    }
+
+    function renderBotonInicio(data) {
+      const wrap = document.getElementById("pitchStartWrap");
+      const btn = document.getElementById("btnIniciarPresentacion");
+      const help = document.getElementById("pitchStartHelp");
+
+      if (!wrap || !btn || !help) return;
+
+      const grupoActual = data.grupoActual;
+      const soyGrupoActual = grupoActual && String(grupoActual.id) === String(grupoId);
+      const timerCorriendo = Boolean(data.timerCorriendo);
+      const tiempo = Number(data.segundosRestantes || 0);
+
+      if (!soyGrupoActual) {
+        wrap.style.display = "none";
+        return;
+      }
+
+      wrap.style.display = "flex";
+
+      if (timerCorriendo) {
+        btn.disabled = true;
+        btn.textContent = "Presentando...";
+        help.textContent = "Tu presentación está en curso.";
+        return;
+      }
+
+      if (tiempo <= 0) {
+        btn.disabled = true;
+        btn.textContent = "Tiempo finalizado";
+        help.textContent = "Esperando cambio a evaluación.";
+        return;
+      }
+
+      btn.disabled = false;
+      btn.textContent = "⚡ Iniciar presentación";
+      help.innerHTML = "Tu equipo está presentando ahora. Presionen <strong>“Iniciar presentación”</strong> para comenzar el temporizador.";
+    }
+
     function renderEstadoPresentacion(data) {
       if (data.faseActual && data.faseActual !== "f4_presentacion_pitch") {
-        window.location.replace(data.rutaAlumno || "{% url 'pantalla_espera' %}");
+        if (!redirigiendoPitch) {
+          redirigiendoPitch = true;
+          window.location.replace(data.rutaAlumno || "{% url 'pantalla_espera' %}");
+        }
         return;
       }
 
@@ -107,7 +293,6 @@
 
       const nombre = document.getElementById("grupoActualAlumnoNombre");
       const orden = document.getElementById("grupoActualAlumnoOrden");
-      const foto = document.getElementById("grupoActualAlumnoFoto");
       const timer = document.getElementById("timer");
       const textoGuardado = document.getElementById("textoGuardado");
 
@@ -119,15 +304,7 @@
         orden.textContent = grupoActual ? `Orden ${grupoActual.orden}` : "-";
       }
 
-      if (foto) {
-        if (grupoActual && grupoActual.fotoLego) {
-          foto.src = grupoActual.fotoLego;
-          foto.style.display = "block";
-        } else {
-          foto.removeAttribute("src");
-          foto.style.display = "none";
-        }
-      }
+      renderFotoOTexto(grupoActual);
 
       if (window.presentarPitchUI && typeof window.presentarPitchUI.actualizarTimer === "function") {
         window.presentarPitchUI.actualizarTimer(data.segundosRestantes);
@@ -147,9 +324,12 @@
       }
 
       renderOrdenAlumno(data.ordenPitch, grupoActual);
+      renderBotonInicio(data);
     }
 
     async function cargarEstadoPresentacion() {
+      if (redirigiendoPitch) return;
+
       try {
         const res = await fetch(`/sesion/${sesionId}/estado-presentacion/`, {
           credentials: "same-origin",
@@ -173,8 +353,52 @@
       }
     }
 
-    setInterval(cargarEstadoPresentacion, 1000);
-    document.addEventListener("DOMContentLoaded", cargarEstadoPresentacion);
+    async function iniciarPresentacion() {
+      const btn = document.getElementById("btnIniciarPresentacion");
+      const help = document.getElementById("pitchStartHelp");
+
+      if (!btn) return;
+
+      btn.disabled = true;
+      btn.textContent = "Iniciando...";
+
+      try {
+        const res = await fetch(`/sesion/${sesionId}/iniciar-presentacion/`, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: JSON.stringify({})
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || "No se pudo iniciar la presentación.");
+        }
+
+        renderEstadoPresentacion(data);
+      } catch (error) {
+        console.error("Error iniciando presentación:", error);
+        btn.disabled = false;
+        btn.textContent = "⚡ Iniciar presentación";
+        if (help) {
+          help.textContent = error.message || "No se pudo iniciar el temporizador.";
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("btnIniciarPresentacion");
+      if (btn) {
+        btn.addEventListener("click", iniciarPresentacion);
+      }
+
+      cargarEstadoPresentacion();
+      setInterval(cargarEstadoPresentacion, 1000);
+    });
   </script>
 
   {% include "includes/sincronizacion_fase.html" %}

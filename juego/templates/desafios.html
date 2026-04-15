@@ -58,6 +58,13 @@
     .estado-error.visible {
       display: block;
     }
+
+    .contador-grupos-listos {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ffffff;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body
@@ -84,6 +91,8 @@
       <div class="estado-espera-profesor">
         Tu equipo ya quedó listo en esta etapa.
       </div>
+
+      <div id="contadorGruposListosConfirmado" class="contador-grupos-listos">0/0 grupos listos</div>
 
       <div style="margin-top:14px;">
         <button id="btnCambiarDesafio" class="btn select" type="button">
@@ -135,8 +144,10 @@
       <div id="descripcionDesafioSeleccionado" style="margin-top:8px;"></div>
 
       <div id="estadoEsperaProfesor" class="estado-espera-profesor">
-        Esperando a que el profesor avance a la siguiente etapa.
+        Esperando a que los demás equipos seleccionen su desafío.
       </div>
+
+      <div id="contadorGruposListos" class="contador-grupos-listos">0/0 grupos listos</div>
     </div>
 
     <div id="estadoError" class="estado-error" aria-live="polite"></div>
@@ -176,6 +187,11 @@
       const btnCambiar = document.getElementById("btnCambiarDesafio");
       const desafioData = document.getElementById("desafio-data");
       const estadoError = document.getElementById("estadoError");
+      const contador = document.getElementById("contadorGruposListos");
+      const contadorConfirmado = document.getElementById("contadorGruposListosConfirmado");
+
+      const sesionId = document.body.dataset.sesionId;
+      const grupoId = document.body.dataset.grupoId;
 
       const desafioConfirmado = desafioData?.dataset?.desafioConfirmado === "true";
       const desafioIdActual = desafioData?.dataset?.desafioIdActual || "";
@@ -184,6 +200,7 @@
 
       let enviando = false;
       let bloqueado = desafioConfirmado;
+      let redirigiendo = false;
 
       function mostrarError(texto) {
         if (!estadoError) return;
@@ -194,6 +211,43 @@
         }
         estadoError.textContent = texto;
         estadoError.classList.add("visible");
+      }
+
+      function actualizarContador(data) {
+        const listos = Number(data?.gruposListosF2 || 0);
+        const total = Number(data?.totalGrupos || 0);
+        const texto = `${listos}/${total} grupos listos`;
+
+        if (contador) contador.textContent = texto;
+        if (contadorConfirmado) contadorConfirmado.textContent = texto;
+      }
+
+      async function refrescarEstadoSesion() {
+        if (!sesionId || redirigiendo) return;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`, {
+            cache: "no-store",
+            credentials: "same-origin"
+          });
+
+          if (!res.ok) return;
+
+          const data = await res.json();
+          actualizarContador(data);
+
+          if (data.faseActual && data.faseActual !== "f2_tematicas" && data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.href = data.rutaAlumno;
+          }
+
+          const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+          if (miGrupo && miGrupo.listoF2 && !bloqueado) {
+            bloqueado = true;
+          }
+        } catch (error) {
+          console.error("Error consultando estado de sesión:", error);
+        }
       }
 
       function marcarSeleccion(cardId) {
@@ -308,6 +362,8 @@
               data.desafio_nombre,
               data.desafio_descripcion
             );
+
+            await refrescarEstadoSesion();
           } catch (error) {
             console.error("Error guardando desafío:", error);
             mostrarError(error.message || "Hubo un problema al guardar el desafío.");
@@ -349,6 +405,9 @@
           mostrarError(error.message || "No se pudo cambiar el desafío.");
         }
       });
+
+      refrescarEstadoSesion();
+      setInterval(refrescarEstadoSesion, 1500);
     });
   </script>
 
