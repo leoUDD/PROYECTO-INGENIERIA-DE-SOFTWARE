@@ -86,14 +86,17 @@ class Grupo(models.Model):
     desafio_descripcion = models.TextField(blank=True, null=True)
     listo_f2_tematica = models.BooleanField(default=False)
     listo_f2_desafio = models.BooleanField(default=False)
-
+    listo_f3_lego = models.BooleanField(default=False)
+    lego_sin_foto = models.BooleanField(default=False)
     listo_lobby = models.BooleanField(default=False)
     listo_f1 = models.BooleanField(default=False)
-    listo_f2 = models.BooleanField(default=False)
     listo_f3 = models.BooleanField(default=False)
     listo_f4 = models.BooleanField(default=False)
     listo_f5 = models.BooleanField(default=False)
-    listo_f6 = models.BooleanField(default=False)                                                               
+    listo_f6 = models.BooleanField(default=False)
+    listo_inicio_f3 = models.BooleanField(default=False)
+    listo_f2 = models.BooleanField(default=False)
+    listo_f2_empatia = models.BooleanField(default=False)
 
 
     class Meta:
@@ -212,6 +215,7 @@ class Sesion(models.Model):
     segundos_restantes = models.IntegerField(default=0)
     timer_inicio_at = models.DateTimeField(null=True, blank=True)
     timer_fin_at = models.DateTimeField(null=True, blank=True)
+    inicio_fase_habilitado = models.BooleanField(default=False)
 
     #Timer
     t_rompehielo = models.IntegerField(default=180)

@@ -267,3 +267,21 @@ body{
     transition:none !important;
   }
 }
+.next-step{
+  margin-top: 28px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.oai-listo-wrap{
+  background: rgba(8, 26, 45, 0.88);
+  border: 2px solid rgba(0, 200, 255, 0.35);
+  border-radius: 18px;
+  padding: 16px 20px;
+  backdrop-filter: blur(8px);
+}
+
+.oai-estado-listo{
+  text-shadow: 0 1px 4px rgba(0,0,0,.7);
+}

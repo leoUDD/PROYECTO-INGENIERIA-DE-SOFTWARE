@@ -48,6 +48,14 @@
     .texto-ayuda {
       font-size: 0.92rem;
     }
+
+    .equipo-objetivo-box {
+      background: #eef6ff;
+      border: 1px solid #cfe2ff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
   </style>
 </head>
 <body>
@@ -62,8 +70,7 @@
             Sesión:
             <strong>{{ session.nombre }}</strong>
             · Tu equipo:
-            <strong>{{ evaluator_team.nombregrupo }}</strong><br>
-            Evalúa a los demás equipos de forma honesta y respetuosa. No puedes evaluarte a ti mismo.
+            <strong>{{ evaluator_team.nombregrupo }}</strong>
           </p>
 
           {% if messages %}
@@ -74,41 +81,39 @@
             {% endfor %}
           {% endif %}
 
-          {% if submitted %}
-            <div class="alert alert-success mb-3">
-              ¡Listo! Tu equipo ya evaluó a todos los otros equipos de la sesión.
-            </div>
-
-            <p class="text-muted mb-3 small">
-              Gracias por tu aporte. Tus evaluaciones serán consideradas para el ranking final
-              y el profesor podrá revisarlas en detalle.
+          <div class="bloque-progreso">
+            <p class="mb-1">
+              Equipo presentando ahora:
+              <strong>{{ grupo_objetivo.nombregrupo }}</strong>
             </p>
 
-            <div class="acciones-finales">
-              <div class="alert alert-success">
-                Ya terminaron de evaluar a todos los equipos.
-              </div>
-              <a href="{% url 'mision_cumplida' %}" class="btn btn-primary">
-                Continuar
-              </a>
+            {% if mi_equipo_presenta %}
+              <p class="mb-0 text-muted texto-ayuda">
+                Tu equipo está presentando. Espera a que los demás equipos terminen de evaluar.
+              </p>
+            {% else %}
+              <p class="mb-0 text-muted texto-ayuda">
+                Evalúa solo a este equipo en esta ronda.
+              </p>
+            {% endif %}
+          </div>
+
+          {% if mi_equipo_presenta %}
+            <div class="alert alert-info">
+              Tu equipo está presentando en este momento. No debes completar esta evaluación.
+            </div>
+
+          {% elif ya_evaluo %}
+            <div class="alert alert-success">
+              Tu equipo ya envió la evaluación de esta presentación. Espera a que termine la ronda.
             </div>
 
           {% else %}
-            <div class="bloque-progreso">
-              <p class="mb-1">
-                Ya evaluaste a <strong>{{ evaluados_count }}</strong> de
-                <strong>{{ total_targets }}</strong> equipos.
-              </p>
-
-              {% if target_teams %}
-                <p class="mb-0 text-muted texto-ayuda">
-                  Aún te quedan <strong>{{ target_teams|length }}</strong> equipos por evaluar.
-                </p>
-              {% else %}
-                <p class="mb-0 text-muted texto-ayuda">
-                  Ya no quedan equipos pendientes por evaluar.
-                </p>
-              {% endif %}
+            <div class="equipo-objetivo-box">
+              <label class="form-label fw-semibold mb-1">Equipo evaluado en esta ronda</label>
+              <div>
+                <strong>{{ grupo_objetivo.nombregrupo }}</strong>
+              </div>
             </div>
 
             <form method="post" id="peerReviewForm" action="{% url 'peer_review' %}">
@@ -124,24 +129,9 @@
                   rows="3"
                   class="form-control"
                   maxlength="500"
-                  placeholder="¿Qué aprendiste de los proyectos presentados?"
+                  placeholder="¿Qué aprendiste de esta presentación?"
                 ></textarea>
                 <div class="form-text">Máx. 500 caracteres.</div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label fw-semibold" for="team_id">Equipo a evaluar</label>
-                <select name="team_id" id="team_id" class="form-select" required>
-                  <option value="" selected disabled>Selecciona un equipo</option>
-                  {% for team in target_teams %}
-                    <option value="{{ team.idgrupo }}">
-                      {{ team.nombregrupo }}
-                    </option>
-                  {% endfor %}
-                </select>
-                <div class="form-text">
-                  Solo se muestran los equipos que aún no has evaluado.
-                </div>
               </div>
 
               <div class="criterio-box mb-3">
@@ -202,7 +192,7 @@
                   required
                 >
                 <label class="form-check-label" for="confirm_honesty">
-                  Confirmo que esta evaluación es honesta y no corresponde a mi propio equipo.
+                  Confirmo que esta evaluación es honesta y corresponde al equipo que está presentando ahora.
                 </label>
               </div>
 
@@ -218,9 +208,9 @@
 
           <div class="bloque-reglas small text-muted">
             <strong>Reglas:</strong>
-            1) No evalúes a tu propio equipo.<br>
-            2) El profesor ve todas las evaluaciones.<br>
-            3) Debes evaluar a todos los otros equipos de tu sesión.
+            1) Solo se evalúa al equipo que está presentando en esta ronda.<br>
+            2) No evalúes a tu propio equipo.<br>
+            3) El sistema avanzará al siguiente pitch cuando todos los equipos requeridos terminen de evaluar.
           </div>
         </div>
       </div>
@@ -232,13 +222,51 @@
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("peerReviewForm");
     const btn = document.getElementById("btnEnviarEvaluacion");
+    const sesionId = "{{ session.idsesion }}";
+    const grupoObjetivoInicial = "{{ grupo_objetivo.idgrupo|default:'' }}";
+    let redirigiendo = false;
 
-    if (!form || !btn) return;
+    if (form && btn) {
+      form.addEventListener("submit", () => {
+        btn.disabled = true;
+        btn.textContent = "Enviando...";
+      });
+    }
 
-    form.addEventListener("submit", () => {
-      btn.disabled = true;
-      btn.textContent = "Enviando...";
-    });
+    async function revisarEstadoEvaluacion() {
+      if (redirigiendo) return;
+
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado/`, {
+          credentials: "same-origin",
+          cache: "no-store"
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        if (data.faseActual !== "f5_evaluacion_pitch") {
+          if (data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.replace(data.rutaAlumno);
+          }
+          return;
+        }
+
+        const grupoActual = data.grupoActual;
+
+        if (!grupoActual || String(grupoActual.id) !== String(grupoObjetivoInicial)) {
+          redirigiendo = true;
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error("Error sincronizando evaluación:", error);
+      }
+    }
+
+    setInterval(revisarEstadoEvaluacion, 1000);
+    revisarEstadoEvaluacion();
   });
 </script>
 

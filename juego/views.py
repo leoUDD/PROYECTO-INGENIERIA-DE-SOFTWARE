@@ -48,8 +48,6 @@ FASES_ORDEN = [
     "f4_construccion_pitch",
     "f4_orden_pitch",
     "f4_presentacion_pitch",
-
-    "f5_transicion_apoyo",
     "f5_evaluacion_pitch",
 
     "f6_ranking",
@@ -111,6 +109,81 @@ ETIQUETA_FASE = {
     "reflexion": "Cierre",
 }
 
+FASES_CON_INICIO_POR_ALUMNOS = {
+    "f1_conocidos",
+    "f1_sopa",
+    "f2_bubblemap",
+    "f3_lego",
+    "f4_construccion_pitch",
+}
+
+
+def reset_listos_inicio_fase(sesion, fase):
+    grupos = Grupo.objects.filter(sesion=sesion)
+
+    if fase == "f1_conocidos":
+        grupos.update(listo_lobby=False)
+
+    elif fase == "f1_sopa":
+        grupos.update(listo_f1=False)
+
+    elif fase == "f2_bubblemap":
+        grupos.update(listo_f2=False)
+
+    elif fase == "f3_lego":
+        grupos.update(listo_inicio_f3=False)
+        grupos.update(listo_f3=False)
+
+    elif fase == "f4_construccion_pitch":
+        grupos.update(listo_f4=False)
+
+    sesion.inicio_fase_habilitado = False
+    sesion.save(update_fields=["inicio_fase_habilitado"])
+
+
+def contar_listos_inicio_fase(sesion, fase):
+    grupos = Grupo.objects.filter(sesion=sesion)
+    total = grupos.count()
+
+    if fase == "f1_conocidos":
+        listos = grupos.filter(listo_lobby=True).count()
+
+    elif fase == "f1_sopa":
+        listos = grupos.filter(listo_f1=True).count()
+
+    elif fase == "f2_bubblemap":
+        listos = grupos.filter(listo_f2=True).count()
+
+    elif fase == "f3_lego":
+        listos = grupos.filter(listo_inicio_f3=True).count()
+
+    elif fase == "f4_construccion_pitch":
+        listos = grupos.filter(listo_f4=True).count()
+
+    else:
+        listos = total
+
+    return total, listos, (total > 0 and listos == total)
+
+
+def iniciar_timer_de_sesion(sesion):
+    segundos = int(sesion.segundos_restantes or 0)
+
+    if segundos <= 0:
+        return
+
+    ahora = timezone.now()
+
+    sesion.timer_corriendo = True
+    sesion.timer_inicio_at = ahora
+    sesion.timer_fin_at = ahora + timedelta(seconds=segundos)
+    sesion.save(update_fields=[
+        "timer_corriendo",
+        "timer_inicio_at",
+        "timer_fin_at",
+    ])
+
+
 def obtener_grupo_desde_session(request):
     grupo_id = request.session.get("grupo_id")
     sesion_id = request.session.get("sesion_id")
@@ -138,6 +211,64 @@ def salir_grupo(request):
     messages.success(request, "Sesión del grupo cerrada correctamente.")
     return redirect("registro")
 
+def siguiente_fase_automatica(fase_actual):
+    orden = [
+        "lobby",
+        "f1_bienvenida",
+        "f1_conocidos",
+        "f1_pre_sopa",
+        "f1_sopa",
+        "f2_transicion",
+        "f2_tematicas",
+        "f2_transicion_empatia",
+        "f2_bubblemap",
+        "f3_transicion_creatividad",
+        "f3_lego",
+        "f4_transicion_comunicacion",
+        "f4_construccion_pitch",
+        "f4_orden_pitch",
+        "f4_presentacion_pitch",
+        "f5_evaluacion_pitch",
+        "f6_ranking",
+        "reflexion",
+    ]
+    try:
+        idx = orden.index(fase_actual)
+        if idx + 1 < len(orden):
+            return orden[idx + 1]
+    except ValueError:
+        pass
+    return fase_actual
+
+#CAMBIAR TIMERS
+def tiempo_por_fase(sesion, fase):
+    tiempos = {
+        "f1_conocidos": 10,
+        "f1_pre_sopa": 0,
+        "f1_sopa": 60,
+
+        "f2_transicion": 0,
+        "f2_tematicas": 0,
+        "f2_transicion_empatia": 0,
+        "f2_bubblemap": 10,
+
+        "f3_transicion_creatividad": 0,
+        "f3_lego": 10,
+
+        "f4_transicion_comunicacion": 0,
+        "f4_construccion_pitch": 10,
+        "f4_orden_pitch": 0,
+        "f4_presentacion_pitch": 10,
+
+        "f5_evaluacion_pitch": 0,
+        "f6_ranking": 0,
+        "reflexion": 0,
+        "f1_bienvenida": 0,
+        "lobby": 0,
+    }
+    return int(tiempos.get(fase, 0))
+
+
 def calcular_segundos_restantes(sesion):
     if not sesion.timer_corriendo or not sesion.timer_fin_at:
         return max(int(sesion.segundos_restantes or 0), 0)
@@ -145,11 +276,51 @@ def calcular_segundos_restantes(sesion):
     restantes = int((sesion.timer_fin_at - timezone.now()).total_seconds())
 
     if restantes <= 0:
+        fase_vencida = sesion.fase_actual
+
         sesion.timer_corriendo = False
         sesion.segundos_restantes = 0
         sesion.timer_inicio_at = None
         sesion.timer_fin_at = None
+
+        if fase_vencida == "f4_presentacion_pitch":
+            sesion.fase_actual = "f5_evaluacion_pitch"
+            sesion.save(update_fields=[
+                "fase_actual",
+                "timer_corriendo",
+                "segundos_restantes",
+                "timer_inicio_at",
+                "timer_fin_at",
+            ])
+            return 0
+
+        fases_con_autoavance = {
+            "f1_conocidos",
+            "f1_sopa",
+            "f2_bubblemap",
+            "f4_construccion_pitch",
+        }
+
+        if fase_vencida in fases_con_autoavance:
+            nueva_fase = siguiente_fase_automatica(fase_vencida)
+            sesion.fase_actual = nueva_fase
+            sesion.segundos_restantes = tiempo_por_fase(sesion, nueva_fase)
+
+            if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
+                sesion.inicio_fase_habilitado = False
+                sesion.save(update_fields=[
+                    "fase_actual",
+                    "timer_corriendo",
+                    "segundos_restantes",
+                    "timer_inicio_at",
+                    "timer_fin_at",
+                    "inicio_fase_habilitado",
+                ])
+                reset_listos_inicio_fase(sesion, nueva_fase)
+                return 0
+
         sesion.save(update_fields=[
+            "fase_actual",
             "timer_corriendo",
             "segundos_restantes",
             "timer_inicio_at",
@@ -157,19 +328,103 @@ def calcular_segundos_restantes(sesion):
         ])
         return 0
 
-    return restantes
+    return max(restantes, 0)
+
+def autoavanzar_si_todos_listos(sesion):
+    grupos = Grupo.objects.filter(sesion=sesion)
+    total = grupos.count()
+
+    if total == 0:
+        return False
+
+    fase_actual = sesion.fase_actual
+    nueva_fase = None
+
+    if fase_actual == "f1_bienvenida":
+        if grupos.filter(listo_lobby=True).count() == total:
+            nueva_fase = "f1_conocidos"
+
+    elif fase_actual == "f1_pre_sopa":
+        if grupos.filter(listo_f1=True).count() == total:
+            nueva_fase = "f1_sopa"
+
+    elif fase_actual == "f2_transicion":
+        if grupos.filter(listo_f2=True).count() == total:
+            nueva_fase = "f2_tematicas"
+
+    elif fase_actual == "f2_tematicas":
+        if grupos.filter(listo_f2_desafio=True).count() == total:
+            nueva_fase = "f2_transicion_empatia"
+
+    elif fase_actual == "f2_transicion_empatia":
+        if grupos.filter(listo_f2_empatia=True).count() == total:
+            nueva_fase = "f2_bubblemap"
+
+    elif fase_actual == "f3_transicion_creatividad":
+        if grupos.filter(listo_f3=True).count() == total:
+            nueva_fase = "f3_lego"
+
+    elif fase_actual == "f3_lego":
+        if grupos.filter(listo_f3_lego=True).count() == total:
+            nueva_fase = "f4_transicion_comunicacion"
+
+    elif fase_actual == "f4_transicion_comunicacion":
+        if grupos.filter(listo_f4=True).count() == total:
+            nueva_fase = "f4_construccion_pitch"
+
+    elif fase_actual == "f6_ranking":
+        if grupos.filter(listo_f6=True).count() == total:
+            nueva_fase = "reflexion"
+
+    if not nueva_fase:
+        return False
+
+    sesion.fase_actual = nueva_fase
+    sesion.segundos_restantes = tiempo_por_fase(sesion, nueva_fase)
+    sesion.timer_corriendo = False
+    sesion.timer_inicio_at = None
+    sesion.timer_fin_at = None
+
+    if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
+        sesion.inicio_fase_habilitado = False
+        sesion.save(update_fields=[
+            "fase_actual",
+            "segundos_restantes",
+            "timer_corriendo",
+            "timer_inicio_at",
+            "timer_fin_at",
+            "inicio_fase_habilitado",
+        ])
+        reset_listos_inicio_fase(sesion, nueva_fase)
+        return True
+
+    sesion.inicio_fase_habilitado = True
+    sesion.save(update_fields=[
+        "fase_actual",
+        "segundos_restantes",
+        "timer_corriendo",
+        "timer_inicio_at",
+        "timer_fin_at",
+        "inicio_fase_habilitado",
+    ])
+    return True
 
 
 def peer_review_completado(grupo):
     sesion = grupo.sesion
-    all_targets = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo.pk)
-    evaluados_ids = set(
-        Evaluacion.objects.filter(
-            sesion=sesion,
-            grupo_evaluador=grupo,
-        ).values_list("grupo_evaluado_id", flat=True)
-    )
-    return not all_targets.exclude(pk__in=evaluados_ids).exists()
+    grupo_actual = sesion.grupo_presentando
+
+    if not grupo_actual:
+        return False
+
+    if grupo.pk == grupo_actual.pk:
+        return False
+
+    return Evaluacion.objects.filter(
+        sesion=sesion,
+        grupo_evaluador=grupo,
+        grupo_evaluado=grupo_actual,
+    ).exists()
 
 
 def ruta_alumno_por_estado(grupo):
@@ -181,8 +436,6 @@ def ruta_alumno_por_estado(grupo):
         return "desafios"
 
     if fase == "f5_evaluacion_pitch":
-        if peer_review_completado(grupo):
-            return "mision_cumplida"
         return "peer_review"
 
     return RUTA_POR_FASE.get(fase, "pantalla_espera")
@@ -259,6 +512,10 @@ def serializar_estado_pitch(sesion, grupo_solicitante=None):
         except Exception:
             foto_lego_url = None
 
+    segundos_restantes = max(int(sesion.segundos_restantes or 0), 0)
+    if sesion.timer_corriendo and sesion.timer_fin_at:
+        segundos_restantes = max(int((sesion.timer_fin_at - timezone.now()).total_seconds()), 0)
+
     return {
         "grupoActual": {
             "id": grupo_actual.idgrupo,
@@ -275,10 +532,13 @@ def serializar_estado_pitch(sesion, grupo_solicitante=None):
             for g in orden_pitch
         ],
         "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": calcular_segundos_restantes(sesion),
+        "segundosRestantes": segundos_restantes,
         "miPitch": grupo_solicitante.pitch_texto if grupo_solicitante else "",
+        "miEquipoPresenta": (
+    grupo_solicitante and grupo_actual and
+    grupo_solicitante.idgrupo == grupo_actual.idgrupo
+),
     }
-
 
 
 #PRESENTACION PITCH/LEGO
@@ -287,10 +547,12 @@ def serializar_estado_pitch(sesion, grupo_solicitante=None):
 def estado_presentacion_pitch(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
 
-    grupo_solicitante = None
-    grupo_id = request.session.get("grupo_id")
-    if grupo_id:
-        grupo_solicitante = Grupo.objects.filter(pk=grupo_id, sesion=sesion).first()
+    grupo_solicitante = obtener_grupo_desde_session(request)
+    if grupo_solicitante and grupo_solicitante.sesion_id != sesion.idsesion:
+        grupo_solicitante = None
+
+    calcular_segundos_restantes(sesion)
+    sesion.refresh_from_db()
 
     nombre_url = RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")
 
@@ -301,6 +563,61 @@ def estado_presentacion_pitch(request, sesion_id):
         **serializar_estado_pitch(sesion, grupo_solicitante=grupo_solicitante),
     }
     return JsonResponse(data)
+
+@require_POST
+def iniciar_presentacion_pitch(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return JsonResponse({
+            "ok": False,
+            "error": "No se pudo identificar tu grupo."
+        }, status=403)
+
+    if sesion.fase_actual != "f4_presentacion_pitch":
+        return JsonResponse({
+            "ok": False,
+            "error": "La sesión no está en fase de presentación."
+        }, status=400)
+
+    grupo_actual = sesion.grupo_presentando
+    if not grupo_actual:
+        return JsonResponse({
+            "ok": False,
+            "error": "No hay un grupo asignado para presentar."
+        }, status=400)
+
+    if grupo.idgrupo != grupo_actual.idgrupo:
+        return JsonResponse({
+            "ok": False,
+            "error": "Solo el grupo que está presentando puede iniciar el temporizador."
+        }, status=403)
+
+    segundos = int(sesion.segundos_restantes or sesion.t_pitch or 90)
+    if segundos <= 0:
+        segundos = int(sesion.t_pitch or 90)
+
+    ahora = timezone.now()
+
+    sesion.segundos_restantes = segundos
+    sesion.timer_corriendo = True
+    sesion.timer_inicio_at = ahora
+    sesion.timer_fin_at = ahora + timedelta(seconds=segundos)
+    sesion.save(update_fields=[
+        "segundos_restantes",
+        "timer_corriendo",
+        "timer_inicio_at",
+        "timer_fin_at",
+    ])
+
+    return JsonResponse({
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+        **serializar_estado_pitch(sesion, grupo_solicitante=grupo),
+    })
+
 
 @require_POST
 def siguiente_grupo_pitch(request, sesion_id):
@@ -338,38 +655,78 @@ def siguiente_grupo_pitch(request, sesion_id):
 @require_GET
 def estado_sesion(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    if sesion.fase_actual == "f5_evaluacion_pitch" and evaluacion_actual_completa(sesion):
+        avanzar_al_siguiente_pitch_o_ranking(sesion)
+
+    autoavanzar_si_todos_listos(sesion)
+    sesion.refresh_from_db()
+
     grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
 
     fase_actual = sesion.fase_actual
-    grupo_actual = obtener_grupo_desde_session(request)
-    if grupo_actual and grupo_actual.sesion_id == sesion.idsesion:
-        nombre_url = ruta_alumno_por_estado(grupo_actual)
-    else:
-        nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
+    nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
 
     grupos_data = [
         {
             "esProfesor": True,
             "id": g.idgrupo,
             "nombre": g.nombregrupo,
-            "tokens": g.tokensgrupo or 0,
+           "tokens": g.tokensgrupo or 0,
             "listoLobby": g.listo_lobby,
             "listoF1": g.listo_f1,
             "listoF2": g.listo_f2_desafio,
+           "listoF2Generico": g.listo_f2,
+            "listoF2Empatia": getattr(g, "listo_f2_empatia", False),
             "listoF3": g.listo_f3,
-            "listoF4": g.listo_f4,
-            "listoF5": getattr(g, "listo_f5", False),
-            "listoF6": getattr(g, "listo_f6", False),
-            
+            "listoInicioF3": getattr(g, "listo_inicio_f3", False),
+           "listoF3Lego": getattr(g, "listo_f3_lego", False),
+           "legoSinFoto": getattr(g, "lego_sin_foto", False),
+           "legoConFoto": bool(getattr(g, "foto_lego", None)) and getattr(g, "listo_f3_lego", False),
+           "listoF4": g.listo_f4,
+           "listoF5": getattr(g, "listo_f5", False),
+          "listoF6": getattr(g, "listo_f6", False),
         }
         for g in grupos
-    ]
+]
 
     total_grupos = len(grupos_data)
+
+    grupos_listos_lobby = sum(1 for g in grupos_data if g["listoLobby"])
+    todos_listos_lobby = total_grupos > 0 and grupos_listos_lobby == total_grupos
+
+    grupos_listos_f1 = sum(1 for g in grupos_data if g["listoF1"])
+    todos_listos_f1 = total_grupos > 0 and grupos_listos_f1 == total_grupos
+
+    grupos_listos_f2_generico = sum(1 for g in grupos_data if g["listoF2Generico"])
+    todos_listos_f2_generico = total_grupos > 0 and grupos_listos_f2_generico == total_grupos
+
     grupos_listos_f2 = sum(1 for g in grupos_data if g["listoF2"])
     todos_listos_f2 = total_grupos > 0 and grupos_listos_f2 == total_grupos
+
+    grupos_listos_f2_empatia = sum(1 for g in grupos_data if g["listoF2Empatia"])
+    todos_listos_f2_empatia = total_grupos > 0 and grupos_listos_f2_empatia == total_grupos
+
+    grupos_listos_f3 = sum(1 for g in grupos_data if g["listoF3"])
+    todos_listos_f3 = total_grupos > 0 and grupos_listos_f3 == total_grupos
+    grupos_listos_f3_lego = sum(1 for g in grupos_data if g["listoF3Lego"])
+    todos_listos_f3_lego = total_grupos > 0 and grupos_listos_f3_lego == total_grupos
+
+    grupos_con_foto_lego = sum(1 for g in grupos_data if g["legoConFoto"])
+    grupos_sin_foto_lego = sum(1 for g in grupos_data if g["legoSinFoto"])
+    grupos_listos_f4 = sum(1 for g in grupos_data if g["listoF4"])
+    todos_listos_f4 = total_grupos > 0 and grupos_listos_f4 == total_grupos
+
+    grupos_listos_f5 = sum(1 for g in grupos_data if g["listoF5"])
+    todos_listos_f5 = total_grupos > 0 and grupos_listos_f5 == total_grupos
+
+    grupos_listos_f6 = sum(1 for g in grupos_data if g["listoF6"])
+    todos_listos_f6 = total_grupos > 0 and grupos_listos_f6 == total_grupos
+
     grupos_listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
     todos_listos_ranking = total_grupos > 0 and grupos_listos_ranking == total_grupos
+    total_inicio, listos_inicio, todos_inicio = contar_listos_inicio_fase(sesion, sesion.fase_actual)
+
 
     data = {
         "sesionId": sesion.idsesion,
@@ -377,18 +734,109 @@ def estado_sesion(request, sesion_id):
         "faseEtiqueta": ETIQUETA_FASE.get(fase_actual, fase_actual),
         "rutaAlumno": reverse(nombre_url),
         "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": calcular_segundos_restantes(sesion), 
-       "totalGrupos": total_grupos,
-        "gruposListosF2": grupos_listos_f2,
-        "todosListosF2": todos_listos_f2,
+        "segundosRestantes": calcular_segundos_restantes(sesion),
+
+        "totalGrupos": total_grupos,
         "grupos": grupos_data,
         "esProfesor": request.user.is_staff,
+
+        "gruposListosLobby": grupos_listos_lobby,
+        "todosListosLobby": todos_listos_lobby,
+
+        "gruposListosF1": grupos_listos_f1,
+        "todosListosF1": todos_listos_f1,
+
+        "gruposListosF2Generico": grupos_listos_f2_generico,
+        "todosListosF2Generico": todos_listos_f2_generico,
+        "gruposListosF2Empatia": grupos_listos_f2_empatia,
+        "todosListosF2Empatia": todos_listos_f2_empatia,
+        "gruposListosF2": grupos_listos_f2,
+        "todosListosF2": todos_listos_f2,
+
+        "gruposListosF3Lego": grupos_listos_f3_lego,
+        "todosListosF3Lego": todos_listos_f3_lego,
+        "gruposConFotoLego": grupos_con_foto_lego,
+        "gruposSinFotoLego": grupos_sin_foto_lego,
+        "gruposListosF3": grupos_listos_f3,
+        "todosListosF3": todos_listos_f3,
+
+        "gruposListosF4": grupos_listos_f4,
+        "todosListosF4": todos_listos_f4,
+
+        "gruposListosF5": grupos_listos_f5,
+        "todosListosF5": todos_listos_f5,
+
+        "gruposListosF6": grupos_listos_f6,
+        "todosListosF6": todos_listos_f6,
+
         "gruposListosRanking": grupos_listos_ranking,
         "todosListosRanking": todos_listos_ranking,
+
+        "inicioFaseHabilitado": sesion.inicio_fase_habilitado,
+        "totalListosInicio": total_inicio,
+        "listosInicio": listos_inicio,
+        "todosListosInicio": todos_inicio,
+        "faseRequiereInicio": sesion.fase_actual in FASES_CON_INICIO_POR_ALUMNOS,
+
         **serializar_estado_pitch(sesion),
     }
 
     return JsonResponse(data)
+
+def evaluacion_actual_completa(sesion):
+    grupo_actual = sesion.grupo_presentando
+    if not grupo_actual:
+        return False
+
+    total_evaluadores = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo_actual.pk).count()
+
+    realizadas = Evaluacion.objects.filter(
+        sesion=sesion,
+        grupo_evaluado=grupo_actual
+    ).exclude(
+        grupo_evaluador=grupo_actual
+    ).count()
+
+    return total_evaluadores > 0 and realizadas >= total_evaluadores
+
+
+def avanzar_al_siguiente_pitch_o_ranking(sesion):
+    actual = sesion.grupo_presentando
+
+    if actual is None:
+        sesion.fase_actual = "f6_ranking"
+        sesion.save(update_fields=["fase_actual"])
+        return
+
+    siguiente = Grupo.objects.filter(
+        sesion=sesion,
+        orden_presentacion__gt=actual.orden_presentacion
+    ).order_by("orden_presentacion").first()
+
+    if siguiente is None:
+        sesion.fase_actual = "f6_ranking"
+        sesion.grupo_presentando = None
+        sesion.save(update_fields=["fase_actual", "grupo_presentando"])
+        return
+
+    sesion.grupo_presentando = siguiente
+    sesion.fase_actual = "f4_presentacion_pitch"
+    sesion.segundos_restantes = int(sesion.t_pitch or 90)
+    sesion.timer_corriendo = False
+    sesion.timer_inicio_at = None
+    sesion.timer_fin_at = None
+    sesion.inicio_fase_habilitado = True
+
+    sesion.save(update_fields=[
+        "grupo_presentando",
+        "fase_actual",
+        "segundos_restantes",
+        "timer_corriendo",
+        "timer_inicio_at",
+        "timer_fin_at",
+        "inicio_fase_habilitado",
+    ])
+
 
 @require_POST
 def guardar_tematica(request):
@@ -514,38 +962,34 @@ def profesor_actualizar_estado(request, sesion_id):
         if nueva_fase not in FASES_ORDEN:
             return JsonResponse({"ok": False, "error": "Pantalla inválida"}, status=400)
         sesion.fase_actual = nueva_fase
-#CAMBIAR TIMERS
-    tiempos_por_fase = {
-        "f1_conocidos": 180,
-        "f1_pre_sopa": 0,
-        "f1_sopa": 90,
-        "f2_transicion": 0,
-        "f2_tematicas": 0,
-        "f2_transicion_empatia": 0,
-        "f2_bubblemap": 300,
-        "f3_transicion_creatividad": 0,
-        "f3_lego": 600,
-        "f4_transicion_comunicacion": 0,
-        "f4_construccion_pitch": 300,
-        "f4_orden_pitch": 0,
-        "f4_presentacion_pitch": 90,
-        "f5_transicion_apoyo": 0,
-        "f5_evaluacion_pitch": 0,
-        "f6_ranking": 0,
-        "reflexion": 0,
-    }
 
     if nueva_fase and nueva_fase != fase_anterior:
-        sesion.segundos_restantes = int(tiempos_por_fase.get(nueva_fase, 0))
+        sesion.segundos_restantes = tiempo_por_fase(sesion, nueva_fase)
         sesion.timer_corriendo = False
         sesion.timer_inicio_at = None
         sesion.timer_fin_at = None
 
-        if nueva_fase == "f5_evaluacion_pitch":
-            Grupo.objects.filter(sesion=sesion).update(
-                listo_ranking=False,
-                recompensa_peer_otorgada=False,
-            )
+        if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
+            sesion.inicio_fase_habilitado = False
+            sesion.save(update_fields=[
+                "fase_actual",
+                "segundos_restantes",
+                "timer_corriendo",
+                "timer_inicio_at",
+                "timer_fin_at",
+                "inicio_fase_habilitado",
+            ])
+            reset_listos_inicio_fase(sesion, nueva_fase)
+        else:
+            sesion.inicio_fase_habilitado = True
+
+            if nueva_fase == "f5_evaluacion_pitch":
+                Grupo.objects.filter(sesion=sesion).update(
+                    listo_ranking=False,
+                    recompensa_peer_otorgada=False,
+                )
+
+            sesion.save()
 
     if "timerCorriendo" in payload:
         timer_corriendo = bool(payload["timerCorriendo"])
@@ -610,12 +1054,6 @@ def profesor_siguiente_fase(request, sesion_id):
 
     nueva_fase = FASES_ORDEN[idx + 1]
 
-    if nueva_fase == "f5_evaluacion_pitch":
-        Grupo.objects.filter(sesion=sesion).update(
-            listo_ranking=False,
-            recompensa_peer_otorgada=False,
-    )
-
     if nueva_fase == "f6_ranking":
         total = Grupo.objects.filter(sesion=sesion).count()
         listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
@@ -626,42 +1064,26 @@ def profesor_siguiente_fase(request, sesion_id):
                 "error": f"Aún faltan grupos por presionar Ranking final ({listos_ranking}/{total})."
             }, status=400)
 
-    if nueva_fase == "mision_cumplida":
-        Grupo.objects.filter(sesion=sesion).update(listo_ranking=False)
-
     sesion.fase_actual = nueva_fase
-#CAMBIAR TIMERS
+    sesion.segundos_restantes = tiempo_por_fase(sesion, nueva_fase)
+    sesion.timer_corriendo = False
+    sesion.timer_inicio_at = None
+    sesion.timer_fin_at = None
 
-    tiempos = {
-        "f1_conocidos": 180,
-        "f1_pre_sopa": 0,
-        "f1_sopa": 90,
-
-        "f2_transicion": 0,
-        "f2_tematicas": 0,
-        "f2_transicion_empatia": 0,
-        "f2_bubblemap": 300,
-
-        "f3_transicion_creatividad": 0,
-        "f3_lego": 600,
-
-        "f4_transicion_comunicacion": 0,
-        "f4_construccion_pitch": 300,
-        "f4_orden_pitch": 0,
-        "f4_presentacion_pitch": 90,
-
-        "f5_transicion_apoyo": 0,
-        "f5_evaluacion_pitch": 0,
-
-        "f6_ranking": 0,
-        "reflexion": 0,
-    }
-
-    if sesion.fase_actual in tiempos:
-        sesion.segundos_restantes = tiempos[sesion.fase_actual]
-        sesion.timer_corriendo = False
-
-    sesion.save()
+    if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
+        sesion.inicio_fase_habilitado = False
+        sesion.save(update_fields=[
+            "fase_actual",
+            "segundos_restantes",
+            "timer_corriendo",
+            "timer_inicio_at",
+            "timer_fin_at",
+            "inicio_fase_habilitado",
+        ])
+        reset_listos_inicio_fase(sesion, nueva_fase)
+    else:
+        sesion.inicio_fase_habilitado = True
+        sesion.save()
 
     return JsonResponse({
         "esProfesor": True,
@@ -673,7 +1095,6 @@ def profesor_siguiente_fase(request, sesion_id):
         "segundosRestantes": calcular_segundos_restantes(sesion),
         **serializar_estado_pitch(sesion),
     })
-
 
 
 @require_POST
@@ -701,30 +1122,182 @@ def marcar_listo_ranking(request, grupo_id):
 @require_POST
 def marcar_grupo_listo(request, grupo_id):
     grupo = get_object_or_404(Grupo, pk=grupo_id)
-    payload = json.loads(request.body or "{}")
-    fase = payload.get("fase")
+    sesion = grupo.sesion
+    fase_actual = sesion.fase_actual
 
-    if fase == "lobby":
-        grupo.listo_lobby = True
-    elif fase == "f1":
-        grupo.listo_f1 = True
-    elif fase == "f2":
-        grupo.listo_f2 = True
-    elif fase == "f3":
-        grupo.listo_f3 = True
-    elif fase == "f4":
-        grupo.listo_f4 = True
+    try:
+        payload = json.loads(request.body or "{}")
+    except Exception:
+        payload = {}
+
+    fase_clave = payload.get("fase")
+
+    if fase_actual in ["lobby", "f1_bienvenida", "f1_conocidos"]:
+        if not grupo.listo_lobby:
+            grupo.listo_lobby = True
+            grupo.save(update_fields=["listo_lobby"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_lobby=True).count()
+        todos = total > 0 and listos == total
+
+        if fase_actual == "f1_conocidos" and todos and not sesion.inicio_fase_habilitado:
+            sesion.inicio_fase_habilitado = True
+            sesion.save(update_fields=["inicio_fase_habilitado"])
+            iniciar_timer_de_sesion(sesion)
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+            "gruposListosLobby": listos,
+            "todosListosLobby": todos,
+            "inicio_fase_habilitado": sesion.inicio_fase_habilitado if fase_actual == "f1_conocidos" else True,
+            "segundosRestantes": sesion.segundos_restantes,
+        })
+
+    if fase_actual == "f1_pre_sopa" and fase_clave == "f1":
+        if not grupo.listo_f1:
+            grupo.listo_f1 = True
+            grupo.save(update_fields=["listo_f1"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f1=True).count()
+        todos = total > 0 and listos == total
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+        })
+
+    if fase_actual == "f2_transicion" and fase_clave == "f2":
+        if not grupo.listo_f2:
+            grupo.listo_f2 = True
+            grupo.save(update_fields=["listo_f2"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f2=True).count()
+        todos = total > 0 and listos == total
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+        })
+
+    if fase_actual == "f2_transicion_empatia" and fase_clave == "f2_empatia":
+        if not getattr(grupo, "listo_f2_empatia", False):
+            grupo.listo_f2_empatia = True
+            grupo.save(update_fields=["listo_f2_empatia"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f2_empatia=True).count()
+        todos = total > 0 and listos == total
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+        })
+
+    if fase_actual == "f3_transicion_creatividad" and fase_clave == "f3":
+        if not grupo.listo_f3:
+            grupo.listo_f3 = True
+            grupo.save(update_fields=["listo_f3"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f3=True).count()
+        todos = total > 0 and listos == total
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+        })
+
+    if fase_actual == "f4_transicion_comunicacion" and fase_clave == "f4":
+        if not grupo.listo_f4:
+            grupo.listo_f4 = True
+            grupo.save(update_fields=["listo_f4"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f4=True).count()
+        todos = total > 0 and listos == total
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+        })
+
+    if fase_actual == "f1_sopa":
+        if not grupo.listo_f1:
+            grupo.listo_f1 = True
+            grupo.save(update_fields=["listo_f1"])
+
+    elif fase_actual == "f2_bubblemap":
+        if not grupo.listo_f2:
+            grupo.listo_f2 = True
+            grupo.save(update_fields=["listo_f2"])
+
+    elif fase_actual == "f3_lego":
+        if not grupo.listo_inicio_f3:
+            grupo.listo_inicio_f3 = True
+            grupo.save(update_fields=["listo_inicio_f3"])
+
+    elif fase_actual == "f4_construccion_pitch":
+        if not grupo.listo_f4:
+            grupo.listo_f4 = True
+            grupo.save(update_fields=["listo_f4"])
+
     else:
-        return JsonResponse({"ok": False, "error": "Fase inválida"}, status=400)
+        return JsonResponse({
+            "ok": False,
+            "error": f"La fase actual '{fase_actual}' no usa inicio grupal.",
+        }, status=400)
 
-    grupo.save()
-    return JsonResponse({"ok": True})
+    total, listos, todos = contar_listos_inicio_fase(sesion, fase_actual)
 
+    if todos and not sesion.inicio_fase_habilitado:
+        sesion.inicio_fase_habilitado = True
+        sesion.save(update_fields=["inicio_fase_habilitado"])
+        iniciar_timer_de_sesion(sesion)
 
-
-
-
-
+    return JsonResponse({
+        "ok": True,
+        "fase": fase_actual,
+        "total": total,
+        "listos": listos,
+        "gruposListos": listos,
+        "totalGrupos": total,
+        "todos_listos": todos,
+        "inicio_fase_habilitado": sesion.inicio_fase_habilitado,
+    })
 
 
 @never_cache
@@ -792,23 +1365,60 @@ def lego(request):
     if not acceso_permitido(grupo, "lego"):
         return redirect("pantalla_espera")
 
+    sesion = grupo.sesion
+
     if request.method == "POST":
         sin_foto = request.POST.get("sin_foto_lego") == "on"
         foto = request.FILES.get("foto_lego")
 
         if sin_foto:
             grupo.foto_lego = None
-            grupo.listo_f3 = True
-            grupo.save(update_fields=["foto_lego", "listo_f3"])
-            return redirect("pantalla_espera")
+            grupo.listo_f3_lego = True
+            grupo.lego_sin_foto = True
+            grupo.save(update_fields=["foto_lego", "listo_f3_lego", "lego_sin_foto"])
 
-        if foto:
+        elif foto:
             grupo.foto_lego = foto
-            grupo.listo_f3 = True
-            grupo.save(update_fields=["foto_lego", "listo_f3"])
-            return redirect("pantalla_espera")
+            grupo.listo_f3_lego = True
+            grupo.lego_sin_foto = False
+            grupo.save(update_fields=["foto_lego", "listo_f3_lego", "lego_sin_foto"])
 
-        messages.error(request, "Debes subir una foto o marcar que no pudieron subirla.")
+        else:
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({
+                    "ok": False,
+                    "error": "Debes subir una foto o marcar que no pudieron subirla."
+                }, status=400)
+
+            messages.error(request, "Debes subir una foto o marcar que no pudieron subirla.")
+            return render(request, "lego.html", {
+                "grupo": grupo,
+                "desafio_nombre_actual": grupo.desafio_nombre or "Desafío no seleccionado",
+                "desafio_descripcion_actual": grupo.desafio_descripcion or "Aún no hay descripción disponible para este desafío.",
+                "tiempo_inicial_lego": grupo.sesion.segundos_restantes or 15,
+            })
+
+        autoavanzar_si_todos_listos(sesion)
+        sesion.refresh_from_db()
+
+        total_grupos = Grupo.objects.filter(sesion=sesion).count()
+        grupos_listos = Grupo.objects.filter(sesion=sesion, listo_f3_lego=True).count()
+        grupos_con_foto = Grupo.objects.filter(sesion=sesion, listo_f3_lego=True, foto_lego__isnull=False).count()
+        grupos_sin_foto = Grupo.objects.filter(sesion=sesion, listo_f3_lego=True, lego_sin_foto=True).count()
+
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse({
+                "ok": True,
+                "gruposListosF3Lego": grupos_listos,
+                "gruposConFotoLego": grupos_con_foto,
+                "gruposSinFotoLego": grupos_sin_foto,
+                "totalGrupos": total_grupos,
+                "todosListosF3Lego": total_grupos > 0 and grupos_listos == total_grupos,
+                "faseActual": sesion.fase_actual,
+                "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+            })
+
+        return redirect("lego")
 
     return render(request, "lego.html", {
         "grupo": grupo,
@@ -889,7 +1499,10 @@ def minijuego1(request):
         return redirect("registro")
     if not acceso_permitido(grupo, "minijuego1"):
         return redirect("pantalla_espera")
-    return render(request, "minijuego1.html", {"grupo": grupo})
+    return render(request, "minijuego1.html", {
+        "grupo": grupo,
+        "sopa_ganada": bool(grupo.sopa_ganada),
+    })
 
 @require_POST
 def sopa_completada(request):
@@ -1453,9 +2066,19 @@ def profesor_sortear_orden_pitch(request, sesion_id):
     primer_grupo = sorted(grupos, key=lambda g: g.orden_presentacion)[0]
 
     sesion.grupo_presentando = primer_grupo
-    sesion.segundos_restantes = 90
+    sesion.segundos_restantes = int(sesion.t_pitch or 90)
     sesion.timer_corriendo = False
-    sesion.save(update_fields=["grupo_presentando", "segundos_restantes", "timer_corriendo"])
+    sesion.timer_inicio_at = None
+    sesion.timer_fin_at = None
+    sesion.inicio_fase_habilitado = True
+    sesion.save(update_fields=[
+        "grupo_presentando",
+        "segundos_restantes",
+        "timer_corriendo",
+        "timer_inicio_at",
+        "timer_fin_at",
+        "inicio_fase_habilitado",
+    ])
 
     return JsonResponse({
         "ok": True,
@@ -1580,24 +2203,10 @@ def peer_review_view(request):
         return redirect("pantalla_espera")
 
     sesion = grupo_evaluador.sesion
+    grupo_objetivo = sesion.grupo_presentando
 
-    all_targets = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo_evaluador.pk)
-
-    evaluados_ids = set(
-        Evaluacion.objects.filter(
-            sesion=sesion,
-            grupo_evaluador=grupo_evaluador,
-        ).values_list("grupo_evaluado_id", flat=True)
-    )
-
-    pending_targets = all_targets.exclude(pk__in=evaluados_ids)
-    completed = not pending_targets.exists()
-
-    if completed:
-        if not grupo_evaluador.listo_f5:
-            grupo_evaluador.listo_f5 = True
-            grupo_evaluador.save(update_fields=["listo_f5"])
-        return redirect("mision_cumplida")
+    if not grupo_objetivo:
+        return redirect("pantalla_espera")
 
     criteria = [
         {"key": "claridad", "label": "Claridad"},
@@ -1607,82 +2216,69 @@ def peer_review_view(request):
         {"key": "presentacion", "label": "Presentación"},
     ]
 
+    if grupo_evaluador.pk == grupo_objetivo.pk:
+        if evaluacion_actual_completa(sesion):
+            avanzar_al_siguiente_pitch_o_ranking(sesion)
+            return redirect("pantalla_espera")
+
+        return render(request, "peer_review.html", {
+            "session": sesion,
+            "evaluator_team": grupo_evaluador,
+            "grupo_objetivo": grupo_objetivo,
+            "mi_equipo_presenta": True,
+            "ya_evaluo": False,
+            "criteria": criteria,
+        })
+
+    ya_evaluo = Evaluacion.objects.filter(
+        sesion=sesion,
+        grupo_evaluador=grupo_evaluador,
+        grupo_evaluado=grupo_objetivo,
+    ).exists()
+
     if request.method == "POST":
-        team_id = (request.POST.get("team_id") or "").strip()
+        if ya_evaluo:
+            if evaluacion_actual_completa(sesion):
+                avanzar_al_siguiente_pitch_o_ranking(sesion)
+            return redirect("pantalla_espera")
 
-        if not team_id.isdigit():
-            messages.error(request, "Equipo inválido.")
-            return redirect("peer_review")
+        claridad = int(request.POST.get("score_claridad", 0))
+        creatividad = int(request.POST.get("score_creatividad", 0))
+        viabilidad = int(request.POST.get("score_viabilidad", 0))
+        equipo = int(request.POST.get("score_equipo", 0))
+        presentacion = int(request.POST.get("score_presentacion", 0))
+        comentario = (request.POST.get("comment") or "").strip()
+        reflexion = (request.POST.get("reflection") or "").strip()
 
-        grupo_evaluado = pending_targets.filter(pk=int(team_id)).first()
-
-        if not grupo_evaluado:
-            messages.error(request, "Ese equipo ya fue evaluado o no es válido.")
-            return redirect("peer_review")
-
-        if grupo_evaluado.pk == grupo_evaluador.pk:
-            messages.error(request, "No puedes evaluar a tu propio equipo.")
-            return redirect("peer_review")
-
-        scores = {}
-        for c in criteria:
-            raw = request.POST.get(f"score_{c['key']}")
-            if raw not in {"1", "2", "3", "4", "5"}:
-                messages.error(request, f"Debes completar el criterio: {c['label']}.")
-                return redirect("peer_review")
-            scores[c["key"]] = int(raw)
-
-        comment = (request.POST.get("comment") or "").strip()
-        reflection = (request.POST.get("reflection") or "").strip()
-
-        if not comment:
-            messages.error(request, "Debes escribir un comentario.")
-            return redirect("peer_review")
-
-        Evaluacion.objects.update_or_create(
+        Evaluacion.objects.create(
             sesion=sesion,
             grupo_evaluador=grupo_evaluador,
-            grupo_evaluado=grupo_evaluado,
-            defaults={
-                "claridad": scores["claridad"],
-                "creatividad": scores["creatividad"],
-                "viabilidad": scores["viabilidad"],
-                "equipo": scores["equipo"],
-                "presentacion": scores["presentacion"],
-                "comentario": comment,
-                "reflexion": reflection or None,
-            }
+            grupo_evaluado=grupo_objetivo,
+            claridad=claridad,
+            creatividad=creatividad,
+            viabilidad=viabilidad,
+            equipo=equipo,
+            presentacion=presentacion,
+            comentario=comentario,
+            reflexion=reflexion or None,
         )
 
-        evaluados_ids = set(
-            Evaluacion.objects.filter(
-                sesion=sesion,
-                grupo_evaluador=grupo_evaluador,
-            ).values_list("grupo_evaluado_id", flat=True)
-        )
+        grupo_evaluador.listo_f5 = True
+        grupo_evaluador.save(update_fields=["listo_f5"])
 
-        pending_targets = all_targets.exclude(pk__in=evaluados_ids)
-        completed = not pending_targets.exists()
+        if evaluacion_actual_completa(sesion):
+            avanzar_al_siguiente_pitch_o_ranking(sesion)
 
-        if completed and not grupo_evaluador.recompensa_peer_otorgada:
-            otorgar_tokens_peer_review(grupo_evaluador)
-            grupo_evaluador.listo_f5 = True
-            grupo_evaluador.save(update_fields=["listo_f5"])
-            return redirect("mision_cumplida")
+        return redirect("pantalla_espera")
 
-        messages.success(request, "¡Evaluación enviada para ese equipo!")
-        return redirect("peer_review")
-
-    context = {
+    return render(request, "peer_review.html", {
         "session": sesion,
         "evaluator_team": grupo_evaluador,
-        "target_teams": pending_targets,
+        "grupo_objetivo": grupo_objetivo,
+        "mi_equipo_presenta": False,
+        "ya_evaluo": ya_evaluo,
         "criteria": criteria,
-        "submitted": False,
-        "evaluados_count": len(evaluados_ids),
-        "total_targets": all_targets.count(),
-    }
-    return render(request, "peer_review.html", context)
+    })
 
 
 

@@ -1,0 +1,190 @@
+<div class="oai-listo-wrap">
+  <button class="oai-btn-chip" id="oai-btn-listo-{{ fase_clave }}" type="button">
+    {{ texto_boton|default:"¡Estoy listo!" }}
+  </button>
+  <p id="oai-estado-listo-{{ fase_clave }}" class="oai-estado-listo">0/0 grupos listos</p>
+</div>
+
+<style>
+  .oai-listo-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:10px;
+  }
+
+  .oai-estado-listo{
+    font-size:18px;
+    color:#ffffff;
+    font-weight:600;
+    text-align:center;
+    margin:0;
+  }
+
+  .oai-btn-chip{
+    position:relative;
+    padding:14px 34px;
+    font-size:18px;
+    font-weight:700;
+    color:#ffffff;
+    background:#0b1220;
+    border:2px solid #4b74aa;
+    border-radius:12px;
+    cursor:pointer;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    transition:transform .2s ease, box-shadow .2s ease;
+    overflow:hidden;
+  }
+
+  .oai-btn-chip::before,
+  .oai-btn-chip::after{
+    content:"";
+    position:absolute;
+    height:2px;
+    width:40%;
+    background:linear-gradient(90deg, transparent, #4b74aa, transparent);
+    left:30%;
+    opacity:.6;
+  }
+
+  .oai-btn-chip::before{
+    top:0;
+    animation:oaiElectricFlow 2.2s linear infinite;
+  }
+
+  .oai-btn-chip::after{
+    bottom:0;
+    animation:oaiElectricFlow 2.2s linear infinite reverse;
+  }
+
+  @keyframes oaiElectricFlow{
+    0%   { transform: translateX(-150%); }
+    100% { transform: translateX(150%); }
+  }
+
+  .oai-btn-chip:hover{
+    transform:translateY(-3px);
+    box-shadow:0 0 14px rgba(75, 116, 170, 0.7);
+  }
+
+  .oai-btn-chip:active{
+    animation:oaiFlashOn .15s ease-out;
+    box-shadow:0 0 22px rgba(118, 168, 255, 0.9);
+  }
+
+  @keyframes oaiFlashOn{
+    0%   { background:#0b1220; }
+    50%  { background:#1a2d4d; }
+    100% { background:#0b1220; }
+  }
+
+  .oai-btn-chip:disabled{
+    opacity:1;
+    cursor:default;
+    transform:none;
+  }
+
+  @media (max-width: 480px){
+    .oai-btn-chip{
+      padding:12px 24px;
+      font-size:16px;
+    }
+
+    .oai-estado-listo{
+      font-size:15px;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  const faseClave = "{{ fase_clave }}";
+  const faseActualEsperada = "{{ fase_actual_esperada }}";
+  const campoListos = "{{ campo_listos }}";
+  const campoMiGrupo = "{{ campo_mi_grupo }}";
+  const sesionId = "{{ grupo.sesion.idsesion }}";
+  const grupoId = "{{ grupo.idgrupo }}";
+
+  const boton = document.getElementById(`oai-btn-listo-${faseClave}`);
+  const estado = document.getElementById(`oai-estado-listo-${faseClave}`);
+
+  if (!boton || !estado || !sesionId || !grupoId) return;
+
+  let redirigiendo = false;
+
+  async function refrescarEstado() {
+    if (redirigiendo) return;
+
+    try {
+      const res = await fetch(`/sesion/${sesionId}/estado/`, {
+        cache: "no-store",
+        credentials: "same-origin"
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      const listos = Number(data[campoListos] || 0);
+      const total = Number(data.totalGrupos || 0);
+      estado.textContent = `${listos}/${total} grupos listos`;
+
+      const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+      if (miGrupo && miGrupo[campoMiGrupo]) {
+        boton.disabled = true;
+        boton.textContent = "¡Listo!";
+      }
+
+      if (data.faseActual && data.faseActual !== faseActualEsperada && data.rutaAlumno) {
+        redirigiendo = true;
+        window.location.href = data.rutaAlumno;
+      }
+    } catch (e) {
+      console.error("Error actualizando estado listo:", e);
+    }
+  }
+
+  boton.addEventListener("click", async () => {
+    boton.disabled = true;
+
+    try {
+      const res = await fetch(`/grupo/${grupoId}/listo/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ fase: faseClave })
+      });
+
+      const data = await res.json();
+
+      if (!data.ok) {
+        boton.disabled = false;
+        boton.textContent = "{{ texto_boton|default:'¡Estoy listo!' }}";
+        return;
+      }
+
+      const listos = Number(data.gruposListos ?? data.listos ?? 0);
+      const total = Number(data.totalGrupos ?? data.total ?? 0);
+      estado.textContent = `${listos}/${total} grupos listos`;
+      boton.textContent = "¡Listo!";
+
+      if (data.faseActual && data.faseActual !== faseActualEsperada && data.rutaAlumno) {
+        redirigiendo = true;
+        window.location.href = data.rutaAlumno;
+      }
+    } catch (e) {
+      boton.disabled = false;
+      boton.textContent = "{{ texto_boton|default:'¡Estoy listo!' }}";
+      console.error("Error marcando listo:", e);
+    }
+  });
+
+  setInterval(refrescarEstado, 1500);
+  refrescarEstado();
+})();
+</script>

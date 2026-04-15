@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_pantalla_inicio.css' %}">
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="transition-container">
     <section class="card">
 
@@ -19,30 +19,94 @@
 
       <h1>¡Has sido reclutado para la misión!</h1>
 
-       <div class="console-card">
+      <div class="console-card">
         <p class="console-title console-line">RECLUTAMIENTO CONFIRMADO</p>
 
         <p class="console-line"><span class="console-label">Rol asignado:</span> Agente en entrenamiento</p>
-        <p class="console-line"><span class="console-label">Fase actual:</span>Activación</p>
+        <p class="console-line"><span class="console-label">Fase actual:</span> Activación</p>
         <p class="console-line"><span class="console-label">Estado:</span> Preparado para iniciar</p>
 
         <p class="console-prompt console-line">¿Aceptar misión?</p>
       </div>
 
       <div class="next-step">
-        <button class="btn-chip" id="btnComenzar">¡Estoy listo!</button>
+        <button class="btn-chip" id="btnComenzar" type="button">¡Estoy listo!</button>
+        <p id="estado-listo-lobby" style="margin-top: 10px;">0/0 grupos listos</p>
       </div>
 
     </section>
   </main>
 
+  {% include "includes/sincronizacion_fase.html" %}
+
   <script>
-  document.getElementById('btnComenzar').addEventListener('click', () => {
-    const btn = document.getElementById('btnComenzar');
-    btn.disabled = true;
-    btn.textContent = 'Esperando al profesor...';
-  });
+  (function () {
+    const boton = document.getElementById("btnComenzar");
+    const estado = document.getElementById("estado-listo-lobby");
+    const sesionId = "{{ grupo.sesion.idsesion }}";
+    const grupoId = "{{ grupo.idgrupo }}";
+
+    async function refrescarEstado() {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado/`);
+        const data = await res.json();
+
+        const listos = data.gruposListosLobby || 0;
+        const total = data.totalGrupos || 0;
+        estado.textContent = `${listos}/${total} grupos listos`;
+
+        const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+        if (miGrupo && miGrupo.listoLobby) {
+          boton.disabled = true;
+          boton.textContent = "¡Listo!";
+        }
+
+        if (data.faseActual !== "f1_bienvenida" && data.rutaAlumno) {
+          window.location.href = data.rutaAlumno;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    boton.addEventListener("click", async () => {
+      boton.disabled = true;
+
+      try {
+        const res = await fetch(`/grupo/${grupoId}/listo/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: JSON.stringify({ fase: "lobby" })
+        });
+
+        const data = await res.json();
+
+        if (data.ok) {
+          estado.textContent = `${data.gruposListos}/${data.totalGrupos} grupos listos`;
+          boton.textContent = "¡Listo!";
+
+          if (data.faseActual !== "f1_bienvenida" && data.rutaAlumno) {
+            window.location.href = data.rutaAlumno;
+            return;
+          }
+        } else {
+          boton.disabled = false;
+          boton.textContent = "¡Estoy listo!";
+        }
+      } catch (e) {
+        boton.disabled = false;
+        boton.textContent = "¡Estoy listo!";
+        console.error(e);
+      }
+    });
+
+    setInterval(refrescarEstado, 2000);
+    refrescarEstado();
+  })();
 </script>
-{% include "includes/sincronizacion_fase.html" %}
+
 </body>
 </html>

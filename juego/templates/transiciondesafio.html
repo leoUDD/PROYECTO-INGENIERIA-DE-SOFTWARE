@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_transiciondesafio.css' %}" />
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a desafíos">
     <section class="team-section">
       <h1 class="title">Desafíos</h1>
@@ -22,10 +22,11 @@
       </div>
 
       <div class="next-step">
-        <p>Esperen la señal del profesor para pasar a la selección de temática.</p>
+        {% include "includes/boton_listo_fase.html" with fase_clave="f2" fase_actual_esperada="f2_transicion" campo_listos="gruposListosF2Generico" campo_mi_grupo="listoF2Generico" texto_boton="¡Estoy listo!" %}
       </div>
     </section>
   </main>
+
   <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
   {% include "includes/sincronizacion_fase.html" %}
 </body>

@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_trabajoenequipo.css' %}" />
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a trabajo en equipo">
     <section class="team-section">
       <h1 class="title">Trabajo en Equipo</h1>
@@ -22,10 +22,11 @@
       </div>
 
       <div class="next-step">
-        <p>Esperen la señal del profesor para comenzar la sopa de letras.</p>
+        {% include "includes/boton_listo_fase.html" with fase_clave="f1" fase_actual_esperada="f1_pre_sopa" campo_listos="gruposListosF1" campo_mi_grupo="listoF1" texto_boton="¡Estoy listo!" %}
       </div>
     </section>
   </main>
+
   <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
   {% include "includes/sincronizacion_fase.html" %}
 </body>

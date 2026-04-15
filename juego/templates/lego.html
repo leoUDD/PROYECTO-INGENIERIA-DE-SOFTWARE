@@ -8,6 +8,121 @@
   <title>Misión Emprende UDD — LEGO</title>
   <link rel="stylesheet" href="{% static 'css/estilo_lego.css' %}">
   <style>
+    .phone {
+      position: relative;
+    }
+
+    .inicio-fase-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 26px 18px 18px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .inicio-fase-card {
+      width: min(92%, 760px);
+      background: rgba(8, 24, 48, 0.88);
+      border: 1px solid rgba(0, 200, 255, 0.30);
+      box-shadow: 0 12px 30px rgba(0,0,0,.24);
+      border-radius: 22px;
+      padding: 18px 22px;
+      color: #fff;
+      backdrop-filter: blur(6px);
+      pointer-events: auto;
+    }
+
+    .inicio-fase-badge {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(0, 200, 255, 0.12);
+      border: 1px solid rgba(0, 200, 255, 0.28);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #dff7ff;
+    }
+
+    .inicio-fase-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .inicio-fase-card p {
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+
+    .btn-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 255, 0.4);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
+      color: #E6F7FF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-chip:hover {
+      transform: translateY(-1px) scale(1.03);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
+    }
+
+    .btn-chip:active {
+      transform: scale(0.97);
+    }
+
+    .btn-chip:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .contador-fase {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .blur-target-bloqueado {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      opacity: .70;
+      transition: all .3s ease;
+    }
+
+    .blur-target-activo {
+      filter: none;
+      pointer-events: auto;
+      user-select: auto;
+      opacity: 1;
+      transition: all .3s ease;
+    }
+
+    .timer-esperando {
+      opacity: .55;
+    }
+
+    .overlay-hidden {
+      display: none;
+    }
+
     .desafio-panel{
       width: 100%;
       max-width: 760px;
@@ -71,7 +186,7 @@
     .foto-panel {
       width: 100%;
       max-width: 640px;
-      margin-top: 18px;
+      margin: 18px auto 0 auto;
       padding: 18px;
       border-radius: 16px;
       border: 2px solid rgba(255, 122, 26, 0.70);
@@ -185,6 +300,76 @@
       font-size: 0.92rem;
       font-weight: 600;
     }
+
+    .estado-grupos-lego{
+      margin-top: 14px;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .detalle-grupos-lego{
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: #d9e6f2;
+      opacity: 0.92;
+      text-align: center;
+    }
+
+    .modal {
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background: rgba(7, 21, 43, 0.96);
+      color: #ffffff;
+      border: 1px solid rgba(0, 200, 255, 0.25);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .modal-content h2,
+    .modal-content p {
+      color: #ffffff;
+      text-shadow: none;
+    }
+
+    @media (max-width: 900px) {
+      .inicio-fase-card {
+        width: min(94%, 760px);
+        padding: 16px 18px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .inicio-fase-overlay {
+        padding: 14px 12px 12px;
+      }
+
+      .inicio-fase-card {
+        width: 100%;
+        border-radius: 18px;
+        padding: 14px 14px 16px;
+      }
+
+      .inicio-fase-card h3 {
+        font-size: 1rem;
+      }
+
+      .inicio-fase-card p {
+        font-size: 0.92rem;
+        line-height: 1.4;
+      }
+
+      .btn-chip {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .contador-fase {
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 <body
@@ -193,11 +378,40 @@
 >
   <main class="phone">
 
-    <img src="{% static 'images/Lego-logo.png' %}" class="logo" alt="Lego logo">
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge">Fase de activación</div>
 
-    <h1 class="title">Construye tu solución</h1>
+        <h3>Antes de comenzar</h3>
 
-    <section class="desafio-panel">
+        <p>
+          Revisen el desafío y preparen su construcción.
+        </p>
+
+        <p>
+          Tendrán <strong>15 segundos</strong> para construir. Cuando todos los equipos presionen
+          <strong>“Listo para comenzar”</strong>, la actividad se habilitará automáticamente.
+        </p>
+
+        <button type="button" id="btn-listo-fase" class="btn-chip">
+          ⚡ Listo para comenzar
+        </button>
+
+        <div id="texto-espera-fase" class="contador-fase">
+          Esperando a los demás equipos...
+        </div>
+
+        <div id="contador-listos-fase" class="contador-fase">
+          0/0 grupos listos
+        </div>
+      </section>
+    </div>
+
+    <img id="legoLogo" src="{% static 'images/Lego-logo.png' %}" class="logo blur-target-bloqueado" alt="Lego logo">
+
+    <h1 id="legoTitle" class="title blur-target-bloqueado">Construye tu solución</h1>
+
+    <section id="desafioPanel" class="desafio-panel blur-target-bloqueado">
       <button type="button" class="desafio-toggle" id="desafioToggle">
         <div class="desafio-toggle-head">
           <span class="desafio-etiqueta">Desafío seleccionado</span>
@@ -211,17 +425,17 @@
       </div>
     </section>
 
-    <h2 class="subtitle">Recuerda las características de tu cliente</h2>
+    <h2 id="legoSubtitle" class="subtitle blur-target-bloqueado">Recuerda las características de tu cliente</h2>
 
-    <ul id="ideasList" class="ideas-list"></ul>
+    <ul id="ideasList" class="ideas-list blur-target-bloqueado"></ul>
 
-    <p class="body">Ahora usa las piezas de LEGO para construir tu solución.</p>
+    <p id="legoBody" class="body blur-target-bloqueado">Ahora usa las piezas de LEGO para construir tu solución.</p>
 
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
-    <div id="timer" class="timer">00:15</div>
+    <div id="timer" class="timer blur-target-bloqueado timer-esperando">00:15</div>
 
-    <div class="foto-panel">
+    <div id="fotoPanel" class="foto-panel blur-target-bloqueado">
       <h3>Prepara la foto de tu solución LEGO</h3>
       <p class="texto-espera-foto">
         Cuando termine el tiempo, sube una foto de tu construcción para usarla más adelante en la presentación.
@@ -259,10 +473,17 @@
           <button type="submit" id="buttonGuardarFoto" class="btn-guardar-foto" disabled>
             Guardar y continuar
           </button>
+
+          <div id="estadoGruposLego" class="estado-grupos-lego">
+            0/0 grupos listos
+          </div>
+
+          <div id="detalleGruposLego" class="detalle-grupos-lego">
+            0 con foto · 0 sin foto
+          </div>
         </form>
       </div>
     </div>
-
   </main>
 
   <script>
@@ -305,130 +526,258 @@
   </script>
 
   <script>
-    const alarmAudio = document.getElementById("alarm-audio");
-    const timerElement = document.getElementById("timer");
-    const modalFin = document.getElementById("modal-fin");
+    document.addEventListener("DOMContentLoaded", () => {
+      const sesionId = "{{ grupo.sesion.idsesion }}";
+      const grupoId = "{{ grupo.idgrupo }}";
+      const csrfToken = "{{ csrf_token }}";
 
-    let timeLeft = Number(document.body.dataset.tiempoInicial || 15);
-    let timerInterval = null;
-    let timerStartedByProfesor = false;
-    let modalMostrado = false;
+      const boton = document.getElementById("btn-listo-fase");
+      const textoEspera = document.getElementById("texto-espera-fase");
+      const contador = document.getElementById("contador-listos-fase");
+      const timerElement = document.getElementById("timer");
+      const modalFin = document.getElementById("modal-fin");
+      const alarmAudio = document.getElementById("alarm-audio");
+      const overlay = document.getElementById("inicio-fase-overlay");
 
-    function renderTimer() {
-      const segundos = Math.max(0, Number(timeLeft) || 0);
-      const minutes = Math.floor(segundos / 60);
-      const seconds = segundos % 60;
-      timerElement.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-    }
+      const blurTargets = [
+        document.getElementById("legoLogo"),
+        document.getElementById("legoTitle"),
+        document.getElementById("desafioPanel"),
+        document.getElementById("legoSubtitle"),
+        document.getElementById("ideasList"),
+        document.getElementById("legoBody"),
+        document.getElementById("timer"),
+        document.getElementById("fotoPanel"),
+      ];
 
-    function pauseTimerLocally() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-    }
+      let timeLeft = Number(document.body.dataset.tiempoInicial || 15);
+      let timerInterval = null;
+      let timerStartedByProfesor = false;
+      let modalMostrado = false;
+      let redirigiendo = false;
 
-    function mostrarModalFin() {
-      if (modalMostrado) return;
-      modalMostrado = true;
-
-      try {
-        alarmAudio.currentTime = 0;
-        alarmAudio.play();
-      } catch (e) {}
-
-      modalFin.style.display = "flex";
-    }
-
-    function startTimer() {
-      if (timerInterval) return;
-
-      renderTimer();
-
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        renderTimer();
-
-        if (timeLeft <= 0) {
-          pauseTimerLocally();
-          mostrarModalFin();
-        }
-      }, 1000);
-    }
-
-    function obtenerSesionId() {
-      return document.body.dataset.sesionId;
-    }
-
-    function procesarEstadoSesion(data) {
-      if (!data) return;
-
-      if (data.faseActual && data.faseActual !== "f3_lego") {
-        if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
-          window.location.href = data.rutaAlumno;
-        }
-        return;
-      }
-
-      const backendSeconds = Number(data.segundosRestantes);
-
-      if (!timerStartedByProfesor || !data.timerCorriendo) {
-        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-          timeLeft = backendSeconds;
-          renderTimer();
-        }
-      }
-
-      if (!timerStartedByProfesor && data.timerCorriendo) {
-        timerStartedByProfesor = true;
-
-        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-          timeLeft = backendSeconds;
-          renderTimer();
-        }
-
-        startTimer();
-        return;
-      }
-
-      if (timerStartedByProfesor && !data.timerCorriendo) {
-        pauseTimerLocally();
-
-        if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-          timeLeft = backendSeconds;
-          renderTimer();
-        }
-
-        timerStartedByProfesor = false;
-      }
-
-      if (Number(data.segundosRestantes) <= 0) {
-        mostrarModalFin();
-      }
-    }
-
-    async function revisarEstadoProfesor() {
-      try {
-        const sesionId = obtenerSesionId();
-        if (!sesionId) return;
-
-        const res = await fetch(`/sesion/${sesionId}/estado/`, {
-          credentials: "same-origin",
-          cache: "no-store"
+      function activarFase() {
+        blurTargets.forEach(el => {
+          if (!el) return;
+          el.classList.remove("blur-target-bloqueado", "timer-esperando");
+          el.classList.add("blur-target-activo");
         });
 
-        if (!res.ok) return;
-
-        const data = await res.json();
-        procesarEstadoSesion(data);
-      } catch (error) {
-        console.error("Error sincronizando lego:", error);
+        if (overlay) {
+          overlay.classList.add("overlay-hidden");
+        }
       }
-    }
 
-    renderTimer();
-    revisarEstadoProfesor();
-    setInterval(revisarEstadoProfesor, 1500);
+      function bloquearFase() {
+        blurTargets.forEach(el => {
+          if (!el) return;
+          el.classList.remove("blur-target-activo");
+          el.classList.add("blur-target-bloqueado");
+        });
+
+        if (timerElement) {
+          timerElement.classList.add("timer-esperando");
+        }
+
+        if (overlay) {
+          overlay.classList.remove("overlay-hidden");
+        }
+      }
+
+      function renderTimer() {
+        const segundos = Math.max(0, Number(timeLeft) || 0);
+        const minutes = Math.floor(segundos / 60);
+        const seconds = segundos % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+      }
+
+      function pauseTimerLocally() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function mostrarModalFin() {
+        if (modalMostrado) return;
+        modalMostrado = true;
+
+        try {
+          alarmAudio.currentTime = 0;
+          alarmAudio.play();
+        } catch (e) {}
+
+        modalFin.style.display = "flex";
+      }
+
+      function startTimer() {
+        if (timerInterval) return;
+
+        renderTimer();
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          renderTimer();
+
+          if (timeLeft <= 0) {
+            pauseTimerLocally();
+            mostrarModalFin();
+          }
+        }, 1000);
+      }
+
+      function actualizarEstadoGrupos(data) {
+        const estado = document.getElementById("estadoGruposLego");
+        const detalle = document.getElementById("detalleGruposLego");
+
+        if (!estado || !detalle) return;
+
+        const listos = data.gruposListosF3Lego || 0;
+        const total = data.totalGrupos || 0;
+        const conFoto = data.gruposConFotoLego || 0;
+        const sinFoto = data.gruposSinFotoLego || 0;
+
+        estado.textContent = `${listos}/${total} grupos listos`;
+        detalle.textContent = `${conFoto} con foto · ${sinFoto} sin foto`;
+      }
+
+      function procesarEstadoSesion(data) {
+        if (!data) return;
+
+        actualizarEstadoGrupos(data);
+
+        if (contador) {
+          contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
+        }
+
+        const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+        if (miGrupo && miGrupo.listoInicioF3) {
+          boton.disabled = true;
+          boton.textContent = "Esperando...";
+          if (textoEspera) {
+            textoEspera.textContent = "Esperando a los demás equipos...";
+          }
+        }
+
+        if (data.faseActual && data.faseActual !== "f3_lego") {
+          if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.href = data.rutaAlumno;
+          }
+          return;
+        }
+
+        if (data.inicioFaseHabilitado) {
+          activarFase();
+        } else {
+          bloquearFase();
+        }
+
+        const backendSeconds = Number(data.segundosRestantes);
+
+        if ((!timerStartedByProfesor || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+          timeLeft = backendSeconds;
+          renderTimer();
+        }
+
+        if (!timerStartedByProfesor && data.timerCorriendo && data.inicioFaseHabilitado) {
+          timerStartedByProfesor = true;
+
+          if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+            timeLeft = backendSeconds;
+            renderTimer();
+          }
+
+          startTimer();
+          return;
+        }
+
+        if (timerStartedByProfesor && !data.timerCorriendo) {
+          pauseTimerLocally();
+
+          if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
+            timeLeft = backendSeconds;
+            renderTimer();
+          }
+
+          timerStartedByProfesor = false;
+        }
+
+        if (Number(data.segundosRestantes) <= 0) {
+          mostrarModalFin();
+        }
+
+        if (data.todosListosF3Lego && data.rutaAlumno) {
+          redirigiendo = true;
+          window.location.href = data.rutaAlumno;
+        }
+      }
+
+      async function revisarEstadoProfesor() {
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`, {
+            credentials: "same-origin",
+            cache: "no-store"
+          });
+
+          if (!res.ok) return;
+
+          const data = await res.json();
+          procesarEstadoSesion(data);
+        } catch (error) {
+          console.error("Error sincronizando lego:", error);
+        }
+      }
+
+      if (boton) {
+        boton.addEventListener("click", async () => {
+          boton.disabled = true;
+          boton.textContent = "Esperando...";
+
+          try {
+            const res = await fetch(`/grupo/${grupoId}/listo/`, {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+              },
+              body: JSON.stringify({})
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.ok) {
+              throw new Error(data.error || "No se pudo marcar listo.");
+            }
+
+            if (contador) {
+              contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
+            }
+
+            if (textoEspera) {
+              textoEspera.textContent = "Esperando a los demás equipos...";
+            }
+
+            if (data.inicio_fase_habilitado) {
+              activarFase();
+            }
+          } catch (err) {
+            console.error("Error marcando listo:", err);
+            boton.disabled = false;
+            boton.textContent = "⚡ Listo para comenzar";
+            if (textoEspera) {
+              textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
+            }
+          }
+        });
+      }
+
+      bloquearFase();
+      renderTimer();
+      revisarEstadoProfesor();
+      setInterval(revisarEstadoProfesor, 1500);
+    });
   </script>
 
   <script>
@@ -440,11 +789,13 @@
     const errorFoto = document.getElementById("errorFoto");
     const formFoto = document.querySelector("#modal-fin form");
 
+    let yaEnviado = false;
+
     function actualizarEstadoBoton() {
       const hayArchivo = inputFoto && inputFoto.files && inputFoto.files.length > 0;
       const marcoSinFoto = sinFoto && sinFoto.checked;
 
-      buttonGuardarFoto.disabled = !(hayArchivo || marcoSinFoto);
+      buttonGuardarFoto.disabled = !(hayArchivo || marcoSinFoto) || yaEnviado;
 
       if (errorFoto) errorFoto.style.display = "none";
 
@@ -480,13 +831,59 @@
     }
 
     if (formFoto) {
-      formFoto.addEventListener("submit", (e) => {
+      formFoto.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (yaEnviado) return;
+
         const hayArchivo = inputFoto && inputFoto.files && inputFoto.files.length > 0;
         const marcoSinFoto = sinFoto && sinFoto.checked;
 
         if (!hayArchivo && !marcoSinFoto) {
-          e.preventDefault();
           if (errorFoto) errorFoto.style.display = "block";
+          return;
+        }
+
+        const formData = new FormData(formFoto);
+
+        try {
+          const res = await fetch(window.location.href, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest"
+            }
+          });
+
+          const data = await res.json();
+
+          if (!data.ok) {
+            throw new Error(data.error || "Error guardando");
+          }
+
+          yaEnviado = true;
+
+          inputFoto.disabled = true;
+          sinFoto.disabled = true;
+          buttonGuardarFoto.disabled = true;
+          buttonGuardarFoto.textContent = "¡Listo!";
+
+          const estado = document.getElementById("estadoGruposLego");
+          const detalle = document.getElementById("detalleGruposLego");
+
+          if (estado) {
+            estado.textContent = `${data.gruposListosF3Lego || 0}/${data.totalGrupos || 0} grupos listos`;
+          }
+
+          if (detalle) {
+            detalle.textContent = `${data.gruposConFotoLego || 0} con foto · ${data.gruposSinFotoLego || 0} sin foto`;
+          }
+        } catch (err) {
+          console.error(err);
+          if (errorFoto) {
+            errorFoto.style.display = "block";
+            errorFoto.textContent = err.message;
+          }
         }
       });
     }
