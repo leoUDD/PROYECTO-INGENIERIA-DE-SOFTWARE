@@ -1,0 +1,328 @@
+:root{
+  --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
+  --card:#081A2D;
+  --text:#E6EEF8;
+  --muted:#AAB7C8;
+  --primary:#00C8FF;
+  --accent:#FF7A1A;
+  --radius:28px;
+  --shadow:0 18px 40px rgba(0,0,0,.6);
+  --glow:0 0 25px rgba(0,200,255,.35);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ min-height:100vh; }
+
+body{
+  font-family:"Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color: var(--accent);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:20px;
+  overflow-y:auto;
+}
+
+.bubblemap-container{
+  width: clamp(360px, 94vw, 1100px);
+  background:url('/static/images/fondo_card.png') center/cover no-repeat fixed;
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  padding: 34px 28px 34px;
+  text-align:center;
+  margin: 20px 0 40px;
+}
+
+.bubblemap-container h1{
+  font-size: clamp(28px, 4vw, 52px);
+  color: var(--accent);
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+
+.subtitle{
+  color:#fff;
+  margin-bottom: 18px;
+  font-size: clamp(15px, 1.8vw, 22px);
+}
+
+.db-badge{
+  position: relative;
+  z-index: 4;
+}
+
+.timer-wrap{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 6px auto 22px;
+  position: relative;
+  z-index: 3;
+}
+
+.timer-bubblemap{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: clamp(180px, 36vw, 260px);
+  height: clamp(72px, 12vw, 98px);
+  background: #0a0a0a;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 40px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  border: clamp(3px, .8vw, 6px) solid #00d4ff;
+  border-radius: 24px;
+  box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset;
+  text-shadow: 0 0 8px #00d4ff;
+  animation: neonPulse 1.2s ease-in-out infinite;
+}
+
+.bubbles{
+  position:relative;
+  width:100%;
+  height:640px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:32px;
+  z-index:1;
+}
+
+.bubble{
+  position:absolute;
+  width: clamp(120px, 18vw, 180px);
+  height: clamp(120px, 18vw, 180px);
+  border-radius:50%;
+  background:#eef2ff;
+  box-shadow:0 8px 16px rgba(0,0,0,.1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: transform 0.2s ease;
+  z-index:1;
+}
+
+.bubble:hover{
+  transform:scale(1.05);
+}
+
+.bubble textarea{
+  width: 85%;
+  height: 60%;
+  max-height: 70%;
+  resize: none;
+  border: none;
+  outline: none;
+  text-align: center;
+  background: transparent;
+  font-weight: 600;
+  color: #111827;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.3;
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  scrollbar-width: none;
+}
+
+.bubble textarea::-webkit-scrollbar{
+  display:none;
+}
+
+.bubble.central{
+  width: clamp(180px, 24vw, 240px);
+  height: clamp(180px, 24vw, 240px);
+  background: var(--primary);
+  color: white;
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bubble.central img{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.bubble.central textarea{
+  color:white;
+}
+
+.bubbles .bubble:nth-child(2){
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: orange;
+}
+
+.bubbles .bubble:nth-child(3){
+  top: 18%;
+  right: 18%;
+  background: greenyellow;
+}
+
+.bubbles .bubble:nth-child(4){
+  bottom: 18%;
+  right: 18%;
+  background: lightblue;
+}
+
+.bubbles .bubble:nth-child(5){
+  bottom: 18%;
+  left: 18%;
+  background: lightcoral;
+}
+
+.bubbles .bubble:nth-child(6){
+  top: 18%;
+  left: 18%;
+  background: lightgreen;
+}
+
+.bubbles .bubble:nth-child(7){
+  bottom: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: lightsalmon;
+}
+
+.footer-actions{
+  margin-top: 10px;
+  position: relative;
+  z-index: 3;
+}
+
+.btn.primary{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  padding:14px 22px;
+  font-size:16px;
+  font-weight:700;
+  box-shadow: 0 8px 18px rgba(75,116,170,.35);
+  cursor:pointer;
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.btn.primary:hover{
+  background:#3d618e;
+}
+
+@media (min-width: 641px) and (max-width: 900px){
+  .bubblemap-container{
+    padding: 28px 20px 28px;
+  }
+
+  .bubbles{
+    height: 580px;
+  }
+
+  .bubble{
+    width: clamp(110px, 16vw, 165px);
+    height: clamp(110px, 16vw, 165px);
+  }
+
+  .bubble.central{
+    width: clamp(160px, 22vw, 220px);
+    height: clamp(160px, 22vw, 220px);
+  }
+
+  .bubbles .bubble:nth-child(3){ top: 16%; right: 14%; }
+  .bubbles .bubble:nth-child(4){ bottom: 16%; right: 14%; }
+  .bubbles .bubble:nth-child(5){ bottom: 16%; left: 14%; }
+  .bubbles .bubble:nth-child(6){ top: 16%; left: 14%; }
+}
+
+@media (max-width: 640px){
+  .bubblemap-container{
+    padding: 22px 14px 24px;
+    margin-top: 16px;
+    margin-bottom: 32px;
+  }
+
+  .bubblemap-container h1{
+    font-size: clamp(26px, 8vw, 36px);
+  }
+
+  .subtitle{
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .timer-wrap{
+    margin-bottom: 14px;
+  }
+
+  .timer-bubblemap{
+    width: 170px;
+    height: 64px;
+    font-size: 28px;
+    border-radius: 18px;
+  }
+
+  .bubbles{
+    height:auto;
+    flex-direction:column;
+    gap:18px;
+    padding:20px 0;
+    margin-bottom:28px;
+  }
+
+  .bubble{
+    position:static;
+    transform:none !important;
+    width:clamp(130px, 60vw, 200px);
+    height:clamp(130px, 60vw, 200px);
+    margin:0 auto;
+  }
+
+  .bubble.central{
+    width:clamp(160px, 65vw, 220px);
+    height:clamp(160px, 65vw, 220px);
+    margin-bottom:10px;
+  }
+
+  .bubble textarea{
+    font-size:clamp(12px, 4vw, 16px);
+  }
+
+  body{
+    align-items:flex-start;
+    overflow-y:auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+
+@keyframes neonPulse{
+  0%,100%{
+    box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset;
+  }
+  50%{
+    box-shadow: 0 0 40px #00ffff, 0 0 60px #00aaff inset;
+  }
+}

@@ -1,0 +1,587 @@
+:root{
+  --bg-1:#08111f;
+  --bg-2:#0d213a;
+  --panel:#102743;
+  --panel-2:#081527;
+  --text:#f4f8ff;
+  --muted:#c8d8ec;
+  --gold-1:#ffe27a;
+  --gold-2:#ffbf2f;
+  --blue-1:#9ae9ff;
+  --blue-2:#2ebcf2;
+  --orange-1:#ffc2af;
+  --orange-2:#ff7a48;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html, body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  font-family:Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(51,113,182,.22), transparent 34%),
+    linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+  color:var(--text);
+}
+
+body{
+  overflow-x:hidden;
+}
+
+.ranking-scene{
+  min-height:100vh;
+  padding:0px 18px 32px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+}
+.carrera-wrap.hidden{
+  display: none;
+}
+
+.podio-card{
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: 28px 24px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+    linear-gradient(180deg, #0c223a 0%, #081527 100%);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter: blur(6px);
+}
+.carrera-wrap,
+.podio-wrap{
+  width:min(1120px, 100%);
+}
+.carrera-wrap.hidden{
+  display:none;
+}
+.carrera-wrap{
+  opacity:1;
+  transform:translateY(0);
+  transition:opacity .55s ease, transform .55s ease;
+}
+
+.carrera-wrap.fade-out{
+  opacity:0;
+  transform:translateY(-18px) scale(.985);
+  pointer-events:none;
+}
+
+.titulo{
+  margin:0 0 10px;
+  text-align:center;
+  font-size:clamp(34px, 5vw, 56px);
+  font-weight:900;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  text-shadow:0 8px 24px rgba(0,0,0,.32);
+}
+
+.subtitulo{
+  margin:0 auto 24px;
+  max-width:760px;
+  text-align:center;
+  font-size:clamp(15px, 2vw, 18px);
+  line-height:1.5;
+  color:var(--muted);
+}
+
+.race-badges,
+.hud-row,
+.runner,
+.speed-lines,
+.flash-overlay,
+.meta-line,
+.meta-glow,
+.lane-stripes,
+.acciones,
+.btn-final{
+  display:none !important;
+}
+
+.camera-frame{
+  position:relative;
+  overflow:hidden;
+  border-radius:28px;
+  min-height:auto;
+  padding:28px 24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)),
+    linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.track-world{
+  position:relative;
+  width:100%;
+  min-width:100%;
+  padding:0;
+  transform:none !important;
+}
+
+.carril-race{
+  margin-bottom:26px;
+}
+
+.carril-race:last-child{
+  margin-bottom:0;
+}
+
+.nombre-equipo{
+  display:block;
+  margin-bottom:10px;
+  padding-left:0;
+  font-size:15px;
+  font-weight:800;
+  color:#ffffff;
+  text-shadow:0 2px 10px rgba(0,0,0,.28);
+}
+
+.pista{
+  position:relative;
+  height:54px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  border:none;
+  box-shadow:none;
+}
+
+.barra{
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:8%;
+  border-radius:999px;
+  opacity:1;
+  transition:width .06s linear;
+  box-shadow:none;
+}
+
+.barra-1{
+  background:linear-gradient(90deg, var(--gold-1), var(--gold-2));
+}
+
+.barra-2{
+  background:linear-gradient(90deg, var(--blue-1), var(--blue-2));
+}
+
+.barra-3{
+  background:linear-gradient(90deg, var(--orange-1), var(--orange-2));
+}
+
+.ganador-overlay{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .35s ease, visibility .35s ease;
+  background:rgba(3, 11, 23, .84);
+  backdrop-filter:blur(6px);
+}
+
+.ganador-overlay.visible{
+  opacity:1;
+  visibility:visible;
+}
+
+.ganador-box{
+  width:min(680px, 100%);
+  padding:34px 28px;
+  border-radius:28px;
+  text-align:center;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)),
+    linear-gradient(180deg, #153a62 0%, #09192f 100%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 18px 50px rgba(0,0,0,.32);
+  animation:winnerPop .5s ease;
+}
+
+@keyframes winnerPop{
+  0%{ transform:scale(.88); opacity:0; }
+  100%{ transform:scale(1); opacity:1; }
+}
+
+.ganador-label{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#b8dfff;
+}
+
+.ganador-nombre{
+  margin:0;
+  font-size:clamp(30px, 5vw, 54px);
+  font-weight:900;
+  color:#ffffff;
+  text-shadow:0 8px 24px rgba(0,0,0,.26);
+}
+
+.podio-wrap{
+  display:none;
+  margin-top:8px;
+  opacity:0;
+  transform:translateY(24px);
+}
+
+.podio-wrap.visible{
+  display:block;
+  opacity:1;
+  transform:translateY(0);
+  animation:podioIn .65s ease forwards;
+}
+
+@keyframes podioIn{
+  from{
+    opacity:0;
+    transform:translateY(24px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.podio-titulo{
+  margin:0 0 26px;
+  text-align:center;
+  font-size:clamp(28px, 4vw, 42px);
+  font-weight:900;
+}
+
+.podio{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+  margin-bottom:28px;
+}
+
+.puesto{
+  min-width:180px;
+  text-align:center;
+}
+
+.puesto .equipo{
+  margin-top:12px;
+  font-size:15px;
+  font-weight:800;
+  color:#f6f9ff;
+}
+
+.caja{
+  border-radius:22px 22px 10px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+  font-weight:900;
+  color:#061523;
+  box-shadow:0 14px 32px rgba(0,0,0,.22);
+}
+
+.puesto-1 .caja{
+  width:190px;
+  height:180px;
+  background:linear-gradient(180deg, #ffe792, #ffbf2f);
+}
+
+.puesto-2 .caja{
+  width:170px;
+  height:138px;
+  background:linear-gradient(180deg, #d8f6ff, #72d7ff);
+}
+
+.puesto-3 .caja{
+  width:170px;
+  height:116px;
+  background:linear-gradient(180deg, #ffd2c3, #ff956f);
+}
+
+.tabla-final{
+  margin:0 auto 26px;
+  width:min(760px, 100%);
+  padding:22px 22px 18px;
+  border-radius:22px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+
+.tabla-final h3{
+  margin:0 0 14px;
+  font-size:20px;
+}
+
+.tabla-final ol{
+  margin:0;
+  padding-left:24px;
+}
+
+.tabla-final li{
+  margin-bottom:8px;
+  color:#eaf3ff;
+  line-height:1.45;
+}
+
+@media (max-width: 900px){
+  .track-world{
+    width:100%;
+    min-width:100%;
+    padding:0;
+  }
+
+  .pista{
+    height:56px;
+  }
+
+  .camera-frame{
+    min-height:auto;
+  }
+}
+
+@media (max-width: 640px){
+  .ranking-scene{
+    padding:24px 12px 40px;
+  }
+
+  .titulo{
+    font-size:30px;
+  }
+
+  .subtitulo{
+    font-size:14px;
+  }
+
+  .camera-frame{
+    border-radius:22px;
+    padding:20px 16px;
+  }
+
+  .nombre-equipo{
+    font-size:14px;
+  }
+
+  .puesto{
+    min-width:140px;
+  }
+
+  .puesto-1 .caja{
+    width:150px;
+    height:140px;
+  }
+
+  .puesto-2 .caja,
+  .puesto-3 .caja{
+    width:140px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,
+  *::before,
+  *::after{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+
+
+/* ============================================
+   VARIABLES
+============================================ */
+:root {
+  --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
+  --card: rgba(8, 26, 45, 0.92);
+  --text: #E6EEF8;
+  --muted: #AAB7C8;
+  --primary: #00C8FF;
+  --accent: #FF7A1A;
+
+  --radius: 22px;
+  --shadow: 0 20px 40px rgba(0,0,0,.55);
+}
+
+/* ============================================
+   RESET
+============================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* ============================================
+   LAYOUT
+============================================ */
+.results-wrap {
+  max-width: 950px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   HEADER / HERO
+============================================ */
+.results-hero {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-top: 15px;
+}
+
+.page-header h1 {
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--accent)
+}
+
+.subtitle {
+  font-size: clamp(14px, 1.7vw, 18px);
+  color: var(--text);
+}
+
+/* ============================================
+   CARD
+============================================ */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 28px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.session-name { color: var(--muted); }
+
+/* ============================================
+   TABLA
+============================================ */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.ranking-table thead {
+  background: rgba(255,255,255,0.06);
+}
+
+.ranking-table th {
+  text-align: left;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.ranking-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-size: 15px;
+}
+
+/* ============================================
+   PODIO CLASSES
+============================================ */
+.podium-1 {
+  background: linear-gradient(90deg, rgba(255,215,0,0.25), rgba(255,215,0,0.05));
+}
+.podium-2 {
+  background: linear-gradient(90deg, rgba(192,192,192,0.25), rgba(192,192,192,0.05));
+}
+.podium-3 {
+  background: linear-gradient(90deg, rgba(205,127,50,0.25), rgba(205,127,50,0.05));
+}
+
+/* ============================================
+   MEDALLAS
+============================================ */
+.medal {
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+}
+
+.team-col .badge-yo {
+  margin-left: 6px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ============================================
+   CTA FINAL
+============================================ */
+.final-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--primary);
+  color: #000;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background: #00a4d1;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   ESTADO VACÍO
+============================================ */
+.empty-state {
+  text-align: center;
+  padding: 25px 0;
+  font-size: 16px;
+  color: var(--muted);
+}
