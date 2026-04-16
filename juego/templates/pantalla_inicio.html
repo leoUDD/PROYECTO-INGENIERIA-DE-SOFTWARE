@@ -55,7 +55,7 @@
         const total = data.totalGrupos || 0;
         estado.textContent = `${listos}/${total} grupos listos`;
 
-        const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+        const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
         if (miGrupo && miGrupo.listoLobby) {
           boton.disabled = true;
           boton.textContent = "¡Listo!";

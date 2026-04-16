@@ -728,6 +728,11 @@ def estado_sesion(request, sesion_id):
     total_inicio, listos_inicio, todos_inicio = contar_listos_inicio_fase(sesion, sesion.fase_actual)
 
 
+    pitch_data = {}
+    if fase_actual in {"f4_orden_pitch", "f4_presentacion_pitch", "f5_evaluacion_pitch", "f6_ranking"}:
+        pitch_data = serializar_estado_pitch(sesion)
+
+
     data = {
         "sesionId": sesion.idsesion,
         "faseActual": fase_actual,
@@ -778,7 +783,7 @@ def estado_sesion(request, sesion_id):
         "todosListosInicio": todos_inicio,
         "faseRequiereInicio": sesion.fase_actual in FASES_CON_INICIO_POR_ALUMNOS,
 
-        **serializar_estado_pitch(sesion),
+        **pitch_data,
     }
 
     return JsonResponse(data)
