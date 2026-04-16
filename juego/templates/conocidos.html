@@ -8,12 +8,219 @@
   <title>Misión Emprende UDD — Conocerse</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_conocidos.css' %}" />
+  <style>
+    .phone {
+      position: relative;
+    }
+
+    .inicio-fase-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 20px 20px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .inicio-fase-card {
+      width: min(92%, 760px);
+      background: rgba(8, 24, 48, 0.88);
+      border: 1px solid rgba(0, 200, 255, 0.30);
+      box-shadow: 0 12px 30px rgba(0,0,0,.24);
+      border-radius: 22px;
+      padding: 18px 22px;
+      color: #fff;
+      backdrop-filter: blur(6px);
+      pointer-events: auto;
+    }
+
+    .inicio-fase-badge {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(0, 200, 255, 0.12);
+      border: 1px solid rgba(0, 200, 255, 0.28);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #dff7ff;
+    }
+
+    .inicio-fase-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .inicio-fase-card p {
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+
+    .btn-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 255, 0.4);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
+      color: #E6F7FF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-chip:hover {
+      transform: translateY(-1px) scale(1.03);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
+    }
+
+    .btn-chip:active {
+      transform: scale(0.97);
+    }
+
+    .btn-chip:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .contador-fase {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .blur-target-bloqueado {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      opacity: .70;
+      transition: all .3s ease;
+    }
+
+    .blur-target-activo {
+      filter: none;
+      pointer-events: auto;
+      user-select: auto;
+      opacity: 1;
+      transition: all .3s ease;
+    }
+
+    .timer-esperando {
+      opacity: .55;
+    }
+
+    .overlay-hidden {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .inicio-fase-overlay {
+        padding-top: 20px;
+      }
+
+      .inicio-fase-card {
+        width: min(94%, 680px);
+        padding: 16px 18px;
+      }
+
+      .inicio-fase-card h3 {
+        font-size: 1.05rem;
+      }
+
+      .inicio-fase-card p {
+        font-size: 0.95rem;
+      }
+
+      .btn-chip {
+        font-size: 0.92rem;
+        padding: 10px 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .inicio-fase-overlay {
+        padding: 14px 12px 12px;
+        align-items: flex-start;
+      }
+
+      .inicio-fase-card {
+        width: 100%;
+        border-radius: 18px;
+        padding: 14px 14px 16px;
+      }
+
+      .inicio-fase-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+
+      .inicio-fase-card h3 {
+        font-size: 1rem;
+      }
+
+      .inicio-fase-card p {
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .btn-chip {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.92rem;
+      }
+
+      .contador-fase {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
-    <h1 class="title">¡Es momento de conocerse!</h1>
 
-    <div class="speech-bubble">
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge">Fase de activación</div>
+
+        <h3>Antes de comenzar</h3>
+
+        <p>
+          Cada integrante debe decir su nombre y compartir un dato curioso sobre sí mismo.
+        </p>
+
+        <p>
+          Tendrán <strong>10 segundos</strong> para esta actividad. Cuando todos los equipos presionen
+          <strong>“Listo para comenzar”</strong>, la dinámica se habilitará automáticamente.
+        </p>
+
+        <button class="btn-chip" id="btn-listo-fase" type="button">
+          ⚡ Listo para comenzar
+        </button>
+
+        <p id="texto-espera-fase" class="contador-fase">
+          Esperando a los demás equipos...
+        </p>
+
+        <p id="contador-listos-fase" class="contador-fase">
+          0/0 grupos listos
+        </p>
+      </section>
+    </div>
+
+    <h1 id="tituloConocidos" class="title blur-target-bloqueado">¡Es momento de conocerse!</h1>
+
+    <div id="speechBubbleConocidos" class="speech-bubble blur-target-bloqueado">
       <p class="body">
         Di tu nombre y comparte un dato curioso sobre ti.
       </p>
@@ -27,35 +234,40 @@
       </button>
     </div>
 
-    <h2 id="timer">00:45</h2>
+    <h2 id="timer" class="blur-target-bloqueado timer-esperando">00:10</h2>
 
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
-    <div id="modal-fin" class="modal">
-      <div class="modal-content">
-        <h2>Tiempo terminado</h2>
-        <p>El tiempo para conocerse ha terminado. Espera la señal del profesor para continuar.</p>
-        <button id="buttonContinuar" type="button">Aceptar</button>
-      </div>
-    </div>
 
     <div
       id="routes"
       data-sesion-id="{{ grupo.sesion.idsesion }}"
-      data-tiempo="{{ grupo.sesion.segundos_restantes|default:45 }}">
+      data-tiempo="{{ grupo.sesion.segundos_restantes|default:10 }}">
     </div>
 
     <script>
       (function () {
         const routesEl = document.getElementById("routes");
         const sesionId = routesEl?.dataset?.sesionId;
+        const grupoId = "{{ grupo.idgrupo }}";
+        const csrfToken = "{{ csrf_token }}";
+
         const timerElement = document.getElementById("timer");
-        const modal = document.getElementById("modal-fin");
-        const btnContinuar = document.getElementById("buttonContinuar");
         const alarmAudio = document.getElementById("alarm-audio");
 
         const btnPregunta = document.getElementById("btnPregunta");
         const preguntaTexto = document.getElementById("preguntaTexto");
+
+        const overlay = document.getElementById("inicio-fase-overlay");
+        const botonListo = document.getElementById("btn-listo-fase");
+        const textoEspera = document.getElementById("texto-espera-fase");
+        const contadorListos = document.getElementById("contador-listos-fase");
+
+        const blurTargets = [
+          document.getElementById("tituloConocidos"),
+          document.getElementById("speechBubbleConocidos"),
+          document.getElementById("timer"),
+        ];
 
         const preguntas = [
           "¿Qué superpoder te gustaría tener?",
@@ -71,6 +283,12 @@
         ];
 
         let ultimoIndice = -1;
+        let timeLeft = Number(routesEl?.dataset?.tiempo || 10);
+        let timerInterval = null;
+        let timerIniciado = false;
+        let tiempoFinalizado = false;
+        let redirigiendo = false;
+        let yaListo = false;
 
         function cambiarPregunta() {
           if (!preguntaTexto) return;
@@ -86,19 +304,6 @@
           ultimoIndice = random;
           preguntaTexto.textContent = "👉 " + preguntas[random];
         }
-
-        if (btnPregunta) {
-          btnPregunta.addEventListener("click", cambiarPregunta);
-          cambiarPregunta();
-        }
-
-        if (!sesionId || !timerElement) return;
-
-        let timeLeft = Number(routesEl.dataset.tiempo || 45);
-        let timerInterval = null;
-        let timerIniciado = false;
-        let tiempoFinalizado = false;
-        let redirigiendo = false;
 
         function pintarTiempo() {
           const minutes = Math.floor(Math.max(0, timeLeft) / 60);
@@ -123,6 +328,34 @@
         function ocultarModal() {
           if (!modal) return;
           modal.style.display = "none";
+        }
+
+        function activarFase() {
+          blurTargets.forEach(el => {
+            if (!el) return;
+            el.classList.remove("blur-target-bloqueado", "timer-esperando");
+            el.classList.add("blur-target-activo");
+          });
+
+          if (overlay) {
+            overlay.classList.add("overlay-hidden");
+          }
+        }
+
+        function bloquearFase() {
+          blurTargets.forEach(el => {
+            if (!el) return;
+            el.classList.remove("blur-target-activo");
+            el.classList.add("blur-target-bloqueado");
+          });
+
+          if (timerElement) {
+            timerElement.classList.add("timer-esperando");
+          }
+
+          if (overlay) {
+            overlay.classList.remove("overlay-hidden");
+          }
         }
 
         function pausarTimerLocal() {
@@ -157,16 +390,36 @@
               if (!tiempoFinalizado) {
                 tiempoFinalizado = true;
                 reproducirAlarma();
-                mostrarModal();
               }
             }
           }, 1000);
+        }
+
+        function sincronizarBoton(miGrupo) {
+          if (!botonListo) return;
+
+          if (miGrupo && miGrupo.listoLobby) {
+            yaListo = true;
+            botonListo.disabled = true;
+            botonListo.textContent = "Esperando...";
+            if (textoEspera) {
+              textoEspera.textContent = "Esperando a los demás equipos...";
+            }
+          }
         }
 
         function procesarEstadoSesion(data) {
           if (!data) return;
 
           const faseActual = data.faseActual;
+
+          if (contadorListos) {
+            contadorListos.textContent =
+              `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
+          }
+
+          const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+          sincronizarBoton(miGrupo);
 
           if (faseActual && faseActual !== "f1_conocidos") {
             if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
@@ -176,6 +429,12 @@
             return;
           }
 
+          if (data.inicioFaseHabilitado) {
+            activarFase();
+          } else {
+            bloquearFase();
+          }
+
           const backendSeconds = Number(data.segundosRestantes);
 
           if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
@@ -183,7 +442,7 @@
             pintarTiempo();
           }
 
-          if (!timerIniciado && data.timerCorriendo) {
+          if (!timerIniciado && data.timerCorriendo && data.inicioFaseHabilitado) {
             if (!Number.isNaN(backendSeconds)) {
               timeLeft = backendSeconds;
               pintarTiempo();
@@ -205,15 +464,26 @@
         }
 
         async function consultarEstadoSesion() {
-          if (redirigiendo) return;
+          if (redirigiendo || !sesionId) return;
 
           try {
-            const res = await fetch(`/sesion/${sesionId}/estado/`);
+            const res = await fetch(`/sesion/${sesionId}/estado/`, {
+              cache: "no-store",
+              credentials: "same-origin"
+            });
+
+            if (!res.ok) return;
+
             const data = await res.json();
             procesarEstadoSesion(data);
           } catch (err) {
             console.error("Error consultando estado de sesión:", err);
           }
+        }
+
+        if (btnPregunta) {
+          btnPregunta.addEventListener("click", cambiarPregunta);
+          cambiarPregunta();
         }
 
         if (btnContinuar) {
@@ -222,8 +492,62 @@
           });
         }
 
+        if (botonListo) {
+          botonListo.addEventListener("click", async () => {
+            if (yaListo) return;
+
+            botonListo.disabled = true;
+            botonListo.textContent = "Esperando...";
+
+            try {
+              const res = await fetch(`/grupo/${grupoId}/listo/`, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({ fase: "f1_conocidos" })
+              });
+
+              const data = await res.json();
+
+              yaListo = true;
+
+              if (contadorListos) {
+                contadorListos.textContent =
+                  `${data.listos || 0}/${data.total || 0} grupos listos`;
+              }
+
+              if (textoEspera) {
+                textoEspera.textContent = "Esperando a los demás equipos...";
+              }
+
+              if (data.inicio_fase_habilitado) {
+                activarFase();
+
+                const backendSeconds = Number(data.segundosRestantes);
+                if (!Number.isNaN(backendSeconds)) {
+                  timeLeft = backendSeconds;
+                  pintarTiempo();
+                }
+
+                if (!timerIniciado) {
+                  iniciarTimerLocal();
+                }
+              }
+            } catch (err) {
+              console.error("Error marcando listo:", err);
+              botonListo.disabled = false;
+              botonListo.textContent = "⚡ Listo para comenzar";
+              yaListo = false;
+            }
+          });
+        }
+
+        bloquearFase();
         pintarTiempo();
-        setInterval(consultarEstadoSesion, 1500);
+        setInterval(consultarEstadoSesion, 1000);
         consultarEstadoSesion();
       })();
     </script>
