@@ -5,36 +5,287 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Registro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_login.css' %}" />
 </head>
 <body>
-  <main class="phone" role="region" aria-label="Pantalla de registro equipos">
-    <h1>Únete a un grupo</h1>
-    {% if error %}
-    <div class="popup" id="popup_error" role="alert" aria-live="assertive">
-        <p>{{ error }}</p>
-        <button class="close-btn" type="button" onclick="closePopUp()">X</button>
+
+  <!-- Partículas de fondo -->
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div>
+  </div>
+
+  <main class="terminal-device">
+
+    <!-- SVG del marco del dispositivo -->
+    <svg class="device-frame" viewBox="0 0 420 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M36 0 L384 0 L420 36 L420 724 L384 760 L36 760 L0 724 L0 36 Z"
+            fill="url(#bodyGrad)" stroke="url(#borderGrad)" stroke-width="1.5"/>
+      <path d="M340 0 L420 0 L420 80" stroke="#00C8FF" stroke-width="1" opacity="0.4"/>
+      <path d="M0 680 L0 760 L80 760" stroke="#FF7A1A" stroke-width="1" opacity="0.4"/>
+      <path d="M0 150 L24 150 L24 170 L48 170" stroke="#00C8FF" stroke-width="0.8" opacity="0.25"/>
+      <path d="M0 200 L18 200" stroke="#00C8FF" stroke-width="0.8" opacity="0.2"/>
+      <path d="M0 250 L30 250 L30 270 L44 270" stroke="#00C8FF" stroke-width="0.8" opacity="0.15"/>
+      <path d="M420 380 L396 380 L396 400 L372 400" stroke="#FF7A1A" stroke-width="0.8" opacity="0.25"/>
+      <path d="M420 430 L402 430" stroke="#FF7A1A" stroke-width="0.8" opacity="0.2"/>
+      <rect x="-3" y="200" width="6" height="50" rx="2" fill="#0a1628" stroke="#1e3a56" stroke-width="1"/>
+      <rect x="-3" y="262" width="6" height="50" rx="2" fill="#0a1628" stroke="#1e3a56" stroke-width="1"/>
+      <rect x="417" y="240" width="6" height="70" rx="2" fill="#0a1628" stroke="#00C8FF" stroke-width="0.8" opacity="0.6"/>
+      <defs>
+        <linearGradient id="bodyGrad" x1="0" y1="0" x2="420" y2="760" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0d1f38"/>
+          <stop offset="50%" stop-color="#060f1e"/>
+          <stop offset="100%" stop-color="#040c18"/>
+        </linearGradient>
+        <linearGradient id="borderGrad" x1="0" y1="0" x2="420" y2="760" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#00C8FF" stop-opacity="0.7"/>
+          <stop offset="50%" stop-color="#1e3a56" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#FF7A1A" stop-opacity="0.5"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <!-- Pantalla interior -->
+    <div class="device-screen">
+
+      <!-- Header de la pantalla -->
+      <div class="screen-header">
+        <span class="screen-id">RECLUTA</span>
+        <div class="screen-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="screen-signal">▲▲▲</span>
+      </div>
+
+      <!-- Contenido -->
+      <div class="screen-content">
+
+        <div class="logo-top">
+          <img src="{% static 'images/logo (3).png' %}" alt="Misión Emprende">
+        </div>
+
+        <h1>UNIRSE AL<br>ESCUADRÓN</h1>
+
+        <div class="status-row">
+          <span class="status-dot"></span>
+          <span class="status-label">RECLUTAMIENTO ACTIVO</span>
+        </div>
+
+        {% if error %}
+        <div class="popup" id="popup_error">
+          <p>{{ error }}</p>
+          <button class="close-btn" type="button" onclick="closePopUp()">✕</button>
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'registro' %}">
+          <label for="id_grupo">▸ CÓDIGO DE ESCUADRÓN</label>
+          <div class="input-wrap">
+            <input
+              type="text"
+              id="id_grupo"
+              name="id_grupo"
+              placeholder="_ _ _ _ _ _"
+              autocomplete="off"
+              autocapitalize="characters"
+              maxlength="8"
+              required
+            >
+            <div class="input-corner tl"></div>
+            <div class="input-corner br"></div>
+          </div>
+          {% csrf_token %}
+          <button type="submit" class="btn-submit">
+            UNIRSE A LA MISIÓN <span class="btn-arrow">▶▶</span>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- Footer de la pantalla -->
+      <div class="screen-footer">
+        <div class="footer-logo">
+          <img src="{% static 'images/edem_udd_logo.png' %}" alt="EdEm UDD">
+        </div>
+        <div class="footer-bar"></div>
+      </div>
+
     </div>
-    {% endif %}
-    <form method="post" action="{% url 'registro' %}">
-      <label for="id_grupo">Código del grupo</label>
-      <input type="text" id="id_grupo" name="id_grupo" required>
-      {% csrf_token %}  
-      <button type="submit" class="btn primary">Continuar</button>
-    </form>
+
   </main>
+
   <script>
     function closePopUp() {
-        const popUp = document.getElementById('popup_error');
-        if (popUp) popUp.style.display = 'none';
+      const p = document.getElementById('popup_error');
+      if (p) p.style.display = 'none';
+    }
+    setTimeout(() => {
+      const p = document.getElementById('popup_error');
+      if (p) p.style.display = 'none';
+    }, 4000);
+
+    // Sonido tenso de misión de agente secreto
+    function playAgentSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+
+        // Reverb oscuro
+        function makeReverb(dur = 1.2) {
+          const conv = ctx.createConvolver();
+          const len  = ctx.sampleRate * dur;
+          const buf  = ctx.createBuffer(2, len, ctx.sampleRate);
+          for (let c = 0; c < 2; c++) {
+            const ch = buf.getChannelData(c);
+            for (let i = 0; i < len; i++)
+              ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.5);
+          }
+          conv.buffer = buf;
+          return conv;
+        }
+
+        const reverb     = makeReverb(1.2);
+        const revGain    = ctx.createGain();
+        revGain.gain.value = 0.35;
+        reverb.connect(revGain);
+        revGain.connect(ctx.destination);
+
+        function tone(freq, start, dur, type = 'sine', vol = 0.18) {
+          const osc  = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          gain.connect(reverb);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now + start);
+          gain.gain.setValueAtTime(0.001, now + start);
+          gain.gain.linearRampToValueAtTime(vol, now + start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+          osc.start(now + start);
+          osc.stop(now + start + dur + 0.1);
+        }
+
+        // 1. Pulso bajo — corazón latiendo antes de la misión
+        tone(55,  0.00, 0.12, 'sine', 0.28);
+        tone(55,  0.18, 0.10, 'sine', 0.18);
+
+        // 2. Zumbido grave amenazante — tensión creciente
+        const drone = ctx.createOscillator();
+        const droneGain = ctx.createGain();
+        drone.connect(droneGain);
+        droneGain.connect(ctx.destination);
+        droneGain.connect(reverb);
+        drone.type = 'sawtooth';
+        drone.frequency.setValueAtTime(55, now + 0.30);
+        drone.frequency.linearRampToValueAtTime(82, now + 0.90);
+        droneGain.gain.setValueAtTime(0.001, now + 0.30);
+        droneGain.gain.linearRampToValueAtTime(0.12, now + 0.50);
+        droneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.90);
+        drone.start(now + 0.30);
+        drone.stop(now + 0.95);
+
+        // 3. Tres pitidos bajos — código siendo transmitido
+        tone(220, 0.35, 0.08, 'sine', 0.14);
+        tone(220, 0.46, 0.08, 'sine', 0.14);
+        tone(277, 0.57, 0.12, 'sine', 0.18);
+
+        // 4. Confirmación grave — "acceso concedido"
+        tone(110, 0.72, 0.55, 'sine',     0.22);
+        tone(138, 0.74, 0.50, 'triangle', 0.12);
+        tone(165, 0.76, 0.45, 'sine',     0.10);
+
+        // 5. Click metálico final — sistema activado
+        const clickBuf  = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
+        const clickData = clickBuf.getChannelData(0);
+        for (let i = 0; i < clickData.length; i++)
+          clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / 200);
+        const click     = ctx.createBufferSource();
+        const clickGain = ctx.createGain();
+        click.buffer = clickBuf;
+        click.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        clickGain.gain.value = 0.4;
+        click.start(now + 1.00);
+
+      } catch(e) {}
     }
 
-    setTimeout(() => {
-        const popUp = document.getElementById('popup_error');
-        if (popUp) popUp.style.display = 'none';
-    }, 4000);
-    </script>
-    <script src="{% static 'js/atajos.js' %}"></script>
+    // Contador de teclas para variar el tono
+    let keyCount = 0;
+
+    function playKeyClick() {
+      try {
+        const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+        const now  = ctx.currentTime;
+
+        // Tonos que rotan — como ingresar dígitos de una clave
+        const freqs = [220, 246, 261, 293, 329, 349, 392, 440];
+        const freq  = freqs[keyCount % freqs.length];
+        keyCount++;
+
+        // Delay corto — eco de consola
+        const delay     = ctx.createDelay(0.3);
+        const delayGain = ctx.createGain();
+        delay.delayTime.value  = 0.12;
+        delayGain.gain.value   = 0.18;
+        delay.connect(delayGain);
+        delayGain.connect(ctx.destination);
+
+        // Tono principal electrónico
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        gain.connect(delay);          // también al delay
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.85, now + 0.08);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.start(now);
+        osc.stop(now + 0.15);
+
+        // Armónico superior — brillo metálico
+        const osc2  = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.type = 'triangle';
+        osc2.frequency.value = freq * 3;
+        gain2.gain.setValueAtTime(0.04, now);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        osc2.start(now);
+        osc2.stop(now + 0.08);
+
+        // Click físico muy corto
+        const bufLen = Math.floor(ctx.sampleRate * 0.025);
+        const buf    = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+        const data   = buf.getChannelData(0);
+        for (let i = 0; i < bufLen; i++)
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / 40);
+        const noise     = ctx.createBufferSource();
+        const noiseGain = ctx.createGain();
+        noise.buffer    = buf;
+        noise.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noiseGain.gain.value = 0.08;
+        noise.start(now);
+
+      } catch(e) {}
+    }
+
+    document.getElementById('id_grupo')
+      ?.addEventListener('keydown', (e) => {
+        if (e.key.length === 1 || e.key === 'Backspace') {
+          playKeyClick();
+        }
+      });
+
+    document.querySelector('.btn-submit')
+      ?.addEventListener('click', playAgentSound);
+  </script>
+  <script src="{% static 'js/atajos.js' %}"></script>
 </body>
 </html>

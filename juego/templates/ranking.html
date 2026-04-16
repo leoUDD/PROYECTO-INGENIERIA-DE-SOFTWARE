@@ -47,35 +47,37 @@
     </section>
 
     <section class="podio-wrap" id="podioWrap">
-      <h2 class="podio-titulo">Podio final</h2>
+      <div class="podio-card">
+        <h2 class="podio-titulo">Podio final</h2>
 
-      <div class="podio">
-        <div class="puesto puesto-2">
-          <div class="caja">2</div>
-          <div class="equipo">{{ rankings.1.team_name|default:"Equipo 2" }}</div>
+        <div class="podio">
+          <div class="puesto puesto-2">
+            <div class="caja">2</div>
+            <div class="equipo">{{ rankings.1.team_name|default:"Equipo 2" }}</div>
+          </div>
+
+          <div class="puesto puesto-1">
+            <div class="caja">1</div>
+            <div class="equipo">{{ rankings.0.team_name|default:"Equipo 1" }}</div>
+          </div>
+
+          <div class="puesto puesto-3">
+            <div class="caja">3</div>
+            <div class="equipo">{{ rankings.2.team_name|default:"Equipo 3" }}</div>
+          </div>
         </div>
 
-        <div class="puesto puesto-1">
-          <div class="caja">1</div>
-          <div class="equipo">{{ rankings.0.team_name|default:"Equipo 1" }}</div>
+        <div class="tabla-final">
+          <h3>Tabla completa</h3>
+          <ol>
+            {% for equipo in rankings %}
+              <li>
+                {{ equipo.rank }}. {{ equipo.team_name }} — {{ equipo.tokens }} tokens
+                {% if equipo.is_me %}<strong> (tu equipo)</strong>{% endif %}
+              </li>
+            {% endfor %}
+          </ol>
         </div>
-
-        <div class="puesto puesto-3">
-          <div class="caja">3</div>
-          <div class="equipo">{{ rankings.2.team_name|default:"Equipo 3" }}</div>
-        </div>
-      </div>
-
-      <div class="tabla-final">
-        <h3>Tabla completa</h3>
-        <ol>
-          {% for equipo in rankings %}
-            <li>
-              {{ equipo.rank }}. {{ equipo.team_name }} — {{ equipo.tokens }} tokens
-              {% if equipo.is_me %}<strong> (tu equipo)</strong>{% endif %}
-            </li>
-          {% endfor %}
-        </ol>
       </div>
     </section>
 
@@ -123,21 +125,22 @@
           terminoCarrera = true;
 
           setTimeout(() => {
-  carrera.classList.add("fade-out");
-  overlay.classList.add("visible");
-}, 300);
+            carrera.classList.add("fade-out");
+            overlay.classList.add("visible");
+          }, 300);
 
-setTimeout(() => {
-  overlay.classList.remove("visible");
-  podio.classList.add("visible");
-  mostroPodio = true;
+          setTimeout(() => {
+            carrera.classList.add("hidden");
+            overlay.classList.remove("visible");
+            podio.classList.add("visible");
+            mostroPodio = true;
 
-  try {
-    audio.currentTime = 0;
-    audio.volume = 1;
-    audio.play().catch(() => {});
-  } catch (e) {}
-}, 2600);
+            try {
+              audio.currentTime = 0;
+              audio.volume = 1;
+              audio.play().catch(() => {});
+            } catch (e) {}
+          }, 2600);
 
           return;
         }

@@ -1,25 +1,22 @@
 /* ============================================================
-   Misión Emprende UDD — estilo_perfiles.css  FINAL
-   
-   Arquitectura sin costura ni franja:
-   - .phone usa el GIF como background-image
-   - .gif-spacer (invisible) le da el alto exacto al GIF
-   - .perfiles usa position:absolute sobre el GIF
-   - No hay color de fondo que no coincida → no hay franja
+   Misión Emprende UDD — estilo_perfiles.css  ENHANCED
    ============================================================ */
 
 :root {
-  --card:    #081A2D;
-  --text:    #E6EEF8;
-  --primary: #00C8FF;
-  --glow:    0 0 25px rgba(0, 200, 255, .35);
-  --radius:  28px;
-  --shadow:  0 18px 40px rgba(0, 0, 0, .6);
+  --card:          #081A2D;
+  --text:          #E6EEF8;
+  --primary:       #00C8FF;
+  --accent:        #FF7A1A;
+  --glow-cyan:     0 0 22px rgba(0, 200, 255, .75);
+  --glow-orange:   0 0 22px rgba(255, 122, 26, .75);
+  --glow-purple:   0 0 22px rgba(160, 100, 255, .75);
+  --radius:        28px;
+  --shadow:        0 18px 40px rgba(0, 0, 0, .6);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; padding: 0; }
-img { max-width: 100%; display: block; height: auto; }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+img { max-width: 100%; display: block; }
 a   { text-decoration: none; }
 
 body {
@@ -28,93 +25,126 @@ body {
     #000712;
   color: var(--text);
   font-family: "Poppins", system-ui, sans-serif;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: clamp(12px, 3vw, 40px);
-  overflow-x: hidden;
+  padding: 12px;
 }
 
-/* ---------- Card (.phone) ----------
-   El GIF es background-image → cubre toda la card.
-   La altura real la define .gif-spacer (invisible).
-   No hay background-color extra → no hay franja.
-   ---------------------------------------- */
+/* ---------- Card (.phone) ---------- */
 .phone {
-  position: relative;       /* contexto para .perfiles absoluto */
-  width: 100%;
-  max-width: 900px;
+  position: relative;
+  container-type: inline-size;
+  container-name: phone;
 
-  /* GIF como fondo: escala exacto con la card */
+  width:  min(820px, calc((100vh - 24px) * 0.808), 94vw);
+  height: min(calc(100vh - 24px), calc(min(820px, calc((100vh - 24px) * 0.808), 94vw) * 1.237));
+
   background-image: url('/static/images/mision_emprende_1536x1900_flicker.gif');
-  background-size: 100% 100%;  /* estira para cubrir exactamente el spacer */
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center top;
 
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  overflow: visible;         /* permite que etiquetas se vean fuera si hace falta */
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: clamp(12px, 4%, 30px);
+  padding-bottom: clamp(18px, 5%, 44px);
 }
 
-/* ---------- Spacer invisible ----------
-   Misma imagen, opacity 0.
-   Ocupa el espacio exacto del GIF → la card tiene
-   exactamente el mismo alto que el GIF. Sin trucos.
-   ---------------------------------------- */
-.gif-spacer {
-  display: block;
+.gif-spacer { display: none; }
+
+/* ============================================================
+   LOGO SUPERIOR
+   ============================================================ */
+.logo-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5cqw;
+  animation: fadeDown 0.6s ease both;
+  width: clamp(140px, 52cqw, 380px);
+}
+
+.logo-top img {
   width: 100%;
-  height: auto;          /* alto proporcional: 1536:1900 */
-  opacity: 0;            /* invisible pero ocupa espacio */
-  pointer-events: none;
-  user-select: none;
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2));
+}
+
+/* Línea divisora con degradé */
+.logo-divider {
+  width: 70%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 200, 255, 0.7) 30%,
+    rgba(255, 122, 26, 0.7) 70%,
+    transparent
+  );
+  border-radius: 999px;
+}
+
+/* Subtítulo */
+.logo-sub {
+  margin: 0;
+  font-size: clamp(9px, 2cqw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(200, 220, 255, 0.65);
+  text-align: center;
 }
 
 /* ============================================================
-   PERFILES — position:absolute sobre el GIF
-   
-   El GIF mide 1536×1900px.
-   "EMPRENDE" termina aprox al 68% del alto del GIF.
-   Los círculos van desde el 68% hacia abajo.
-   
-   top: 70% → centro del grupo de perfiles al 70% del alto
-   transform: translateX(-50%) → solo centra horizontal
-   (no translateY para no subir los círculos)
+   PERFILES
    ============================================================ */
 .perfiles {
-  position: absolute;
-  top: 70%;                      /* justo debajo de EMPRENDE */
-  left: 50%;
-  transform: translateX(-50%);   /* solo centrado horizontal */
+  position: relative;
   z-index: 1;
-
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
-  align-items: flex-start;       /* etiquetas alineadas arriba */
-  gap: clamp(10px, 3vw, 56px);
+  align-items: flex-start;
+  gap: 4cqw;
 }
 
-/* ---------- Perfil ---------- */
 .perfil {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(6px, 1vw, 12px);
+  gap: 1.6cqw;
   flex: 0 0 auto;
+  animation: fadeUp 0.6s ease both;
 }
 
-/* ---------- Círculos ---------- */
+.perfil:nth-child(1) { animation-delay: 0.1s; }
+.perfil:nth-child(2) { animation-delay: 0.2s; }
+.perfil:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---------- Enlace / círculo ---------- */
 .perfil > a {
-  width:  clamp(70px, 13vw, 160px);
-  height: clamp(70px, 13vw, 160px);
+  position: relative;
+  width:  24cqw;
+  height: 24cqw;
+  max-width:  190px;
+  max-height: 190px;
+  min-width:  70px;
+  min-height: 70px;
+
   border-radius: 50%;
   overflow: hidden;
-  border: clamp(3px, .4vw, 6px) solid #fff;
-  box-shadow: 0 8px 20px rgba(0,0,0,.4);
+  border: clamp(3px, 0.5cqw, 6px) solid rgba(255,255,255,0.85);
   background: var(--card);
   display: inline-flex;
   align-items: center;
@@ -122,48 +152,93 @@ body {
   transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
-.perfil > a:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 32px rgba(0,0,0,.6), var(--glow);
-  border-color: var(--primary);
-}
-.perfil > a:active { transform: translateY(-2px); }
-
-.perfil > a > img {
+.perfil > a img {
   width: 100%; height: 100%; object-fit: cover;
+  transition: transform .3s ease;
 }
 
-/* ---------- Etiqueta ---------- */
+/* Glow por perfil al hacer hover */
+.perfil--alumno > a:hover {
+  border-color: var(--primary);
+  box-shadow: var(--glow-cyan), 0 12px 28px rgba(0,0,0,.6);
+  transform: translateY(-8px) scale(1.05);
+}
+.perfil--alumno > a:hover img  { transform: scale(1.08); }
+
+.perfil--profesor > a:hover {
+  border-color: var(--accent);
+  box-shadow: var(--glow-orange), 0 12px 28px rgba(0,0,0,.6);
+  transform: translateY(-8px) scale(1.05);
+}
+.perfil--profesor > a:hover img { transform: scale(1.08); }
+
+.perfil--admin > a:hover {
+  border-color: #a064ff;
+  box-shadow: var(--glow-purple), 0 12px 28px rgba(0,0,0,.6);
+  transform: translateY(-8px) scale(1.05);
+}
+.perfil--admin > a:hover img { transform: scale(1.08); }
+
+/* ---------- Etiqueta badge ---------- */
 .perfil-texto {
-  font-size: clamp(11px, 1.4vw, 20px);
+  margin: 0;
+  font-size: clamp(10px, 2.8cqw, 17px);
   font-weight: 700;
   color: var(--text);
-  margin: 0;
   white-space: nowrap;
-  text-shadow: 0 2px 8px rgba(0,0,0,.9);
+  text-shadow: 0 2px 10px rgba(0,0,0,.9);
+
+  /* Badge con fondo sutil */
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 999px;
+  padding: 0.3em 1em;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background .3s ease, border-color .3s ease;
+}
+
+.perfil--alumno:hover  .perfil-texto { background: rgba(0,200,255,0.15);  border-color: rgba(0,200,255,0.4); }
+.perfil--profesor:hover .perfil-texto { background: rgba(255,122,26,0.15); border-color: rgba(255,122,26,0.4); }
+.perfil--admin:hover   .perfil-texto { background: rgba(160,100,255,0.15); border-color: rgba(160,100,255,0.4); }
+
+/* ============================================================
+   ANIMACIONES
+   ============================================================ */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   FALLBACK sin container queries
+   ============================================================ */
+@supports not (width: 1cqw) {
+  .logo-top      { width: clamp(140px, 42vw, 360px); }
+  .logo-sub      { font-size: clamp(9px, 1.1vw, 13px); }
+  .perfil > a    { width: clamp(70px, 15vw, 170px); height: clamp(70px, 15vw, 170px); }
+  .perfil-texto  { font-size: clamp(11px, 1.5vw, 17px); }
+  .perfiles      { gap: clamp(14px, 4vw, 56px); }
+  .perfil        { gap: clamp(8px, 1.2vh, 14px); }
 }
 
 /* ============================================================
    BREAKPOINTS
    ============================================================ */
-
-@media (min-width: 900px) {
-  body {
-    align-items: flex-start;
-    padding-top: clamp(24px, 3vh, 50px);
-    padding-bottom: clamp(24px, 3vh, 50px);
-  }
-}
-
-@media (max-width: 480px) {
-  .perfil > a {
-    width:  clamp(62px, 20vw, 95px);
-    height: clamp(62px, 20vw, 95px);
-  }
-  .perfil-texto { font-size: clamp(10px, 3vw, 13px); }
-  .perfiles     { gap: clamp(6px, 4vw, 18px); }
+@media (max-height: 600px) {
+  .phone { padding-top: 8px; padding-bottom: 8px; }
+  .perfil > a { min-width: 50px; min-height: 50px; }
+  .logo-top { width: clamp(100px, 38cqw, 240px); }
+  .logo-sub { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .perfil > a { transition: none; }
+  .perfil > a,
+  .perfil > a img,
+  .logo-top { transition: none; animation: none; }
 }
