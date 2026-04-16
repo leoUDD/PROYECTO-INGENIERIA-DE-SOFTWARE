@@ -358,7 +358,7 @@
             contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
           }
 
-          const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+          const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
           if (miGrupo && miGrupo.listoF1) {
             boton.disabled = true;
             boton.textContent = "Esperando...";

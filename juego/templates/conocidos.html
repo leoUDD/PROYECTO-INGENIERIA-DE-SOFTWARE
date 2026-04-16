@@ -320,15 +320,6 @@
           setTimeout(() => document.body.classList.remove("flash"), 800);
         }
 
-        function mostrarModal() {
-          if (!modal) return;
-          modal.style.display = "flex";
-        }
-
-        function ocultarModal() {
-          if (!modal) return;
-          modal.style.display = "none";
-        }
 
         function activarFase() {
           blurTargets.forEach(el => {
@@ -414,11 +405,16 @@
           const faseActual = data.faseActual;
 
           if (contadorListos) {
-            contadorListos.textContent =
-              `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
+if (data.faseActual === "f1_conocidos") {
+  contadorListos.textContent =
+    `${data.gruposListosLobby || 0}/${data.totalGrupos || 0} grupos listos`;
+} else {
+  contadorListos.textContent =
+  `${data.gruposListosLobby || 0}/${data.totalGrupos || 0} grupos listos`;
+}
           }
 
-          const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+          const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId)) || null;
           sincronizarBoton(miGrupo);
 
           if (faseActual && faseActual !== "f1_conocidos") {
@@ -486,11 +482,6 @@
           cambiarPregunta();
         }
 
-        if (btnContinuar) {
-          btnContinuar.addEventListener("click", () => {
-            ocultarModal();
-          });
-        }
 
         if (botonListo) {
           botonListo.addEventListener("click", async () => {

@@ -241,7 +241,7 @@
             window.location.href = data.rutaAlumno;
           }
 
-          const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+          const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
           if (miGrupo && miGrupo.listoF2 && !bloqueado) {
             bloqueado = true;
           }
