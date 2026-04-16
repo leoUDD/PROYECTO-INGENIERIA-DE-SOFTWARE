@@ -2,30 +2,161 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Misión Emprende UDD — Bienvenida</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Misión Emprende UDD — Bienvenida</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}">
 </head>
 <body>
+  <main class="phone">
 
-    <main class="phone">
-        <img src="{% static 'images/mision_emprende_phone_bg.gif' %}" class="gif-spacer" alt="spacer">
+    <img src="{% static 'images/mision_emprende_phone_bg.gif' %}" class="gif-spacer" alt="">
 
-        <div class="video-overlay">
-            <div class="video-wrap">
-                <video class="video" controls autoplay muted>
-                    <source src="{% static 'videos/VideoIntroductorio.mp4' %}" type="video/mp4">
-                    Tu navegador no soporta video.
-                </video>
-            </div>
+    <!-- Logo EdEm: absoluto arriba -->
+    <div class="logo-top">
+      <img src="{% static 'images/edem_udd_logo.png' %}" alt="EdEm UDD">
+    </div>
 
-            <a href="{% url 'registro' %}" class="btn-iniciar">
-                Iniciar
-            </a>
-        </div>
-    </main>
+    <!-- Video + botón: pegados al fondo -->
+    <div class="video-overlay">
 
+      <div class="video-container">
+        <video class="video" id="introVideo" autoplay muted playsinline controls preload="auto">
+          <source src="{% static 'videos/VideoIntroductorio.mp4' %}" type="video/mp4">
+          Tu navegador no soporta video.
+        </video>
+      </div>
+
+      <!-- ← id agregado para el listener de sonido -->
+      <a href="{% url 'registro' %}" class="btn-iniciar" id="btnIniciar">
+        <span class="btn-icon">▶</span>
+        <span class="btn-text">INICIAR MISIÓN</span>
+        <span class="btn-level">LVL 1</span>
+      </a>
+    </div>
+
+  </main>
+
+  <script>
+    function playHoverSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.linearRampToValueAtTime(520, now + 0.12);
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        osc.start(now);
+        osc.stop(now + 0.15);
+
+        const osc2  = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(560, now + 0.06);
+        osc2.frequency.linearRampToValueAtTime(800, now + 0.14);
+        gain2.gain.setValueAtTime(0.03, now + 0.06);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+        osc2.start(now + 0.06);
+        osc2.stop(now + 0.17);
+      } catch(e) {}
+    }
+
+    function playAgentSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+
+        function makeReverb(dur = 1.2) {
+          const conv = ctx.createConvolver();
+          const len  = ctx.sampleRate * dur;
+          const buf  = ctx.createBuffer(2, len, ctx.sampleRate);
+          for (let c = 0; c < 2; c++) {
+            const ch = buf.getChannelData(c);
+            for (let i = 0; i < len; i++)
+              ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.5);
+          }
+          conv.buffer = buf;
+          return conv;
+        }
+
+        const reverb  = makeReverb(1.2);
+        const revGain = ctx.createGain();
+        revGain.gain.value = 0.35;
+        reverb.connect(revGain);
+        revGain.connect(ctx.destination);
+
+        function tone(freq, start, dur, type = 'sine', vol = 0.18) {
+          const osc  = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          gain.connect(reverb);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now + start);
+          gain.gain.setValueAtTime(0.001, now + start);
+          gain.gain.linearRampToValueAtTime(vol, now + start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+          osc.start(now + start);
+          osc.stop(now + start + dur + 0.1);
+        }
+
+        tone(55,  0.00, 0.12, 'sine', 0.28);
+        tone(55,  0.18, 0.10, 'sine', 0.18);
+
+        const drone     = ctx.createOscillator();
+        const droneGain = ctx.createGain();
+        drone.connect(droneGain);
+        droneGain.connect(ctx.destination);
+        droneGain.connect(reverb);
+        drone.type = 'sawtooth';
+        drone.frequency.setValueAtTime(55, now + 0.30);
+        drone.frequency.linearRampToValueAtTime(82, now + 0.90);
+        droneGain.gain.setValueAtTime(0.001, now + 0.30);
+        droneGain.gain.linearRampToValueAtTime(0.12, now + 0.50);
+        droneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.90);
+        drone.start(now + 0.30);
+        drone.stop(now + 0.95);
+
+        tone(220, 0.35, 0.08, 'sine', 0.14);
+        tone(220, 0.46, 0.08, 'sine', 0.14);
+        tone(277, 0.57, 0.12, 'sine', 0.18);
+        tone(110, 0.72, 0.55, 'sine',     0.22);
+        tone(138, 0.74, 0.50, 'triangle', 0.12);
+        tone(165, 0.76, 0.45, 'sine',     0.10);
+
+        const clickBuf  = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
+        const clickData = clickBuf.getChannelData(0);
+        for (let i = 0; i < clickData.length; i++)
+          clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / 200);
+        const click     = ctx.createBufferSource();
+        const clickGain = ctx.createGain();
+        click.buffer    = clickBuf;
+        click.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        clickGain.gain.value = 0.4;
+        click.start(now + 1.00);
+      } catch(e) {}
+    }
+
+    const btn = document.getElementById('btnIniciar');
+
+    btn?.addEventListener('mouseenter', playHoverSound);
+
+    btn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = e.currentTarget.href;
+        playAgentSound();
+        setTimeout(() => { window.location.href = href; }, 1100);
+      });
+  </script>
 </body>
 </html>

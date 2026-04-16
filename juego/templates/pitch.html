@@ -7,10 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Misión Emprende UDD — Pitch</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}">
   <style>
     .pitch-editor {
@@ -212,7 +209,12 @@
     }
   </style>
 </head>
-<body data-sesion-id="{{ grupo.sesion.idsesion }}">
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-tiempo-inicial="{{ tiempo_inicial_pitch|default:300 }}"
+>
+
   <main class="pitch-editor">
 
     <div id="inicio-fase-overlay" class="inicio-fase-overlay">
@@ -282,24 +284,27 @@
       <textarea
         id="pitch-text"
         name="pitch-text"
-        placeholder="Escribe tu pitch, o simplemente unas notas..."
+        placeholder="Escribe tu pitch..."
         rows="10"
       >{{ pitch_guardado }}</textarea>
 
       <div class="actions">
         <button type="button" class="btn ghost" id="btnLimpiar">Limpiar</button>
       </div>
-
-      <p id="saveHint" class="save-hint">Los cambios se guardan automáticamente.</p>
     </form>
+
   </main>
 
-  <script>
-    const GUARDAR_PITCH_URL = "{% url 'guardar_pitch' %}";
-    const CSRF_TOKEN = "{{ csrf_token }}";
-  </script>
+  <!-- AUDIO -->
+  <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
-  <script src="{% static 'js/pitch_edit.js' %}"></script>
+  <!-- MODAL -->
+  <div id="modal-fin" class="modal-fin">
+    <div class="modal-fin-box">
+      <h2>¡Tiempo terminado!</h2>
+      <p>Prepárate para presentar tu pitch.</p>
+    </div>
+  </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -315,8 +320,13 @@
       const dbShort = document.getElementById("dbShort");
       const dbDesc = document.getElementById("dbDesc");
 
-      const textarea = document.getElementById("pitch-text");
-      const btnLimpiar = document.getElementById("btnLimpiar");
+    function renderTimer() {
+      const segundos = Math.max(0, Number(timeLeft) || 0);
+      const minutes = Math.floor(segundos / 60);
+      const seconds = segundos % 60;
+      timerElement.textContent =
+        `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    }
 
       const boton = document.getElementById("btn-listo-fase");
       const textoEspera = document.getElementById("texto-espera-fase");
@@ -396,14 +406,50 @@
 
       if (dbTitle) dbTitle.textContent = nombre;
 
-      if (dbShort) {
-        const corto = descripcion.length > 90
-          ? descripcion.slice(0, 90).trim() + "..."
-          : descripcion;
-        dbShort.textContent = corto;
+    function mostrarModalFin() {
+      if (modalMostrado) return;
+      modalMostrado = true;
+
+      try {
+        alarmAudio.currentTime = 0;
+        alarmAudio.play();
+      } catch (e) {}
+
+      modalFin.style.display = "flex";
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+
+      renderTimer();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        renderTimer();
+
+        if (timeLeft <= 0) {
+          pauseTimerLocally();
+          mostrarModalFin();
+        }
+      }, 1000);
+    }
+
+    function obtenerSesionId() {
+      return document.body.dataset.sesionId;
+    }
+
+    function procesarEstadoSesion(data) {
+      if (!data) return;
+
+      // 🔥 CAMBIO CLAVE AQUÍ
+      if (data.faseActual && data.faseActual !== "f4_construccion_pitch") {
+        if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+          window.location.href = data.rutaAlumno;
+        }
+        return;
       }
 
-      if (dbDesc) dbDesc.textContent = descripcion;
+      const backendSeconds = Number(data.segundosRestantes);
 
       btnLimpiar?.addEventListener("click", () => {
         const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");
@@ -534,9 +580,8 @@
       renderTimer();
       setInterval(syncTimer, 1000);
       syncTimer();
-    });
+    }});
   </script>
-
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

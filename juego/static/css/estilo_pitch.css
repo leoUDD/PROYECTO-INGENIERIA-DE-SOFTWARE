@@ -1,27 +1,29 @@
-/* =====================================================
-   VARIABLES GLOBALES
-===================================================== */
 :root {
   --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
-  --card: rgba(4, 20, 40, 0.85);
+  --card: rgba(4, 20, 40, 0.88);
   --text: #E6EEF8;
   --muted: #AAB7C8;
   --primary: #00C8FF;
   --accent: #FF7A1A;
 
-  --radius: 22px;
-  --shadow: 0 18px 40px rgba(0,0,0,.55);
+  --radius: 24px;
+  --shadow: 0 20px 50px rgba(0,0,0,.6);
 
-  --fs-title: clamp(26px, 4vw, 38px);
-  --fs-sub:   clamp(15px, 2.6vw, 18px);
+  --fs-title: clamp(28px, 4vw, 40px);
+  --fs-sub: clamp(15px, 2.5vw, 18px);
+  --fs-body: clamp(14px, 2vw, 18px);
+  --fs-timer: clamp(28px, 6vw, 40px);
 }
 
-/* =====================================================
-   RESET + GENERAL
-===================================================== */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-html, body { height: 100%; }
+html, body {
+  min-height: 100%;
+}
 
 body {
   background: var(--bg);
@@ -30,76 +32,89 @@ body {
   display: flex;
   justify-content: center;
   padding: 20px;
+  min-height: 100vh;
 }
 
-/* =====================================================
-   CONTENEDOR PRINCIPAL
-===================================================== */
 .pitch-editor {
-  width: clamp(340px, 90vw, 800px);
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: clamp(26px, 4vw, 40px);
-  box-shadow: var(--shadow);
-
+  width: clamp(450px, 90vw, 720px);
+  background: rgba(0, 15, 35, 0.70);
+  padding: 35px 25px 50px;
+  border-radius: 26px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
-
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  animation: fadeIn 0.5s ease;
+  gap: 14px;
 }
 
-/* =====================================================
-   IMAGEN SUPERIOR
-===================================================== */
-.header-image {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.header-image .logo {
-  width: clamp(100px, 20vw, 160px);
-  filter: drop-shadow(0 0 12px rgba(0,200,255,.35));
-}
-
-/* =====================================================
-   TITULOS
-===================================================== */
 .title {
   font-size: var(--fs-title);
   font-weight: 800;
+  margin-bottom: 12px;
   color: var(--accent);
-  text-align: center;
-  text-shadow: 0 0 16px rgba(0,200,255,.45);
+  text-shadow: 0 0 18px rgba(255, 122, 26, 0.4);
 }
 
 .subtitle {
+  margin-top: 10px;
+  margin-bottom: 6px;
   font-size: var(--fs-sub);
+  font-weight: 700;
   color: var(--muted);
   text-align: center;
-  max-width: 700px;
-  margin-bottom: 18px;
+  width: 100%;
+  max-width: 640px;
 }
 
-/* =====================================================
-   TIPS PARA EL PITCH
-===================================================== */
+.timer-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#timer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-top: 6px;
+  margin-bottom: 18px;
+  width: clamp(180px, 36vw, 260px);
+  height: clamp(72px, 12vw, 98px);
+  background: #0a0a0a;
+  color: #fff;
+  font-weight: 800;
+  font-size: var(--fs-timer);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  border: clamp(3px, .8vw, 6px) solid #00d4ff;
+  border-radius: 24px;
+  box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset;
+  text-shadow: 0 0 8px #00d4ff;
+  animation: neonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+  0%,100% { box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset; }
+  50% { box-shadow: 0 0 40px #00ffff, 0 0 60px #00aaff inset; }
+}
+
 .tips {
   width: 100%;
+  max-width: 640px;
   padding: 18px 20px;
   border-radius: 16px;
   background: rgba(0, 140, 255, 0.12);
   border: 1px solid rgba(0, 180, 255, 0.35);
-
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-
   box-shadow: 0 0 16px rgba(0,180,255,.25);
+  text-align: left;
 }
 
 .tips h2 {
@@ -131,11 +146,9 @@ body {
   text-shadow: 0 0 6px rgba(0,200,255,.6);
 }
 
-/* =====================================================
-   FORMULARIO DEL PITCH
-===================================================== */
 .pitch-form {
   width: 100%;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -152,7 +165,6 @@ textarea {
   background: rgba(0,0,0,0.35);
   resize: none;
   min-height: 260px;
-
   backdrop-filter: blur(6px);
   transition: 0.25s ease;
 }
@@ -163,13 +175,11 @@ textarea:focus {
   box-shadow: 0 0 16px rgba(0,200,255,.45);
 }
 
-/* =====================================================
-   ACCIONES (BOTONES)
-===================================================== */
 .actions {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  width: 100%;
 }
 
 .btn {
@@ -182,7 +192,6 @@ textarea:focus {
   width: 100%;
 }
 
-/* Ghost (gris claro) */
 .btn.ghost {
   background: rgba(255,255,255,0.08);
   color: var(--muted);
@@ -193,22 +202,6 @@ textarea:focus {
   background: rgba(255,255,255,0.18);
 }
 
-/* Primary neon */
-.btn.primary {
-  background: var(--primary);
-  color: #001824;
-  border: none;
-  box-shadow: 0 0 16px rgba(0,200,255,.45);
-}
-
-.btn.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 26px rgba(0,200,255,.65);
-}
-
-/* =====================================================
-   PIE DE GUARDADO AUTOMÁTICO
-===================================================== */
 .save-hint {
   text-align: center;
   color: var(--muted);
@@ -217,18 +210,70 @@ textarea:focus {
   user-select: none;
 }
 
-/* =====================================================
-   ANIMACIONES
-===================================================== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+.modal-fin {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
 }
 
-/* =====================================================
-   RESPONSIVE
-===================================================== */
-@media (max-width: 600px) {
+.modal-fin-box {
+  background: #081A2D;
+  padding: 30px 22px;
+  border-radius: 22px;
+  width: clamp(260px, 80vw, 350px);
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
+  animation: pop 0.25s ease-out;
+}
+
+.modal-fin-box h2 {
+  color: var(--primary);
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.modal-fin-box p {
+  font-size: 16px;
+  color: var(--muted);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .pitch-editor {
+    padding: 28px 18px 40px;
+    gap: 12px;
+    width: clamp(340px, 92vw, 720px);
+  }
+
+  #timer {
+    width: 82%;
+    height: clamp(80px, 16vw, 110px);
+    font-size: clamp(30px, 9vw, 40px);
+  }
+
   .actions {
     flex-direction: column;
   }
