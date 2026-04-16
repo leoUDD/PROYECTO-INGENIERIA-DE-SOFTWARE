@@ -162,7 +162,7 @@ function render() {
 
       cell.addEventListener("touchend", (e) => {
         e.preventDefault();
-        handleUp(e);
+        handleUp();
       }, { passive: false });
 
       gridEl.appendChild(cell);
@@ -329,28 +329,16 @@ function allFound() {
   return [...list].every(li => li.classList.contains("found"));
 }
 
-function bloquearJuego() {
-  const grid = document.getElementById("grid");
-  if (grid) {
-    grid.style.pointerEvents = "none";
-    grid.style.opacity = "0.4";
-  }
-}
-
-function mostrarEsperandoProfesor() {
-  const overlay = document.getElementById("esperandoOverlay");
-  if (overlay) {
-    overlay.classList.add("visible");
-    overlay.setAttribute("aria-hidden", "false");
-  }
-}
-
 function endGame(won, alarmAudio = null) {
   if (gameEnded) return;
 
   gameEnded = true;
-  bloquearJuego();
   pauseTimerLocally();
+
+  if (syncInterval) {
+    clearInterval(syncInterval);
+    syncInterval = null;
+  }
 
   if (alarmAudio && !won) {
     try {
@@ -370,7 +358,8 @@ function showWinModal() {
   if (!gameEnded) return;
 
   const modal = document.getElementById("winModal");
-  if (!modal) return;
+  const btn = document.getElementById("btnNext");
+  if (!modal || !btn) return;
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
@@ -385,13 +374,16 @@ function showWinModal() {
 
   setTimeout(() => btn.focus(), 50);
   btn.onclick = goNext;
+}
 
+async function goNext() {
+  const routes = document.getElementById("routes");
+  const url = routes?.dataset?.sopaCompletadaUrl;
 
-  setTimeout(() => {
-    modal.style.display = "none";
-    modal.setAttribute("aria-hidden", "true");
-    mostrarEsperandoProfesor();
-  }, 4000);
+  if (!url) return;
+
+  await registrarSopaCompletada();
+  window.location.href = url;
 }
 
 function showTimeUpModal() {
@@ -516,7 +508,7 @@ function obtenerSesionId() {
 }
 
 function procesarEstadoSesion(data) {
-  if (!data) return;
+  if (!data || gameEnded) return;
 
   const faseActual = data.faseActual;
   ultimaFaseDetectada = faseActual;
@@ -527,8 +519,6 @@ function procesarEstadoSesion(data) {
     }
     return;
   }
-
-  if (gameEnded) return;
 
   const backendSeconds = Number(data.segundosRestantes);
 

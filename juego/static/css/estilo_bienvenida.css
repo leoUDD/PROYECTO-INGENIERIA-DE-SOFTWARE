@@ -1,41 +1,34 @@
 /* ============================================================
-   Misión Emprende UDD — estilo_bienvenida.css  FINAL
-   Logo arriba · Video + botón abajo · Espacio limpio
+   Misión Emprende UDD — Bienvenida (Simetría con Perfiles)
    ============================================================ */
 
 :root {
   --text:    #E6EEF8;
   --primary: #00C8FF;
   --radius:  28px;
-  --shadow:  0 18px 40px rgba(0,0,0,.6);
+  --shadow:  0 18px 40px rgba(0, 0, 0, .6);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-img, video { max-width: 100%; display: block; }
-a { text-decoration: none; }
+html, body { height: 100%; margin: 0; padding: 0; }
 
 body {
-  background:
-    url('/static/images/fondo_bienvenida.png') center / cover no-repeat fixed,
-    #000712;
+  background: url('/static/images/fondo_bienvenida.png') center / cover no-repeat fixed, #000712;
   color: var(--text);
   font-family: "Poppins", system-ui, sans-serif;
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 12px;
+  padding: clamp(12px, 3vw, 40px);
+  overflow-x: hidden;
 }
 
-/* ---------- Card ---------- */
+/* ---------- Card (.phone) ---------- 
+   Igual que en perfiles: el GIF define el contenedor */
 .phone {
   position: relative;
-  container-type: inline-size;
-  container-name: phone;
-
-  width:  min(820px, calc((100vh - 24px) * 0.808), 94vw);
-  height: min(calc(100vh - 24px), calc(min(820px, calc((100vh - 24px) * 0.808), 94vw) * 1.237));
+  width: 100%;
+  max-width: 900px; /* Misma que perfiles */
 
   background-image: url('/static/images/mision_emprende_phone_bg.gif');
   background-size: 100% 100%;
@@ -44,59 +37,42 @@ body {
 
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  padding-bottom: clamp(14px, 4%, 36px);
 }
 
-.gif-spacer { display: none; }
-
-/* ============================================================
-   LOGO — absoluto arriba
-   ============================================================ */
-.logo-top {
-  position: absolute;
-  top: clamp(10px, 3.5%, 26px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: clamp(110px, 38cqw, 260px);
-  z-index: 2;
-  animation: fadeDown 0.6s ease both;
-}
-
-.logo-top img {
+/* ---------- Spacer invisible ---------- 
+   Dicta el alto proporcional exacto */
+.gif-spacer {
+  display: block;
   width: 100%;
   height: auto;
-  mix-blend-mode: screen;
-  filter: drop-shadow(0 0 8px rgba(255,255,255,0.15));
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
 }
 
-/* ============================================================
-   VIDEO + BOTÓN
-   ============================================================ */
+/* ---------- Overlay de Contenido ---------- 
+   Ubicamos el video debajo de "EMPRENDE" (aprox 45-50% del alto) */
 .video-overlay {
-  position: relative;
+  position: absolute;
+  top: 48%; /* Ajustado para que el video empiece tras el título */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%; /* Espacio lateral para que respire */
   z-index: 1;
-  width: 88%;
+  
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(10px, 2.5cqw, 20px);
-  animation: fadeUp 0.6s ease 0.2s both;
+  gap: 20px;
 }
 
-/* Video directo — sin overflow:hidden que corta controles */
-.video-container {
-  position: relative;
+/* ---------- Video ---------- */
+.video-wrap {
   width: 100%;
-  border: 2px solid rgba(0,200,255,0.4);
-  box-shadow:
-    0 0 0 1px rgba(0,200,255,0.08),
-    0 0 22px rgba(0,200,255,0.18),
-    0 14px 32px rgba(0,0,0,.7);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 200, 255, 0.3);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.7);
   background: #000;
 }
 
@@ -104,148 +80,32 @@ body {
   width: 100%;
   display: block;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
-  background: #000;
 }
 
-/* ---------- Mensaje tap to unmute ---------- */
-.tap-sound {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  padding: 6px 16px;
-
-  background: rgba(0, 8, 20, 0.82);
-  border: 1px solid rgba(0,200,255,0.45);
-  border-radius: 999px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(9px, 1.8cqw, 12px);
-  letter-spacing: 0.08em;
-  color: var(--primary);
-  white-space: nowrap;
-  cursor: pointer;
-
-  box-shadow: 0 0 14px rgba(0,200,255,0.3);
-  animation: tapPulse 1.8s ease-in-out infinite;
-  transition: opacity .3s ease;
-}
-
-.tap-sound.oculto {
-  display: none;
-}
-
-.tap-icon { font-size: 1.1em; }
-
-@keyframes tapPulse {
-  0%,100% { opacity: 0.8; transform: scale(1); }
-  50%     { opacity: 1;   transform: scale(1.04); }
-}
-
-/* ---------- Botón estilo videojuego ---------- */
+/* ---------- Botón ---------- */
 .btn-iniciar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6em;
-  width: 90%;
-  max-width: 340px;
-  padding: clamp(11px, 2cqw, 16px) clamp(16px, 3cqw, 28px);
-
-  background: linear-gradient(135deg, #005f7a 0%, #003d52 100%);
-  border: 2px solid var(--primary);
-  color: var(--primary);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(12px, 2.6cqw, 17px);
-  letter-spacing: 0.15em;
-  border-radius: 10px;
-
-  box-shadow:
-    0 0 18px rgba(0,200,255,0.5),
-    inset 0 0 14px rgba(0,200,255,0.06);
-
-  animation: pulse 2.2s ease-in-out infinite;
-  transition: transform .2s ease, box-shadow .2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Shine sweep */
-.btn-iniciar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    110deg,
-    transparent 30%,
-    rgba(0,200,255,0.1) 50%,
-    transparent 70%
-  );
-  animation: shine 2.8s linear infinite;
-}
-
-.btn-icon { font-size: 0.9em; }
-
-.btn-level {
-  font-size: 0.68em;
-  background: rgba(0,200,255,0.12);
-  border: 1px solid rgba(0,200,255,0.35);
-  border-radius: 5px;
-  padding: 1px 6px;
-  color: rgba(0,200,255,0.8);
+  width: 100%;
+  max-width: 400px;
+  padding: clamp(14px, 2vw, 22px);
+  background: var(--primary);
+  color: #fff;
+  font-size: clamp(16px, 1.5vw, 20px);
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 200, 255, 0.3);
+  transition: all 0.3s ease;
 }
 
 .btn-iniciar:hover {
   transform: translateY(-3px);
-  animation-play-state: paused;
-  box-shadow:
-    0 0 32px rgba(0,200,255,0.85),
-    inset 0 0 20px rgba(0,200,255,0.1);
+  filter: brightness(1.1);
+  box-shadow: 0 12px 28px rgba(0, 200, 255, 0.45);
 }
 
-
-
-/* ============================================================
-   ANIMACIONES
-   ============================================================ */
-@keyframes fadeDown {
-  from { opacity:0; transform:translateX(-50%) translateY(-12px); }
-  to   { opacity:1; transform:translateX(-50%) translateY(0); }
-}
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(14px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-@keyframes pulse {
-  0%,100% { box-shadow: 0 0 18px rgba(0,200,255,.5), inset 0 0 14px rgba(0,200,255,.06); }
-  50%     { box-shadow: 0 0 30px rgba(0,200,255,.88), inset 0 0 18px rgba(0,200,255,.10); }
-}
-@keyframes shine {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-/* ============================================================
-   FALLBACK sin container queries
-   ============================================================ */
-@supports not (width: 1cqw) {
-  .logo-top    { width: clamp(110px, 32vw, 240px); }
-  .btn-iniciar { font-size: clamp(12px, 1.7vw, 17px); }
-}
-
-/* ============================================================
-   BREAKPOINTS
-   ============================================================ */
-@media (max-height: 600px) {
-  .phone      { padding-bottom: 8px; }
-  .logo-top   { width: clamp(80px, 26cqw, 160px); }
-  .video-wrap { padding: 3px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn-iniciar, .btn-iniciar::before,
-  .logo-top, .video-overlay { animation: none; opacity: 1; }
-  .logo-top { transform: translateX(-50%); }
+/* ---------- Breakpoints ---------- */
+@media (max-width: 480px) {
+  .video-overlay { top: 45%; width: 90%; }
 }

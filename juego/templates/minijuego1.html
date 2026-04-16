@@ -288,6 +288,7 @@
       id="routes"
       data-registrar-palabra-url="{% url 'registrar_palabra_sopa' %}"
       data-sopa-completada-api-url="{% url 'sopa_completada' %}"
+      data-sopa-completada-url="{% url 'transiciondesafio' %}"
       data-sesion-id="{{ grupo.sesion.idsesion }}"
       data-tiempo="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias|default:300 }}"
       data-tiempo-inicial="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias|default:300 }}"

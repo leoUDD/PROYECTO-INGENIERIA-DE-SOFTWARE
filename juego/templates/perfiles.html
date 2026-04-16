@@ -12,258 +12,42 @@
 <body>
   <main class="phone" role="region" aria-label="Pantalla de perfiles">
 
+    <!--
+      SPACER INVISIBLE:
+      Mismo GIF pero invisible (opacity:0).
+      Su único trabajo es darle altura real a .phone
+      para que position:absolute funcione correctamente.
+      El GIF visible es background-image de .phone.
+    -->
     <img
       class="gif-spacer"
       src="{% static 'images/mision_emprende_1536x1900_flicker.gif' %}"
-      alt="" aria-hidden="true"
+      alt=""
+      aria-hidden="true"
     />
 
-    <!-- Logo superior EdEm UDD -->
-    <div class="logo-top">
-      <img src="{% static 'images/edem_udd_logo.png' %}" alt="EdEm UDD — Escuela de Emprendimiento">
-      <div class="logo-divider"></div>
-      <p class="logo-sub">Selecciona tu perfil para continuar</p>
-    </div>
-
-    <!-- Círculos de perfil -->
+    <!-- Círculos superpuestos sobre el GIF de fondo -->
     <section class="perfiles">
-
-      <div class="perfil perfil--alumno">
-        <a href="{% url 'bienvenida' %}" aria-label="Ingresar como Alumno">
+      <div class="perfil">
+        <a href="{% url 'bienvenida' %}">
           <img src="{% static 'images/alumno.png' %}" alt="Alumno">
         </a>
         <p class="perfil-texto">Alumno</p>
       </div>
-
-      <div class="perfil perfil--profesor">
-        <a href="dashboardprofesor" aria-label="Ingresar como Profesor">
+      <div class="perfil">
+        <a href="dashboardprofesor">
           <img src="{% static 'images/proofe.png' %}" alt="Profesor">
         </a>
         <p class="perfil-texto">Profesor</p>
       </div>
-
-      <div class="perfil perfil--admin">
-        <a href="dashboardadmin" aria-label="Ingresar como Administrador">
+      <div class="perfil">
+        <a href="dashboardadmin">
           <img src="{% static 'images/admin.png' %}" alt="Administrador">
         </a>
         <p class="perfil-texto">Administrador</p>
       </div>
-
     </section>
 
   </main>
-
-  <script>
-    // ── Música de fondo — agentes en misión ──
-    let musicStarted = false;
-
-    function startAmbientMusic() {
-      if (musicStarted) return;
-      musicStarted = true;
-
-      const ctx    = new (window.AudioContext || window.webkitAudioContext)();
-      const master = ctx.createGain();
-      master.gain.value = 0.15;
-      master.connect(ctx.destination);
-
-      // ── 1. BAJO RÍTMICO — pulso de acción cada 500ms ──
-      const bassNotes = [110, 110, 138, 110, 110, 123, 110, 110];
-      let bassIdx = 0;
-      function playBass() {
-        const freq = bassNotes[bassIdx % bassNotes.length];
-        bassIdx++;
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        osc.connect(gain); gain.connect(master);
-        gain.gain.setValueAtTime(0.4, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.45);
-        setTimeout(playBass, 500);
-      }
-      playBass();
-
-      // ── 2. PERCUSIÓN — hit metálico en tiempos fuertes ──
-      function playHit(offset = 0) {
-        setTimeout(() => {
-          const buf  = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate);
-          const data = buf.getChannelData(0);
-          for (let i = 0; i < data.length; i++)
-            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / 300);
-          const src   = ctx.createBufferSource();
-          const filt  = ctx.createBiquadFilter();
-          const gain  = ctx.createGain();
-          src.buffer  = buf;
-          filt.type   = 'bandpass';
-          filt.frequency.value = 300;
-          src.connect(filt); filt.connect(gain); gain.connect(master);
-          gain.gain.value = 0.6;
-          src.start(ctx.currentTime);
-        }, offset);
-      }
-
-      function beatLoop() {
-        playHit(0);
-        playHit(500);
-        playHit(1000);
-        playHit(1500);
-        setTimeout(beatLoop, 2000);
-      }
-      setTimeout(beatLoop, 100);
-
-      // ── 3. MELODÍA TIPO MISSION IMPOSSIBLE ──
-      // Patrón rítmico característico: corchea - semicorchea - semicorchea
-      const theme = [
-        { f: 220, d: 0.18 }, { f: 0,   d: 0.09 },
-        { f: 220, d: 0.09 }, { f: 220, d: 0.09 },
-        { f: 220, d: 0.36 }, { f: 0,   d: 0.09 },
-        { f: 220, d: 0.09 }, { f: 220, d: 0.09 },
-        { f: 233, d: 0.27 }, { f: 0,   d: 0.09 },
-        { f: 233, d: 0.09 }, { f: 233, d: 0.09 },
-        { f: 220, d: 0.36 }, { f: 0,   d: 0.36 },
-      ];
-
-      function playTheme() {
-        let t = ctx.currentTime + 0.1;
-        theme.forEach(({ f, d }) => {
-          if (f > 0) {
-            const osc  = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = f;
-            osc.connect(gain); gain.connect(master);
-            gain.gain.setValueAtTime(0.001, t);
-            gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + d);
-            osc.start(t);
-            osc.stop(t + d + 0.05);
-          }
-          t += d;
-        });
-        // Total duración del tema ~2.7s, loop con pausa
-        setTimeout(playTheme, 4000);
-      }
-      setTimeout(playTheme, 800);
-
-      // ── 4. ACORDE DE TENSIÓN — pad que sostiene ──
-      [[110, 165, 196], [98, 147, 185]].forEach((chord, ci) => {
-        chord.forEach(freq => {
-          const osc  = ctx.createOscillator();
-          const gain = ctx.createGain();
-          const filt = ctx.createBiquadFilter();
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          filt.type = 'lowpass';
-          filt.frequency.value = 600;
-          osc.connect(filt); filt.connect(gain); gain.connect(master);
-          gain.gain.value = 0.06;
-          osc.start(ctx.currentTime + ci * 4);
-        });
-      });
-    }
-
-    // Inicia con el primer clic
-    document.addEventListener('click',      startAmbientMusic, { once: true });
-    document.addEventListener('touchstart', startAmbientMusic, { once: true });
-
-    // ── Hover: escáner de identificación ──
-    function playHoverSound() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = ctx.currentTime;
-
-        // Sweep ascendente corto — "escaneando agente"
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(280, now);
-        osc.frequency.linearRampToValueAtTime(520, now + 0.12);
-        gain.gain.setValueAtTime(0.07, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-        osc.start(now);
-        osc.stop(now + 0.15);
-
-        // Brillo metálico encima
-        const osc2  = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.type = 'triangle';
-        osc2.frequency.setValueAtTime(560, now + 0.06);
-        osc2.frequency.linearRampToValueAtTime(800, now + 0.14);
-        gain2.gain.setValueAtTime(0.03, now + 0.06);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-        osc2.start(now + 0.06);
-        osc2.stop(now + 0.17);
-      } catch(e) {}
-    }
-
-    // ── Click: agente identificado y confirmado ──
-    function playClickSound() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = ctx.currentTime;
-
-        // Click metálico inicial
-        const bufLen = Math.floor(ctx.sampleRate * 0.03);
-        const buf    = ctx.createBuffer(1, bufLen, ctx.sampleRate);
-        const data   = buf.getChannelData(0);
-        for (let i = 0; i < bufLen; i++)
-          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / 50);
-        const noise     = ctx.createBufferSource();
-        const noiseGain = ctx.createGain();
-        noise.buffer    = buf;
-        noise.connect(noiseGain);
-        noiseGain.connect(ctx.destination);
-        noiseGain.gain.value = 0.25;
-        noise.start(now);
-
-        // Tono grave descendente — confirmación
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(180, now + 0.02);
-        osc.frequency.exponentialRampToValueAtTime(90, now + 0.18);
-        gain.gain.setValueAtTime(0.18, now + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
-        osc.start(now + 0.02);
-        osc.stop(now + 0.22);
-
-        // Dos pitidos — "agente identificado"
-        [{ t: 0.22, f: 440 }, { t: 0.32, f: 660 }].forEach(({ t, f }) => {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-          o.connect(g);
-          g.connect(ctx.destination);
-          o.type = 'sine';
-          o.frequency.value = f;
-          g.gain.setValueAtTime(0.10, now + t);
-          g.gain.exponentialRampToValueAtTime(0.001, now + t + 0.08);
-          o.start(now + t);
-          o.stop(now + t + 0.09);
-        });
-      } catch(e) {}
-    }
-
-    // ── Asignar eventos a todos los círculos ──
-    document.querySelectorAll('.perfil > a').forEach(link => {
-      link.addEventListener('mouseenter', playHoverSound);
-
-      link.addEventListener('click', (e) => {
-        e.preventDefault();               // detiene la navegación inmediata
-        const href = link.href;
-        playClickSound();
-        setTimeout(() => {
-          window.location.href = href;    // navega después de 420ms
-        }, 420);
-      });
-    });
-  </script>
 </body>
 </html>
