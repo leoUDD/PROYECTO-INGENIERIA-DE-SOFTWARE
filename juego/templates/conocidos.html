@@ -11,6 +11,7 @@
   <style>
     .phone {
       position: relative;
+      overflow: hidden;
     }
 
     .inicio-fase-overlay {
@@ -146,6 +147,11 @@
         font-size: 0.92rem;
         padding: 10px 16px;
       }
+
+      .mizip-card {
+        width: min(90%, 560px);
+        top: 56%;
+      }
     }
 
     @media (max-width: 640px) {
@@ -182,6 +188,29 @@
 
       .contador-fase {
         font-size: 0.9rem;
+      }
+
+      .mizip-trigger {
+        width: 74px;
+        height: 74px;
+        right: -6px;
+        top: -22px;
+      }
+
+      .mizip-card {
+        width: min(92%, 92%);
+        padding: 18px 16px 16px;
+        border-radius: 20px;
+        top: 58%;
+      }
+
+      .mizip-card h3 {
+        font-size: 1.05rem;
+      }
+
+      .mizip-card p {
+        font-size: 0.9rem;
+        line-height: 1.45;
       }
     }
   </style>
@@ -221,6 +250,8 @@
     <h1 id="tituloConocidos" class="title blur-target-bloqueado">¡Es momento de conocerse!</h1>
 
     <div id="speechBubbleConocidos" class="speech-bubble blur-target-bloqueado">
+
+
       <p class="body">
         Di tu nombre y comparte un dato curioso sobre ti.
       </p>
@@ -233,11 +264,43 @@
         Nueva pregunta
       </button>
     </div>
+    
+    <button id="mizip-trigger" class="mizip-trigger" type="button" aria-label="Descubrir a Mizip">
+      <img src="{% static 'images/Mizip1.png' %}" alt="Mizip" class="mizip-img">
+    </button>
+
+    <div id="mizip-overlay" class="mizip-overlay" aria-hidden="true">
+      <div class="mizip-backdrop"></div>
+
+      <div id="mizip-fly" class="mizip-fly">
+        <img src="{% static 'images/Mizip1Edit.png' %}" alt="Mizip hablando" class="mizip-fly-img">
+      </div>
+
+      <div id="mizip-card" class="mizip-card">
+        <h3>👽 Mensaje interceptado</h3>
+        <p>
+          Hola agente! Soy Mizip de la raza Zip! Llevo mucho tiempo observando a los agentes de esta actividad,
+          parecen una buena tripulación.
+        </p>
+        <p>
+          Así que les aviso que en algún punto van a ser evaluados según su creatividad.
+          ¿Cuándo? No les diré. Ténganlo en cuenta.
+        </p>
+        <p>
+          Y saluden a mis hermanos. Quizás los encuentran más adelante. ¡Adiós!
+        </p>
+
+        <button id="mizip-close" class="mizip-close" type="button">Entendido</button>
+      </div>
+
+      <div id="mizip-sparkle" class="mizip-sparkle" aria-hidden="true"></div>
+      <audio id="mizip-audio" src="{% static 'sounds/mizip_exit.mp3' %}" preload="auto"></audio>
+      <audio id="mizip-talk-audio" src="{% static 'sounds/miziphablando.mp3' %}" preload="auto"></audio>
+    </div>
 
     <h2 id="timer" class="blur-target-bloqueado timer-esperando">00:10</h2>
 
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
-
 
     <div
       id="routes"
@@ -262,6 +325,19 @@
         const botonListo = document.getElementById("btn-listo-fase");
         const textoEspera = document.getElementById("texto-espera-fase");
         const contadorListos = document.getElementById("contador-listos-fase");
+
+        const mizipTrigger = document.getElementById("mizip-trigger");
+        const mizipOverlay = document.getElementById("mizip-overlay");
+        const mizipFly = document.getElementById("mizip-fly");
+        const mizipCard = document.getElementById("mizip-card");
+        const mizipClose = document.getElementById("mizip-close");
+        const mizipSparkle = document.getElementById("mizip-sparkle");
+        const mizipAudio = document.getElementById("mizip-audio");
+        const mizipTalkAudio = document.getElementById("mizip-talk-audio");
+        if (mizipTalkAudio) {
+  mizipTalkAudio.volume = 0.25; // rango 0.0 a 1.0
+}
+        const speechBubble = document.getElementById("speechBubbleConocidos");
 
         const blurTargets = [
           document.getElementById("tituloConocidos"),
@@ -289,6 +365,8 @@
         let tiempoFinalizado = false;
         let redirigiendo = false;
         let yaListo = false;
+        let mizipActivo = false;
+        let mizipCerrado = false;
 
         function cambiarPregunta() {
           if (!preguntaTexto) return;
@@ -319,7 +397,6 @@
           document.body.classList.add("flash");
           setTimeout(() => document.body.classList.remove("flash"), 800);
         }
-
 
         function activarFase() {
           blurTargets.forEach(el => {
@@ -405,13 +482,8 @@
           const faseActual = data.faseActual;
 
           if (contadorListos) {
-if (data.faseActual === "f1_conocidos") {
-  contadorListos.textContent =
-    `${data.gruposListosLobby || 0}/${data.totalGrupos || 0} grupos listos`;
-} else {
-  contadorListos.textContent =
-  `${data.gruposListosLobby || 0}/${data.totalGrupos || 0} grupos listos`;
-}
+            contadorListos.textContent =
+              `${data.gruposListosLobby || 0}/${data.totalGrupos || 0} grupos listos`;
           }
 
           const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId)) || null;
@@ -477,11 +549,91 @@ if (data.faseActual === "f1_conocidos") {
           }
         }
 
+        function posicionarVueloInicial() {
+          if (!mizipTrigger || !mizipFly || !mizipOverlay || !mizipCard) return;
+
+          const triggerRect = mizipTrigger.getBoundingClientRect();
+          const overlayRect = mizipOverlay.getBoundingClientRect();
+          const cardRect = mizipCard.getBoundingClientRect();
+
+          const startLeft = triggerRect.left - overlayRect.left;
+          const startTop = triggerRect.top - overlayRect.top;
+
+          mizipFly.style.left = `${startLeft}px`;
+          mizipFly.style.top = `${startTop}px`;
+
+          const startCenterX = startLeft + (triggerRect.width / 2);
+          const startCenterY = startTop + (triggerRect.height / 2);
+
+          const targetCenterX = (cardRect.left - overlayRect.left) + (cardRect.width / 2);
+          const targetCenterY = (cardRect.top - overlayRect.top) - 30;
+
+          const dx = targetCenterX - startCenterX;
+          const dy = targetCenterY - startCenterY;
+
+          mizipFly.style.setProperty("--mizip-dx", `${dx}px`);
+          mizipFly.style.setProperty("--mizip-dy", `${dy}px`);
+        }
+
+        function abrirMizip() {
+  if (mizipActivo || mizipCerrado || !mizipTrigger || !mizipOverlay) return;
+
+  mizipActivo = true;
+  mizipTrigger.classList.add("oculto");
+  mizipOverlay.classList.add("activo");
+
+  requestAnimationFrame(() => {
+    posicionarVueloInicial();
+    mizipOverlay.classList.add("volando");
+  });
+
+  setTimeout(() => {
+    mizipOverlay.classList.add("mostrar-card");
+
+    if (mizipTalkAudio) {
+      mizipTalkAudio.currentTime = 0;
+      mizipTalkAudio.play().catch(() => {});
+    }
+  }, 820);
+}
+
+        function cerrarMizip() {
+          if (!mizipActivo || !mizipOverlay || !mizipFly || !mizipSparkle) return;
+
+          const flyRect = mizipFly.getBoundingClientRect();
+          const overlayRect = mizipOverlay.getBoundingClientRect();
+
+          mizipSparkle.style.left = `${flyRect.left - overlayRect.left + (flyRect.width / 2) - 14}px`;
+          mizipSparkle.style.top = `${flyRect.top - overlayRect.top + (flyRect.height / 2) - 14}px`;
+
+          mizipOverlay.classList.remove("mostrar-card");
+          mizipOverlay.classList.add("saliendo");
+
+          if (mizipAudio) {
+            mizipAudio.currentTime = 0;
+            mizipAudio.play().catch(() => {});
+          }
+
+          setTimeout(() => {
+            mizipOverlay.classList.remove("activo", "volando", "saliendo");
+            mizipActivo = false;
+            mizipCerrado = true;
+            mizipOverlay.setAttribute("aria-hidden", "true");
+          }, 920);
+        }
+
         if (btnPregunta) {
           btnPregunta.addEventListener("click", cambiarPregunta);
           cambiarPregunta();
         }
 
+        if (mizipTrigger) {
+          mizipTrigger.addEventListener("click", abrirMizip);
+        }
+
+        if (mizipClose) {
+          mizipClose.addEventListener("click", cerrarMizip);
+        }
 
         if (botonListo) {
           botonListo.addEventListener("click", async () => {
@@ -540,6 +692,12 @@ if (data.faseActual === "f1_conocidos") {
         pintarTiempo();
         setInterval(consultarEstadoSesion, 1000);
         consultarEstadoSesion();
+
+        window.addEventListener("resize", () => {
+          if (mizipActivo && mizipOverlay.classList.contains("volando") && !mizipOverlay.classList.contains("saliendo")) {
+            posicionarVueloInicial();
+          }
+        });
       })();
     </script>
   </main>

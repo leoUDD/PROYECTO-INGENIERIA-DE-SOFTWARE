@@ -97,7 +97,7 @@ class Grupo(models.Model):
     listo_inicio_f3 = models.BooleanField(default=False)
     listo_f2 = models.BooleanField(default=False)
     listo_f2_empatia = models.BooleanField(default=False)
-
+    bubble_tokens_otorgados = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'grupo'

@@ -225,10 +225,11 @@
     <footer id="footerBubble" class="footer-actions blur-target-bloqueado"></footer>
 
     <div
-      id="routes"
-      data-sesion-id="{{ grupo.sesion.idsesion }}"
-      data-tiempo="{{ segundos_restantes|default:180 }}"
-    ></div>
+  id="routes"
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-tiempo="{{ segundos_restantes|default:180 }}"
+  data-otorgar-tokens-url="{% url 'otorgar_tokens_bubblemap' %}"
+></div>
   </main>
 
   <script>
@@ -323,6 +324,39 @@
       let timerIniciado = false;
       let redirigiendo = false;
 
+            let tokensBubbleEnviados = false;
+
+      function obtenerBurbujasCompletadas() {
+        return [...document.querySelectorAll(".bubble textarea")]
+          .map(t => t.value.trim())
+          .filter(txt => txt !== "");
+      }
+
+      async function enviarTokensBubblemap() {
+        if (tokensBubbleEnviados) return;
+
+        const url = routesEl?.dataset?.otorgarTokensUrl;
+        if (!url) return;
+
+        tokensBubbleEnviados = true;
+
+        try {
+          await fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({
+              burbujas: obtenerBurbujasCompletadas()
+            })
+          });
+        } catch (err) {
+          console.error("Error otorgando tokens bubblemap:", err);
+        }
+      }
+
       function activarFase() {
         blurTargets.forEach(el => {
           if (!el) return;
@@ -404,15 +438,7 @@ if (miGrupo && miGrupo.listoF2Generico) {
   }
 }
 
-        const faseActual = data.faseActual;
 
-        if (faseActual && faseActual !== "f2_bubblemap") {
-          if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
-            redirigiendo = true;
-            window.location.href = data.rutaAlumno;
-          }
-          return;
-        }
 
         if (data.inicioFaseHabilitado) {
           activarFase();
@@ -458,7 +484,18 @@ if (miGrupo && miGrupo.listoF2Generico) {
           });
           if (!res.ok) return;
 
-          const data = await res.json();
+                    const data = await res.json();
+
+          if (data.faseActual && data.faseActual !== "f2_bubblemap") {
+            await enviarTokensBubblemap();
+
+            if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+              redirigiendo = true;
+              window.location.href = data.rutaAlumno;
+            }
+            return;
+          }
+
           procesarEstadoSesion(data);
         } catch (err) {
           console.error("Error consultando estado de sesión:", err);

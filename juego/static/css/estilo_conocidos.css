@@ -119,9 +119,11 @@ body{
 }
 
 .modal{
-  position:fixed; inset:0;
+  position:fixed;
+  inset:0;
   display:none;
-  justify-content:center; align-items:center;
+  justify-content:center;
+  align-items:center;
   background:rgba(0,0,0,.5);
   backdrop-filter: blur(3px);
   z-index:999;
@@ -182,8 +184,7 @@ body{
     0 0 60px rgba(0, 100, 255, .3);
   transition: 0.25s ease;
   z-index: 10;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: visible;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 220, 255, .6) transparent;
 }
@@ -282,6 +283,252 @@ body{
   transform: scale(.98);
 }
 
+/* Mizip */
+.mizip-trigger{
+  position:absolute;
+  right: calc(28% - 18px);
+  top: 168px;
+  width: 74px;
+  height: 74px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 11;
+  opacity: 0.99;
+  transform: rotate(10deg);
+  transition: transform .25s ease, filter .25s ease, opacity .25s ease;
+  pointer-events: auto;
+  animation: mizipIdle 3.2s ease-in-out infinite;
+}
+
+.mizip-trigger:hover{
+  transform: rotate(10deg) translateY(-2px) scale(1.04);
+  filter: drop-shadow(0 0 12px rgba(141, 255, 145, 0.65));
+}
+
+.mizip-trigger.oculto{
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mizip-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.mizip-trigger::after{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  border-radius:50%;
+  border: 2px solid rgba(160,255,170,.55);
+  box-shadow: 0 0 10px rgba(120,255,160,.28);
+  opacity: 0;
+  animation: mizipPulse 3.2s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.mizip-overlay{
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mizip-overlay.activo{
+  pointer-events: auto;
+}
+
+.mizip-backdrop{
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 255, 170, 0.10), rgba(0, 0, 0, 0.35));
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.mizip-overlay.activo .mizip-backdrop{
+  opacity: 1;
+}
+
+.mizip-fly{
+  position: absolute;
+  width: 88px;
+  height: 88px;
+  opacity: 0;
+  transform: translate(0, 0) scale(1);
+  will-change: transform, opacity;
+}
+
+.mizip-fly-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(150, 255, 150, 0.45));
+}
+
+.mizip-overlay.volando .mizip-fly{
+  opacity: 1;
+  animation: mizipEntrar .85s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.mizip-card{
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: min(88%, 620px);
+  transform: translate(-50%, -50%) scale(.78);
+  opacity: 0;
+  background: rgba(10, 20, 42, 0.96);
+  border: 2px solid rgba(143, 255, 150, 0.72);
+  border-radius: 24px;
+  padding: 24px 22px 18px;
+  box-shadow:
+    0 0 18px rgba(143,255,150,.25),
+    0 12px 35px rgba(0,0,0,.35);
+  color: #fff;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.mizip-card h3{
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #aaff92;
+}
+
+.mizip-card p{
+  margin: 0 0 12px 0;
+  line-height: 1.55;
+  font-size: 0.98rem;
+}
+
+.mizip-overlay.mostrar-card .mizip-card{
+  opacity: 1;
+  pointer-events: auto;
+  animation: mizipCardIn .32s ease forwards;
+}
+
+.mizip-close{
+  margin-top: 8px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #aaff92, #72ffd1);
+  color: #10233f;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.mizip-close:hover{
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 0 18px rgba(143,255,150,.35);
+}
+
+.mizip-overlay.saliendo .mizip-fly{
+  opacity: 1;
+  animation: mizipSalir .9s ease-in forwards;
+}
+
+.mizip-sparkle{
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, #f2ff9e 0%, #85ffd8 38%, rgba(255,255,255,0) 72%);
+  box-shadow: 0 0 25px #e3ff8f, 0 0 55px #7cfbd1;
+  pointer-events: none;
+}
+
+.mizip-overlay.saliendo .mizip-sparkle{
+  animation: mizipSpark .45s ease-out forwards;
+}
+
+@keyframes mizipEntrar{
+  0%{
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(-8deg);
+  }
+  100%{
+    opacity: 1;
+    transform: translate(var(--mizip-dx, -220px), var(--mizip-dy, 120px)) scale(2.25) rotate(0deg);
+  }
+}
+
+@keyframes mizipCardIn{
+  from{
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.78);
+  }
+  to{
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes mizipSalir{
+  0%{
+    opacity: 1;
+    transform: translate(var(--mizip-dx, -220px), var(--mizip-dy, 120px)) scale(2.25) rotate(0deg);
+  }
+  100%{
+    opacity: 0;
+    transform: translate(calc(var(--mizip-dx, -220px) + 360px), calc(var(--mizip-dy, 120px) - 320px)) scale(.18) rotate(28deg);
+  }
+}
+
+@keyframes mizipSpark{
+  0%{
+    opacity: 1;
+    transform: scale(.3);
+  }
+  100%{
+    opacity: 0;
+    transform: scale(3.4);
+  }
+}
+
+@keyframes mizipIdle{
+  0%, 78%, 100%{
+    transform: rotate(10deg) translateY(0) scale(1);
+  }
+  82%{
+    transform: rotate(10deg) translateY(-4px) scale(1.03);
+  }
+  86%{
+    transform: rotate(10deg) translateY(0) scale(1);
+  }
+  90%{
+    transform: rotate(10deg) translateY(-8px) scale(1.06);
+  }
+  94%{
+    transform: rotate(10deg) translateY(0) scale(1);
+  }
+}
+
+@keyframes mizipPulse{
+  0%, 78%, 100%{
+    opacity: 0;
+    transform: scale(.92);
+  }
+  84%{
+    opacity: .9;
+    transform: scale(1.08);
+  }
+  92%{
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+
 @media (max-width: 900px){
   .phone{
     min-height: clamp(520px, 82vh, 700px);
@@ -304,6 +551,18 @@ body{
   .phone::after{
     width: 45%;
     opacity: 0.9;
+  }
+
+  .mizip-trigger{
+    right: calc(50% - 205px);
+    top: 176px;
+    width: 66px;
+    height: 66px;
+  }
+
+  .mizip-card{
+    width: min(90%, 560px);
+    top: 56%;
   }
 }
 
@@ -355,6 +614,28 @@ body{
     height: clamp(80px, 16vw, 110px);
     margin-bottom: 60px;
     font-size: clamp(30px, 9vw, 40px);
+  }
+
+  .mizip-trigger{
+    right: calc(50% - 146px);
+    top: 188px;
+    width: 60px;
+    height: 60px;
+  }
+  .mizip-card{
+    width: min(92%, 92%);
+    padding: 18px 16px 16px;
+    border-radius: 20px;
+    top: 58%;
+  }
+
+  .mizip-card h3{
+    font-size: 1.05rem;
+  }
+
+  .mizip-card p{
+    font-size: 0.9rem;
+    line-height: 1.45;
   }
 }
 

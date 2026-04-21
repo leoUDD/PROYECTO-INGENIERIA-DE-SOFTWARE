@@ -41,7 +41,7 @@ async function registrarPalabraEncontrada(palabra) {
 async function registrarSopaCompletada() {
   const routes = document.getElementById("routes");
   const url = routes?.dataset?.sopaCompletadaApiUrl;
-  if (!url) return true;
+  if (!url) return { ok: false };
 
   try {
     const res = await fetch(url, {
@@ -54,10 +54,15 @@ async function registrarSopaCompletada() {
       body: JSON.stringify({})
     });
 
-    return res.ok;
+    const data = await res.json().catch(() => ({}));
+
+    return {
+      ok: res.ok,
+      ...data
+    };
   } catch (error) {
     console.error("No se pudo registrar sopa completada:", error);
-    return false;
+    return { ok: false };
   }
 }
 
@@ -264,7 +269,7 @@ function textFromSelection() {
   return selection.map(s => board[s.r][s.c]).join("");
 }
 
-function checkSelection() {
+async function checkSelection() {
   if (selection.length === 0 || gameEnded) return;
 
   const str = textFromSelection();
@@ -281,7 +286,7 @@ function checkSelection() {
     });
 
     markWordAsFound(match);
-    registrarPalabraEncontrada(match);
+    await registrarPalabraEncontrada(match);
     clearTempSelection();
     updateStatus();
 
@@ -366,11 +371,25 @@ function endGame(won, alarmAudio = null) {
   }
 }
 
-function showWinModal() {
+async function showWinModal() {
   if (!gameEnded) return;
 
   const modal = document.getElementById("winModal");
-  if (!modal) return;
+  const title = document.getElementById("winTitle");
+  const text = document.getElementById("winText");
+  const btn = document.getElementById("btnNext");
+
+  if (!modal || !title || !text || !btn) return;
+
+  const resultado = await registrarSopaCompletada();
+
+  if (resultado?.primer_equipo) {
+    title.textContent = "¡Ganaste! Fuiste el primer equipo";
+    text.textContent = "Por completar primero la sopa de letras, tu equipo recibió 5 tokens.";
+  } else {
+    title.textContent = "¡Terminaste!";
+    text.textContent = "Otro grupo se adelantó. Por no ser el primero, tu equipo recibió 3 tokens. ¡Aún pueden ganar!";
+  }
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
@@ -383,15 +402,12 @@ function showWinModal() {
     } catch (_) {}
   }
 
-  setTimeout(() => btn.focus(), 50);
-  btn.onclick = goNext;
-
-
-  setTimeout(() => {
+  btn.focus();
+  btn.onclick = () => {
     modal.style.display = "none";
     modal.setAttribute("aria-hidden", "true");
     mostrarEsperandoProfesor();
-  }, 4000);
+  };
 }
 
 function showTimeUpModal() {

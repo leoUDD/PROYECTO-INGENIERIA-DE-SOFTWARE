@@ -4,14 +4,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ranking final</title>
+  <title>
+  {% if grupo.sesion.fase_actual == "f6_ranking" %}
+    Ranking final
+  {% else %}
+    Ranking parcial
+  {% endif %}
+</title>
   <link rel="stylesheet" href="{% static 'css/estilo_ranking_animado.css' %}">
 </head>
 <body>
   <main class="ranking-scene">
     <section class="carrera-wrap" id="carreraWrap">
+      {% if grupo.sesion.fase_actual == "f6_ranking" %}
       <h1 class="titulo">Gran final</h1>
       <p class="subtitulo">Último tramo. Todos aceleran. La meta está a la vista.</p>
+    {% elif grupo.sesion.fase_actual == "f1_ranking" %}
+      <h1 class="titulo">Ranking F1</h1>
+      <p class="subtitulo">Así van los equipos después de la sopa de letras.</p>
+    {% elif grupo.sesion.fase_actual == "f2_ranking" %}
+      <h1 class="titulo">Ranking F2</h1>
+      <p class="subtitulo">Así van los equipos después del Bubble Map.</p>
+    {% elif grupo.sesion.fase_actual == "f3_ranking" %}
+      <h1 class="titulo">Ranking F3</h1>
+      <p class="subtitulo">Así van los equipos después del desafío Lego.</p>
+    {% endif %}
 
       <div class="camera-frame">
         <div class="track-world">
@@ -39,16 +56,24 @@
       </div>
     </section>
 
+    {% if grupo.sesion.fase_actual == "f6_ranking" %}
     <section class="ganador-overlay" id="ganadorOverlay">
       <div class="ganador-box">
         <p class="ganador-label">El ganador es...</p>
         <h2 class="ganador-nombre">¡Felicitaciones!</h2>
       </div>
     </section>
+    {% endif %}
 
     <section class="podio-wrap" id="podioWrap">
       <div class="podio-card">
-        <h2 class="podio-titulo">Podio final</h2>
+        <h2 class="podio-titulo">
+      {% if grupo.sesion.fase_actual == "f6_ranking" %}
+       Podio final
+      {% else %}
+        Podio parcial
+      {% endif %}
+    </h2>
 
         <div class="podio">
           <div class="puesto puesto-2">
@@ -80,58 +105,146 @@
         </div>
       </div>
     </section>
-
+    <div class="ranking-actions">
+  <button id="btnRankingListo" class="btn-ranking-listo" type="button">
+    Continuar
+  </button>
+  <p id="rankingEstado" class="ranking-estado">0/0 grupos listos</p>
+</div>
     <audio id="audioCelebracion" src="{% static 'sounds/victory.mp3' %}" preload="auto"></audio>
   </main>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const carrera = document.getElementById("carreraWrap");
-      const overlay = document.getElementById("ganadorOverlay");
-      const podio = document.getElementById("podioWrap");
-      const audio = document.getElementById("audioCelebracion");
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const esRankingFinal = "{{ grupo.sesion.fase_actual }}" === "f6_ranking";
+    const faseActualEsperada = "{{ grupo.sesion.fase_actual }}";
+    const sesionId = "{{ grupo.sesion.idsesion }}";
+    const grupoId = "{{ grupo.idgrupo }}";
 
-      const racers = [
-        { barra: document.getElementById("barra1") },
-        { barra: document.getElementById("barra2") },
-        { barra: document.getElementById("barra3") }
-      ];
+    const carrera = document.getElementById("carreraWrap");
+    const overlay = document.getElementById("ganadorOverlay");
+    const podio = document.getElementById("podioWrap");
+    const audio = document.getElementById("audioCelebracion");
+    const btnRankingListo = document.getElementById("btnRankingListo");
+    const rankingEstado = document.getElementById("rankingEstado");
 
-      const TOTAL_FRAMES = 260;
-      const START = 8;
-      const END = 92;
-      let frame = 0;
-      let terminoCarrera = false;
-      let mostroPodio = false;
+    const racers = [
+      { barra: document.getElementById("barra1") },
+      { barra: document.getElementById("barra2") },
+      { barra: document.getElementById("barra3") }
+    ];
 
-      function easeInOutCubic(t) {
-        return t < 0.5
-          ? 4 * t * t * t
-          : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const TOTAL_FRAMES = 260;
+    const START = 8;
+    const END = 92;
+    let frame = 0;
+    let terminoCarrera = false;
+    let mostroPodio = false;
+    let redirigiendo = false;
+
+    function easeInOutCubic(t) {
+      return t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function actualizarEstadoRanking(data) {
+      if (!rankingEstado) return;
+
+      const listos = Number(data.gruposListosF6 || 0);
+      const total = Number(data.totalGrupos || 0);
+      rankingEstado.textContent = `${listos}/${total} grupos listos`;
+
+      const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+      if (miGrupo && miGrupo.listoF6 && btnRankingListo) {
+        btnRankingListo.disabled = true;
+        btnRankingListo.textContent = "Esperando...";
       }
+    }
 
-      function animarCarrera() {
-        if (terminoCarrera) return;
+    async function refrescarEstadoRanking() {
+      if (redirigiendo || !sesionId) return;
 
-        frame++;
-        const t = Math.min(frame / TOTAL_FRAMES, 1);
-        const pos = START + (END - START) * easeInOutCubic(t);
-
-        racers.forEach((r) => {
-          r.barra.style.width = `${pos}%`;
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado/`, {
+          cache: "no-store",
+          credentials: "same-origin"
         });
 
-        if (frame >= TOTAL_FRAMES) {
-          terminoCarrera = true;
+        if (!res.ok) return;
 
+        const data = await res.json();
+        actualizarEstadoRanking(data);
+
+        if (data.faseActual && data.faseActual !== faseActualEsperada && data.rutaAlumno) {
+          redirigiendo = true;
+          window.location.href = data.rutaAlumno;
+        }
+      } catch (e) {
+        console.error("Error consultando ranking:", e);
+      }
+    }
+
+    if (btnRankingListo) {
+      btnRankingListo.addEventListener("click", async () => {
+        btnRankingListo.disabled = true;
+        btnRankingListo.textContent = "Esperando...";
+
+        try {
+          const res = await fetch(`/grupo/${grupoId}/listo/`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ fase: "f6" })
+          });
+
+          const data = await res.json();
+
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || "No se pudo marcar listo en ranking.");
+          }
+
+          const listos = Number(data.listos || 0);
+          const total = Number(data.total || 0);
+          if (rankingEstado) {
+            rankingEstado.textContent = `${listos}/${total} grupos listos`;
+          }
+        } catch (e) {
+          console.error("Error marcando listo ranking:", e);
+          btnRankingListo.disabled = false;
+          btnRankingListo.textContent = "Continuar";
+        }
+      });
+    }
+
+    function animarCarrera() {
+      if (terminoCarrera) return;
+
+      frame++;
+      const t = Math.min(frame / TOTAL_FRAMES, 1);
+      const pos = START + (END - START) * easeInOutCubic(t);
+
+      racers.forEach((r) => {
+        if (r.barra) {
+          r.barra.style.width = `${pos}%`;
+        }
+      });
+
+      if (frame >= TOTAL_FRAMES) {
+        terminoCarrera = true;
+
+        if (esRankingFinal) {
           setTimeout(() => {
             carrera.classList.add("fade-out");
-            overlay.classList.add("visible");
+            if (overlay) overlay.classList.add("visible");
           }, 300);
 
           setTimeout(() => {
             carrera.classList.add("hidden");
-            overlay.classList.remove("visible");
+            if (overlay) overlay.classList.remove("visible");
             podio.classList.add("visible");
             mostroPodio = true;
 
@@ -141,24 +254,34 @@
               audio.play().catch(() => {});
             } catch (e) {}
           }, 2600);
-
-          return;
+        } else {
+          setTimeout(() => {
+            carrera.classList.add("hidden");
+            podio.classList.add("visible");
+            mostroPodio = true;
+          }, 700);
         }
 
-        requestAnimationFrame(animarCarrera);
+        return;
       }
 
       requestAnimationFrame(animarCarrera);
+    }
 
-      const observador = new MutationObserver(() => {
-        if (!mostroPodio && podio.classList.contains("visible")) {
-          mostroPodio = true;
-        }
-      });
+    requestAnimationFrame(animarCarrera);
 
-      observador.observe(podio, { attributes: true, attributeFilter: ["class"] });
+    const observador = new MutationObserver(() => {
+      if (!mostroPodio && podio.classList.contains("visible")) {
+        mostroPodio = true;
+      }
     });
-  </script>
+
+    observador.observe(podio, { attributes: true, attributeFilter: ["class"] });
+
+    refrescarEstadoRanking();
+    setInterval(refrescarEstadoRanking, 1500);
+  });
+</script>
 
   {% include "includes/sincronizacion_fase.html" %}
 </body>
