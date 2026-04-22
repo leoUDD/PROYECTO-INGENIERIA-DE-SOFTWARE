@@ -306,8 +306,8 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
+<script>
+document.addEventListener("DOMContentLoaded", () => {
   const sesionId = "{{ grupo.sesion.idsesion }}";
   const grupoId = "{{ grupo.idgrupo }}";
   const csrfToken = "{{ csrf_token }}";
@@ -335,6 +335,11 @@
   let timerInterval = null;
   let timerStarted = false;
   let redirigiendo = false;
+
+  // 🔥 NUEVO (igual que LEGO)
+  let countdownMostrado = false;
+  let countdownEnCurso = false;
+  let timerRealSolicitado = false;
 
   function activarFase() {
     blurTargets.forEach(el => {
@@ -381,11 +386,45 @@
     }, 1000);
   }
 
+  // 🔥 IGUAL QUE LEGO
+  async function iniciarTimerRealDespuesCountdown() {
+    if (timerRealSolicitado) return;
+
+    timerRealSolicitado = true;
+
+    try {
+      const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({})
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "No se pudo iniciar el timer.");
+      }
+
+      const backendSeconds = Number(data.segundosRestantes);
+      if (!Number.isNaN(backendSeconds)) {
+        timeLeft = backendSeconds;
+        renderTimer();
+      }
+
+    } catch (err) {
+      console.error("Error iniciando timer pitch:", err);
+      timerRealSolicitado = false;
+    }
+  }
+
   btnLimpiar?.addEventListener("click", () => {
-    const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");
+    const confirmar = window.confirm("¿Estás segura de que quieres borrar tu pitch?");
     if (!confirmar) return;
     if (textarea) textarea.value = "";
-    textarea?.dispatchEvent(new Event("input"));
   });
 
   async function syncTimer() {
@@ -399,14 +438,13 @@
       const data = await res.json();
 
       if (contador) {
-        contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
+        contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0}`;
       }
 
       const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
       if (miGrupo && miGrupo.listoF4) {
         boton.disabled = true;
         boton.textContent = "Esperando...";
-        if (textoEspera) textoEspera.textContent = "Esperando a los demás equipos...";
       }
 
       if (data.faseActual && data.faseActual !== "f4_construccion_pitch") {
@@ -417,22 +455,47 @@
         return;
       }
 
+      // 🔥 COUNTDOWN
       if (data.inicioFaseHabilitado) {
-        activarFase();
+
+        if (!countdownMostrado && !countdownEnCurso) {
+          countdownEnCurso = true;
+
+          window.oaiCountdown.run(async () => {
+            countdownMostrado = true;
+            countdownEnCurso = false;
+
+            await iniciarTimerRealDespuesCountdown();
+            activarFase();
+          });
+
+          return;
+        }
+
+        if (countdownMostrado && !countdownEnCurso) {
+          activarFase();
+        }
+
       } else {
+        countdownMostrado = false;
+        countdownEnCurso = false;
+        timerRealSolicitado = false;
         bloquearFase();
       }
 
       const backendTime = Number(data.segundosRestantes);
 
       if (!timerStarted) {
-        timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
+        timeLeft = backendTime;
         renderTimer();
       }
 
       if (!timerStarted && data.timerCorriendo && data.inicioFaseHabilitado) {
+
+        if (!countdownMostrado || countdownEnCurso) return;
+
         timerStarted = true;
-        timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
+        timeLeft = backendTime;
         renderTimer();
         startTimer();
         return;
@@ -441,15 +504,11 @@
       if (timerStarted && !data.timerCorriendo) {
         clearInterval(timerInterval);
         timerInterval = null;
-        timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
+        timeLeft = backendTime;
         renderTimer();
         timerStarted = false;
       }
 
-      if (backendTime <= 0) {
-        timeLeft = 0;
-        renderTimer();
-      }
     } catch (e) {
       console.error("Error timer pitch:", e);
     }
@@ -460,7 +519,7 @@
     boton.textContent = "Esperando...";
 
     try {
-      const res = await fetch(`/grupo/${grupoId}/listo/`, {
+      await fetch(`/grupo/${grupoId}/listo/`, {
         method: "POST",
         credentials: "same-origin",
         headers: {
@@ -470,30 +529,11 @@
         body: JSON.stringify({})
       });
 
-      const data = await res.json();
+      syncTimer();
 
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "No se pudo marcar listo.");
-      }
-
-      if (contador) {
-        contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
-      }
-
-      if (textoEspera) {
-        textoEspera.textContent = "Esperando a los demás equipos...";
-      }
-
-      if (data.inicio_fase_habilitado) {
-        activarFase();
-      }
     } catch (err) {
-      console.error("Error marcando listo:", err);
       boton.disabled = false;
-      boton.textContent = "⚡ Listo para comenzar";
-      if (textoEspera) {
-        textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
-      }
+      boton.textContent = "⚡ Listo";
     }
   });
 
@@ -502,7 +542,8 @@
   setInterval(syncTimer, 1000);
   syncTimer();
 });
-  </script>
+</script>
   {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
 </body>
 </html>

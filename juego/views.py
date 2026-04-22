@@ -399,6 +399,48 @@ def autoavanzar_si_todos_listos(sesion):
         if grupos.filter(listo_f4=True).count() == total:
             nueva_fase = "f4_construccion_pitch"
 
+    elif fase_actual == "f4_orden_pitch":
+        listos_orden = grupos.filter(listo_f4_orden=True).count()
+
+        if not sesion.orden_sorteado:
+            if listos_orden == total:
+                grupos_lista = list(
+                    Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
+                )
+                random.shuffle(grupos_lista)
+
+                for i, grupo in enumerate(grupos_lista, start=1):
+                    grupo.orden_presentacion = i
+                    grupo.save(update_fields=["orden_presentacion"])
+
+                sesion.orden_sorteado = True
+                sesion.grupo_presentando = sorted(
+                    grupos_lista,
+                    key=lambda g: g.orden_presentacion
+                )[0]
+
+                Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False)
+
+                sesion.segundos_restantes = 0
+                sesion.timer_corriendo = False
+                sesion.timer_inicio_at = None
+                sesion.timer_fin_at = None
+                sesion.inicio_fase_habilitado = True
+                sesion.save(update_fields=[
+                    "orden_sorteado",
+                    "grupo_presentando",
+                    "segundos_restantes",
+                    "timer_corriendo",
+                    "timer_inicio_at",
+                    "timer_fin_at",
+                    "inicio_fase_habilitado",
+                ])
+                return True
+
+        else:
+            if listos_orden == total:
+                nueva_fase = "f4_presentacion_pitch"
+
     elif fase_actual == "f6_ranking":
         if grupos.filter(listo_f6=True).count() == total:
             nueva_fase = "reflexion"
@@ -418,6 +460,12 @@ def autoavanzar_si_todos_listos(sesion):
             listo_ranking=False,
         )
 
+    if nueva_fase == "f4_presentacion_pitch":
+        sesion.grupo_presentando = Grupo.objects.filter(
+            sesion=sesion,
+            orden_presentacion__isnull=False
+        ).order_by("orden_presentacion").first()
+
     if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
         sesion.inicio_fase_habilitado = False
         sesion.save(update_fields=[
@@ -427,6 +475,7 @@ def autoavanzar_si_todos_listos(sesion):
             "timer_inicio_at",
             "timer_fin_at",
             "inicio_fase_habilitado",
+            "grupo_presentando",
         ])
         reset_listos_inicio_fase(sesion, nueva_fase)
         return True
@@ -439,6 +488,7 @@ def autoavanzar_si_todos_listos(sesion):
         "timer_inicio_at",
         "timer_fin_at",
         "inicio_fase_habilitado",
+        "grupo_presentando",
     ])
     return True
 
@@ -564,6 +614,7 @@ def serializar_estado_pitch(sesion, grupo_solicitante=None):
             }
             for g in orden_pitch
         ],
+        "ordenSorteado": getattr(sesion, "orden_sorteado", False),
         "timerCorriendo": sesion.timer_corriendo,
         "segundosRestantes": segundos_restantes,
         "miPitch": grupo_solicitante.pitch_texto if grupo_solicitante else "",
@@ -585,14 +636,34 @@ def estado_presentacion_pitch(request, sesion_id):
         grupo_solicitante = None
 
     calcular_segundos_restantes(sesion)
+    autoavanzar_si_todos_listos(sesion)
     sesion.refresh_from_db()
 
     nombre_url = RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")
+
+    grupos = Grupo.objects.filter(sesion=sesion).order_by("idgrupo")
+
+    grupos_data = [
+        {
+            "id": g.idgrupo,
+            "nombre": g.nombregrupo,
+            "listoF4Orden": getattr(g, "listo_f4_orden", False),
+        }
+        for g in grupos
+    ]
+
+    total_grupos = len(grupos_data)
+    grupos_listos_f4_orden = sum(1 for g in grupos_data if g["listoF4Orden"])
+    todos_listos_f4_orden = total_grupos > 0 and grupos_listos_f4_orden == total_grupos
 
     data = {
         "ok": True,
         "faseActual": sesion.fase_actual,
         "rutaAlumno": reverse(nombre_url),
+        "totalGrupos": total_grupos,
+        "grupos": grupos_data,
+        "gruposListosF4Orden": grupos_listos_f4_orden,
+        "todosListosF4Orden": todos_listos_f4_orden,
         **serializar_estado_pitch(sesion, grupo_solicitante=grupo_solicitante),
     }
     return JsonResponse(data)
@@ -717,6 +788,7 @@ def estado_sesion(request, sesion_id):
            "legoSinFoto": getattr(g, "lego_sin_foto", False),
            "legoConFoto": bool(getattr(g, "foto_lego", None)) and getattr(g, "listo_f3_lego", False),
            "listoF4": g.listo_f4,
+           "listoF4Orden": getattr(g, "listo_f4_orden", False),
            "listoF5": getattr(g, "listo_f5", False),
           "listoF6": getattr(g, "listo_f6", False),
         }
@@ -749,6 +821,8 @@ def estado_sesion(request, sesion_id):
     grupos_sin_foto_lego = sum(1 for g in grupos_data if g["legoSinFoto"])
     grupos_listos_f4 = sum(1 for g in grupos_data if g["listoF4"])
     todos_listos_f4 = total_grupos > 0 and grupos_listos_f4 == total_grupos
+    grupos_listos_f4_orden = sum(1 for g in grupos_data if g["listoF4Orden"])
+    todos_listos_f4_orden = total_grupos > 0 and grupos_listos_f4_orden == total_grupos
 
     grupos_listos_f5 = sum(1 for g in grupos_data if g["listoF5"])
     todos_listos_f5 = total_grupos > 0 and grupos_listos_f5 == total_grupos
@@ -808,6 +882,8 @@ def estado_sesion(request, sesion_id):
 
         "gruposListosF4": grupos_listos_f4,
         "todosListosF4": todos_listos_f4,
+        "gruposListosF4Orden": grupos_listos_f4_orden,
+        "todosListosF4Orden": todos_listos_f4_orden,
 
         "gruposListosF5": grupos_listos_f5,
         "todosListosF5": todos_listos_f5,
@@ -1015,6 +1091,15 @@ def profesor_actualizar_estado(request, sesion_id):
         sesion.timer_inicio_at = None
         sesion.timer_fin_at = None
 
+        if nueva_fase == "f4_orden_pitch":
+            Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False)
+            sesion.orden_sorteado = False
+            sesion.grupo_presentando = None
+            Grupo.objects.filter(sesion=sesion).update(orden_presentacion=None)
+
+        if nueva_fase == "f4_orden_pitch":
+            Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False)
+
         if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
             sesion.inicio_fase_habilitado = False
             sesion.save(update_fields=[
@@ -1121,6 +1206,15 @@ def profesor_siguiente_fase(request, sesion_id):
     sesion.timer_corriendo = False
     sesion.timer_inicio_at = None
     sesion.timer_fin_at = None
+
+    if nueva_fase == "f4_orden_pitch":
+        Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False)
+        Grupo.objects.filter(sesion=sesion).update(orden_presentacion=None)
+        sesion.orden_sorteado = False
+        sesion.grupo_presentando = None
+
+    if nueva_fase == "f4_orden_pitch":
+        Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False)
 
     if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
         sesion.inicio_fase_habilitado = False
@@ -1369,6 +1463,18 @@ def marcar_grupo_listo(request, grupo_id):
             grupo.listo_f4 = True
             grupo.save(update_fields=["listo_f4"])
 
+    elif fase_actual == "f4_orden_pitch":
+        if not getattr(grupo, "listo_f4_orden", False):
+            grupo.listo_f4_orden = True
+            grupo.save(update_fields=["listo_f4_orden"])
+
+    elif fase_actual == "f4_orden_pitch":
+        if not getattr(grupo, "listo_f4_orden", False):
+            grupo.listo_f4_orden = True
+            grupo.save(update_fields=["listo_f4_orden"])    
+
+
+
     else:
         return JsonResponse({
             "ok": False,
@@ -1380,7 +1486,6 @@ def marcar_grupo_listo(request, grupo_id):
     if todos and not sesion.inicio_fase_habilitado:
         sesion.inicio_fase_habilitado = True
         sesion.save(update_fields=["inicio_fase_habilitado"])
-        iniciar_timer_de_sesion(sesion)
 
     return JsonResponse({
         "ok": True,
@@ -1391,6 +1496,34 @@ def marcar_grupo_listo(request, grupo_id):
         "totalGrupos": total,
         "todos_listos": todos,
         "inicio_fase_habilitado": sesion.inicio_fase_habilitado,
+    })
+
+
+@require_POST
+def iniciar_timer_inicio_fase(request, sesion_id):
+    sesion = get_object_or_404(Sesion, pk=sesion_id)
+
+    if sesion.fase_actual not in FASES_CON_INICIO_POR_ALUMNOS:
+        return JsonResponse({
+            "ok": False,
+            "error": "La fase actual no usa inicio grupal."
+        }, status=400)
+
+    if not sesion.inicio_fase_habilitado:
+        return JsonResponse({
+            "ok": False,
+            "error": "La fase aún no está habilitada."
+        }, status=400)
+
+    if not sesion.timer_corriendo:
+        iniciar_timer_de_sesion(sesion)
+        sesion.refresh_from_db()
+
+    return JsonResponse({
+        "ok": True,
+        "faseActual": sesion.fase_actual,
+        "timerCorriendo": sesion.timer_corriendo,
+        "segundosRestantes": int(sesion.segundos_restantes or 0),
     })
 
 

@@ -183,6 +183,62 @@
       font-size: 0.98rem;
     }
 
+    .ruleta-lego-card{
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto 20px;
+      border-radius: 18px;
+      border: 2px solid rgba(255, 122, 26, 0.55);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      padding: 18px;
+    }
+
+    .ruleta-lego-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .ruleta-lego-kicker{
+      color:#ff9b47;
+      font-size:.92rem;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      margin-bottom:4px;
+    }
+
+    .ruleta-lego-title{
+      margin:0 0 6px 0;
+      color:#fff;
+      font-size:1.18rem;
+    }
+
+    .ruleta-lego-texto{
+      margin:0;
+      color:#d9e6f2;
+      line-height:1.45;
+      font-size:.96rem;
+    }
+
+    .ruleta-lego-resumen{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      color:#fff;
+      font-weight:600;
+      font-size:.95rem;
+    }
+
+    #ruletaUltimoResultado{
+      color:#ffd6ae;
+    }
+
     .foto-panel {
       width: 100%;
       max-width: 640px;
@@ -334,10 +390,252 @@
       text-shadow: none;
     }
 
+    .ruleta-modal{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      position:fixed;
+      inset:0;
+      z-index:9998;
+      background:rgba(0,0,0,.72);
+      backdrop-filter: blur(4px);
+      padding:18px;
+    }
+
+    .ruleta-modal-content{
+      position:relative;
+      width:min(1100px, 96vw);
+      max-height:92vh;
+      overflow:auto;
+      border-radius:24px;
+      padding:24px 22px 18px;
+      background:rgba(245,245,245,.96);
+      color:#2f2f2f;
+    }
+
+    .ruleta-cerrar{
+      position:absolute;
+      top:14px;
+      right:14px;
+      width:42px;
+      height:42px;
+      border:none;
+      border-radius:999px;
+      font-size:1.1rem;
+      font-weight:800;
+      cursor:pointer;
+      color:#20354e;
+      background:#dde8f0;
+    }
+
+    .ruleta-modal-title{
+      margin:0;
+      text-align:center;
+      color:#e91e63 !important;
+      font-size:2rem;
+      font-weight:800;
+    }
+
+    .ruleta-modal-subtitle{
+      margin:6px 0 18px 0;
+      text-align:center;
+      color:#666 !important;
+      font-size:1rem;
+    }
+
+    .ruleta-layout{
+      display:grid;
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      gap:22px;
+      align-items:start;
+    }
+
+    .ruleta-zona{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:14px;
+      padding:8px 8px 0;
+    }
+
+    .ruleta-puntero{
+      width:0;
+      height:0;
+      border-left:18px solid transparent;
+      border-right:18px solid transparent;
+      border-top:30px solid #333;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,.25));
+      margin-bottom:2px;
+    }
+
+    .ruleta-wheel-wrap{
+      position:relative;
+      width:310px;
+      height:310px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .ruleta-wheel{
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      border:5px solid #f5f5f5;
+      box-shadow:0 10px 20px rgba(0,0,0,.18);
+      position:relative;
+      overflow:hidden;
+      transition: transform 4s cubic-bezier(.17,.67,.18,1);
+      background:
+        conic-gradient(
+          #2276cf 0deg 60deg,
+          #e91e63 60deg 120deg,
+          #2276cf 120deg 180deg,
+          #f0df2b 180deg 240deg,
+          #19b5c9 240deg 300deg,
+          #9c27b0 300deg 360deg
+        );
+    }
+
+    .ruleta-centro{
+      position:absolute;
+      width:64px;
+      height:64px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#eaeaea;
+      color:#2276cf;
+      font-weight:800;
+      border:4px solid #d5d5d5;
+      box-shadow:0 4px 10px rgba(0,0,0,.12);
+      z-index:3;
+    }
+
+    .slice{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:124px;
+      transform-origin:0% 0%;
+      color:#fff;
+      font-weight:700;
+      font-size:.92rem;
+      text-align:center;
+      text-shadow:0 1px 3px rgba(0,0,0,.4);
+      pointer-events:none;
+    }
+
+    .s1{ transform: rotate(30deg) translateY(-118px); }
+    .s2{ transform: rotate(90deg) translateY(-118px); }
+    .s3{ transform: rotate(150deg) translateY(-118px); }
+    .s4{ transform: rotate(210deg) translateY(-118px); }
+    .s5{ transform: rotate(270deg) translateY(-118px); }
+    .s6{ transform: rotate(330deg) translateY(-118px); }
+
+    .ruleta-intentos{
+      color:#ff0000;
+      font-size:1rem;
+      font-weight:800;
+    }
+
+    .ruleta-resultado-actual{
+      width:100%;
+      max-width:320px;
+      min-height:56px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#eef4f7;
+      color:#334;
+      font-weight:700;
+      text-align:center;
+      line-height:1.35;
+    }
+
+    .ruleta-tabla{
+      background:#f7f7f7;
+      border-radius:18px;
+      padding:8px 8px 4px;
+      min-height:100%;
+    }
+
+    .ruleta-tabla h3{
+      margin:8px 0 12px 0;
+      text-align:center;
+      color:#2276cf !important;
+      font-size:1.5rem;
+    }
+
+    .ruleta-item{
+      display:grid;
+      grid-template-columns:64px 1fr auto;
+      gap:12px;
+      align-items:center;
+      padding:12px 14px;
+      border:1px solid #e5e5e5;
+      border-radius:14px;
+      background:#fbfbfb;
+      margin-bottom:10px;
+    }
+
+    .ruleta-item strong{
+      display:block;
+      font-size:1.05rem;
+      color:#333;
+      margin-bottom:2px;
+    }
+
+    .ruleta-item small{
+      display:block;
+      color:#777;
+      line-height:1.3;
+      font-size:.9rem;
+    }
+
+    .tag{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width:58px;
+      min-height:40px;
+      border-radius:10px;
+      font-weight:800;
+      font-size:1.6rem;
+    }
+
+    .tag.positivo{ background:#e6f5e8; color:#43a047; }
+    .tag.negativo{ background:#fdeceb; color:#e53935; }
+    .tag.neutro{ background:#f2edf7; color:#9c27b0; }
+    .tag.comodin{ background:#e5f8fd; color:#00b8d9; }
+    .tag.regla{ background:#fff2e0; color:#fb8c00; }
+
+    .porcentaje{
+      font-weight:800;
+      color:#999;
+      background:#efefef;
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:.92rem;
+    }
+
     @media (max-width: 900px) {
       .inicio-fase-card {
         width: min(94%, 760px);
         padding: 16px 18px;
+      }
+
+      .ruleta-layout{
+        grid-template-columns: 1fr;
+      }
+
+      .ruleta-zona{
+        order:1;
+      }
+
+      .ruleta-tabla{
+        order:2;
       }
     }
 
@@ -368,6 +666,42 @@
 
       .contador-fase {
         font-size: 0.9rem;
+      }
+
+      .ruleta-lego-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .ruleta-lego-resumen{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .ruleta-wheel-wrap{
+        width:260px;
+        height:260px;
+      }
+
+      .slice{
+        width:104px;
+        font-size:.82rem;
+      }
+
+      .s1{ transform: rotate(30deg) translateY(-98px); }
+      .s2{ transform: rotate(90deg) translateY(-98px); }
+      .s3{ transform: rotate(150deg) translateY(-98px); }
+      .s4{ transform: rotate(210deg) translateY(-98px); }
+      .s5{ transform: rotate(270deg) translateY(-98px); }
+      .s6{ transform: rotate(330deg) translateY(-98px); }
+
+      .ruleta-item{
+        grid-template-columns:58px 1fr;
+      }
+
+      .porcentaje{
+        grid-column:1 / -1;
+        justify-self:end;
       }
     }
   </style>
@@ -410,6 +744,27 @@
     <img id="legoLogo" src="{% static 'images/Lego-logo.png' %}" class="logo blur-target-bloqueado" alt="Lego logo">
 
     <h1 id="legoTitle" class="title blur-target-bloqueado">Construye tu solución</h1>
+
+    <section id="ruletaLegoCard" class="ruleta-lego-card blur-target-bloqueado">
+      <div class="ruleta-lego-head">
+        <div>
+          <div class="ruleta-lego-kicker">Opcional</div>
+          <h3 class="ruleta-lego-title">🎡 Ruleta LEGO</h3>
+          <p class="ruleta-lego-texto">
+            Puedes lanzar la ruleta hasta 3 veces durante esta fase para obtener recompensas o retos.
+          </p>
+        </div>
+
+        <button type="button" id="btnAbrirRuletaLego" class="btn-chip">
+          Abrir ruleta
+        </button>
+      </div>
+
+      <div id="ruletaLegoResumen" class="ruleta-lego-resumen">
+        <span id="ruletaIntentosTexto">Intentos disponibles: 3/3</span>
+        <span id="ruletaUltimoResultado">Aún no has lanzado la ruleta.</span>
+      </div>
+    </section>
 
     <section id="desafioPanel" class="desafio-panel blur-target-bloqueado">
       <button type="button" class="desafio-toggle" id="desafioToggle">
@@ -484,6 +839,88 @@
         </form>
       </div>
     </div>
+
+    <div id="modalRuletaLego" class="modal ruleta-modal">
+      <div class="modal-content ruleta-modal-content">
+        <button type="button" id="btnCerrarRuletaLego" class="ruleta-cerrar">✕</button>
+
+        <h2 class="ruleta-modal-title">🎲 Desafío LEGO (Opcional)</h2>
+        <p class="ruleta-modal-subtitle">
+          Lanza la ruleta para obtener una recompensa o un reto.
+        </p>
+
+        <div class="ruleta-layout">
+          <div class="ruleta-zona">
+            <div class="ruleta-puntero"></div>
+
+            <div class="ruleta-wheel-wrap">
+              <div id="ruletaWheel" class="ruleta-wheel">
+                <div class="slice s1">+5 Tokens</div>
+                <div class="slice s2">-3 Tokens</div>
+                <div class="slice s3">Espía</div>
+                <div class="slice s4">Bloqueo</div>
+                <div class="slice s5">Comodín</div>
+                <div class="slice s6">Regla Extra</div>
+              </div>
+              <div class="ruleta-centro">UDD</div>
+            </div>
+
+            <div class="ruleta-intentos">
+              Intentos restantes: <strong id="ruletaIntentosRestantes">3</strong>/3
+            </div>
+
+            <button type="button" id="btnLanzarRuletaLego" class="btn-chip">
+              Lanzar ruleta
+            </button>
+
+            <div id="ruletaResultadoActual" class="ruleta-resultado-actual">
+              Aún no has lanzado la ruleta.
+            </div>
+          </div>
+
+          <div class="ruleta-tabla">
+            <h3>Tabla de oportunidades</h3>
+
+            <div class="ruleta-item">
+              <span class="tag positivo">+5</span>
+              <div><strong>+5 Tokens</strong><small>Suma +5 tokens inmediatos.</small></div>
+              <span class="porcentaje">18%</span>
+            </div>
+
+            <div class="ruleta-item">
+              <span class="tag negativo">-3</span>
+              <div><strong>-3 Tokens</strong><small>Resta 3 tokens.</small></div>
+              <span class="porcentaje">18%</span>
+            </div>
+
+            <div class="ruleta-item">
+              <span class="tag neutro">0</span>
+              <div><strong>Espía</strong><small>Tienes 2 minutos para mirar a otro equipo.</small></div>
+              <span class="porcentaje">16%</span>
+            </div>
+
+            <div class="ruleta-item">
+              <span class="tag neutro">0</span>
+              <div><strong>Bloqueo</strong><small>Usa solo 3 colores de LEGO.</small></div>
+              <span class="porcentaje">16%</span>
+            </div>
+
+            <div class="ruleta-item">
+              <span class="tag comodin">+2</span>
+              <div><strong>Comodín</strong><small>Pide ayuda al profesor y suma +2 tokens.</small></div>
+              <span class="porcentaje">16%</span>
+            </div>
+
+            <div class="ruleta-item">
+              <span class="tag regla">0</span>
+              <div><strong>Regla Extra</strong><small>Incluye una figura humana hecha con LEGO.</small></div>
+              <span class="porcentaje">16%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <script>
@@ -539,9 +976,14 @@
       const alarmAudio = document.getElementById("alarm-audio");
       const overlay = document.getElementById("inicio-fase-overlay");
 
+      let timerLiberadoTrasCountdown = false;
+      let countdownMostrado = false;
+      let countdownEnCurso = false;
+
       const blurTargets = [
         document.getElementById("legoLogo"),
         document.getElementById("legoTitle"),
+        document.getElementById("ruletaLegoCard"),
         document.getElementById("desafioPanel"),
         document.getElementById("legoSubtitle"),
         document.getElementById("ideasList"),
@@ -555,6 +997,7 @@
       let timerStartedByProfesor = false;
       let modalMostrado = false;
       let redirigiendo = false;
+      let timerRealSolicitado = false;
 
       function activarFase() {
         blurTargets.forEach(el => {
@@ -608,6 +1051,39 @@
         } catch (e) {}
 
         modalFin.style.display = "flex";
+      }
+
+      async function iniciarTimerRealDespuesCountdown() {
+        if (timerRealSolicitado) return;
+
+        timerRealSolicitado = true;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({})
+          });
+
+          const data = await res.json();
+
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || "No se pudo iniciar el timer real.");
+          }
+
+          const backendSeconds = Number(data.segundosRestantes);
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            renderTimer();
+          }
+        } catch (err) {
+          console.error("Error iniciando timer real lego:", err);
+          timerRealSolicitado = false;
+        }
       }
 
       function startTimer() {
@@ -668,19 +1144,46 @@
         }
 
         if (data.inicioFaseHabilitado) {
-          activarFase();
+          if (!countdownMostrado && !countdownEnCurso) {
+            countdownEnCurso = true;
+
+            window.oaiCountdown.run(async () => {
+              countdownMostrado = true;
+              countdownEnCurso = false;
+              timerLiberadoTrasCountdown = true;
+
+              await iniciarTimerRealDespuesCountdown();
+              activarFase();
+            });
+
+            return;
+          }
+
+          if (countdownMostrado && !countdownEnCurso) {
+            activarFase();
+          }
         } else {
+          countdownMostrado = false;
+          countdownEnCurso = false;
+          timerLiberadoTrasCountdown = false;
+          timerRealSolicitado = false;
           bloquearFase();
         }
 
         const backendSeconds = Number(data.segundosRestantes);
 
         if ((!timerStartedByProfesor || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
-          timeLeft = backendSeconds;
-          renderTimer();
+          if (!countdownEnCurso && !timerLiberadoTrasCountdown) {
+            timeLeft = backendSeconds;
+            renderTimer();
+          }
         }
 
         if (!timerStartedByProfesor && data.timerCorriendo && data.inicioFaseHabilitado) {
+          if (!countdownMostrado || countdownEnCurso || !timerLiberadoTrasCountdown) {
+            return;
+          }
+
           timerStartedByProfesor = true;
 
           if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
@@ -759,9 +1262,7 @@
               textoEspera.textContent = "Esperando a los demás equipos...";
             }
 
-            if (data.inicio_fase_habilitado) {
-              activarFase();
-            }
+            revisarEstadoProfesor();
           } catch (err) {
             console.error("Error marcando listo:", err);
             boton.disabled = false;
@@ -889,6 +1390,220 @@
     }
   </script>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const sesionId = "{{ grupo.sesion.idsesion }}";
+      const grupoId = "{{ grupo.idgrupo }}";
+
+      const modal = document.getElementById("modalRuletaLego");
+      const btnAbrir = document.getElementById("btnAbrirRuletaLego");
+      const btnCerrar = document.getElementById("btnCerrarRuletaLego");
+      const btnLanzar = document.getElementById("btnLanzarRuletaLego");
+      const wheel = document.getElementById("ruletaWheel");
+      const intentosRestantes = document.getElementById("ruletaIntentosRestantes");
+      const intentosTexto = document.getElementById("ruletaIntentosTexto");
+      const ultimoResultado = document.getElementById("ruletaUltimoResultado");
+      const resultadoActual = document.getElementById("ruletaResultadoActual");
+
+      const STORAGE_RULETA = `ruleta_lego_${sesionId}_${grupoId}`;
+      const MAX_INTENTOS = 3;
+
+      const OPCIONES = [
+        {
+          id: "plus5",
+          titulo: "+5 Tokens",
+          detalle: "Suma +5 tokens inmediatos.",
+          prob: 18,
+          slice: 0
+        },
+        {
+          id: "minus3",
+          titulo: "-3 Tokens",
+          detalle: "Resta 3 tokens.",
+          prob: 18,
+          slice: 1
+        },
+        {
+          id: "espia",
+          titulo: "Espía",
+          detalle: "Tienes 2 minutos para mirar a otro equipo.",
+          prob: 16,
+          slice: 2
+        },
+        {
+          id: "bloqueo",
+          titulo: "Bloqueo",
+          detalle: "Usa solo 3 colores de LEGO.",
+          prob: 16,
+          slice: 3
+        },
+        {
+          id: "comodin",
+          titulo: "Comodín",
+          detalle: "Pide ayuda al profesor y suma +2 tokens.",
+          prob: 16,
+          slice: 4
+        },
+        {
+          id: "regla_humana",
+          titulo: "Regla Extra",
+          detalle: "Incluye una figura humana hecha con LEGO.",
+          prob: 16,
+          slice: 5
+        }
+      ];
+
+      let girando = false;
+      let anguloActual = 0;
+
+      function cargarEstadoRuleta() {
+        try {
+          const raw = localStorage.getItem(STORAGE_RULETA);
+          if (!raw) {
+            return {
+              usados: 0,
+              historial: []
+            };
+          }
+          const parsed = JSON.parse(raw);
+          return {
+            usados: Number(parsed.usados || 0),
+            historial: Array.isArray(parsed.historial) ? parsed.historial : []
+          };
+        } catch (_) {
+          return {
+            usados: 0,
+            historial: []
+          };
+        }
+      }
+
+      function guardarEstadoRuleta(data) {
+        localStorage.setItem(STORAGE_RULETA, JSON.stringify(data));
+      }
+
+      function actualizarResumenRuleta() {
+        const estado = cargarEstadoRuleta();
+        const restantes = Math.max(0, MAX_INTENTOS - estado.usados);
+
+        if (intentosRestantes) {
+          intentosRestantes.textContent = String(restantes);
+        }
+
+        if (intentosTexto) {
+          intentosTexto.textContent = `Intentos disponibles: ${restantes}/${MAX_INTENTOS}`;
+        }
+
+        const ultimo = estado.historial[estado.historial.length - 1];
+        if (ultimoResultado) {
+          ultimoResultado.textContent = ultimo
+            ? `Último resultado: ${ultimo.titulo} — ${ultimo.detalle}`
+            : "Aún no has lanzado la ruleta.";
+        }
+
+        if (resultadoActual) {
+          resultadoActual.textContent = ultimo
+            ? `${ultimo.titulo}: ${ultimo.detalle}`
+            : "Aún no has lanzado la ruleta.";
+        }
+
+        if (btnLanzar) {
+          btnLanzar.disabled = restantes <= 0 || girando;
+          btnLanzar.textContent = restantes <= 0 ? "Sin intentos" : "Lanzar ruleta";
+        }
+      }
+
+      function abrirModalRuleta() {
+        if (!modal) return;
+        modal.style.display = "flex";
+        actualizarResumenRuleta();
+      }
+
+      function cerrarModalRuleta() {
+        if (!modal) return;
+        modal.style.display = "none";
+      }
+
+      function elegirOpcionPonderada() {
+        const total = OPCIONES.reduce((acc, op) => acc + op.prob, 0);
+        let r = Math.random() * total;
+
+        for (const op of OPCIONES) {
+          r -= op.prob;
+          if (r <= 0) return op;
+        }
+
+        return OPCIONES[OPCIONES.length - 1];
+      }
+
+      function girarRuleta(opcion) {
+        return new Promise(resolve => {
+          if (!wheel) {
+            resolve();
+            return;
+          }
+
+          const gradosPorSlice = 360 / 6;
+          const centroSlice = (opcion.slice * gradosPorSlice) + (gradosPorSlice / 2);
+          const puntero = 0;
+          const offset = 360 - centroSlice + puntero;
+
+          const vueltasExtra = 360 * (5 + Math.floor(Math.random() * 2));
+          anguloActual += vueltasExtra + offset;
+
+          wheel.style.transform = `rotate(${anguloActual}deg)`;
+
+          setTimeout(resolve, 4200);
+        });
+      }
+
+      async function lanzarRuleta() {
+        if (girando) return;
+
+        const estado = cargarEstadoRuleta();
+        const restantes = MAX_INTENTOS - estado.usados;
+        if (restantes <= 0) {
+          actualizarResumenRuleta();
+          return;
+        }
+
+        girando = true;
+        if (btnLanzar) {
+          btnLanzar.disabled = true;
+          btnLanzar.textContent = "Girando...";
+        }
+
+        const opcion = elegirOpcionPonderada();
+        await girarRuleta(opcion);
+
+        estado.usados += 1;
+        estado.historial.push({
+          id: opcion.id,
+          titulo: opcion.titulo,
+          detalle: opcion.detalle,
+          fecha: new Date().toISOString()
+        });
+
+        guardarEstadoRuleta(estado);
+        girando = false;
+        actualizarResumenRuleta();
+      }
+
+      btnAbrir?.addEventListener("click", abrirModalRuleta);
+      btnCerrar?.addEventListener("click", cerrarModalRuleta);
+      btnLanzar?.addEventListener("click", lanzarRuleta);
+
+      modal?.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          cerrarModalRuleta();
+        }
+      });
+
+      actualizarResumenRuleta();
+    });
+  </script>
+
   {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
 </body>
 </html>

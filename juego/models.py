@@ -94,6 +94,7 @@ class Grupo(models.Model):
     listo_f4 = models.BooleanField(default=False)
     listo_f5 = models.BooleanField(default=False)
     listo_f6 = models.BooleanField(default=False)
+    listo_f4_orden = models.BooleanField(default=False)
     listo_inicio_f3 = models.BooleanField(default=False)
     listo_f2 = models.BooleanField(default=False)
     listo_f2_empatia = models.BooleanField(default=False)
@@ -216,7 +217,7 @@ class Sesion(models.Model):
     timer_inicio_at = models.DateTimeField(null=True, blank=True)
     timer_fin_at = models.DateTimeField(null=True, blank=True)
     inicio_fase_habilitado = models.BooleanField(default=False)
-
+    orden_sorteado = models.BooleanField(default=False)
     #Timer
     t_rompehielo = models.IntegerField(default=180)
     t_diferencias = models.IntegerField(default=300)

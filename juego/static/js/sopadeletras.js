@@ -343,11 +343,22 @@ function bloquearJuego() {
 }
 
 function mostrarEsperandoProfesor() {
-  const overlay = document.getElementById("esperandoOverlay");
-  if (overlay) {
-    overlay.classList.add("visible");
-    overlay.setAttribute("aria-hidden", "false");
+  const timerContainer = document.getElementById("timer-container");
+  if (timerContainer) {
+    timerContainer.classList.remove("blur-target-bloqueado", "timer-esperando");
+    timerContainer.classList.add("blur-target-activo");
   }
+
+  const titulo = document.getElementById("tituloSopa");
+  const subtitulo = document.getElementById("subtituloSopa");
+  const wordsBox = document.getElementById("wordsBox");
+  const grid = document.getElementById("grid");
+
+  [titulo, subtitulo, wordsBox, grid].forEach(el => {
+    if (!el) return;
+    el.classList.remove("blur-target-activo");
+    el.classList.add("blur-target-bloqueado");
+  });
 }
 
 function endGame(won, alarmAudio = null) {
@@ -355,13 +366,16 @@ function endGame(won, alarmAudio = null) {
 
   gameEnded = true;
   bloquearJuego();
-  pauseTimerLocally();
 
   if (alarmAudio && !won) {
     try {
       alarmAudio.pause();
       alarmAudio.currentTime = 0;
     } catch (_) {}
+  }
+
+  if (!won) {
+    pauseTimerLocally();
   }
 
   if (won) {
@@ -449,16 +463,11 @@ function pauseTimerLocally() {
 function startTimer() {
   const alarmAudio = document.getElementById("alarm-audio");
 
-  if (timerInterval || gameEnded) return;
+  if (timerInterval) return;
 
   renderTimer();
 
   timerInterval = setInterval(() => {
-    if (gameEnded) {
-      pauseTimerLocally();
-      return;
-    }
-
     timeLeft--;
     renderTimer();
 
@@ -544,35 +553,21 @@ function procesarEstadoSesion(data) {
     return;
   }
 
-  if (gameEnded) return;
-
   const backendSeconds = Number(data.segundosRestantes);
 
-  if ((!timerStartedByProfesor || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+  if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
     timeLeft = backendSeconds;
     renderTimer();
   }
 
   if (!timerStartedByProfesor && data.timerCorriendo && data.inicioFaseHabilitado) {
     timerStartedByProfesor = true;
-
-    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-      timeLeft = backendSeconds;
-      renderTimer();
-    }
-
     startTimer();
     return;
   }
 
   if (timerStartedByProfesor && !data.timerCorriendo) {
     pauseTimerLocally();
-
-    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-      timeLeft = backendSeconds;
-      renderTimer();
-    }
-
     timerStartedByProfesor = false;
   }
 }

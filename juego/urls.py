@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     #NUEVO
+    path("sesion/<int:sesion_id>/iniciar-timer-inicio-fase/", views.iniciar_timer_inicio_fase, name="iniciar_timer_inicio_fase"),
     path("bubblemap/otorgar-tokens/", views.otorgar_tokens_bubblemap, name="otorgar_tokens_bubblemap"),
     path("presentar-pitch/", views.presentar_pitch, name="presentar_pitch"),
     path("sesion/<int:sesion_id>/iniciar-presentacion/", views.iniciar_presentacion_pitch, name="iniciar_presentacion_pitch"),

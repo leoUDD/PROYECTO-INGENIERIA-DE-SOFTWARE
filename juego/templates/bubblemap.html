@@ -225,11 +225,11 @@
     <footer id="footerBubble" class="footer-actions blur-target-bloqueado"></footer>
 
     <div
-  id="routes"
-  data-sesion-id="{{ grupo.sesion.idsesion }}"
-  data-tiempo="{{ segundos_restantes|default:180 }}"
-  data-otorgar-tokens-url="{% url 'otorgar_tokens_bubblemap' %}"
-></div>
+      id="routes"
+      data-sesion-id="{{ grupo.sesion.idsesion }}"
+      data-tiempo="{{ segundos_restantes|default:180 }}"
+      data-otorgar-tokens-url="{% url 'otorgar_tokens_bubblemap' %}"
+    ></div>
   </main>
 
   <script>
@@ -271,6 +271,9 @@
       const contador = document.getElementById("contador-listos-fase");
       const overlay = document.getElementById("inicio-fase-overlay");
       const timerWrap = document.getElementById("timerWrap");
+
+      let countdownMostrado = false;
+      let countdownEnCurso = false;
 
       const blurTargets = [
         document.getElementById("tituloBubble"),
@@ -323,8 +326,9 @@
       let timerInterval = null;
       let timerIniciado = false;
       let redirigiendo = false;
-
-            let tokensBubbleEnviados = false;
+      let tokensBubbleEnviados = false;
+      let timerLiberadoTrasCountdown = false;
+      let timerRealSolicitado = false;
 
       function obtenerBurbujasCompletadas() {
         return [...document.querySelectorAll(".bubble textarea")]
@@ -356,6 +360,40 @@
           console.error("Error otorgando tokens bubblemap:", err);
         }
       }
+
+      async function iniciarTimerRealDespuesCountdown() {
+  if (timerRealSolicitado) return;
+
+  timerRealSolicitado = true;
+
+  try {
+    const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify({})
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || "No se pudo iniciar el timer real.");
+    }
+
+    const backendSeconds = Number(data.segundosRestantes);
+    if (!Number.isNaN(backendSeconds)) {
+      timeLeft = backendSeconds;
+      pintarTiempo();
+    }
+  } catch (err) {
+    console.error("Error iniciando timer real bubblemap:", err);
+    timerRealSolicitado = false;
+  }
+}
+
 
       function activarFase() {
         blurTargets.forEach(el => {
@@ -429,38 +467,70 @@
           contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
         }
 
-const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
-if (miGrupo && miGrupo.listoF2Generico) {
-  boton.disabled = true;
-  boton.textContent = "Esperando...";
-  if (textoEspera) {
-    textoEspera.textContent = "Esperando a los demás equipos...";
-  }
-}
-
-
-
-        if (data.inicioFaseHabilitado) {
-          activarFase();
-        } else {
-          bloquearFase();
+        const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+        if (miGrupo && miGrupo.listoF2Generico) {
+          boton.disabled = true;
+          boton.textContent = "Esperando...";
+          if (textoEspera) {
+            textoEspera.textContent = "Esperando a los demás equipos...";
+          }
         }
+
+if (data.inicioFaseHabilitado) {
+  if (countdownMostrado && !countdownEnCurso) {
+    activarFase();
+  }
+} else {
+  countdownMostrado = false;
+  countdownEnCurso = false;
+  timerLiberadoTrasCountdown = false;
+  timerRealSolicitado = false;
+  bloquearFase();
+}
 
         const backendSeconds = Number(data.segundosRestantes);
 
-        if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
-          timeLeft = backendSeconds;
-          pintarTiempo();
-        }
+if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+  if (!countdownEnCurso && !timerLiberadoTrasCountdown) {
+    timeLeft = backendSeconds;
+    pintarTiempo();
+  }
+}
 
-        if (!timerIniciado && data.timerCorriendo && data.inicioFaseHabilitado) {
-          if (!Number.isNaN(backendSeconds)) {
-            timeLeft = backendSeconds;
-            pintarTiempo();
-          }
-          iniciarTimerLocal();
-          return;
-        }
+if (!timerIniciado && data.inicioFaseHabilitado) {
+  if (!countdownMostrado && !countdownEnCurso) {
+    countdownEnCurso = true;
+
+    window.oaiCountdown.run(async () => {
+      countdownMostrado = true;
+      countdownEnCurso = false;
+      timerLiberadoTrasCountdown = true;
+
+      await iniciarTimerRealDespuesCountdown();
+
+      activarFase();
+    });
+
+    return;
+  }
+
+  if (!countdownMostrado || countdownEnCurso || !timerLiberadoTrasCountdown) {
+    return;
+  }
+
+  if (!data.timerCorriendo) {
+    return;
+  }
+
+  if (!Number.isNaN(backendSeconds)) {
+    timeLeft = backendSeconds;
+    pintarTiempo();
+  }
+
+  timerIniciado = true;
+  iniciarTimerLocal();
+  return;
+}
 
         if (timerIniciado && !data.timerCorriendo) {
           pausarTimerLocal();
@@ -484,7 +554,7 @@ if (miGrupo && miGrupo.listoF2Generico) {
           });
           if (!res.ok) return;
 
-                    const data = await res.json();
+          const data = await res.json();
 
           if (data.faseActual && data.faseActual !== "f2_bubblemap") {
             await enviarTokensBubblemap();
@@ -533,8 +603,8 @@ if (miGrupo && miGrupo.listoF2Generico) {
             }
 
             if (data.inicio_fase_habilitado) {
-              activarFase();
-            }
+  consultarEstadoSesion();
+}
           } catch (err) {
             console.error("Error marcando listo:", err);
             boton.disabled = false;
@@ -554,5 +624,6 @@ if (miGrupo && miGrupo.listoF2Generico) {
   </script>
 
   {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
 </body>
 </html>

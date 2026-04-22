@@ -201,6 +201,7 @@
     const sesionId = "{{ grupo.sesion.idsesion }}";
     const grupoId = "{{ grupo.idgrupo }}";
     let redirigiendoPitch = false;
+    let pollingEstadoPresentacion = null;
 
     function formatearTiempo(totalSegundos) {
       const segundos = Math.max(0, Number(totalSegundos || 0));
@@ -397,7 +398,7 @@
       }
 
       cargarEstadoPresentacion();
-      setInterval(cargarEstadoPresentacion, 1000);
+      pollingEstadoPresentacion = setInterval(cargarEstadoPresentacion, 1000);
     });
   </script>
 
