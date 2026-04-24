@@ -7,9 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Bubble Map</title>
   <link rel="stylesheet" href="{% static 'css/estilo_bubblemap.css' %}">
+
   <style>
     .bubblemap-container {
       position: relative;
+      padding-bottom: 24px;
+      overflow-x: hidden;
     }
 
     .inicio-fase-overlay {
@@ -25,7 +28,7 @@
 
     .inicio-fase-card {
       width: min(92%, 860px);
-      background: rgba(8, 24, 48, 0.88);
+      background: rgba(8, 24, 48, 0.9);
       border: 1px solid rgba(0, 200, 255, 0.30);
       box-shadow: 0 12px 30px rgba(0,0,0,.24);
       border-radius: 22px;
@@ -69,7 +72,7 @@
       border: 1px solid rgba(0, 200, 255, 0.4);
       background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
       color: #E6F7FF;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.25s ease;
@@ -81,10 +84,6 @@
       transform: translateY(-1px) scale(1.03);
       background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
       box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
-    }
-
-    .btn-chip:active {
-      transform: scale(0.97);
     }
 
     .btn-chip:disabled {
@@ -123,44 +122,572 @@
       display: none;
     }
 
-    @media (max-width: 900px) {
-      .inicio-fase-card {
-        width: min(94%, 760px);
-        padding: 16px 18px;
+    .reglas-bubble {
+      width: min(92%, 980px);
+      margin: 12px auto 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      color: #fff;
+      line-height: 1.45;
+    }
+
+    .reglas-bubble summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .reglas-bubble ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+    }
+
+    .reglas-bubble li {
+      margin-bottom: 5px;
+    }
+
+    .bubble-stage {
+      width: min(94vw, 980px);
+      height: min(68vh, 620px);
+      min-height: 520px;
+      margin: 18px auto 14px;
+      position: relative;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.26);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(0,0,0,.18);
+      transition: transform .2s ease, box-shadow .2s ease;
+      overflow: hidden;
+    }
+
+    .bubble:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 16px 28px rgba(0,0,0,.24);
+    }
+
+    .bubble.central {
+      width: 210px;
+      height: 210px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      cursor: default;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.30);
+      z-index: 2;
+    }
+
+    .bubble.central:hover {
+      transform: translate(-50%, -50%);
+    }
+
+    .bubble.central img {
+      width: 112px;
+      height: 112px;
+      object-fit: contain;
+    }
+
+    .bubble-item {
+      width: 150px;
+      height: 150px;
+      z-index: 3;
+    }
+
+    .bubble-gustos { left: 50%; top: 4%; transform: translateX(-50%); background: #ff9f0a; }
+    .bubble-emociones { right: 12%; top: 18%; background: #9cff1a; }
+    .bubble-obstaculos { left: 12%; top: 18%; background: #add8e6; }
+    .bubble-entorno { left: 50%; bottom: 6%; transform: translateX(-50%); background: #ef767a; }
+    .bubble-habitos { right: 8%; bottom: 16%; background: #8ee889; }
+    .bubble-otros { left: 8%; bottom: 16%; background: #ff9f7a; }
+
+    .bubble-gustos:hover,
+    .bubble-entorno:hover {
+      transform: translateX(-50%) translateY(-2px) scale(1.03);
+    }
+
+    .bubble-status {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      font-size: .82rem;
+      background: rgba(0,0,0,.22);
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+
+    .bubble-title {
+      font-size: 1rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+      text-shadow: 0 1px 3px rgba(0,0,0,.24);
+    }
+
+    .bubble-preview {
+      font-size: .82rem;
+      line-height: 1.25;
+      opacity: .95;
+      font-weight: 600;
+    }
+
+    .bubble-count {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.28);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .82rem;
+      font-weight: 900;
+    }
+
+    .bubble-actions {
+      width: min(94%, 980px);
+      margin: 0 auto 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .bubble-action-btn {
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .bubble-action-btn:hover {
+      background: rgba(255,255,255,.20);
+    }
+
+    .editor-modal,
+    .resultado-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.62);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .editor-modal.visible,
+    .resultado-modal.visible {
+      display: flex;
+    }
+
+    .editor-card,
+    .resultado-card {
+      width: min(94vw, 720px);
+      max-height: 88vh;
+      overflow: auto;
+      border-radius: 24px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      animation: popIn .28s ease both;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .editor-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .editor-head h3,
+    .resultado-card h2 {
+      margin: 0;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .editor-question {
+      background: #eef6ff;
+      border: 1px solid #bfdbfe;
+      color: #1f2937;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .otros-tabs {
+      display: none;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .otros-tabs.visible {
+      display: flex;
+    }
+
+    .otro-tab {
+      border: 1px solid #d1d5db;
+      background: #f3f4f6;
+      color: #111827;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .otro-tab.active {
+      background: #7c3aed;
+      color: #fff;
+      border-color: #7c3aed;
+    }
+
+    .otro-tab-add {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .editor-card textarea,
+    .editor-card input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 1rem;
+      color: #111827;
+      background: #ffffff;
+      outline: none;
+    }
+
+    .editor-card textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .editor-card textarea:focus,
+    .editor-card input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+    }
+
+    .editor-actions,
+    .resultado-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .btn-close-editor,
+    .btn-secondary-local,
+    .btn-primary-local {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-close-editor {
+      background: #f3f4f6;
+      color: #111827;
+      min-width: 42px;
+    }
+
+    .btn-secondary-local {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-primary-local {
+      background: #7c3aed;
+      color: #ffffff;
+    }
+
+    .resultado-card {
+      text-align: center;
+    }
+
+    .resultado-emoji {
+      font-size: 3rem;
+      margin-bottom: 8px;
+      animation: bounceMini .9s ease infinite alternate;
+    }
+
+    @keyframes bounceMini {
+      from { transform: translateY(0); }
+      to { transform: translateY(-8px); }
+    }
+
+    .resultado-nivel {
+      display: inline-block;
+      margin: 10px 0;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #ede9fe;
+      color: #5b21b6;
+      font-weight: 900;
+      font-size: 1.05rem;
+    }
+
+    .resultado-detalle {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 12px;
+      text-align: left;
+      color: #1f2937;
+      line-height: 1.5;
+    }
+
+    .footer-actions {
+      width: min(94%, 980px);
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+
+
+    /* === PANEL DESAFÍO: COPIA EXACTA DEL ESTILO LEGO, GLOBAL === */
+    .desafio-panel{
+      width: 100%;
+      max-width: 760px;
+      margin: 14px auto 22px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 200, 255, 0.35);
+      background: rgba(7, 38, 70, 0.78);
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
+    }
+
+    .desafio-toggle{
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: #fff;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .desafio-toggle-head{
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .desafio-etiqueta{
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #00c8ff;
+    }
+
+    .desafio-titulo{
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .desafio-icono{
+      font-size: 1rem;
+      font-weight: 800;
+      color: #00c8ff;
+    }
+
+    .desafio-body{
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding: 16px 18px 18px;
+    }
+
+    .desafio-descripcion{
+      margin: 0;
+      color: #d9e6f2;
+      line-height: 1.5;
+      font-size: 0.98rem;
+    }
+
+    .confetti {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      animation: confettiMove 1.1s ease-in-out infinite alternate;
+    }
+
+    @keyframes confettiMove {
+      from { transform: translateY(0) scale(1); opacity: .85; }
+      to { transform: translateY(-8px) scale(1.08); opacity: 1; }
+    }
+
+    .resultado-card {
+      border: 3px solid #7c3aed;
+      box-shadow: 0 0 35px rgba(124, 58, 237, .55);
+    }
+    @media (max-width: 850px) {
+      .bubble-stage {
+        height: auto;
+        min-height: unset;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+        gap: 14px;
+      }
+
+      .bubble {
+        position: relative;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+      }
+
+      .bubble:hover {
+        transform: translateY(-2px) scale(1.03) !important;
+      }
+
+      .bubble.central,
+      .bubble-item {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        height: auto;
+      }
+
+      .bubble.central {
+        grid-column: 1 / -1;
+        width: 190px;
+        height: 190px;
+        justify-self: center;
       }
     }
 
-    @media (max-width: 640px) {
-      .inicio-fase-overlay {
-        padding: 14px 12px 12px;
+    @media (max-width: 520px) {
+      .bubble-stage {
+        grid-template-columns: 1fr;
       }
 
-      .inicio-fase-card {
-        width: 100%;
-        border-radius: 18px;
-        padding: 14px 14px 16px;
+      .bubble.central {
+        width: 170px;
+        height: 170px;
       }
 
-      .inicio-fase-card h3 {
-        font-size: 1rem;
+      .editor-card,
+      .resultado-card {
+        padding: 16px;
       }
 
-      .inicio-fase-card p {
-        font-size: 0.92rem;
-        line-height: 1.4;
-      }
+    .confetti {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  animation: confettiMove 1.1s ease-in-out infinite alternate;
+}
 
-      .btn-chip {
-        width: 100%;
-        justify-content: center;
-      }
+@keyframes confettiMove {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: .85;
+  }
+  to {
+    transform: translateY(-8px) scale(1.08);
+    opacity: 1;
+  }
+}
 
-      .contador-fase {
-        font-size: 0.9rem;
-      }
+.resultado-card {
+  border: 3px solid #7c3aed;
+  box-shadow: 0 0 35px rgba(124, 58, 237, .55);
+}
+
+
+.desafio-panel{
+  width: 100%;
+  max-width: 760px;
+  margin: 14px auto 22px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 200, 255, 0.35);
+  background: rgba(7, 38, 70, 0.78);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
+
+.desafio-toggle{
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.desafio-toggle-head{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.desafio-etiqueta{
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #00c8ff;
+}
+
+.desafio-titulo{
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.desafio-icono{
+  font-size: 1rem;
+  font-weight: 800;
+  color: #00c8ff;
+}
+
+.desafio-body{
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding: 16px 18px 18px;
+}
+
+.desafio-descripcion{
+  margin: 0;
+  color: #d9e6f2;
+  line-height: 1.5;
+  font-size: 0.98rem;
+}
     }
   </style>
 </head>
+
 <body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="bubblemap-container">
 
@@ -171,12 +698,12 @@
         <h3>Antes de comenzar</h3>
 
         <p>
-          Lean el desafío y completen un Bubble Map sobre su persona objetivo.
+          Completen un Bubble Map sobre la persona objetivo del desafío.
         </p>
 
         <p>
-          Tendrán <strong>3 minutos</strong> para escribir ideas clave. Cuando todos los equipos presionen
-          <strong>“Listo para comenzar”</strong>, la actividad se habilitará automáticamente.
+          Tendrán <strong>3 minutos</strong>. Ganarán fichas por completar burbujas con ideas claras,
+          respuestas más desarrolladas, relato de usuario y referencia externa.
         </p>
 
         <button type="button" id="btn-listo-fase" class="btn-chip">
@@ -194,14 +721,41 @@
     </div>
 
     <h1 id="tituloBubble" class="blur-target-bloqueado">💭 Bubble Map — Genera tus ideas</h1>
-    <p id="subtituloBubble" class="subtitle blur-target-bloqueado">Escribe palabras clave relacionadas con tu persona del desafío.</p>
+    <p id="subtituloBubble" class="subtitle blur-target-bloqueado">
+      Presiona una burbuja para responder su pregunta guía.
+    </p>
 
-    {% include "desafio_badge.html" %}
+<section id="desafioPanel" class="desafio-panel blur-target-bloqueado">
+  <button type="button" class="desafio-toggle" id="desafioToggle">
+    <div class="desafio-toggle-head">
+      <span class="desafio-etiqueta">Desafío seleccionado</span>
+      <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
+    </div>
+    <span class="desafio-icono" id="desafioIcono">▼</span>
+  </button>
+
+  <div class="desafio-body" id="desafioBody" hidden>
+    <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
+  </div>
+</section>
+
+    <details id="reglasBubble" class="reglas-bubble blur-target-bloqueado">
+      <summary>📌 Reglas para ganar fichas</summary>
+      <ul>
+        <li>Solo cuentan respuestas con al menos <strong>5 caracteres</strong>.</li>
+        <li>Mientras más burbujas completas tengan, más fichas ganan.</li>
+        <li>Las respuestas más desarrolladas suman fichas extra.</li>
+        <li>La burbuja <strong>Otros</strong> permite agregar varias ideas adicionales.</li>
+        <li>Agregar un relato breve o un link de referencia puede subir el nivel a <strong>Experto</strong>.</li>
+        <li>Al terminar el tiempo aparecerá un resumen. Deben confirmar para avanzar.</li>
+      </ul>
+    </details>
 
     <div
       id="bubblemap-desafio-data"
       data-nombre="{{ desafio_nombre_actual|default:'Desafío no seleccionado'|escape }}"
       data-descripcion="{{ desafio_descripcion_actual|default:'Aún no hay descripción disponible para este desafío.'|escape }}"
+      data-foto="{{ desafio_foto_actual|default:'' }}"
       hidden
     ></div>
 
@@ -209,20 +763,64 @@
       <div class="timer-bubblemap" id="timer">03:00</div>
     </div>
 
-    <section id="bubblesSection" class="bubbles blur-target-bloqueado">
-      <div class="bubble central">
-        <img src="{% static 'images/personas.png' %}" alt="Persona" />
+    <section id="bubblesSection" class="bubble-stage blur-target-bloqueado">
+      <div class="bubble central" id="bubbleCentral">
+        <img id="personaObjetivoImg" src="{% static 'images/personas.png' %}" alt="Persona objetivo" />
       </div>
-
-      <div class="bubble"><textarea placeholder="¿Qué le gusta?"></textarea></div>
-      <div class="bubble"><textarea placeholder="¿Qué siente?"></textarea></div>
-      <div class="bubble"><textarea placeholder="¿Qué obstáculos tiene?"></textarea></div>
-      <div class="bubble"><textarea placeholder="¿Qué dicen los demás?"></textarea></div>
-      <div class="bubble"><textarea placeholder="Hobbies"></textarea></div>
-      <div class="bubble"><textarea placeholder="Otros"></textarea></div>
     </section>
 
+    <div id="bubbleActions" class="bubble-actions blur-target-bloqueado">
+      <button type="button" id="btnAgregarOtro" class="bubble-action-btn">➕ Agregar idea en Otros</button>
+      <button type="button" id="btnAbrirRelato" class="bubble-action-btn">📖 Relato breve</button>
+      <button type="button" id="btnAbrirLink" class="bubble-action-btn">🔗 Link o noticia</button>
+    </div>
+
     <footer id="footerBubble" class="footer-actions blur-target-bloqueado"></footer>
+
+    <div id="editorModal" class="editor-modal" aria-hidden="true">
+      <div class="editor-card">
+        <div class="editor-head">
+          <h3 id="editorTitulo">Burbuja</h3>
+          <button type="button" id="btnCerrarEditor" class="btn-close-editor">×</button>
+        </div>
+
+        <div id="otrosTabs" class="otros-tabs"></div>
+
+        <div id="editorPregunta" class="editor-question"></div>
+
+        <textarea id="editorTexto" maxlength="700" placeholder="Escribe aquí..."></textarea>
+
+        <div class="editor-actions">
+          <button type="button" id="btnCancelarEditor" class="btn-secondary-local">Cancelar</button>
+          <button type="button" id="btnGuardarEditor" class="btn-primary-local">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultadoModal" class="resultado-modal" aria-hidden="true">
+      <div class="resultado-card">
+        <div class="resultado-emoji">🏆</div>
+        <div class="confetti">✨ 🎉 ⭐ 🚀 ✨</div>
+        <audio id="audioResultado" preload="auto">
+          <source src="{% static 'audio/success.mp3' %}" type="audio/mpeg">
+        </audio>
+        <h2>¡Tiempo terminado!</h2>
+        <div id="resultadoNivel" class="resultado-nivel">Nivel</div>
+        <p id="resultadoResumen"></p>
+
+        <div id="resultadoDetalle" class="resultado-detalle"></div>
+
+        <p id="resultadoEspera" style="margin-top:14px; font-weight:800; color:#5b21b6;">
+          Esperando confirmación de los demás equipos...
+        </p>
+
+        <div class="resultado-actions">
+          <button type="button" id="btnConfirmarResultado" class="btn-primary-local">
+            Confirmar y continuar
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div
       id="routes"
@@ -233,8 +831,9 @@
   </main>
 
   <script>
-    const STORAGE_KEY = "bubblemap_data";
+    const BASE_STORAGE_KEY = "bubblemap_data_v3";
     const SESSION_KEY = "browser_session_id";
+
 
     function uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -244,156 +843,523 @@
       });
     }
 
-    const currentSession = sessionStorage.getItem("my_session_id") ||
-      (
-        window.crypto && typeof window.crypto.randomUUID === "function"
-          ? window.crypto.randomUUID()
-          : uuidv4()
-      );
 
-    sessionStorage.setItem("my_session_id", currentSession);
-
-    const lastSession = localStorage.getItem(SESSION_KEY);
-
-    if (lastSession && lastSession !== currentSession) {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-
-    localStorage.setItem(SESSION_KEY, currentSession);
 
     document.addEventListener("DOMContentLoaded", () => {
       const sesionId = "{{ grupo.sesion.idsesion }}";
       const grupoId = "{{ grupo.idgrupo }}";
-      const csrfToken = "{{ csrf_token }}";
 
+      function actualizarBadgeDesafio(data) {
+  const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+  if (!miGrupo) return;
+
+  const titulo = miGrupo.desafioNombre || "Desafío no seleccionado";
+  const descripcion = miGrupo.desafioDescripcion || "Aún no hay descripción disponible para este desafío.";
+  const desafioToggle = document.getElementById("desafioToggle");
+const desafioBody = document.getElementById("desafioBody");
+const desafioIcono = document.getElementById("desafioIcono");
+
+desafioToggle?.addEventListener("click", () => {
+  const abierto = !desafioBody.hasAttribute("hidden");
+
+  if (abierto) {
+    desafioBody.setAttribute("hidden", "");
+    if (desafioIcono) desafioIcono.textContent = "▼";
+  } else {
+    desafioBody.removeAttribute("hidden");
+    if (desafioIcono) desafioIcono.textContent = "▲";
+  }
+});
+  const dbTitle = document.getElementById("dbTitle");
+  const dbShort = document.getElementById("dbShort");
+  const dbDesc = document.getElementById("dbDesc");
+
+  if (dbTitle) dbTitle.textContent = titulo;
+  if (dbShort) dbShort.textContent = descripcion;
+  if (dbDesc) dbDesc.textContent = descripcion;
+}
+
+      const csrfToken = "{{ csrf_token }}";
+      const STORAGE_KEY = `${BASE_STORAGE_KEY}_sesion_${sesionId}_grupo_${grupoId}`;
+
+      const desafioToggle = document.getElementById("desafioToggle");
+      const desafioBody = document.getElementById("desafioBody");
+      const desafioIcono = document.getElementById("desafioIcono");
+
+      if (desafioToggle && desafioBody && desafioIcono) {
+        desafioToggle.addEventListener("click", () => {
+          const abierto = !desafioBody.hasAttribute("hidden");
+          if (abierto) {
+            desafioBody.setAttribute("hidden", "hidden");
+            desafioIcono.textContent = "▼";
+          } else {
+            desafioBody.removeAttribute("hidden");
+            desafioIcono.textContent = "▲";
+          }
+        });
+      }
       const boton = document.getElementById("btn-listo-fase");
       const textoEspera = document.getElementById("texto-espera-fase");
       const contador = document.getElementById("contador-listos-fase");
       const overlay = document.getElementById("inicio-fase-overlay");
       const timerWrap = document.getElementById("timerWrap");
+      const routesEl = document.getElementById("routes");
+      const timerElement = document.getElementById("timer");
+      const bubblesSection = document.getElementById("bubblesSection");
+      const personaObjetivoImg = document.getElementById("personaObjetivoImg");
 
-      let countdownMostrado = false;
-      let countdownEnCurso = false;
+      const editorModal = document.getElementById("editorModal");
+      const editorTitulo = document.getElementById("editorTitulo");
+      const editorPregunta = document.getElementById("editorPregunta");
+      const editorTexto = document.getElementById("editorTexto");
+      const btnCerrarEditor = document.getElementById("btnCerrarEditor");
+      const btnCancelarEditor = document.getElementById("btnCancelarEditor");
+      const btnGuardarEditor = document.getElementById("btnGuardarEditor");
+      const otrosTabs = document.getElementById("otrosTabs");
+
+      const btnAgregarOtro = document.getElementById("btnAgregarOtro");
+      const btnAbrirRelato = document.getElementById("btnAbrirRelato");
+      const btnAbrirLink = document.getElementById("btnAbrirLink");
+
+      const resultadoModal = document.getElementById("resultadoModal");
+      const resultadoNivel = document.getElementById("resultadoNivel");
+      const resultadoResumen = document.getElementById("resultadoResumen");
+      const resultadoDetalle = document.getElementById("resultadoDetalle");
+      const btnConfirmarResultado = document.getElementById("btnConfirmarResultado");
+
+      const dataNode = document.getElementById("bubblemap-desafio-data");
+      const fotoDesafio = dataNode?.dataset?.foto || "";
+
+      if (fotoDesafio && personaObjetivoImg) {
+        personaObjetivoImg.src = fotoDesafio;
+      }
 
       const blurTargets = [
         document.getElementById("tituloBubble"),
         document.getElementById("subtituloBubble"),
+        document.getElementById("desafioPanel"),
+        document.getElementById("reglasBubble"),
         document.getElementById("timerWrap"),
         document.getElementById("bubblesSection"),
+        document.getElementById("bubbleActions"),
         document.getElementById("footerBubble"),
       ];
 
-      const bubbles = document.querySelectorAll(".bubble textarea");
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      const burbujasBase = [
+        {
+          id: "gustos",
+          clase: "bubble-gustos",
+          titulo: "Gustos",
+          pregunta: "¿Qué actividades, intereses o preferencias parecen importantes para esta persona?"
+        },
+        {
+          id: "emociones",
+          clase: "bubble-emociones",
+          titulo: "Emociones",
+          pregunta: "¿Qué podría sentir esta persona frente al problema o necesidad del desafío?"
+        },
+        {
+          id: "obstaculos",
+          clase: "bubble-obstaculos",
+          titulo: "Obstáculos",
+          pregunta: "¿Qué dificultades o barreras enfrenta en su día a día?"
+        },
+        {
+          id: "entorno",
+          clase: "bubble-entorno",
+          titulo: "Entorno",
+          pregunta: "¿Qué personas, lugares o situaciones influyen en su comportamiento?"
+        },
+        {
+          id: "habitos",
+          clase: "bubble-habitos",
+          titulo: "Hábitos",
+          pregunta: "¿Qué suele hacer normalmente? Piensen en rutinas, tiempo libre o costumbres."
+        },
+        {
+          id: "otros",
+          clase: "bubble-otros",
+          titulo: "Otros",
+          pregunta: "Agrega ideas relevantes que no calzan en las demás burbujas. Puedes crear varias."
+        }
+      ];
 
-      bubbles.forEach((area, i) => {
-        if (saved[i]) area.value = saved[i];
-      });
+      let estado = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      if (!estado.burbujas) estado.burbujas = {};
+      if (!estado.otros) estado.otros = [""];
+      if (!estado.relato) estado.relato = "";
+      if (!estado.link) estado.link = "";
 
-      bubbles.forEach((area, i) => {
-        area.addEventListener("input", () => {
-          const data = {};
-          bubbles.forEach((a, idx) => data[idx] = a.value.trim());
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        });
-      });
-
-      const dataNode = document.getElementById("bubblemap-desafio-data");
-      const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
-      const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
-
-      const dbTitle = document.getElementById("dbTitle");
-      const dbShort = document.getElementById("dbShort");
-      const dbDesc = document.getElementById("dbDesc");
-
-      if (dbTitle) dbTitle.textContent = nombre;
-
-      if (dbShort) {
-        const corto = descripcion.length > 90
-          ? descripcion.slice(0, 90).trim() + "..."
-          : descripcion;
-        dbShort.textContent = corto;
-      }
-
-      if (dbDesc) dbDesc.textContent = descripcion;
-
-      const routesEl = document.getElementById("routes");
-      const timerElement = document.getElementById("timer");
-
-      if (!routesEl || !timerElement) return;
-
-      let timeLeft = Number(routesEl.dataset.tiempo || 180);
+      let editorActual = null;
+      let timeLeft = Number(routesEl?.dataset?.tiempo || 180);
       let timerInterval = null;
       let timerIniciado = false;
       let redirigiendo = false;
       let tokensBubbleEnviados = false;
       let timerLiberadoTrasCountdown = false;
       let timerRealSolicitado = false;
+      let countdownMostrado = false;
+      let countdownEnCurso = false;
+      let resultadoMostrado = false;
 
-      function obtenerBurbujasCompletadas() {
-        return [...document.querySelectorAll(".bubble textarea")]
-          .map(t => t.value.trim())
-          .filter(txt => txt !== "");
+      function guardarEstadoLocal() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+      }
+
+      function textoCorto(txt) {
+        txt = (txt || "").trim();
+        if (!txt) return "Toca para responder";
+        return txt.length > 54 ? txt.slice(0, 54).trim() + "..." : txt;
+      }
+
+      function textoValido(txt) {
+        return (txt || "").trim().length >= 5;
+      }
+
+      function cantidadOtrosValidos() {
+        return estado.otros.filter(textoValido).length;
+      }
+
+      function resumenOtros() {
+        const validos = cantidadOtrosValidos();
+        const total = estado.otros.length;
+        if (validos > 0) return `${validos}/${total} ideas completas`;
+        return "Toca para responder";
+      }
+
+      function renderBurbujas() {
+        const central = document.getElementById("bubbleCentral");
+        bubblesSection.innerHTML = "";
+        bubblesSection.appendChild(central);
+
+        burbujasBase.forEach((b) => {
+          const texto = b.id === "otros" ? resumenOtros() : (estado.burbujas[b.id] || "");
+          const ok = b.id === "otros" ? cantidadOtrosValidos() > 0 : textoValido(texto);
+
+          bubblesSection.appendChild(crearBurbuja({
+            id: b.id,
+            clase: b.clase,
+            titulo: b.titulo,
+            pregunta: b.pregunta,
+            texto,
+            ok,
+            esOtros: b.id === "otros"
+          }));
+        });
+      }
+
+      function crearBurbuja({ id, clase, titulo, pregunta, texto, ok, esOtros }) {
+        const div = document.createElement("div");
+        div.className = `bubble bubble-item ${clase}`;
+        div.dataset.id = id;
+        div.dataset.titulo = titulo;
+        div.dataset.pregunta = pregunta;
+
+        div.innerHTML = `
+          ${esOtros ? `<span class="bubble-count">${estado.otros.length}</span>` : ""}
+          <span class="bubble-status">${ok ? "✅" : "✍️"}</span>
+          <div>
+            <div class="bubble-title">${titulo}</div>
+            <div class="bubble-preview">${textoCorto(texto)}</div>
+          </div>
+        `;
+
+        div.addEventListener("click", () => {
+          if (id === "otros") {
+            abrirEditorOtros(0);
+          } else {
+            abrirEditorBase(id, titulo, pregunta);
+          }
+        });
+
+        return div;
+      }
+
+      function renderOtrosTabs(indiceActivo) {
+        otrosTabs.innerHTML = "";
+        otrosTabs.classList.add("visible");
+
+        estado.otros.forEach((_, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `otro-tab ${idx === indiceActivo ? "active" : ""}`;
+          btn.textContent = `Otro ${idx + 1}`;
+          btn.addEventListener("click", () => abrirEditorOtros(idx));
+          otrosTabs.appendChild(btn);
+        });
+
+        const add = document.createElement("button");
+        add.type = "button";
+        add.className = "otro-tab otro-tab-add";
+        add.textContent = "+ Otro";
+        add.addEventListener("click", () => {
+          guardarEditorSinCerrar();
+          estado.otros.push("");
+          guardarEstadoLocal();
+          abrirEditorOtros(estado.otros.length - 1);
+          renderBurbujas();
+        });
+        otrosTabs.appendChild(add);
+      }
+
+      function abrirEditorBase(id, titulo, pregunta) {
+        editorActual = { tipo: "base", id };
+        otrosTabs.classList.remove("visible");
+        otrosTabs.innerHTML = "";
+
+        editorTitulo.textContent = titulo;
+        editorPregunta.textContent = pregunta;
+        editorTexto.value = estado.burbujas[id] || "";
+
+        abrirModalEditor();
+      }
+
+      function abrirEditorOtros(indice) {
+        if (!estado.otros.length) estado.otros.push("");
+
+        editorActual = { tipo: "otro", id: String(indice) };
+        editorTitulo.textContent = `Otros`;
+        editorPregunta.textContent = "Escribe ideas adicionales que no encajen en las demás burbujas. Puedes moverte entre tus ideas usando las pestañas.";
+        editorTexto.value = estado.otros[indice] || "";
+
+        renderOtrosTabs(indice);
+        abrirModalEditor();
+      }
+
+      function abrirEditorEspecial(tipo, titulo, pregunta) {
+        editorActual = { tipo, id: tipo };
+        otrosTabs.classList.remove("visible");
+        otrosTabs.innerHTML = "";
+
+        editorTitulo.textContent = titulo;
+        editorPregunta.textContent = pregunta;
+        editorTexto.value = tipo === "relato" ? (estado.relato || "") : (estado.link || "");
+
+        abrirModalEditor();
+      }
+
+      function abrirModalEditor() {
+        editorModal.classList.add("visible");
+        editorModal.setAttribute("aria-hidden", "false");
+        setTimeout(() => editorTexto.focus(), 50);
+      }
+
+      function guardarEditorSinCerrar() {
+        if (!editorActual) return;
+
+        const texto = editorTexto.value.trim();
+
+        if (editorActual.tipo === "base") {
+          estado.burbujas[editorActual.id] = texto;
+        } else if (editorActual.tipo === "otro") {
+          estado.otros[Number(editorActual.id)] = texto;
+        } else if (editorActual.tipo === "relato") {
+          estado.relato = texto;
+        } else if (editorActual.tipo === "link") {
+          estado.link = texto;
+        }
+
+        guardarEstadoLocal();
+      }
+
+      function cerrarEditor() {
+        editorModal.classList.remove("visible");
+        editorModal.setAttribute("aria-hidden", "true");
+        otrosTabs.classList.remove("visible");
+        otrosTabs.innerHTML = "";
+        editorActual = null;
+      }
+
+      function guardarEditor() {
+        guardarEditorSinCerrar();
+        renderBurbujas();
+        cerrarEditor();
+      }
+
+      btnCerrarEditor.addEventListener("click", cerrarEditor);
+      btnCancelarEditor.addEventListener("click", cerrarEditor);
+      btnGuardarEditor.addEventListener("click", guardarEditor);
+
+      btnAgregarOtro.addEventListener("click", () => {
+        estado.otros.push("");
+        guardarEstadoLocal();
+        renderBurbujas();
+        abrirEditorOtros(estado.otros.length - 1);
+      });
+
+      btnAbrirRelato.addEventListener("click", () => {
+        abrirEditorEspecial(
+          "relato",
+          "Relato breve",
+          "Describe un día en la vida de esta persona. ¿Qué hace, qué necesita y qué problema vive?"
+        );
+      });
+
+      btnAbrirLink.addEventListener("click", () => {
+        abrirEditorEspecial(
+          "link",
+          "Link o noticia",
+          "Agrega una referencia, noticia o ejemplo real relacionado con el desafío."
+        );
+      });
+
+      function obtenerDatosParaTokens() {
+        const base = burbujasBase
+          .filter(b => b.id !== "otros")
+          .map(b => ({
+            tipo: "base",
+            id: b.id,
+            titulo: b.titulo,
+            texto: estado.burbujas[b.id] || ""
+          }));
+
+        const otros = estado.otros.map((txt, idx) => ({
+          tipo: "otro",
+          id: `otro_${idx}`,
+          titulo: `Otro ${idx + 1}`,
+          texto: txt || ""
+        }));
+
+        return {
+          burbujas: [...base, ...otros],
+          relato: estado.relato || "",
+          link: estado.link || ""
+        };
+      }
+
+      function calcularResultadoLocal() {
+        const datos = obtenerDatosParaTokens();
+
+        const respuestasValidas = datos.burbujas.filter(b => textoValido(b.texto));
+        const baseValidas = datos.burbujas.filter(b => b.tipo === "base" && textoValido(b.texto));
+        const respuestasLargas = datos.burbujas.filter(b => (b.texto || "").trim().split(/\s+/).filter(Boolean).length >= 10);
+        const relatoValido = (datos.relato || "").trim().split(/\s+/).filter(Boolean).length >= 18;
+        const linkValido = /https?:\/\/|www\./i.test(datos.link || "");
+
+        let nivel = "Inicial";
+        if (respuestasValidas.length >= 3) nivel = "Intermedio";
+        if (baseValidas.length >= 5) nivel = "Completo";
+        if (baseValidas.length >= 5 && (relatoValido || linkValido)) nivel = "Experto";
+
+        return {
+          nivel,
+          respuestasValidas: respuestasValidas.length,
+          baseValidas: baseValidas.length,
+          respuestasLargas: respuestasLargas.length,
+          relatoValido,
+          linkValido
+        };
+      }
+
+      function mostrarResultadoFinal() {
+        if (resultadoMostrado) return;
+        resultadoMostrado = true;
+        pausarTimerLocal();
+
+        const r = calcularResultadoLocal();
+
+        resultadoNivel.textContent = `Nivel ${r.nivel}`;
+        resultadoResumen.textContent = `Completaron ${r.respuestasValidas} respuesta(s) válida(s).`;
+
+        resultadoDetalle.innerHTML = `
+          <strong>Resumen:</strong><br>
+          Burbujas principales completas: ${r.baseValidas}/5<br>
+          Respuestas desarrolladas: ${r.respuestasLargas}<br>
+          Relato breve válido: ${r.relatoValido ? "Sí" : "No"}<br>
+          Link o noticia válida: ${r.linkValido ? "Sí" : "No"}<br><br>
+          Al confirmar, se guardarán sus fichas y avanzarán cuando todos los equipos hayan confirmado.
+        `;
+
+        resultadoModal.classList.add("visible");
+        const audioResultado = document.getElementById("audioResultado");
+        if (audioResultado) {
+          audioResultado.currentTime = 0;
+          audioResultado.play().catch(() => {});
+        }
+        resultadoModal.setAttribute("aria-hidden", "false");
       }
 
       async function enviarTokensBubblemap() {
-        if (tokensBubbleEnviados) return;
+        if (tokensBubbleEnviados) return null;
 
         const url = routesEl?.dataset?.otorgarTokensUrl;
-        if (!url) return;
+        if (!url) return null;
 
         tokensBubbleEnviados = true;
 
         try {
-          await fetch(url, {
+          const res = await fetch(url, {
             method: "POST",
             credentials: "same-origin",
             headers: {
               "Content-Type": "application/json",
               "X-CSRFToken": csrfToken
             },
-            body: JSON.stringify({
-              burbujas: obtenerBurbujasCompletadas()
-            })
+            body: JSON.stringify(obtenerDatosParaTokens())
           });
+
+          const data = await res.json();
+
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || "No se pudieron otorgar tokens.");
+          }
+
+          return data;
         } catch (err) {
           console.error("Error otorgando tokens bubblemap:", err);
+          tokensBubbleEnviados = false;
+          return null;
         }
       }
 
+      btnConfirmarResultado.addEventListener("click", async () => {
+        btnConfirmarResultado.disabled = true;
+        btnConfirmarResultado.textContent = "Guardando...";
+
+        const data = await enviarTokensBubblemap();
+
+        resultadoResumen.textContent = "Resultado guardado. Esperando a los demás equipos...";
+        btnConfirmarResultado.disabled = true;
+        btnConfirmarResultado.textContent = "Esperando a los demás equipos...";
+
+        if (data?.todos_terminaron && data?.rutaAlumno) {
+          redirigiendo = true;
+          window.location.href = data.rutaAlumno;
+        }
+      });
+
       async function iniciarTimerRealDespuesCountdown() {
-  if (timerRealSolicitado) return;
+        if (timerRealSolicitado) return;
 
-  timerRealSolicitado = true;
+        timerRealSolicitado = true;
 
-  try {
-    const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken
-      },
-      body: JSON.stringify({})
-    });
+        try {
+          const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({})
+          });
 
-    const data = await res.json();
+          const data = await res.json();
 
-    if (!res.ok || !data.ok) {
-      throw new Error(data.error || "No se pudo iniciar el timer real.");
-    }
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || "No se pudo iniciar el timer real.");
+          }
 
-    const backendSeconds = Number(data.segundosRestantes);
-    if (!Number.isNaN(backendSeconds)) {
-      timeLeft = backendSeconds;
-      pintarTiempo();
-    }
-  } catch (err) {
-    console.error("Error iniciando timer real bubblemap:", err);
-    timerRealSolicitado = false;
-  }
-}
-
+          const backendSeconds = Number(data.segundosRestantes);
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+        } catch (err) {
+          console.error("Error iniciando timer real bubblemap:", err);
+          timerRealSolicitado = false;
+        }
+      }
 
       function activarFase() {
         blurTargets.forEach(el => {
@@ -402,13 +1368,8 @@
           el.classList.add("blur-target-activo");
         });
 
-        if (timerWrap) {
-          timerWrap.classList.remove("timer-esperando");
-        }
-
-        if (overlay) {
-          overlay.classList.add("overlay-hidden");
-        }
+        if (timerWrap) timerWrap.classList.remove("timer-esperando");
+        if (overlay) overlay.classList.add("overlay-hidden");
       }
 
       function bloquearFase() {
@@ -418,13 +1379,8 @@
           el.classList.add("blur-target-bloqueado");
         });
 
-        if (timerWrap) {
-          timerWrap.classList.add("timer-esperando");
-        }
-
-        if (overlay) {
-          overlay.classList.remove("overlay-hidden");
-        }
+        if (timerWrap) timerWrap.classList.add("timer-esperando");
+        if (overlay) overlay.classList.remove("overlay-hidden");
       }
 
       function pintarTiempo() {
@@ -457,6 +1413,11 @@
             timeLeft--;
             pintarTiempo();
           }
+
+          if (timeLeft <= 0) {
+            pintarTiempo();
+            mostrarResultadoFinal();
+          }
         }, 1000);
       }
 
@@ -471,68 +1432,63 @@
         if (miGrupo && miGrupo.listoF2Generico) {
           boton.disabled = true;
           boton.textContent = "Esperando...";
-          if (textoEspera) {
-            textoEspera.textContent = "Esperando a los demás equipos...";
-          }
+          if (textoEspera) textoEspera.textContent = "Esperando a los demás equipos...";
         }
 
-if (data.inicioFaseHabilitado) {
-  if (countdownMostrado && !countdownEnCurso) {
-    activarFase();
-  }
-} else {
-  countdownMostrado = false;
-  countdownEnCurso = false;
-  timerLiberadoTrasCountdown = false;
-  timerRealSolicitado = false;
-  bloquearFase();
-}
+        if (data.inicioFaseHabilitado) {
+          if (countdownMostrado && !countdownEnCurso) activarFase();
+        } else {
+          countdownMostrado = false;
+          countdownEnCurso = false;
+          timerLiberadoTrasCountdown = false;
+          timerRealSolicitado = false;
+          bloquearFase();
+        }
 
         const backendSeconds = Number(data.segundosRestantes);
 
-if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
-  if (!countdownEnCurso && !timerLiberadoTrasCountdown) {
-    timeLeft = backendSeconds;
-    pintarTiempo();
-  }
-}
+        if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+          if (!countdownEnCurso && !timerLiberadoTrasCountdown && !resultadoMostrado) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+        }
 
-if (!timerIniciado && data.inicioFaseHabilitado) {
-  if (!countdownMostrado && !countdownEnCurso) {
-    countdownEnCurso = true;
+        if (data.inicioFaseHabilitado && backendSeconds <= 0 && !data.timerCorriendo) {
+          mostrarResultadoFinal();
+          return;
+        }
 
-    window.oaiCountdown.run(async () => {
-      countdownMostrado = true;
-      countdownEnCurso = false;
-      timerLiberadoTrasCountdown = true;
+        if (!timerIniciado && data.inicioFaseHabilitado) {
+          if (!countdownMostrado && !countdownEnCurso) {
+            countdownEnCurso = true;
 
-      await iniciarTimerRealDespuesCountdown();
+            window.oaiCountdown.run(async () => {
+              countdownMostrado = true;
+              countdownEnCurso = false;
+              timerLiberadoTrasCountdown = true;
 
-      activarFase();
-    });
+              await iniciarTimerRealDespuesCountdown();
+              activarFase();
+            });
 
-    return;
-  }
+            return;
+          }
 
-  if (!countdownMostrado || countdownEnCurso || !timerLiberadoTrasCountdown) {
-    return;
-  }
+          if (!countdownMostrado || countdownEnCurso || !timerLiberadoTrasCountdown) return;
+          if (!data.timerCorriendo) return;
 
-  if (!data.timerCorriendo) {
-    return;
-  }
+          if (!Number.isNaN(backendSeconds)) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
 
-  if (!Number.isNaN(backendSeconds)) {
-    timeLeft = backendSeconds;
-    pintarTiempo();
-  }
+          timerIniciado = true;
+          iniciarTimerLocal();
+          return;
+        }
 
-  timerIniciado = true;
-  iniciarTimerLocal();
-  return;
-}
-
-        if (timerIniciado && !data.timerCorriendo) {
+        if (timerIniciado && !data.timerCorriendo && !resultadoMostrado) {
           pausarTimerLocal();
 
           if (!Number.isNaN(backendSeconds)) {
@@ -552,13 +1508,12 @@ if (!timerIniciado && data.inicioFaseHabilitado) {
             credentials: "same-origin",
             cache: "no-store"
           });
+
           if (!res.ok) return;
 
           const data = await res.json();
 
           if (data.faseActual && data.faseActual !== "f2_bubblemap") {
-            await enviarTokensBubblemap();
-
             if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
               redirigiendo = true;
               window.location.href = data.rutaAlumno;
@@ -589,33 +1544,34 @@ if (!timerIniciado && data.inicioFaseHabilitado) {
             });
 
             const data = await res.json();
+            actualizarBadgeDesafio(data);
+
+            const resultadoEspera = document.getElementById("resultadoEspera");
+
+            if (resultadoMostrado && resultadoEspera) {
+              const terminados = (data.grupos || []).filter(g => g.bubbleTokensOtorgados).length;
+              const total = Number(data.totalGrupos || 0);
+              resultadoEspera.textContent = `Equipos confirmados: ${terminados}/${total}`;
+            }
 
             if (!res.ok || !data.ok) {
               throw new Error(data.error || "No se pudo marcar listo.");
             }
 
-            if (contador) {
-              contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
-            }
+            if (contador) contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
+            if (textoEspera) textoEspera.textContent = "Esperando a los demás equipos...";
 
-            if (textoEspera) {
-              textoEspera.textContent = "Esperando a los demás equipos...";
-            }
-
-            if (data.inicio_fase_habilitado) {
-  consultarEstadoSesion();
-}
+            if (data.inicio_fase_habilitado) consultarEstadoSesion();
           } catch (err) {
             console.error("Error marcando listo:", err);
             boton.disabled = false;
             boton.textContent = "⚡ Listo para comenzar";
-            if (textoEspera) {
-              textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
-            }
+            if (textoEspera) textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
           }
         });
       }
 
+      renderBurbujas();
       bloquearFase();
       pintarTiempo();
       setInterval(consultarEstadoSesion, 1500);

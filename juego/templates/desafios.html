@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Desafíos</title>
   <link rel="stylesheet" href="{% static 'css/estilo_desafios.css' %}">
+
   <style>
     .challenge-card.seleccionado {
       outline: 3px solid #00c8ff;
@@ -16,6 +17,28 @@
 
     .challenge-card.bloqueada {
       opacity: 0.88;
+    }
+
+    .timer-box {
+      margin: 16px auto 0;
+      max-width: 860px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .timer-box strong {
+      font-size: 22px;
+      color: #ffe29a;
+    }
+
+    .timer-box span {
+      font-weight: 500;
+      opacity: 0.95;
     }
 
     .estado-seleccion {
@@ -67,6 +90,7 @@
     }
   </style>
 </head>
+
 <body
   data-sesion-id="{{ grupo.sesion.idsesion }}"
   data-grupo-id="{{ grupo.idgrupo }}"
@@ -75,6 +99,16 @@
     <header class="header">
       <h1 id="page-title">{{ theme.title|default:slug|title }}</h1>
       <p class="subtitle">{{ theme.hero }}</p>
+
+      <div class="timer-box">
+        ⏱️ Tiempo restante para elegir temática y desafío:
+        <strong id="timerTematica">--</strong>
+        <br>
+        <span>
+          Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
+        </span>
+      </div>
+
       <p style="font-size:14px; opacity:.8; color:white;">
         Equipo actual: {{ grupo.nombregrupo }} | ID: {{ grupo.idgrupo }} | Sesión: {{ grupo.sesion.idsesion }}
       </p>
@@ -189,6 +223,7 @@
       const estadoError = document.getElementById("estadoError");
       const contador = document.getElementById("contadorGruposListos");
       const contadorConfirmado = document.getElementById("contadorGruposListosConfirmado");
+      const timerTematica = document.getElementById("timerTematica");
 
       const sesionId = document.body.dataset.sesionId;
       const grupoId = document.body.dataset.grupoId;
@@ -201,6 +236,13 @@
       let enviando = false;
       let bloqueado = desafioConfirmado;
       let redirigiendo = false;
+
+      function formatearTiempo(segundos) {
+        segundos = Math.max(Number(segundos || 0), 0);
+        const min = Math.floor(segundos / 60);
+        const seg = segundos % 60;
+        return `${min}:${String(seg).padStart(2, "0")}`;
+      }
 
       function mostrarError(texto) {
         if (!estadoError) return;
@@ -234,16 +276,27 @@
           if (!res.ok) return;
 
           const data = await res.json();
+
+          if (timerTematica) {
+            timerTematica.textContent = formatearTiempo(data.segundosRestantes);
+          }
+
           actualizarContador(data);
 
           if (data.faseActual && data.faseActual !== "f2_tematicas" && data.rutaAlumno) {
             redirigiendo = true;
             window.location.href = data.rutaAlumno;
+            return;
           }
 
           const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+
           if (miGrupo && miGrupo.listoF2 && !bloqueado) {
-            bloqueado = true;
+            aplicarModoBloqueado(
+              miGrupo.desafioIdExterno,
+              miGrupo.desafioNombre,
+              miGrupo.desafioDescripcion
+            );
           }
         } catch (error) {
           console.error("Error consultando estado de sesión:", error);
@@ -407,7 +460,7 @@
       });
 
       refrescarEstadoSesion();
-      setInterval(refrescarEstadoSesion, 1500);
+      setInterval(refrescarEstadoSesion, 1000);
     });
   </script>
 

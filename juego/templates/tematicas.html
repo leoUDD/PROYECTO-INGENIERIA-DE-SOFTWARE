@@ -16,6 +16,14 @@
     <header class="header">
       <h1 id="page-title">Elige la temática del desafío</h1>
       <p class="subtitle">Selecciona una categoría para continuar. Cada bloque explica de qué trata.</p>
+      <div class="timer-box" style="margin-top:14px; padding:12px 16px; border-radius:14px; background:rgba(255,255,255,.12); color:white; font-weight:700;">
+      ⏱️ Tiempo para elegir temática y desafío:
+     <strong id="timerTematica">--</strong>
+      <br>
+      <span style="font-weight:500;">
+        Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
+      </span>
+    </div>
     </header>
 
     <section class="themes-carousel" aria-label="Temáticas disponibles">
@@ -98,6 +106,40 @@
   (function () {
     const cards = Array.from(document.querySelectorAll(".theme-card"));
     let enviando = false;
+    const sesionId = document.getElementById("routes")?.dataset?.sesionId;
+const timerTematica = document.getElementById("timerTematica");
+
+function formatearTiempo(segundos) {
+  segundos = Math.max(Number(segundos || 0), 0);
+  const min = Math.floor(segundos / 60);
+  const seg = segundos % 60;
+  return `${min}:${String(seg).padStart(2, "0")}`;
+}
+
+async function actualizarTimerTematica() {
+  if (!sesionId || !timerTematica) return;
+
+  try {
+    const res = await fetch(`/sesion/${sesionId}/estado/`, {
+      cache: "no-store",
+      credentials: "same-origin"
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    timerTematica.textContent = formatearTiempo(data.segundosRestantes);
+
+    if (data.faseActual && data.faseActual !== "f2_tematicas" && data.rutaAlumno) {
+      window.location.href = data.rutaAlumno;
+    }
+  } catch (error) {
+    console.error("Error actualizando timer temática:", error);
+  }
+}
+
+setInterval(actualizarTimerTematica, 1000);
+actualizarTimerTematica();
 
     function getCSRFToken() {
       const name = "csrftoken=";

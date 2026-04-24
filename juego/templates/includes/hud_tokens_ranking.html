@@ -1,0 +1,155 @@
+<style>
+  .hud-tokens-ranking {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-family: Poppins, Arial, sans-serif;
+  }
+
+  .hud-token-box,
+  .hud-ranking-btn {
+    border: 1px solid rgba(0, 200, 255, .45);
+    background: rgba(7, 21, 43, .88);
+    color: white;
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-weight: 800;
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    backdrop-filter: blur(6px);
+  }
+
+  .hud-ranking-btn {
+    cursor: pointer;
+  }
+
+  .hud-ranking-panel {
+    position: fixed;
+    top: 62px;
+    right: 14px;
+    z-index: 9999;
+    width: min(340px, calc(100vw - 28px));
+    background: rgba(7, 21, 43, .96);
+    color: white;
+    border: 1px solid rgba(0, 200, 255, .35);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.35);
+    display: none;
+  }
+
+  .hud-ranking-panel.visible {
+    display: block;
+  }
+
+  .hud-ranking-panel h3 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: #00c8ff;
+  }
+
+  .hud-ranking-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    font-size: .92rem;
+  }
+
+  .hud-ranking-row:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 640px) {
+    .hud-tokens-ranking {
+      top: 8px;
+      right: 8px;
+      transform: scale(.9);
+      transform-origin: top right;
+    }
+
+    .hud-ranking-panel {
+      top: 56px;
+      right: 8px;
+    }
+  }
+</style>
+
+<div
+  class="hud-tokens-ranking"
+  data-sesion-id="{{ grupo.sesion.idsesion|default:'' }}"
+  data-grupo-id="{{ grupo.idgrupo|default:'' }}"
+>
+  <div class="hud-token-box">
+    🪙 <span id="hudTokens">--</span>
+  </div>
+
+  <button type="button" id="hudRankingBtn" class="hud-ranking-btn">
+    🏆 Ranking
+  </button>
+</div>
+
+<div id="hudRankingPanel" class="hud-ranking-panel">
+  <h3>Ranking actual</h3>
+  <div id="hudRankingLista">
+    Cargando...
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const hud = document.querySelector(".hud-tokens-ranking");
+    const sesionId = hud?.dataset?.sesionId;
+    const grupoId = hud?.dataset?.grupoId;
+
+    const tokensEl = document.getElementById("hudTokens");
+    const btn = document.getElementById("hudRankingBtn");
+    const panel = document.getElementById("hudRankingPanel");
+    const lista = document.getElementById("hudRankingLista");
+
+    if (!sesionId || !grupoId) return;
+
+    btn?.addEventListener("click", () => {
+      panel?.classList.toggle("visible");
+    });
+
+    async function actualizarHud() {
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado/`, {
+          credentials: "same-origin",
+          cache: "no-store"
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const grupos = data.grupos || [];
+
+        const miGrupo = grupos.find(g => Number(g.id) === Number(grupoId));
+        if (miGrupo && tokensEl) {
+          tokensEl.textContent = miGrupo.tokens ?? 0;
+        }
+
+        const ordenados = [...grupos].sort((a, b) => Number(b.tokens || 0) - Number(a.tokens || 0));
+
+        if (lista) {
+          lista.innerHTML = ordenados.map((g, index) => `
+            <div class="hud-ranking-row">
+              <span>${index + 1}. ${g.nombre}</span>
+              <strong>${g.tokens || 0} 🪙</strong>
+            </div>
+          `).join("");
+        }
+      } catch (error) {
+        console.error("Error actualizando HUD:", error);
+      }
+    }
+
+    actualizarHud();
+    setInterval(actualizarHud, 3000);
+  });
+</script>

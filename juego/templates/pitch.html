@@ -125,6 +125,97 @@
       display: none;
     }
 
+
+    /* === TIMER Y PANEL DESAFÍO: ESTILO GLOBAL, NO SOLO MOBILE === */
+    .timer-wrap-pitch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0 18px;
+    }
+
+    .timer-label-pitch {
+      margin-bottom: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e8f7ff;
+    }
+
+    .timer-box-pitch {
+      min-width: 190px;
+      padding: 16px 26px;
+      border-radius: 22px;
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      background: rgba(5, 18, 35, 0.92);
+      border: 3px solid rgba(0, 200, 255, 0.85);
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.35), inset 0 0 18px rgba(0, 200, 255, 0.12);
+      letter-spacing: 1px;
+    }
+
+    .desafio-panel{
+      width: 100%;
+      max-width: 760px;
+      margin: 14px auto 22px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 200, 255, 0.35);
+      background: rgba(7, 38, 70, 0.78);
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
+    }
+
+    .desafio-toggle{
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: #fff;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .desafio-toggle-head{
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .desafio-etiqueta{
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #00c8ff;
+    }
+
+    .desafio-titulo{
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .desafio-icono{
+      font-size: 1rem;
+      font-weight: 800;
+      color: #00c8ff;
+    }
+
+    .desafio-body{
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding: 16px 18px 18px;
+    }
+
+    .desafio-descripcion{
+      margin: 0;
+      color: #d9e6f2;
+      line-height: 1.5;
+      font-size: 0.98rem;
+    }
+
     @media (max-width: 900px) {
       .inicio-fase-card {
         width: min(94%, 760px);
@@ -204,7 +295,65 @@
     border-radius: 18px;
   }
 }  
+.desafio-panel{
+  width: 100%;
+  max-width: 760px;
+  margin: 14px auto 22px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 200, 255, 0.35);
+  background: rgba(7, 38, 70, 0.78);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
 
+.desafio-toggle{
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.desafio-toggle-head{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.desafio-etiqueta{
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #00c8ff;
+}
+
+.desafio-titulo{
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.desafio-icono{
+  font-size: 1rem;
+  font-weight: 800;
+  color: #00c8ff;
+}
+
+.desafio-body{
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding: 16px 18px 18px;
+}
+
+.desafio-descripcion{
+  margin: 0;
+  color: #d9e6f2;
+  line-height: 1.5;
+  font-size: 0.98rem;
+}
 
     }
   </style>
@@ -259,9 +408,21 @@
 
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
-    <div id="desafioPitchWrap" class="blur-target-bloqueado">
-      {% include "desafio_badge.html" %}
+<div id="desafioPitchWrap" class="blur-target-bloqueado">
+  <section id="desafioPanel" class="desafio-panel">
+    <button type="button" class="desafio-toggle" id="desafioToggle">
+      <div class="desafio-toggle-head">
+        <span class="desafio-etiqueta">Desafío seleccionado</span>
+        <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
+      </div>
+      <span class="desafio-icono" id="desafioIcono">▼</span>
+    </button>
+
+    <div class="desafio-body" id="desafioBody" hidden>
+      <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
     </div>
+  </section>
+</div>
 
     <div
       id="pitch-desafio-data"
@@ -310,6 +471,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   const sesionId = "{{ grupo.sesion.idsesion }}";
   const grupoId = "{{ grupo.idgrupo }}";
+
+  function actualizarBadgeDesafio(data) {
+  const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+  if (!miGrupo) return;
+
+  const titulo = miGrupo.desafioNombre || "Desafío no seleccionado";
+  const descripcion = miGrupo.desafioDescripcion || "Aún no hay descripción disponible para este desafío.";
+
+  const dbTitle = document.getElementById("dbTitle");
+  const dbShort = document.getElementById("dbShort");
+  const dbDesc = document.getElementById("dbDesc");
+
+  if (dbTitle) dbTitle.textContent = titulo;
+  if (dbShort) dbShort.textContent = descripcion;
+  if (dbDesc) dbDesc.textContent = descripcion;
+}
+
   const csrfToken = "{{ csrf_token }}";
 
   const boton = document.getElementById("btn-listo-fase");
@@ -321,6 +499,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.getElementById("inicio-fase-overlay");
   const btnLimpiar = document.getElementById("btnLimpiar");
   const textarea = document.getElementById("pitch-text");
+
+  const desafioToggle = document.getElementById("desafioToggle");
+  const desafioBody = document.getElementById("desafioBody");
+  const desafioIcono = document.getElementById("desafioIcono");
+
+  desafioToggle?.addEventListener("click", () => {
+    const abierto = !desafioBody.hasAttribute("hidden");
+
+  if (abierto) {
+    desafioBody.setAttribute("hidden", "");
+    if (desafioIcono) desafioIcono.textContent = "▼";
+  } else {
+    desafioBody.removeAttribute("hidden");
+    if (desafioIcono) desafioIcono.textContent = "▲";
+  }
+});
 
   const blurTargets = [
     document.getElementById("tituloPitch"),
@@ -436,6 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!res.ok) return;
       const data = await res.json();
+      actualizarBadgeDesafio(data);
 
       if (contador) {
         contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0}`;
