@@ -9,11 +9,10 @@
   <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}">
 </head>
 <body>
-  <main class="phone">
 
   <div class="screen-wrapper">
 
-    <!-- Marco futurista SVG — igual que perfiles -->
+    <!-- Marco futurista SVG -->
     <svg class="screen-frame" viewBox="0 0 100 100" preserveAspectRatio="none"
          xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -76,6 +75,7 @@
       <polygon points="50,96.5 51.5,98.5 50,100 48.5,98.5" fill="#FF7A1A" opacity="0.7"/>
     </svg>
 
+    <!-- Card principal -->
     <main class="phone">
 
       <img src="{% static 'images/mision_emprende_phone_bg.gif' %}" class="gif-spacer" alt="">
@@ -94,7 +94,6 @@
             Tu navegador no soporta video.
           </video>
         </div>
-
         <a href="{% url 'registro' %}" class="btn-iniciar" id="btnIniciar">
           <span class="btn-icon">▶</span>
           INICIAR MISIÓN
@@ -102,7 +101,7 @@
       </div>
 
     </main>
-  </div>
+  </div><!-- /screen-wrapper -->
 
   <script>
     function playHoverSound() {
