@@ -550,6 +550,121 @@
       border: 3px solid #7c3aed;
       box-shadow: 0 0 35px rgba(124, 58, 237, .55);
     }
+
+    /* ===============================
+       OBJETO INTERACTUABLE — CELULAR
+       =============================== */
+    .objeto-celular-trigger {
+      position: fixed;
+      right: clamp(18px, 4vw, 54px);
+      bottom: clamp(92px, 15vh, 150px);
+      width: 76px;
+      height: 76px;
+      border: none;
+      border-radius: 24px;
+      background: rgba(7, 21, 43, 0.86);
+      border: 1px solid rgba(0, 200, 255, 0.32);
+      box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 18px rgba(0,200,255,.18);
+      cursor: pointer;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: celularFloat 4.2s ease-in-out infinite alternate;
+    }
+
+    .objeto-celular-trigger:hover {
+      transform: scale(1.06);
+      box-shadow: 0 14px 30px rgba(0,0,0,.34), 0 0 24px rgba(0,200,255,.30);
+    }
+
+    .objeto-celular-icon {
+      font-size: 2.25rem;
+      animation: celularBounce 1.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes celularFloat {
+      from { translate: 0 0; }
+      to { translate: -30px -24px; }
+    }
+
+    @keyframes celularBounce {
+      from { transform: translateY(0) rotate(-4deg); }
+      to { transform: translateY(-8px) rotate(4deg); }
+    }
+
+    .objeto-celular-trigger.oculto {
+      display: none;
+    }
+
+    .astro-object-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 90;
+      background: rgba(0, 0, 0, 0.54);
+      backdrop-filter: blur(5px);
+    }
+
+    .astro-object-overlay.activo {
+      display: flex;
+    }
+
+    .astro-object-card {
+      width: min(92vw, 460px);
+      border-radius: 24px;
+      padding: 22px;
+      background:
+        radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%),
+        rgba(7, 21, 43, 0.96);
+      border: 1px solid rgba(0, 200, 255, 0.34);
+      box-shadow: 0 18px 44px rgba(0,0,0,.42);
+      color: #ffffff;
+      text-align: center;
+      animation: objectCardIn .28s ease both;
+    }
+
+    @keyframes objectCardIn {
+      from { opacity: 0; transform: translateY(14px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .astro-object-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.35rem;
+      color: #00c8ff;
+    }
+
+    .astro-object-card p {
+      margin: 0 0 10px;
+      line-height: 1.5;
+      color: #d9e6f2;
+      font-weight: 600;
+    }
+
+    .astro-object-card strong {
+      color: #ffe29a;
+    }
+
+    .astro-object-close {
+      margin-top: 10px;
+      border: 1px solid rgba(0, 200, 255, 0.42);
+      border-radius: 999px;
+      padding: 11px 18px;
+      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
+      color: #ffffff;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(0,200,255,.20);
+    }
+
+    .astro-object-close:hover {
+      transform: translateY(-1px);
+    }
+
     @media (max-width: 850px) {
       .bubble-stage {
         height: auto;
@@ -685,6 +800,20 @@
   font-size: 0.98rem;
 }
     }
+
+    @media (max-width: 640px) {
+      .objeto-celular-trigger {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        bottom: 82px;
+      }
+
+      .objeto-celular-icon {
+        font-size: 1.9rem;
+      }
+    }
+
   </style>
 </head>
 
@@ -738,6 +867,31 @@
     <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
   </div>
 </section>
+
+
+    <!-- 📱 OBJETO INTERACTUABLE — ETAPA BUBBLE MAP -->
+    <button id="objetoCelularTrigger" class="objeto-celular-trigger blur-target-bloqueado" type="button" aria-label="Encontrar celular perdido">
+      <span class="objeto-celular-icon">📱</span>
+    </button>
+
+    <div id="objetoCelularOverlay" class="astro-object-overlay" aria-hidden="true">
+      <div class="astro-object-card">
+        <h3>📱 Objeto encontrado</h3>
+
+        <!-- #cambiar concejo: cambia este texto por el consejo definitivo de esta etapa -->
+        <p>
+          El consejo es: <strong>Cambio</strong>.
+        </p>
+        <p>
+          Observa con atención a la persona objetivo. Mientras mejor entiendan sus necesidades, mejores ideas podrán crear.
+        </p>
+
+        <button id="objetoCelularClose" class="astro-object-close" type="button">Entendido</button>
+      </div>
+
+      <audio id="objetoCelularTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
+      <audio id="objetoCelularExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
+    </div>
 
     <details id="reglasBubble" class="reglas-bubble blur-target-bloqueado">
       <summary>📌 Reglas para ganar fichas</summary>
@@ -908,6 +1062,52 @@ desafioToggle?.addEventListener("click", () => {
       const bubblesSection = document.getElementById("bubblesSection");
       const personaObjetivoImg = document.getElementById("personaObjetivoImg");
 
+      const celularTrigger = document.getElementById("objetoCelularTrigger");
+      const celularOverlay = document.getElementById("objetoCelularOverlay");
+      const celularClose = document.getElementById("objetoCelularClose");
+      const celularTalk = document.getElementById("objetoCelularTalk");
+      const celularExit = document.getElementById("objetoCelularExit");
+      const STORAGE_CELULAR = `objeto_celular_bubblemap_usado_${sesionId}_${grupoId}`;
+
+      if (localStorage.getItem(STORAGE_CELULAR) === "1" && celularTrigger) {
+        celularTrigger.classList.add("oculto");
+      }
+
+      function abrirCelular() {
+        if (!celularOverlay) return;
+        celularOverlay.classList.add("activo");
+        celularOverlay.setAttribute("aria-hidden", "false");
+
+        if (celularTalk) {
+          celularTalk.currentTime = 0;
+          celularTalk.play().catch(() => {});
+        }
+      }
+
+      function cerrarCelular() {
+        if (!celularOverlay) return;
+        celularOverlay.classList.remove("activo");
+        celularOverlay.setAttribute("aria-hidden", "true");
+
+        if (celularExit) {
+          celularExit.currentTime = 0;
+          celularExit.play().catch(() => {});
+        }
+
+        if (celularTrigger) {
+          celularTrigger.classList.add("oculto");
+        }
+
+        localStorage.setItem(STORAGE_CELULAR, "1");
+      }
+
+      celularTrigger?.addEventListener("click", abrirCelular);
+      celularClose?.addEventListener("click", cerrarCelular);
+      celularOverlay?.addEventListener("click", (e) => {
+        if (e.target === celularOverlay) cerrarCelular();
+      });
+
+
       const editorModal = document.getElementById("editorModal");
       const editorTitulo = document.getElementById("editorTitulo");
       const editorPregunta = document.getElementById("editorPregunta");
@@ -943,6 +1143,7 @@ desafioToggle?.addEventListener("click", () => {
         document.getElementById("bubblesSection"),
         document.getElementById("bubbleActions"),
         document.getElementById("footerBubble"),
+        document.getElementById("objetoCelularTrigger"),
       ];
 
       const burbujasBase = [

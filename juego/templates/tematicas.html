@@ -8,205 +8,667 @@
         content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Misión Emprende UDD — Elige la temática</title>
   <link rel="stylesheet" href="{% static 'css/estilo_tematicas.css' %}">
+
+  <style>
+    .selector-container {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ===============================
+       OVERLAY INICIO TEMÁTICAS
+       =============================== */
+    .overlay-inicio {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 38px 18px 18px;
+      z-index: 85;
+      background: rgba(0, 0, 0, 0.18);
+      pointer-events: none;
+    }
+
+    .card-inicio {
+      width: min(92vw, 680px);
+      border-radius: 24px;
+      padding: 22px 24px;
+      background:
+        radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 42%),
+        rgba(8, 24, 48, 0.94);
+      border: 1px solid rgba(0, 200, 255, 0.34);
+      box-shadow: 0 18px 44px rgba(0,0,0,.35);
+      color: #ffffff;
+      text-align: center;
+      pointer-events: auto;
+      backdrop-filter: blur(7px);
+    }
+
+    .card-inicio h3 {
+      margin: 0 0 12px;
+      color: #00c8ff;
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
+
+    .card-inicio p {
+      margin: 0 0 10px;
+      color: #d9e6f2;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .card-inicio strong {
+      color: #ffe29a;
+    }
+
+    .btn-inicio {
+      margin-top: 12px;
+      padding: 11px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 255, 0.42);
+      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
+      color: #ffffff;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(0,200,255,.20);
+    }
+
+    .btn-inicio:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-inicio:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .contador-inicio {
+      margin-top: 12px !important;
+      font-size: .95rem;
+      color: #ffffff !important;
+      opacity: .95;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .blur-tematicas {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      opacity: .62;
+      transition: all .3s ease;
+    }
+
+    .contenido-tematicas {
+      transition: all .3s ease;
+    }
+
+    /* ===============================
+       BOTÓN VOLVER / CAMBIAR
+       =============================== */
+    .tematica-actions-extra {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0 0;
+    }
+
+    .btn-volver-tematica {
+      border: 1px solid rgba(0, 200, 255, .36);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: rgba(7, 21, 43, .82);
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0,0,0,.22);
+    }
+
+    .btn-volver-tematica:hover {
+      transform: translateY(-1px);
+      background: rgba(0, 200, 255, .16);
+    }
+
+    /* ===============================
+       OBJETO INTERACTUABLE — CÁMARA
+       =============================== */
+    .objeto-camara-trigger {
+      position: fixed;
+      right: clamp(18px, 4vw, 54px);
+      bottom: clamp(90px, 14vh, 150px);
+      width: 76px;
+      height: 76px;
+      border: none;
+      border-radius: 24px;
+      background: rgba(7, 21, 43, 0.86);
+      border: 1px solid rgba(0, 200, 255, 0.32);
+      box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 18px rgba(0,200,255,.18);
+      cursor: pointer;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: camaraFloat 4.2s ease-in-out infinite alternate;
+    }
+
+    .objeto-camara-trigger:hover {
+      transform: scale(1.06);
+      box-shadow: 0 14px 30px rgba(0,0,0,.34), 0 0 24px rgba(0,200,255,.30);
+    }
+
+    .objeto-camara-icon {
+      font-size: 2.25rem;
+      animation: camaraBounce 1.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes camaraFloat {
+      from { translate: 0 0; }
+      to { translate: -34px -26px; }
+    }
+
+    @keyframes camaraBounce {
+      from { transform: translateY(0) rotate(-3deg); }
+      to { transform: translateY(-8px) rotate(4deg); }
+    }
+
+    .objeto-camara-trigger.oculto {
+      display: none;
+    }
+
+    .astro-object-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 90;
+      background: rgba(0, 0, 0, 0.54);
+      backdrop-filter: blur(5px);
+    }
+
+    .astro-object-overlay.activo {
+      display: flex;
+    }
+
+    .astro-object-card {
+      width: min(92vw, 460px);
+      border-radius: 24px;
+      padding: 22px;
+      background:
+        radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%),
+        rgba(7, 21, 43, 0.96);
+      border: 1px solid rgba(0, 200, 255, 0.34);
+      box-shadow: 0 18px 44px rgba(0,0,0,.42);
+      color: #ffffff;
+      text-align: center;
+      animation: objectCardIn .28s ease both;
+    }
+
+    @keyframes objectCardIn {
+      from { opacity: 0; transform: translateY(14px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .astro-object-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.35rem;
+      color: #00c8ff;
+    }
+
+    .astro-object-card p {
+      margin: 0 0 10px;
+      line-height: 1.5;
+      color: #d9e6f2;
+      font-weight: 600;
+    }
+
+    .astro-object-card strong {
+      color: #ffe29a;
+    }
+
+    .astro-object-close {
+      margin-top: 10px;
+      border: 1px solid rgba(0, 200, 255, 0.42);
+      border-radius: 999px;
+      padding: 11px 18px;
+      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
+      color: #ffffff;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(0,200,255,.20);
+    }
+
+    .astro-object-close:hover {
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 640px) {
+      .card-inicio {
+        padding: 18px 16px;
+      }
+
+      .card-inicio h3 {
+        font-size: 1.15rem;
+      }
+
+      .card-inicio p {
+        font-size: .92rem;
+      }
+
+      .objeto-camara-trigger {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        bottom: 82px;
+      }
+
+      .objeto-camara-icon {
+        font-size: 1.9rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <main class="selector-container" role="main" aria-labelledby="page-title">
 
-    <header class="header">
-      <h1 id="page-title">Elige la temática del desafío</h1>
-      <p class="subtitle">Selecciona una categoría para continuar. Cada bloque explica de qué trata.</p>
-      <div class="timer-box" style="margin-top:14px; padding:12px 16px; border-radius:14px; background:rgba(255,255,255,.12); color:white; font-weight:700;">
-      ⏱️ Tiempo para elegir temática y desafío:
-     <strong id="timerTematica">--</strong>
-      <br>
-      <span style="font-weight:500;">
-        Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
-      </span>
+    <!-- 🔥 OVERLAY INICIO -->
+    <div id="overlayInicio" class="overlay-inicio">
+      <div class="card-inicio">
+        <h3>Antes de comenzar</h3>
+
+        <p>
+          Elijan una temática para continuar con la misión.
+        </p>
+
+        <p>
+          Tendrán <strong>2 minutos</strong> para elegir temática y desafío.
+          Si no eligen a tiempo, el sistema asignará una temática y un desafío al azar.
+        </p>
+
+        <p>
+          En las siguientes vistas tendrán un botón de <strong>Desafío seleccionado</strong>.
+          Al presionarlo podrán revisar la descripción del desafío en cualquier momento.
+        </p>
+
+        <button id="btnListoTematica" class="btn-inicio" type="button">
+          ⚡ Listo para comenzar
+        </button>
+
+        <p id="contadorListosTematica" class="contador-inicio">
+          Esperando a los demás equipos...
+        </p>
+      </div>
     </div>
-    </header>
 
-    <section class="themes-carousel" aria-label="Temáticas disponibles">
+    <div id="contenidoTematicas" class="contenido-tematicas blur-tematicas">
+      <header class="header">
+        <h1 id="page-title">Elige la temática del desafío</h1>
+        <p class="subtitle">Selecciona una categoría para continuar. Cada bloque explica de qué trata.</p>
+        <div class="timer-box" style="margin-top:14px; padding:12px 16px; border-radius:14px; background:rgba(255,255,255,.12); color:white; font-weight:700;">
+          ⏱️ Tiempo para elegir temática y desafío:
+          <strong id="timerTematica">--</strong>
+          <br>
+          <span style="font-weight:500;">
+            Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
+          </span>
+        </div>
+      </header>
 
-      <button class="carousel-btn prev" type="button" aria-label="Anterior">‹</button>
+      <!-- 📷 OBJETO INTERACTUABLE — ETAPA TEMÁTICAS -->
+      <button id="objetoCamaraTrigger" class="objeto-camara-trigger" type="button" aria-label="Encontrar cámara perdida">
+        <span class="objeto-camara-icon">📷</span>
+      </button>
 
-      <div class="themes-track" id="themesTrack">
+      <div id="objetoCamaraOverlay" class="astro-object-overlay" aria-hidden="true">
+        <div class="astro-object-card">
+          <h3>📷 Objeto encontrado</h3>
 
-        <article class="theme-card" tabindex="-1"
-                 data-slug="salud"
-                 data-url="{% url 'desafios' %}">
-          <div class="thumb">
-            <img src="{% static 'images/salud.png' %}" alt="Icono de salud">
-          </div>
-          <div class="content">
-            <h2 class="title">Salud</h2>
-            <div class="chips">
-              <span class="chip">🫶 Empatía</span>
-              <span class="chip">💡 Innovar</span>
-              <span class="chip">💪 Bienestar</span>
-            </div>
-            <p class="desc">Mejora hábitos y bienestar con soluciones prácticas.</p>
-          </div>
-          <div class="actions">
-            <button class="btn select" type="button" onclick="guardarTema('salud', this)">Elegir</button>
-          </div>
-        </article>
+          <!-- #cambiar concejo: cambia este texto por el consejo definitivo de esta etapa -->
+          <p>
+            Buen hallazgo. Más adelante te van a evaluar por: <strong>Cambio</strong>.
+          </p>
+          <p>
+            Sigue atento a los próximos objetos, pueden darte pistas importantes para la misión.
+          </p>
 
-        <article class="theme-card" tabindex="-1"
-                 data-slug="sustentabilidad"
-                 data-url="{% url 'desafios' %}">
-          <div class="thumb">
-            <img src="{% static 'images/sustentabilidad.png' %}" alt="Icono de sustentabilidad">
-          </div>
-          <div class="content">
-            <h2 class="title">Sustentabilidad</h2>
-            <div class="chips">
-              <span class="chip">🌱 Ambiental</span>
-              <span class="chip">♻️ Reciclaje</span>
-              <span class="chip">⚙️ Creativo</span>
-            </div>
-            <p class="desc">Impacto ambiental positivo con ideas circulares.</p>
-          </div>
-          <div class="actions">
-            <button class="btn select" type="button" onclick="guardarTema('sustentabilidad', this)">Elegir</button>
-          </div>
-        </article>
+          <button id="objetoCamaraClose" class="astro-object-close" type="button">Entendido</button>
+        </div>
 
-        <article class="theme-card" tabindex="-1"
-                 data-slug="educacion"
-                 data-url="{% url 'desafios' %}">
-          <div class="thumb">
-            <img src="{% static 'images/educacion.png' %}" alt="Icono de educación">
-          </div>
-          <div class="content">
-            <h2 class="title">Educación</h2>
-            <div class="chips">
-              <span class="chip">🗣️ Comunicar</span>
-              <span class="chip">🎓 Liderazgo</span>
-              <span class="chip">💭 Ideas</span>
-            </div>
-            <p class="desc">Aprendizaje inclusivo con propuestas innovadoras.</p>
-          </div>
-          <div class="actions">
-            <button class="btn select" type="button" onclick="guardarTema('educacion', this)">Elegir</button>
-          </div>
-        </article>
-
+        <audio id="objetoCamaraTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
+        <audio id="objetoCamaraExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
       </div>
 
-      <button class="carousel-btn next" type="button" aria-label="Siguiente">›</button>
+      <section class="themes-carousel" aria-label="Temáticas disponibles">
 
-    </section>
+        <button class="carousel-btn prev" type="button" aria-label="Anterior">‹</button>
+
+        <div class="themes-track" id="themesTrack">
+
+          <article class="theme-card" tabindex="-1"
+                  data-slug="salud"
+                  data-url="{% url 'desafios' %}">
+            <div class="thumb">
+              <img src="{% static 'images/salud.png' %}" alt="Icono de salud">
+            </div>
+            <div class="content">
+              <h2 class="title">Salud</h2>
+              <div class="chips">
+                <span class="chip">🫶 Empatía</span>
+                <span class="chip">💡 Innovar</span>
+                <span class="chip">💪 Bienestar</span>
+              </div>
+              <p class="desc">Mejora hábitos y bienestar con soluciones prácticas.</p>
+            </div>
+            <div class="actions">
+              <button class="btn select" type="button" onclick="guardarTema('salud', this)">Elegir</button>
+            </div>
+          </article>
+
+          <article class="theme-card" tabindex="-1"
+                  data-slug="sustentabilidad"
+                  data-url="{% url 'desafios' %}">
+            <div class="thumb">
+              <img src="{% static 'images/sustentabilidad.png' %}" alt="Icono de sustentabilidad">
+            </div>
+            <div class="content">
+              <h2 class="title">Sustentabilidad</h2>
+              <div class="chips">
+                <span class="chip">🌱 Ambiental</span>
+                <span class="chip">♻️ Reciclaje</span>
+                <span class="chip">⚙️ Creativo</span>
+              </div>
+              <p class="desc">Impacto ambiental positivo con ideas circulares.</p>
+            </div>
+            <div class="actions">
+              <button class="btn select" type="button" onclick="guardarTema('sustentabilidad', this)">Elegir</button>
+            </div>
+          </article>
+
+          <article class="theme-card" tabindex="-1"
+                  data-slug="educacion"
+                  data-url="{% url 'desafios' %}">
+            <div class="thumb">
+              <img src="{% static 'images/educacion.png' %}" alt="Icono de educación">
+            </div>
+            <div class="content">
+              <h2 class="title">Educación</h2>
+              <div class="chips">
+                <span class="chip">🗣️ Comunicar</span>
+                <span class="chip">🎓 Liderazgo</span>
+                <span class="chip">💭 Ideas</span>
+              </div>
+              <p class="desc">Aprendizaje inclusivo con propuestas innovadoras.</p>
+            </div>
+            <div class="actions">
+              <button class="btn select" type="button" onclick="guardarTema('educacion', this)">Elegir</button>
+            </div>
+          </article>
+
+        </div>
+
+        <button class="carousel-btn next" type="button" aria-label="Siguiente">›</button>
+
+      </section>
+
+
+    </div>
 
   </main>
 
-  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+  <div id="routes"
+       data-sesion-id="{{ grupo.sesion.idsesion }}"
+       data-grupo-id="{{ grupo.idgrupo }}">
+  </div>
 
   <script>
-  (function () {
-    const cards = Array.from(document.querySelectorAll(".theme-card"));
-    let enviando = false;
-    const sesionId = document.getElementById("routes")?.dataset?.sesionId;
-const timerTematica = document.getElementById("timerTematica");
+    (function () {
+      const cards = Array.from(document.querySelectorAll(".theme-card"));
+      let enviando = false;
+      const routesEl = document.getElementById("routes");
+      const sesionId = routesEl?.dataset?.sesionId;
+      const grupoId = routesEl?.dataset?.grupoId;
+      const timerTematica = document.getElementById("timerTematica");
 
-function formatearTiempo(segundos) {
-  segundos = Math.max(Number(segundos || 0), 0);
-  const min = Math.floor(segundos / 60);
-  const seg = segundos % 60;
-  return `${min}:${String(seg).padStart(2, "0")}`;
-}
+      const overlayInicio = document.getElementById("overlayInicio");
+      const contenidoTematicas = document.getElementById("contenidoTematicas");
+      const btnListoTematica = document.getElementById("btnListoTematica");
+      const contadorListosTematica = document.getElementById("contadorListosTematica");
 
-async function actualizarTimerTematica() {
-  if (!sesionId || !timerTematica) return;
+      let yaListoTematica = false;
 
-  try {
-    const res = await fetch(`/sesion/${sesionId}/estado/`, {
-      cache: "no-store",
-      credentials: "same-origin"
-    });
-
-    if (!res.ok) return;
-
-    const data = await res.json();
-    timerTematica.textContent = formatearTiempo(data.segundosRestantes);
-
-    if (data.faseActual && data.faseActual !== "f2_tematicas" && data.rutaAlumno) {
-      window.location.href = data.rutaAlumno;
-    }
-  } catch (error) {
-    console.error("Error actualizando timer temática:", error);
-  }
-}
-
-setInterval(actualizarTimerTematica, 1000);
-actualizarTimerTematica();
-
-    function getCSRFToken() {
-      const name = "csrftoken=";
-      const parts = document.cookie.split(";");
-      for (let c of parts) {
-        c = c.trim();
-        if (c.startsWith(name)) return decodeURIComponent(c.substring(name.length));
+      function formatearTiempo(segundos) {
+        segundos = Math.max(Number(segundos || 0), 0);
+        const min = Math.floor(segundos / 60);
+        const seg = segundos % 60;
+        return `${min}:${String(seg).padStart(2, "0")}`;
       }
-      return "";
-    }
 
-    function marcarTema(slug) {
-      const temaSeleccionado = (slug || "").trim().toLowerCase();
+      function habilitarTematicas() {
+        if (overlayInicio) overlayInicio.classList.add("hidden");
+        if (contenidoTematicas) contenidoTematicas.classList.remove("blur-tematicas");
+      }
 
-      cards.forEach(card => {
-        const activo = (card.dataset.slug || "").trim().toLowerCase() === temaSeleccionado;
-        card.classList.toggle("selected", activo);
+      function bloquearTematicas() {
+        if (overlayInicio) overlayInicio.classList.remove("hidden");
+        if (contenidoTematicas) contenidoTematicas.classList.add("blur-tematicas");
+      }
 
-        const btn = card.querySelector(".btn.select");
-        if (btn) {
-          btn.textContent = activo ? "Seleccionado ✅" : "Elegir";
+      async function actualizarTimerTematica() {
+        if (!sesionId || !timerTematica) return;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`, {
+            cache: "no-store",
+            credentials: "same-origin"
+          });
+
+          if (!res.ok) return;
+
+          const data = await res.json();
+
+          timerTematica.textContent = formatearTiempo(data.segundosRestantes);
+
+          if (contadorListosTematica) {
+            contadorListosTematica.textContent =
+              `${data.gruposListosF2 || 0}/${data.totalGrupos || 0} grupos listos`;
+          }
+
+          const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+
+          if (miGrupo && miGrupo.listoF2) {
+            yaListoTematica = true;
+            if (btnListoTematica) {
+              btnListoTematica.disabled = true;
+              btnListoTematica.textContent = "Esperando...";
+            }
+          }
+
+          if (data.todosListosF2 || data.timerCorriendo || data.inicioFaseHabilitado) {
+            habilitarTematicas();
+          } else {
+            bloquearTematicas();
+          }
+
+          if (data.faseActual && data.faseActual !== "f2_tematicas" && data.rutaAlumno) {
+            window.location.href = data.rutaAlumno;
+          }
+        } catch (error) {
+          console.error("Error actualizando timer temática:", error);
         }
-      });
-    }
+      }
 
-    window.guardarTema = async function (slug, boton) {
-      if (enviando) return;
+      function getCSRFToken() {
+        const name = "csrftoken=";
+        const parts = document.cookie.split(";");
+        for (let c of parts) {
+          c = c.trim();
+          if (c.startsWith(name)) return decodeURIComponent(c.substring(name.length));
+        }
+        return "";
+      }
 
-      enviando = true;
-      marcarTema(slug);
+      async function marcarListoTematica() {
+        if (yaListoTematica || !grupoId) return;
 
-      const botones = document.querySelectorAll(".btn.select");
-      botones.forEach(b => b.disabled = true);
+        yaListoTematica = true;
 
-      try {
-        const res = await fetch("{% url 'guardar_tematica' %}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-          },
-          credentials: "same-origin",
-          body: JSON.stringify({ tema: slug })
+        if (btnListoTematica) {
+          btnListoTematica.disabled = true;
+          btnListoTematica.textContent = "Esperando...";
+        }
+
+        try {
+          const res = await fetch(`/grupo/${grupoId}/listo/`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({ fase: "f2" })
+          });
+
+          const data = await res.json();
+
+          if (contadorListosTematica) {
+            contadorListosTematica.textContent =
+              `${data.gruposListos || data.listos || 0}/${data.totalGrupos || data.total || 0} grupos listos`;
+          }
+
+          if (data.todos_listos || data.todosListosF2Generico || data.todosListosF2) {
+            habilitarTematicas();
+          }
+        } catch (error) {
+          console.error("Error marcando listo temática:", error);
+          yaListoTematica = false;
+          if (btnListoTematica) {
+            btnListoTematica.disabled = false;
+            btnListoTematica.textContent = "⚡ Listo para comenzar";
+          }
+        }
+      }
+
+      function marcarTema(slug) {
+        const temaSeleccionado = (slug || "").trim().toLowerCase();
+
+        cards.forEach(card => {
+          const activo = (card.dataset.slug || "").trim().toLowerCase() === temaSeleccionado;
+          card.classList.toggle("selected", activo);
+
+          const btn = card.querySelector(".btn.select");
+          if (btn) {
+            btn.textContent = activo ? "Seleccionado ✅" : "Elegir";
+          }
         });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.ok) {
-          throw new Error(data.error || "No se pudo guardar la temática.");
-        }
-
-        window.location.href = data.redirect_url || "{% url 'desafios' %}";
-      } catch (error) {
-        alert(error.message || "No se pudo guardar la temática.");
-        botones.forEach(b => b.disabled = false);
-        marcarTema("");
-        enviando = false;
       }
-    };
 
-    const temaActual = "{{ tema_actual|default:'' }}";
-    if (temaActual) {
-      marcarTema(temaActual);
-    }
-  })();
+      window.guardarTema = async function (slug, boton) {
+        if (enviando) return;
+
+        enviando = true;
+        marcarTema(slug);
+
+        const botones = document.querySelectorAll(".btn.select");
+        botones.forEach(b => b.disabled = true);
+
+        try {
+          const res = await fetch("{% url 'guardar_tematica' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCSRFToken()
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({ tema: slug })
+          });
+
+          const data = await res.json();
+
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || "No se pudo guardar la temática.");
+          }
+
+          window.location.href = data.redirect_url || "{% url 'desafios' %}";
+        } catch (error) {
+          alert(error.message || "No se pudo guardar la temática.");
+          botones.forEach(b => b.disabled = false);
+          marcarTema("");
+          enviando = false;
+        }
+      };
+
+      const temaActual = "{{ tema_actual|default:'' }}";
+      if (temaActual) {
+        marcarTema(temaActual);
+      }
+
+      if (btnListoTematica) {
+        btnListoTematica.addEventListener("click", marcarListoTematica);
+      }
+
+      bloquearTematicas();
+      setInterval(actualizarTimerTematica, 1000);
+      actualizarTimerTematica();
+    })();
   </script>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const camaraTrigger = document.getElementById("objetoCamaraTrigger");
+      const camaraOverlay = document.getElementById("objetoCamaraOverlay");
+      const camaraClose = document.getElementById("objetoCamaraClose");
+      const camaraTalk = document.getElementById("objetoCamaraTalk");
+      const camaraExit = document.getElementById("objetoCamaraExit");
+
+      const STORAGE_CAMARA = "objeto_camara_tematicas_usado_{{ grupo.sesion.idsesion }}_{{ grupo.idgrupo }}";
+
+      if (localStorage.getItem(STORAGE_CAMARA) === "1" && camaraTrigger) {
+        camaraTrigger.classList.add("oculto");
+      }
+
+      function abrirCamara() {
+        if (!camaraOverlay) return;
+        camaraOverlay.classList.add("activo");
+        camaraOverlay.setAttribute("aria-hidden", "false");
+
+        if (camaraTalk) {
+          camaraTalk.currentTime = 0;
+          camaraTalk.play().catch(() => {});
+        }
+      }
+
+      function cerrarCamara() {
+        if (!camaraOverlay) return;
+        camaraOverlay.classList.remove("activo");
+        camaraOverlay.setAttribute("aria-hidden", "true");
+
+        if (camaraExit) {
+          camaraExit.currentTime = 0;
+          camaraExit.play().catch(() => {});
+        }
+
+        if (camaraTrigger) {
+          camaraTrigger.classList.add("oculto");
+        }
+
+        localStorage.setItem(STORAGE_CAMARA, "1");
+      }
+
+      camaraTrigger?.addEventListener("click", abrirCamara);
+      camaraClose?.addEventListener("click", cerrarCamara);
+      camaraOverlay?.addEventListener("click", (e) => {
+        if (e.target === camaraOverlay) cerrarCamara();
+      });
+    });
+  </script>
+
+  <script src="{% static 'js/tematica.js' %}"></script>
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

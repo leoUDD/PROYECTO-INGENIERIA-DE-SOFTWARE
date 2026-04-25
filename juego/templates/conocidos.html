@@ -148,9 +148,8 @@
         padding: 10px 16px;
       }
 
-      .mizip-card {
-        width: min(90%, 560px);
-        top: 56%;
+      .astro-card {
+        width: min(90%, 520px);
       }
     }
 
@@ -190,29 +189,158 @@
         font-size: 0.9rem;
       }
 
-      .mizip-trigger {
+      .astro-trigger {
         width: 74px;
         height: 74px;
-        right: -6px;
-        top: -22px;
       }
 
-      .mizip-card {
-        width: min(92%, 92%);
+      .astro-card {
+        width: min(92%, 420px);
         padding: 18px 16px 16px;
         border-radius: 20px;
-        top: 58%;
       }
 
-      .mizip-card h3 {
+      .astro-card h3 {
         font-size: 1.05rem;
       }
 
-      .mizip-card p {
+      .astro-card p {
         font-size: 0.9rem;
         line-height: 1.45;
       }
     }
+
+
+    /* ===== ASTRONAUTA INTERACTIVO ===== */
+    .astro-trigger {
+      position: absolute;
+      top: clamp(92px, 18vh, 190px);
+      left: clamp(18px, 7vw, 86px);
+      width: 86px;
+      height: 86px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(0,200,255,.24);
+      box-shadow: 0 10px 26px rgba(0,0,0,.25), 0 0 18px rgba(0,200,255,.18);
+      cursor: pointer;
+      z-index: 12;
+      display: grid;
+      place-items: center;
+      animation: astroFloat 6s ease-in-out infinite alternate;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .astro-trigger:hover {
+      transform: scale(1.06);
+      box-shadow: 0 12px 30px rgba(0,0,0,.30), 0 0 24px rgba(0,200,255,.32);
+    }
+
+    .astro-trigger.oculto {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .astro-icon {
+      font-size: 2.9rem;
+      line-height: 1;
+      animation: astroBounce 1.25s ease-in-out infinite alternate;
+      filter: drop-shadow(0 5px 8px rgba(0,0,0,.25));
+    }
+
+    .astro-signal {
+      position: absolute;
+      right: -4px;
+      top: -4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #00c8ff;
+      box-shadow: 0 0 0 0 rgba(0,200,255,.65);
+      animation: astroPing 1.5s infinite;
+    }
+
+    @keyframes astroFloat {
+      0% { transform: translate(0, 0) rotate(-4deg); }
+      50% { transform: translate(58px, 34px) rotate(5deg); }
+      100% { transform: translate(122px, 72px) rotate(-3deg); }
+    }
+
+    @keyframes astroBounce {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-10px) scale(1.04); }
+    }
+
+    @keyframes astroPing {
+      0% { box-shadow: 0 0 0 0 rgba(0,200,255,.65); }
+      75% { box-shadow: 0 0 0 13px rgba(0,200,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(0,200,255,0); }
+    }
+
+    .astro-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 32;
+      background: rgba(1, 12, 28, 0.50);
+      backdrop-filter: blur(4px);
+      padding: 18px;
+    }
+
+    .astro-overlay.activo {
+      display: flex;
+    }
+
+    .astro-card {
+      width: min(90%, 480px);
+      padding: 22px 22px 18px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%),
+        rgba(8, 24, 48, 0.96);
+      border: 1px solid rgba(0,200,255,.30);
+      box-shadow: 0 18px 42px rgba(0,0,0,.38);
+      color: #ffffff;
+      text-align: center;
+      animation: astroCardIn .32s ease both;
+    }
+
+    .astro-card h3 {
+      margin: 0 0 12px;
+      color: #00c8ff;
+      font-size: 1.25rem;
+    }
+
+    .astro-card p {
+      margin: 0 0 10px;
+      line-height: 1.5;
+      color: #d9e6f2;
+      font-size: .98rem;
+    }
+
+    .astro-card strong {
+      color: #ffe29a;
+    }
+
+    .astro-close {
+      margin-top: 12px;
+      border: 1px solid rgba(0,200,255,.35);
+      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,200,255,.20);
+    }
+
+    @keyframes astroCardIn {
+      from { transform: translateY(12px) scale(.96); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
   </style>
 </head>
 <body>
@@ -225,7 +353,11 @@
         <h3>Antes de comenzar</h3>
 
         <p>
-          Cada integrante debe decir su nombre y compartir un dato curioso sobre sí mismo.
+          {% if modo_rapido %}
+            Cada integrante debe compartir un dato curioso o responder una pregunta rápida.
+          {% else %}
+            Cada integrante debe decir su nombre y compartir un dato curioso sobre sí mismo.
+          {% endif %}
         </p>
 
         <p>
@@ -253,7 +385,11 @@
 
 
       <p class="body">
-        Di tu nombre y comparte un dato curioso sobre ti.
+        {% if modo_rapido %}
+          Compartan un dato curioso o respondan una pregunta para activar al equipo.
+        {% else %}
+           Di tu nombre y comparte un dato curioso sobre ti.
+        {% endif %}
       </p>
 
       <p class="body pregunta-random" id="preguntaTexto">
@@ -265,37 +401,30 @@
       </button>
     </div>
     
-    <button id="mizip-trigger" class="mizip-trigger" type="button" aria-label="Descubrir a Mizip">
-      <img src="{% static 'images/Mizip1.png' %}" alt="Mizip" class="mizip-img">
+    <!-- 🚀 ASTRONAUTA INTERACTIVO -->
+    <button id="astro-trigger" class="astro-trigger" type="button" aria-label="Abrir mensaje del astronauta">
+      <span class="astro-signal" aria-hidden="true"></span>
+      <span class="astro-icon" aria-hidden="true">👨‍🚀</span>
     </button>
 
-    <div id="mizip-overlay" class="mizip-overlay" aria-hidden="true">
-      <div class="mizip-backdrop"></div>
+    <div id="astro-overlay" class="astro-overlay" aria-hidden="true">
+      <div id="astro-card" class="astro-card">
+        <h3>👨‍🚀 Mensaje del astronauta</h3>
+        <p>
+          ¡Gracias por ayudarme! En compensación, les aviso algo importante:
+        </p>
+        <p>
+          Más adelante serán evaluados por <strong>Creatividad</strong>.
+        </p>
+        <p>
+          Si encuentran mis objetos perdidos durante la misión, les daré más consejos.
+        </p>
 
-      <div id="mizip-fly" class="mizip-fly">
-        <img src="{% static 'images/Mizip1Edit.png' %}" alt="Mizip hablando" class="mizip-fly-img">
+        <button id="astro-close" class="astro-close" type="button">Entendido</button>
       </div>
 
-      <div id="mizip-card" class="mizip-card">
-        <h3>👽 Mensaje interceptado</h3>
-        <p>
-          Hola agente! Soy Mizip de la raza Zip! Llevo mucho tiempo observando a los agentes de esta actividad,
-          parecen una buena tripulación.
-        </p>
-        <p>
-          Así que les aviso que en algún punto van a ser evaluados según su creatividad.
-          ¿Cuándo? No les diré. Ténganlo en cuenta.
-        </p>
-        <p>
-          Y saluden a mis hermanos. Quizás los encuentran más adelante. ¡Adiós!
-        </p>
-
-        <button id="mizip-close" class="mizip-close" type="button">Entendido</button>
-      </div>
-
-      <div id="mizip-sparkle" class="mizip-sparkle" aria-hidden="true"></div>
-      <audio id="mizip-audio" src="{% static 'sounds/mizip_exit.mp3' %}" preload="auto"></audio>
-      <audio id="mizip-talk-audio" src="{% static 'sounds/miziphablando.mp3' %}" preload="auto"></audio>
+      <audio id="astro-talk-audio" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
+      <audio id="astro-exit-audio" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
     </div>
 
     <h2 id="timer" class="blur-target-bloqueado timer-esperando">00:10</h2>
@@ -326,17 +455,13 @@
         const textoEspera = document.getElementById("texto-espera-fase");
         const contadorListos = document.getElementById("contador-listos-fase");
 
-        const mizipTrigger = document.getElementById("mizip-trigger");
-        const mizipOverlay = document.getElementById("mizip-overlay");
-        const mizipFly = document.getElementById("mizip-fly");
-        const mizipCard = document.getElementById("mizip-card");
-        const mizipClose = document.getElementById("mizip-close");
-        const mizipSparkle = document.getElementById("mizip-sparkle");
-        const mizipAudio = document.getElementById("mizip-audio");
-        const mizipTalkAudio = document.getElementById("mizip-talk-audio");
-        if (mizipTalkAudio) {
-  mizipTalkAudio.volume = 0.25; // rango 0.0 a 1.0
-}
+        const astroTrigger = document.getElementById("astro-trigger");
+        const astroOverlay = document.getElementById("astro-overlay");
+        const astroClose = document.getElementById("astro-close");
+        const astroTalkAudio = document.getElementById("astro-talk-audio");
+        const astroExitAudio = document.getElementById("astro-exit-audio");
+        if (astroTalkAudio) astroTalkAudio.volume = 0.25;
+        if (astroExitAudio) astroExitAudio.volume = 0.25;
         const speechBubble = document.getElementById("speechBubbleConocidos");
 
         const blurTargets = [
@@ -365,8 +490,8 @@
         let tiempoFinalizado = false;
         let redirigiendo = false;
         let yaListo = false;
-        let mizipActivo = false;
-        let mizipCerrado = false;
+        let astroActivo = false;
+        let astroCerrado = false;
 
         function cambiarPregunta() {
           if (!preguntaTexto) return;
@@ -549,77 +674,33 @@
           }
         }
 
-        function posicionarVueloInicial() {
-          if (!mizipTrigger || !mizipFly || !mizipOverlay || !mizipCard) return;
+        function abrirAstro() {
+          if (astroActivo || astroCerrado || !astroTrigger || !astroOverlay) return;
 
-          const triggerRect = mizipTrigger.getBoundingClientRect();
-          const overlayRect = mizipOverlay.getBoundingClientRect();
-          const cardRect = mizipCard.getBoundingClientRect();
+          astroActivo = true;
+          astroTrigger.classList.add("oculto");
+          astroOverlay.classList.add("activo");
+          astroOverlay.setAttribute("aria-hidden", "false");
 
-          const startLeft = triggerRect.left - overlayRect.left;
-          const startTop = triggerRect.top - overlayRect.top;
-
-          mizipFly.style.left = `${startLeft}px`;
-          mizipFly.style.top = `${startTop}px`;
-
-          const startCenterX = startLeft + (triggerRect.width / 2);
-          const startCenterY = startTop + (triggerRect.height / 2);
-
-          const targetCenterX = (cardRect.left - overlayRect.left) + (cardRect.width / 2);
-          const targetCenterY = (cardRect.top - overlayRect.top) - 30;
-
-          const dx = targetCenterX - startCenterX;
-          const dy = targetCenterY - startCenterY;
-
-          mizipFly.style.setProperty("--mizip-dx", `${dx}px`);
-          mizipFly.style.setProperty("--mizip-dy", `${dy}px`);
+          if (astroTalkAudio) {
+            astroTalkAudio.currentTime = 0;
+            astroTalkAudio.play().catch(() => {});
+          }
         }
 
-        function abrirMizip() {
-  if (mizipActivo || mizipCerrado || !mizipTrigger || !mizipOverlay) return;
+        function cerrarAstro() {
+          if (!astroActivo || !astroOverlay) return;
 
-  mizipActivo = true;
-  mizipTrigger.classList.add("oculto");
-  mizipOverlay.classList.add("activo");
+          astroOverlay.classList.remove("activo");
+          astroOverlay.setAttribute("aria-hidden", "true");
 
-  requestAnimationFrame(() => {
-    posicionarVueloInicial();
-    mizipOverlay.classList.add("volando");
-  });
-
-  setTimeout(() => {
-    mizipOverlay.classList.add("mostrar-card");
-
-    if (mizipTalkAudio) {
-      mizipTalkAudio.currentTime = 0;
-      mizipTalkAudio.play().catch(() => {});
-    }
-  }, 820);
-}
-
-        function cerrarMizip() {
-          if (!mizipActivo || !mizipOverlay || !mizipFly || !mizipSparkle) return;
-
-          const flyRect = mizipFly.getBoundingClientRect();
-          const overlayRect = mizipOverlay.getBoundingClientRect();
-
-          mizipSparkle.style.left = `${flyRect.left - overlayRect.left + (flyRect.width / 2) - 14}px`;
-          mizipSparkle.style.top = `${flyRect.top - overlayRect.top + (flyRect.height / 2) - 14}px`;
-
-          mizipOverlay.classList.remove("mostrar-card");
-          mizipOverlay.classList.add("saliendo");
-
-          if (mizipAudio) {
-            mizipAudio.currentTime = 0;
-            mizipAudio.play().catch(() => {});
+          if (astroExitAudio) {
+            astroExitAudio.currentTime = 0;
+            astroExitAudio.play().catch(() => {});
           }
 
-          setTimeout(() => {
-            mizipOverlay.classList.remove("activo", "volando", "saliendo");
-            mizipActivo = false;
-            mizipCerrado = true;
-            mizipOverlay.setAttribute("aria-hidden", "true");
-          }, 920);
+          astroActivo = false;
+          astroCerrado = true;
         }
 
         if (btnPregunta) {
@@ -627,12 +708,12 @@
           cambiarPregunta();
         }
 
-        if (mizipTrigger) {
-          mizipTrigger.addEventListener("click", abrirMizip);
+        if (astroTrigger) {
+          astroTrigger.addEventListener("click", abrirAstro);
         }
 
-        if (mizipClose) {
-          mizipClose.addEventListener("click", cerrarMizip);
+        if (astroClose) {
+          astroClose.addEventListener("click", cerrarAstro);
         }
 
         if (botonListo) {
@@ -693,11 +774,6 @@
         setInterval(consultarEstadoSesion, 1000);
         consultarEstadoSesion();
 
-        window.addEventListener("resize", () => {
-          if (mizipActivo && mizipOverlay.classList.contains("volando") && !mizipOverlay.classList.contains("saliendo")) {
-            posicionarVueloInicial();
-          }
-        });
       })();
     </script>
   </main>

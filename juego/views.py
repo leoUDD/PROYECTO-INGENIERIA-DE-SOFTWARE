@@ -62,7 +62,7 @@ RUTA_POR_FASE = {
     "lobby": "pantalla_espera",
     "intro_habilidades": "habilidades_intro",
     "f1_bienvenida": "pantalla_inicio",
-    "f1_conocidos": "conocidos",
+    "f1_conocidos": "promptconocidos",
     "f1_pre_sopa": "trabajoenequipo",
     "f1_sopa": "minijuego1",
     "f1_ranking": "ranking",
@@ -556,6 +556,8 @@ def acceso_permitido(grupo, nombre_vista):
 
         "pantalla_inicio": ["f1_bienvenida"],
         "conocidos": ["f1_conocidos"],
+        "promptconocidos": ["f1_conocidos"],
+        "conocidos_rapido": ["f1_conocidos"],
         "trabajoenequipo": ["f1_pre_sopa"],
         "minijuego1": ["f1_sopa"],
 
@@ -794,6 +796,15 @@ def estado_sesion(request, sesion_id):
 
     fase_actual = sesion.fase_actual
     nombre_url = RUTA_POR_FASE.get(fase_actual, "pantalla_espera")
+    if fase_actual == "f1_conocidos":
+        modo = request.session.get("modo_conocidos")
+
+        if modo == "rapido":
+            nombre_url = "conocidos_rapido"
+        elif modo == "normal":
+            nombre_url = "conocidos"
+        else:
+            nombre_url = "promptconocidos"
 
     grupos_data = [
         {
@@ -2249,6 +2260,58 @@ def cargar_alumnos(request):
         {"alumnos": alumnos, "sesion_activa": sesion_activa},
     )
 
+def cambiar_tematica(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    grupo.tema_elegido = ""
+    grupo.desafio_id_externo = ""
+    grupo.desafio_nombre = ""
+    grupo.desafio_descripcion = ""
+    grupo.listo_f2_tematica = False
+    grupo.listo_f2_desafio = False
+
+    grupo.save(update_fields=[
+        "tema_elegido",
+        "desafio_id_externo",
+        "desafio_nombre",
+        "desafio_descripcion",
+        "listo_f2_tematica",
+        "listo_f2_desafio",
+    ])
+
+    return redirect("tematicas")
+
+def elegir_modo_conocidos(request, modo):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "promptconocidos"):
+        return redirect("pantalla_espera")
+
+    request.session["modo_conocidos"] = modo
+    request.session.modified = True
+
+    if modo == "rapido":
+        return redirect("conocidos_rapido")
+
+    return redirect("conocidos")
+
+
+def conocidos_rapido(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "conocidos_rapido"):
+        return redirect("pantalla_espera")
+
+    return render(request, "conocidos.html", {
+        "grupo": grupo,
+        "modo_rapido": True,
+    })
 
 @require_http_methods(["POST"])
 def agregar_alumno_manual(request):
