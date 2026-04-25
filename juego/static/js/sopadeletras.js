@@ -41,7 +41,7 @@ async function registrarPalabraEncontrada(palabra) {
 async function registrarSopaCompletada() {
   const routes = document.getElementById("routes");
   const url = routes?.dataset?.sopaCompletadaApiUrl;
-  if (!url) return true;
+  if (!url) return { ok: false };
 
   try {
     const res = await fetch(url, {
@@ -54,10 +54,15 @@ async function registrarSopaCompletada() {
       body: JSON.stringify({})
     });
 
-    return res.ok;
+    const data = await res.json().catch(() => ({}));
+
+    return {
+      ok: res.ok,
+      ...data
+    };
   } catch (error) {
     console.error("No se pudo registrar sopa completada:", error);
-    return false;
+    return { ok: false };
   }
 }
 
@@ -264,7 +269,7 @@ function textFromSelection() {
   return selection.map(s => board[s.r][s.c]).join("");
 }
 
-function checkSelection() {
+async function checkSelection() {
   if (selection.length === 0 || gameEnded) return;
 
   const str = textFromSelection();
@@ -281,7 +286,7 @@ function checkSelection() {
     });
 
     markWordAsFound(match);
-    registrarPalabraEncontrada(match);
+    await registrarPalabraEncontrada(match);
     clearTempSelection();
     updateStatus();
 
@@ -338,11 +343,22 @@ function bloquearJuego() {
 }
 
 function mostrarEsperandoProfesor() {
-  const overlay = document.getElementById("esperandoOverlay");
-  if (overlay) {
-    overlay.classList.add("visible");
-    overlay.setAttribute("aria-hidden", "false");
+  const timerContainer = document.getElementById("timer-container");
+  if (timerContainer) {
+    timerContainer.classList.remove("blur-target-bloqueado", "timer-esperando");
+    timerContainer.classList.add("blur-target-activo");
   }
+
+  const titulo = document.getElementById("tituloSopa");
+  const subtitulo = document.getElementById("subtituloSopa");
+  const wordsBox = document.getElementById("wordsBox");
+  const grid = document.getElementById("grid");
+
+  [titulo, subtitulo, wordsBox, grid].forEach(el => {
+    if (!el) return;
+    el.classList.remove("blur-target-activo");
+    el.classList.add("blur-target-bloqueado");
+  });
 }
 
 function endGame(won, alarmAudio = null) {
@@ -350,13 +366,16 @@ function endGame(won, alarmAudio = null) {
 
   gameEnded = true;
   bloquearJuego();
-  pauseTimerLocally();
 
   if (alarmAudio && !won) {
     try {
       alarmAudio.pause();
       alarmAudio.currentTime = 0;
     } catch (_) {}
+  }
+
+  if (!won) {
+    pauseTimerLocally();
   }
 
   if (won) {
@@ -366,11 +385,25 @@ function endGame(won, alarmAudio = null) {
   }
 }
 
-function showWinModal() {
+async function showWinModal() {
   if (!gameEnded) return;
 
   const modal = document.getElementById("winModal");
-  if (!modal) return;
+  const title = document.getElementById("winTitle");
+  const text = document.getElementById("winText");
+  const btn = document.getElementById("btnNext");
+
+  if (!modal || !title || !text || !btn) return;
+
+  const resultado = await registrarSopaCompletada();
+
+  if (resultado?.primer_equipo) {
+    title.textContent = "¡Ganaste! Fuiste el primer equipo";
+    text.textContent = "Por completar primero la sopa de letras, tu equipo recibió 5 tokens.";
+  } else {
+    title.textContent = "¡Terminaste!";
+    text.textContent = "Otro grupo se adelantó. Por no ser el primero, tu equipo recibió 3 tokens. ¡Aún pueden ganar!";
+  }
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
@@ -383,15 +416,12 @@ function showWinModal() {
     } catch (_) {}
   }
 
-  setTimeout(() => btn.focus(), 50);
-  btn.onclick = goNext;
-
-
-  setTimeout(() => {
+  btn.focus();
+  btn.onclick = () => {
     modal.style.display = "none";
     modal.setAttribute("aria-hidden", "true");
     mostrarEsperandoProfesor();
-  }, 4000);
+  };
 }
 
 function showTimeUpModal() {
@@ -433,16 +463,11 @@ function pauseTimerLocally() {
 function startTimer() {
   const alarmAudio = document.getElementById("alarm-audio");
 
-  if (timerInterval || gameEnded) return;
+  if (timerInterval) return;
 
   renderTimer();
 
   timerInterval = setInterval(() => {
-    if (gameEnded) {
-      pauseTimerLocally();
-      return;
-    }
-
     timeLeft--;
     renderTimer();
 
@@ -532,31 +557,19 @@ function procesarEstadoSesion(data) {
 
   const backendSeconds = Number(data.segundosRestantes);
 
-  if ((!timerStartedByProfesor || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+  if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
     timeLeft = backendSeconds;
     renderTimer();
   }
 
   if (!timerStartedByProfesor && data.timerCorriendo && data.inicioFaseHabilitado) {
     timerStartedByProfesor = true;
-
-    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-      timeLeft = backendSeconds;
-      renderTimer();
-    }
-
     startTimer();
     return;
   }
 
   if (timerStartedByProfesor && !data.timerCorriendo) {
     pauseTimerLocally();
-
-    if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-      timeLeft = backendSeconds;
-      renderTimer();
-    }
-
     timerStartedByProfesor = false;
   }
 }

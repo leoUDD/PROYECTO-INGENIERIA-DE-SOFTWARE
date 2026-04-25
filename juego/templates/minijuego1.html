@@ -266,7 +266,7 @@
           alt="Token de recompensa"
           class="token-animado"
         >
-        <h2 id="winTitle">Felicitaciones, tu equipo recibió 3 tokens</h2>
+        <h2 id="winTitle">¡Buen trabajo!</h2>
         <p id="winText">Se han encontrado todas las palabras. ¡Impresionante!</p>
         <button id="btnNext" type="button">OK</button>
       </div>
@@ -306,6 +306,10 @@
       const contador = document.getElementById("contador-listos-fase");
       const overlay = document.getElementById("inicio-fase-overlay");
 
+      let countdownMostrado = false;
+      let countdownEnCurso = false;
+      let timerRealSolicitado = false;
+
       const blurTargets = [
         document.getElementById("tituloSopa"),
         document.getElementById("subtituloSopa"),
@@ -343,6 +347,33 @@
         }
       }
 
+      async function iniciarTimerRealDespuesCountdown() {
+        if (timerRealSolicitado) return;
+
+        timerRealSolicitado = true;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({})
+          });
+
+          const data = await res.json();
+
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || "No se pudo iniciar el timer real.");
+          }
+        } catch (err) {
+          console.error("Error iniciando timer real sopa:", err);
+          timerRealSolicitado = false;
+        }
+      }
+
       async function consultarEstado() {
         try {
           const res = await fetch(`/sesion/${sesionId}/estado/`, {
@@ -374,8 +405,27 @@
           }
 
           if (data.inicioFaseHabilitado) {
-            activarFase();
+            if (!countdownMostrado && !countdownEnCurso) {
+              countdownEnCurso = true;
+
+              window.oaiCountdown.run(async () => {
+                countdownMostrado = true;
+                countdownEnCurso = false;
+
+                await iniciarTimerRealDespuesCountdown();
+                activarFase();
+              });
+
+              return;
+            }
+
+            if (countdownMostrado && !countdownEnCurso) {
+              activarFase();
+            }
           } else {
+            countdownMostrado = false;
+            countdownEnCurso = false;
+            timerRealSolicitado = false;
             bloquearFase();
           }
         } catch (err) {
@@ -413,9 +463,7 @@
               textoEspera.textContent = "Esperando a los demás equipos...";
             }
 
-            if (data.inicio_fase_habilitado) {
-              activarFase();
-            }
+            consultarEstado();
           } catch (err) {
             console.error("Error marcando listo:", err);
             boton.disabled = false;
@@ -434,5 +482,6 @@
   </script>
 
   <script src="{% static 'js/sopadeletras.js' %}"></script>
+  {% include "includes/countdown_inicio_fase.html" %}
 </body>
 </html>

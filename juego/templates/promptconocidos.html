@@ -20,7 +20,7 @@
     </header>
 
     <section class="mode-grid">
-      <a href="{% url 'introducciones' %}" class="mode-card mode-intro">
+      <a href="{% url 'elegir_modo_conocidos' 'normal' %}" class="mode-card mode-intro">
         <div class="overlay"></div>
         <div class="mode-content">
           <h2 class="mode-name">"Primera vez juntos"</h2>
@@ -30,7 +30,7 @@
         </div>
       </a>
 
-      <a href="{% url 'conocidos' %}" class="mode-card mode-known">
+      <a href="{% url 'elegir_modo_conocidos' 'rapido' %}" class="mode-card mode-known">
         <div class="overlay"></div>
         <div class="mode-content">
           <h2 class="mode-name">"Viejos conocidos"</h2>

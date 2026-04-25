@@ -5,13 +5,20 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     #NUEVO
+    path("sesion/<int:sesion_id>/iniciar-timer-inicio-fase/", views.iniciar_timer_inicio_fase, name="iniciar_timer_inicio_fase"),
+    path("bubblemap/otorgar-tokens/", views.otorgar_tokens_bubblemap, name="otorgar_tokens_bubblemap"),
     path("presentar-pitch/", views.presentar_pitch, name="presentar_pitch"),
     path("sesion/<int:sesion_id>/iniciar-presentacion/", views.iniciar_presentacion_pitch, name="iniciar_presentacion_pitch"),
     path("guardar-pitch/", views.guardar_pitch, name="guardar_pitch"),
     path("desbloquear-desafio/", views.desbloquear_desafio, name="desbloquear_desafio"),
+    path("conocidos-modo/<str:modo>/", views.elegir_modo_conocidos, name="elegir_modo_conocidos"),
+    path("conocidos-rapido/", views.conocidos_rapido, name="conocidos_rapido"),
+    path("ruleta-lego-token/", views.aplicar_resultado_ruleta_lego, name="aplicar_resultado_ruleta_lego"),
+    path("habilidades-intro/", views.habilidades_intro, name="habilidades_intro"),
     path("sopa/registrar-palabra/", views.registrar_palabra_sopa, name="registrar_palabra_sopa"),
     path("grupo/<int:grupo_id>/listo-ranking/", views.marcar_listo_ranking, name="marcar_listo_ranking"),
     path("espera/", views.pantalla_espera, name="pantalla_espera"),
+    path("cambiar-tematica/", views.cambiar_tematica, name="cambiar_tematica"),
     path("guardar-tematica/", views.guardar_tematica, name="guardar_tematica"),
     path("guardar-desafio/", views.guardar_desafio, name="guardar_desafio"),
     path("sesion/<int:sesion_id>/estado/", views.estado_sesion, name="estado_sesion"),

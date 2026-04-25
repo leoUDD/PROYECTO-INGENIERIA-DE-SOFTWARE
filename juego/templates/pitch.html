@@ -125,6 +125,97 @@
       display: none;
     }
 
+
+    /* === TIMER Y PANEL DESAFÍO: ESTILO GLOBAL, NO SOLO MOBILE === */
+    .timer-wrap-pitch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0 18px;
+    }
+
+    .timer-label-pitch {
+      margin-bottom: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e8f7ff;
+    }
+
+    .timer-box-pitch {
+      min-width: 190px;
+      padding: 16px 26px;
+      border-radius: 22px;
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      background: rgba(5, 18, 35, 0.92);
+      border: 3px solid rgba(0, 200, 255, 0.85);
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.35), inset 0 0 18px rgba(0, 200, 255, 0.12);
+      letter-spacing: 1px;
+    }
+
+    .desafio-panel{
+      width: 100%;
+      max-width: 760px;
+      margin: 14px auto 22px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 200, 255, 0.35);
+      background: rgba(7, 38, 70, 0.78);
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
+    }
+
+    .desafio-toggle{
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: #fff;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .desafio-toggle-head{
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .desafio-etiqueta{
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #00c8ff;
+    }
+
+    .desafio-titulo{
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .desafio-icono{
+      font-size: 1rem;
+      font-weight: 800;
+      color: #00c8ff;
+    }
+
+    .desafio-body{
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding: 16px 18px 18px;
+    }
+
+    .desafio-descripcion{
+      margin: 0;
+      color: #d9e6f2;
+      line-height: 1.5;
+      font-size: 0.98rem;
+    }
+
     @media (max-width: 900px) {
       .inicio-fase-card {
         width: min(94%, 760px);
@@ -204,7 +295,65 @@
     border-radius: 18px;
   }
 }  
+.desafio-panel{
+  width: 100%;
+  max-width: 760px;
+  margin: 14px auto 22px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 200, 255, 0.35);
+  background: rgba(7, 38, 70, 0.78);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
 
+.desafio-toggle{
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.desafio-toggle-head{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.desafio-etiqueta{
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #00c8ff;
+}
+
+.desafio-titulo{
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.desafio-icono{
+  font-size: 1rem;
+  font-weight: 800;
+  color: #00c8ff;
+}
+
+.desafio-body{
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding: 16px 18px 18px;
+}
+
+.desafio-descripcion{
+  margin: 0;
+  color: #d9e6f2;
+  line-height: 1.5;
+  font-size: 0.98rem;
+}
 
     }
   </style>
@@ -259,9 +408,21 @@
 
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
-    <div id="desafioPitchWrap" class="blur-target-bloqueado">
-      {% include "desafio_badge.html" %}
+<div id="desafioPitchWrap" class="blur-target-bloqueado">
+  <section id="desafioPanel" class="desafio-panel">
+    <button type="button" class="desafio-toggle" id="desafioToggle">
+      <div class="desafio-toggle-head">
+        <span class="desafio-etiqueta">Desafío seleccionado</span>
+        <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
+      </div>
+      <span class="desafio-icono" id="desafioIcono">▼</span>
+    </button>
+
+    <div class="desafio-body" id="desafioBody" hidden>
+      <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
     </div>
+  </section>
+</div>
 
     <div
       id="pitch-desafio-data"
@@ -306,282 +467,278 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const sesionId = "{{ grupo.sesion.idsesion }}";
-      const grupoId = "{{ grupo.idgrupo }}";
-      const csrfToken = "{{ csrf_token }}";
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const sesionId = "{{ grupo.sesion.idsesion }}";
+  const grupoId = "{{ grupo.idgrupo }}";
 
-      const dataNode = document.getElementById("pitch-desafio-data");
-      const nombre = dataNode?.dataset?.nombre || "Desafío no seleccionado";
-      const descripcion = dataNode?.dataset?.descripcion || "Aún no hay descripción disponible para este desafío.";
+  function actualizarBadgeDesafio(data) {
+  const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+  if (!miGrupo) return;
 
-      const dbTitle = document.getElementById("dbTitle");
-      const dbShort = document.getElementById("dbShort");
-      const dbDesc = document.getElementById("dbDesc");
+  const titulo = miGrupo.desafioNombre || "Desafío no seleccionado";
+  const descripcion = miGrupo.desafioDescripcion || "Aún no hay descripción disponible para este desafío.";
 
-    function renderTimer() {
-      const segundos = Math.max(0, Number(timeLeft) || 0);
-      const minutes = Math.floor(segundos / 60);
-      const seconds = segundos % 60;
-      timerElement.textContent =
-        `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+  const dbTitle = document.getElementById("dbTitle");
+  const dbShort = document.getElementById("dbShort");
+  const dbDesc = document.getElementById("dbDesc");
+
+  if (dbTitle) dbTitle.textContent = titulo;
+  if (dbShort) dbShort.textContent = descripcion;
+  if (dbDesc) dbDesc.textContent = descripcion;
+}
+
+  const csrfToken = "{{ csrf_token }}";
+
+  const boton = document.getElementById("btn-listo-fase");
+  const textoEspera = document.getElementById("texto-espera-fase");
+  const contador = document.getElementById("contador-listos-fase");
+  const timerContainer = document.getElementById("timer-wrap-pitch");
+  const timerElement = document.getElementById("timer");
+  const alarmAudio = document.getElementById("alarm-audio");
+  const overlay = document.getElementById("inicio-fase-overlay");
+  const btnLimpiar = document.getElementById("btnLimpiar");
+  const textarea = document.getElementById("pitch-text");
+
+  const desafioToggle = document.getElementById("desafioToggle");
+  const desafioBody = document.getElementById("desafioBody");
+  const desafioIcono = document.getElementById("desafioIcono");
+
+  desafioToggle?.addEventListener("click", () => {
+    const abierto = !desafioBody.hasAttribute("hidden");
+
+  if (abierto) {
+    desafioBody.setAttribute("hidden", "");
+    if (desafioIcono) desafioIcono.textContent = "▼";
+  } else {
+    desafioBody.removeAttribute("hidden");
+    if (desafioIcono) desafioIcono.textContent = "▲";
+  }
+});
+
+  const blurTargets = [
+    document.getElementById("tituloPitch"),
+    document.getElementById("subtituloPitch"),
+    document.getElementById("timer-wrap-pitch"),
+    document.getElementById("desafioPitchWrap"),
+    document.getElementById("tipsPitch"),
+    document.getElementById("pitchFormWrap"),
+  ];
+
+  let timeLeft = 0;
+  let timerInterval = null;
+  let timerStarted = false;
+  let redirigiendo = false;
+
+  // 🔥 NUEVO (igual que LEGO)
+  let countdownMostrado = false;
+  let countdownEnCurso = false;
+  let timerRealSolicitado = false;
+
+  function activarFase() {
+    blurTargets.forEach(el => {
+      if (!el) return;
+      el.classList.remove("blur-target-bloqueado", "timer-esperando");
+      el.classList.add("blur-target-activo");
+    });
+
+    if (timerContainer) timerContainer.classList.remove("timer-esperando");
+    if (overlay) overlay.classList.add("overlay-hidden");
+  }
+
+  function bloquearFase() {
+    blurTargets.forEach(el => {
+      if (!el) return;
+      el.classList.remove("blur-target-activo");
+      el.classList.add("blur-target-bloqueado");
+    });
+
+    if (timerContainer) timerContainer.classList.add("timer-esperando");
+    if (overlay) overlay.classList.remove("overlay-hidden");
+  }
+
+  function renderTimer() {
+    const min = Math.floor(Math.max(0, timeLeft) / 60);
+    const sec = Math.max(0, timeLeft) % 60;
+    if (timerElement) {
+      timerElement.textContent = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
     }
+  }
 
-      const boton = document.getElementById("btn-listo-fase");
-      const textoEspera = document.getElementById("texto-espera-fase");
-      const contador = document.getElementById("contador-listos-fase");
-      const timerContainer = document.getElementById("timer-wrap-pitch");
-      const timerElement = document.getElementById("timer");
-      const alarmAudio = document.getElementById("alarm-audio");
-      const overlay = document.getElementById("inicio-fase-overlay");
+  function startTimer() {
+    if (timerInterval) return;
 
-      const blurTargets = [
-        document.getElementById("tituloPitch"),
-        document.getElementById("subtituloPitch"),
-        document.getElementById("timer-container"),
-        document.getElementById("desafioPitchWrap"),
-        document.getElementById("tipsPitch"),
-        document.getElementById("pitchFormWrap"),
-      ];
-
-      let timeLeft = 0;
-      let timerInterval = null;
-      let timerStarted = false;
-      let redirigiendo = false;
-
-      function activarFase() {
-        blurTargets.forEach(el => {
-          if (!el) return;
-          el.classList.remove("blur-target-bloqueado", "timer-esperando");
-          el.classList.add("blur-target-activo");
-        });
-
-        if (timerContainer) {
-          timerContainer.classList.remove("timer-esperando");
-        }
-
-        if (overlay) {
-          overlay.classList.add("overlay-hidden");
-        }
-      }
-
-      function bloquearFase() {
-        blurTargets.forEach(el => {
-          if (!el) return;
-          el.classList.remove("blur-target-activo");
-          el.classList.add("blur-target-bloqueado");
-        });
-
-        if (timerContainer) {
-          timerContainer.classList.add("timer-esperando");
-        }
-
-        if (overlay) {
-          overlay.classList.remove("overlay-hidden");
-        }
-      }
-
-      function renderTimer() {
-        const min = Math.floor(Math.max(0, timeLeft) / 60);
-        const sec = Math.max(0, timeLeft) % 60;
-        timerElement.textContent =
-          `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-      }
-
-      function startTimer() {
-        if (timerInterval) return;
-
-        timerInterval = setInterval(() => {
-          timeLeft--;
-          renderTimer();
-
-          if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            alarmAudio.play().catch(() => {});
-          }
-        }, 1000);
-      }
-
-      if (dbTitle) dbTitle.textContent = nombre;
-
-    function mostrarModalFin() {
-      if (modalMostrado) return;
-      modalMostrado = true;
-
-      try {
-        alarmAudio.currentTime = 0;
-        alarmAudio.play();
-      } catch (e) {}
-
-      modalFin.style.display = "flex";
-    }
-
-    function startTimer() {
-      if (timerInterval) return;
-
+    timerInterval = setInterval(() => {
+      timeLeft--;
       renderTimer();
 
-      timerInterval = setInterval(() => {
-        timeLeft--;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        alarmAudio?.play().catch(() => {});
+      }
+    }, 1000);
+  }
+
+  // 🔥 IGUAL QUE LEGO
+  async function iniciarTimerRealDespuesCountdown() {
+    if (timerRealSolicitado) return;
+
+    timerRealSolicitado = true;
+
+    try {
+      const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({})
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "No se pudo iniciar el timer.");
+      }
+
+      const backendSeconds = Number(data.segundosRestantes);
+      if (!Number.isNaN(backendSeconds)) {
+        timeLeft = backendSeconds;
         renderTimer();
+      }
 
-        if (timeLeft <= 0) {
-          pauseTimerLocally();
-          mostrarModalFin();
-        }
-      }, 1000);
+    } catch (err) {
+      console.error("Error iniciando timer pitch:", err);
+      timerRealSolicitado = false;
     }
+  }
 
-    function obtenerSesionId() {
-      return document.body.dataset.sesionId;
-    }
+  btnLimpiar?.addEventListener("click", () => {
+    const confirmar = window.confirm("¿Estás segura de que quieres borrar tu pitch?");
+    if (!confirmar) return;
+    if (textarea) textarea.value = "";
+  });
 
-    function procesarEstadoSesion(data) {
-      if (!data) return;
+  async function syncTimer() {
+    try {
+      const res = await fetch(`/sesion/${sesionId}/estado/`, {
+        cache: "no-store",
+        credentials: "same-origin"
+      });
 
-      // 🔥 CAMBIO CLAVE AQUÍ
+      if (!res.ok) return;
+      const data = await res.json();
+      actualizarBadgeDesafio(data);
+
+      if (contador) {
+        contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0}`;
+      }
+
+      const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+      if (miGrupo && miGrupo.listoF4) {
+        boton.disabled = true;
+        boton.textContent = "Esperando...";
+      }
+
       if (data.faseActual && data.faseActual !== "f4_construccion_pitch") {
-        if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+        if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno && !redirigiendo) {
+          redirigiendo = true;
           window.location.href = data.rutaAlumno;
         }
         return;
       }
 
-      const backendSeconds = Number(data.segundosRestantes);
+      // 🔥 COUNTDOWN
+      if (data.inicioFaseHabilitado) {
 
-      btnLimpiar?.addEventListener("click", () => {
-        const confirmar = window.confirm("¿Estás segura de que quieres borrar tu progreso del pitch?");
-        if (!confirmar) return;
+        if (!countdownMostrado && !countdownEnCurso) {
+          countdownEnCurso = true;
 
-        textarea.value = "";
-        textarea.dispatchEvent(new Event("input"));
-      });
+          window.oaiCountdown.run(async () => {
+            countdownMostrado = true;
+            countdownEnCurso = false;
 
-      async function syncTimer() {
-        try {
-          const res = await fetch(`/sesion/${sesionId}/estado/`, {
-            cache: "no-store",
-            credentials: "same-origin"
+            await iniciarTimerRealDespuesCountdown();
+            activarFase();
           });
 
-          if (!res.ok) return;
-
-          const data = await res.json();
-
-          if (contador) {
-            contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
-          }
-
-          const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
-          if (miGrupo && miGrupo.listoF4) {
-            boton.disabled = true;
-            boton.textContent = "Esperando...";
-            if (textoEspera) {
-              textoEspera.textContent = "Esperando a los demás equipos...";
-            }
-          }
-
-          if (data.faseActual && data.faseActual !== "f4_construccion_pitch") {
-            if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
-              redirigiendo = true;
-              window.location.href = data.rutaAlumno;
-            }
-            return;
-          }
-
-          if (data.inicioFaseHabilitado) {
-            activarFase();
-          } else {
-            bloquearFase();
-          }
-
-          const backendTime = Number(data.segundosRestantes);
-
-          if (!timerStarted) {
-            timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
-            renderTimer();
-          }
-
-          if (!timerStarted && data.timerCorriendo && data.inicioFaseHabilitado) {
-            timerStarted = true;
-            timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
-            renderTimer();
-            startTimer();
-            return;
-          }
-
-          if (timerStarted && !data.timerCorriendo) {
-            if (timerInterval) {
-              clearInterval(timerInterval);
-              timerInterval = null;
-            }
-
-            timeLeft = Number.isNaN(backendTime) ? 0 : backendTime;
-            renderTimer();
-            timerStarted = false;
-          }
-
-          if (backendTime <= 0) {
-            timeLeft = 0;
-            renderTimer();
-          }
-        } catch (e) {
-          console.error("Error timer pitch:", e);
+          return;
         }
+
+        if (countdownMostrado && !countdownEnCurso) {
+          activarFase();
+        }
+
+      } else {
+        countdownMostrado = false;
+        countdownEnCurso = false;
+        timerRealSolicitado = false;
+        bloquearFase();
       }
 
-      if (boton) {
-        boton.addEventListener("click", async () => {
-          boton.disabled = true;
-          boton.textContent = "Esperando...";
+      const backendTime = Number(data.segundosRestantes);
 
-          try {
-            const res = await fetch(`/grupo/${grupoId}/listo/`, {
-              method: "POST",
-              credentials: "same-origin",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken
-              },
-              body: JSON.stringify({})
-            });
-
-            const data = await res.json();
-
-            if (!res.ok || !data.ok) {
-              throw new Error(data.error || "No se pudo marcar listo.");
-            }
-
-            if (contador) {
-              contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
-            }
-
-            if (textoEspera) {
-              textoEspera.textContent = "Esperando a los demás equipos...";
-            }
-
-            if (data.inicio_fase_habilitado) {
-              activarFase();
-            }
-          } catch (err) {
-            console.error("Error marcando listo:", err);
-            boton.disabled = false;
-            boton.textContent = "⚡ Listo para comenzar";
-            if (textoEspera) {
-              textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
-            }
-          }
-        });
+      if (!timerStarted) {
+        timeLeft = backendTime;
+        renderTimer();
       }
 
-      bloquearFase();
-      renderTimer();
-      setInterval(syncTimer, 1000);
+      if (!timerStarted && data.timerCorriendo && data.inicioFaseHabilitado) {
+
+        if (!countdownMostrado || countdownEnCurso) return;
+
+        timerStarted = true;
+        timeLeft = backendTime;
+        renderTimer();
+        startTimer();
+        return;
+      }
+
+      if (timerStarted && !data.timerCorriendo) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = backendTime;
+        renderTimer();
+        timerStarted = false;
+      }
+
+    } catch (e) {
+      console.error("Error timer pitch:", e);
+    }
+  }
+
+  boton?.addEventListener("click", async () => {
+    boton.disabled = true;
+    boton.textContent = "Esperando...";
+
+    try {
+      await fetch(`/grupo/${grupoId}/listo/`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({})
+      });
+
       syncTimer();
-    }});
-  </script>
+
+    } catch (err) {
+      boton.disabled = false;
+      boton.textContent = "⚡ Listo";
+    }
+  });
+
+  bloquearFase();
+  renderTimer();
+  setInterval(syncTimer, 1000);
+  syncTimer();
+});
+</script>
   {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
 </body>
 </html>
