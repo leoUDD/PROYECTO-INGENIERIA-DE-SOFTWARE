@@ -585,3 +585,34 @@ body {
   font-size: 16px;
   color: var(--muted);
 }
+.ranking-actions{
+  margin-top: 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+
+.btn-ranking-listo{
+  border:0;
+  border-radius:999px;
+  padding:14px 28px;
+  font-weight:800;
+  font-size:16px;
+  cursor:pointer;
+  background: linear-gradient(135deg, #00d4ff, #1d8bff);
+  color:#fff;
+  box-shadow:0 0 18px rgba(0,212,255,.35);
+}
+
+.btn-ranking-listo:disabled{
+  opacity:.7;
+  cursor:default;
+}
+
+.ranking-estado{
+  margin:0;
+  font-size:15px;
+  color:#dcecff;
+  font-weight:600;
+}

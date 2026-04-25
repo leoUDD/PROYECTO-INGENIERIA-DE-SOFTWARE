@@ -15,49 +15,78 @@
     .peer-card {
       border-radius: 18px;
       overflow: hidden;
+      color: #1f2937;
+    }
+
+    .peer-card .card-body,
+    .peer-card p,
+    .peer-card label,
+    .peer-card h1,
+    .peer-card h2,
+    .peer-card strong {
+      color: #1f2937;
+    }
+
+    .texto-secundario {
+      color: #4b5563 !important;
+    }
+
+    .bloque-instrucciones {
+      background: #fff7e6;
+      border: 1px solid #ffd27a;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      color: #3f2a00;
+    }
+
+    .bloque-instrucciones strong {
+      color: #3f2a00;
     }
 
     .bloque-progreso {
       background: #f8f9fa;
-      border: 1px solid #e9ecef;
+      border: 1px solid #d7dde3;
       border-radius: 14px;
       padding: 14px 16px;
       margin-bottom: 18px;
+      color: #1f2937;
     }
 
-    .bloque-reglas {
-      background: #fafafa;
-      border: 1px solid #ececec;
-      border-radius: 14px;
-      padding: 14px 16px;
+    .timer-evaluacion {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #7a3cff;
     }
 
     .criterio-box {
-      border: 1px solid #dee2e6;
+      border: 1px solid #d7dde3;
       border-radius: 14px;
       padding: 16px;
-      background: #fff;
-    }
-
-    .acciones-finales {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      background: #ffffff;
+      color: #1f2937;
     }
 
     .texto-ayuda {
       font-size: 0.92rem;
+      color: #4b5563 !important;
     }
 
     .equipo-objetivo-box {
       background: #eef6ff;
-      border: 1px solid #cfe2ff;
+      border: 1px solid #b8d7ff;
       border-radius: 14px;
       padding: 14px 16px;
       margin-bottom: 18px;
+      color: #1f2937;
+    }
+
+    .form-text {
+      color: #5b6470 !important;
     }
   </style>
 </head>
+
 <body>
 <div class="container py-4">
   <div class="row justify-content-center">
@@ -66,7 +95,15 @@
         <div class="card-body">
           <h1 class="h4 mb-2">Evaluación de Proyectos</h1>
 
-          <p class="text-muted mb-3">
+          <div class="bloque-instrucciones">
+            <strong>Antes de evaluar:</strong><br>
+            1) Solo se evalúa al equipo que está presentando en esta ronda.<br>
+            2) Tienen <strong>1 minuto y 30 segundos</strong> para evaluar.<br>
+            3) Si todos evalúan antes, el juego avanza automáticamente.<br>
+            4) Si un equipo no termina a tiempo, las áreas faltantes se completarán con nota máxima y ese equipo perderá <strong>2 tokens</strong>.
+          </div>
+
+          <p class="texto-secundario mb-3">
             Sesión:
             <strong>{{ session.nombre }}</strong>
             · Tu equipo:
@@ -87,12 +124,17 @@
               <strong>{{ grupo_objetivo.nombregrupo }}</strong>
             </p>
 
+            <p class="mb-1">
+              ⏱️ Tiempo restante:
+              <strong id="timerEvaluacion" class="timer-evaluacion">--</strong>
+            </p>
+
             {% if mi_equipo_presenta %}
-              <p class="mb-0 text-muted texto-ayuda">
+              <p class="mb-0 texto-ayuda">
                 Tu equipo está presentando. Espera a que los demás equipos terminen de evaluar.
               </p>
             {% else %}
-              <p class="mb-0 text-muted texto-ayuda">
+              <p class="mb-0 texto-ayuda">
                 Evalúa solo a este equipo en esta ronda.
               </p>
             {% endif %}
@@ -203,15 +245,6 @@
               </div>
             </form>
           {% endif %}
-
-          <hr class="my-4">
-
-          <div class="bloque-reglas small text-muted">
-            <strong>Reglas:</strong>
-            1) Solo se evalúa al equipo que está presentando en esta ronda.<br>
-            2) No evalúes a tu propio equipo.<br>
-            3) El sistema avanzará al siguiente pitch cuando todos los equipos requeridos terminen de evaluar.
-          </div>
         </div>
       </div>
     </div>
@@ -224,7 +257,16 @@
     const btn = document.getElementById("btnEnviarEvaluacion");
     const sesionId = "{{ session.idsesion }}";
     const grupoObjetivoInicial = "{{ grupo_objetivo.idgrupo|default:'' }}";
+    const timerEvaluacion = document.getElementById("timerEvaluacion");
+
     let redirigiendo = false;
+
+    function formatearTiempo(segundos) {
+      segundos = Math.max(Number(segundos || 0), 0);
+      const min = Math.floor(segundos / 60);
+      const seg = segundos % 60;
+      return `${min}:${String(seg).padStart(2, "0")}`;
+    }
 
     if (form && btn) {
       form.addEventListener("submit", () => {
@@ -245,6 +287,10 @@
         if (!res.ok) return;
 
         const data = await res.json();
+
+        if (timerEvaluacion) {
+          timerEvaluacion.textContent = formatearTiempo(data.segundosRestantes);
+        }
 
         if (data.faseActual !== "f5_evaluacion_pitch") {
           if (data.rutaAlumno) {

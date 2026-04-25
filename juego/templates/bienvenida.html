@@ -9,64 +9,113 @@
   <link rel="stylesheet" href="{% static 'css/estilo_bienvenida.css' %}">
 </head>
 <body>
-  <main class="phone">
 
-    <img src="{% static 'images/mision_emprende_phone_bg.gif' %}" class="gif-spacer" alt="">
+  <div class="screen-wrapper">
 
-    <!-- Logo EdEm: absoluto arriba -->
-    <div class="logo-top">
-      <img src="{% static 'images/edem_udd_logo.png' %}" alt="EdEm UDD">
-    </div>
+    <!-- Marco futurista SVG -->
+    <svg class="screen-frame" viewBox="0 0 100 100" preserveAspectRatio="none"
+         xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fg1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#00C8FF" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#FF7A1A" stop-opacity="0.8"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="0.4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <polygon points="5,0 95,0 100,5 100,95 95,100 5,100 0,95 0,5"
+        fill="none" stroke="url(#fg1)" stroke-width="0.4" opacity="0.5"/>
+      <polyline points="0,18 0,5 5,0 22,0" fill="none" stroke="#00C8FF" stroke-width="1.2" filter="url(#glow)" opacity="0.95"/>
+      <line x1="0" y1="10" x2="3" y2="10" stroke="#00C8FF" stroke-width="0.6" opacity="0.6"/>
+      <line x1="10" y1="0" x2="10" y2="3" stroke="#00C8FF" stroke-width="0.6" opacity="0.6"/>
+      <path d="M22,0 L28,0 L28,2" fill="none" stroke="#00C8FF" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="28" cy="2" r="0.6" fill="#00C8FF" opacity="0.7"/>
+      <path d="M0,18 L0,24 L2,24" fill="none" stroke="#00C8FF" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="2" cy="24" r="0.6" fill="#00C8FF" opacity="0.7"/>
+      <polyline points="78,0 95,0 100,5 100,18" fill="none" stroke="#00C8FF" stroke-width="1.2" filter="url(#glow)" opacity="0.95"/>
+      <line x1="100" y1="10" x2="97" y2="10" stroke="#00C8FF" stroke-width="0.6" opacity="0.6"/>
+      <line x1="90" y1="0" x2="90" y2="3" stroke="#00C8FF" stroke-width="0.6" opacity="0.6"/>
+      <path d="M78,0 L72,0 L72,2" fill="none" stroke="#00C8FF" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="72" cy="2" r="0.6" fill="#00C8FF" opacity="0.7"/>
+      <polyline points="0,82 0,95 5,100 22,100" fill="none" stroke="#FF7A1A" stroke-width="1.2" filter="url(#glow)" opacity="0.95"/>
+      <line x1="0" y1="90" x2="3" y2="90" stroke="#FF7A1A" stroke-width="0.6" opacity="0.6"/>
+      <line x1="10" y1="100" x2="10" y2="97" stroke="#FF7A1A" stroke-width="0.6" opacity="0.6"/>
+      <path d="M22,100 L28,100 L28,98" fill="none" stroke="#FF7A1A" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="28" cy="98" r="0.6" fill="#FF7A1A" opacity="0.7"/>
+      <polyline points="78,100 95,100 100,95 100,82" fill="none" stroke="#FF7A1A" stroke-width="1.2" filter="url(#glow)" opacity="0.95"/>
+      <line x1="100" y1="90" x2="97" y2="90" stroke="#FF7A1A" stroke-width="0.6" opacity="0.6"/>
+      <line x1="90" y1="100" x2="90" y2="97" stroke="#FF7A1A" stroke-width="0.6" opacity="0.6"/>
+      <path d="M78,100 L72,100 L72,98" fill="none" stroke="#FF7A1A" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="72" cy="98" r="0.6" fill="#FF7A1A" opacity="0.7"/>
+      <g opacity="0.45">
+        <path d="M0,35 L3,35 L3,40 L1.5,40" fill="none" stroke="#00C8FF" stroke-width="0.5"/>
+        <circle cx="1.5" cy="40" r="0.7" fill="#00C8FF"/>
+        <path d="M0,55 L4,55 L4,60 L2,60" fill="none" stroke="#00C8FF" stroke-width="0.5"/>
+        <circle cx="2" cy="60" r="0.7" fill="#00C8FF"/>
+      </g>
+      <g opacity="0.45">
+        <path d="M100,38 L97,38 L97,43 L98.5,43" fill="none" stroke="#FF7A1A" stroke-width="0.5"/>
+        <circle cx="98.5" cy="43" r="0.7" fill="#FF7A1A"/>
+        <path d="M100,58 L96,58 L96,63 L98,63" fill="none" stroke="#FF7A1A" stroke-width="0.5"/>
+        <circle cx="98" cy="63" r="0.7" fill="#FF7A1A"/>
+      </g>
+      <g stroke="#00C8FF" stroke-width="0.5" opacity="0.5">
+        <line x1="35" y1="0" x2="35" y2="2"/>
+        <line x1="50" y1="0" x2="50" y2="3"/>
+        <line x1="65" y1="0" x2="65" y2="2"/>
+      </g>
+      <polygon points="50,3.5 51.5,1.5 50,0 48.5,1.5" fill="#00C8FF" opacity="0.7"/>
+      <g stroke="#FF7A1A" stroke-width="0.5" opacity="0.5">
+        <line x1="35" y1="100" x2="35" y2="98"/>
+        <line x1="50" y1="100" x2="50" y2="97"/>
+        <line x1="65" y1="100" x2="65" y2="98"/>
+      </g>
+      <polygon points="50,96.5 51.5,98.5 50,100 48.5,98.5" fill="#FF7A1A" opacity="0.7"/>
+    </svg>
 
-    <!-- Video + botón: pegados al fondo -->
-    <div class="video-overlay">
+    <!-- Card principal -->
+    <main class="phone">
 
-      <div class="video-container">
-        <video class="video" id="introVideo" autoplay muted playsinline controls preload="auto">
-          <source src="{% static 'videos/VideoIntroductorio.mp4' %}" type="video/mp4">
-          Tu navegador no soporta video.
-        </video>
+      <img src="{% static 'images/mision_emprende_phone_bg.gif' %}" class="gif-spacer" alt="">
+
+      <!-- Logo EdEm: absoluto arriba -->
+      <div class="logo-top">
+        <img src="{% static 'images/edem_udd_logo.png' %}" alt="EdEm UDD">
       </div>
 
-      <!-- ← id agregado para el listener de sonido -->
-      <a href="{% url 'registro' %}" class="btn-iniciar" id="btnIniciar">
-        <span class="btn-icon">▶</span>
-        <span class="btn-text">INICIAR MISIÓN</span>
-        <span class="btn-level">LVL 1</span>
-      </a>
-    </div>
+      <!-- Video + botón -->
+      <div class="video-overlay">
+        <p class="video-instruccion">▸ AGENTE — Conoce tu misión antes de comenzar</p>
+        <div class="video-container">
+          <video class="video" id="introVideo" autoplay muted playsinline controls preload="auto">
+            <source src="{% static 'videos/VideoIntroductorio.mp4' %}" type="video/mp4">
+            Tu navegador no soporta video.
+          </video>
+        </div>
+        <a href="{% url 'registro' %}" class="btn-iniciar" id="btnIniciar">
+          <span class="btn-icon">▶</span>
+          INICIAR MISIÓN
+        </a>
+      </div>
 
-  </main>
+    </main>
+  </div><!-- /screen-wrapper -->
 
   <script>
     function playHoverSound() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const now = ctx.currentTime;
-
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
         osc.type = 'sine';
         osc.frequency.setValueAtTime(280, now);
         osc.frequency.linearRampToValueAtTime(520, now + 0.12);
         gain.gain.setValueAtTime(0.07, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-        osc.start(now);
-        osc.stop(now + 0.15);
-
-        const osc2  = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.type = 'triangle';
-        osc2.frequency.setValueAtTime(560, now + 0.06);
-        osc2.frequency.linearRampToValueAtTime(800, now + 0.14);
-        gain2.gain.setValueAtTime(0.03, now + 0.06);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-        osc2.start(now + 0.06);
-        osc2.stop(now + 0.17);
+        osc.start(now); osc.stop(now + 0.15);
       } catch(e) {}
     }
 
@@ -74,7 +123,6 @@
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const now = ctx.currentTime;
-
         function makeReverb(dur = 1.2) {
           const conv = ctx.createConvolver();
           const len  = ctx.sampleRate * dur;
@@ -84,79 +132,37 @@
             for (let i = 0; i < len; i++)
               ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.5);
           }
-          conv.buffer = buf;
-          return conv;
+          conv.buffer = buf; return conv;
         }
-
-        const reverb  = makeReverb(1.2);
-        const revGain = ctx.createGain();
+        const reverb = makeReverb(1.2), revGain = ctx.createGain();
         revGain.gain.value = 0.35;
-        reverb.connect(revGain);
-        revGain.connect(ctx.destination);
-
+        reverb.connect(revGain); revGain.connect(ctx.destination);
         function tone(freq, start, dur, type = 'sine', vol = 0.18) {
-          const osc  = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          gain.connect(reverb);
-          osc.type = type;
-          osc.frequency.setValueAtTime(freq, now + start);
+          const osc = ctx.createOscillator(), gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination); gain.connect(reverb);
+          osc.type = type; osc.frequency.setValueAtTime(freq, now + start);
           gain.gain.setValueAtTime(0.001, now + start);
           gain.gain.linearRampToValueAtTime(vol, now + start + 0.02);
           gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
-          osc.start(now + start);
-          osc.stop(now + start + dur + 0.1);
+          osc.start(now + start); osc.stop(now + start + dur + 0.1);
         }
-
         tone(55,  0.00, 0.12, 'sine', 0.28);
         tone(55,  0.18, 0.10, 'sine', 0.18);
-
-        const drone     = ctx.createOscillator();
-        const droneGain = ctx.createGain();
-        drone.connect(droneGain);
-        droneGain.connect(ctx.destination);
-        droneGain.connect(reverb);
-        drone.type = 'sawtooth';
-        drone.frequency.setValueAtTime(55, now + 0.30);
-        drone.frequency.linearRampToValueAtTime(82, now + 0.90);
-        droneGain.gain.setValueAtTime(0.001, now + 0.30);
-        droneGain.gain.linearRampToValueAtTime(0.12, now + 0.50);
-        droneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.90);
-        drone.start(now + 0.30);
-        drone.stop(now + 0.95);
-
         tone(220, 0.35, 0.08, 'sine', 0.14);
-        tone(220, 0.46, 0.08, 'sine', 0.14);
         tone(277, 0.57, 0.12, 'sine', 0.18);
-        tone(110, 0.72, 0.55, 'sine',     0.22);
+        tone(110, 0.72, 0.55, 'sine', 0.22);
         tone(138, 0.74, 0.50, 'triangle', 0.12);
-        tone(165, 0.76, 0.45, 'sine',     0.10);
-
-        const clickBuf  = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
-        const clickData = clickBuf.getChannelData(0);
-        for (let i = 0; i < clickData.length; i++)
-          clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / 200);
-        const click     = ctx.createBufferSource();
-        const clickGain = ctx.createGain();
-        click.buffer    = clickBuf;
-        click.connect(clickGain);
-        clickGain.connect(ctx.destination);
-        clickGain.gain.value = 0.4;
-        click.start(now + 1.00);
       } catch(e) {}
     }
 
     const btn = document.getElementById('btnIniciar');
-
     btn?.addEventListener('mouseenter', playHoverSound);
-
     btn?.addEventListener('click', (e) => {
-        e.preventDefault();
-        const href = e.currentTarget.href;
-        playAgentSound();
-        setTimeout(() => { window.location.href = href; }, 1100);
-      });
+      e.preventDefault();
+      const href = e.currentTarget.href;
+      playAgentSound();
+      setTimeout(() => { window.location.href = href; }, 1100);
+    });
   </script>
 </body>
 </html>

@@ -1,0 +1,230 @@
+{% load static %}
+<div id="countdown-overlay" class="countdown-overlay oculto" aria-hidden="true">
+  <div id="countdown-box" class="countdown-box">
+    <div id="countdown-semaforo" class="countdown-semaforo">
+      <span class="luz" id="luz-1"></span>
+      <span class="luz" id="luz-2"></span>
+      <span class="luz" id="luz-3"></span>
+    </div>
+
+    <div id="countdown-numero" class="countdown-numero">3</div>
+    <div id="countdown-texto" class="countdown-texto">Preparados...</div>
+  </div>
+</div>
+
+<audio id="countdown-full" preload="auto">
+  <source src="{% static 'sounds/countdown_full.mp3' %}" type="audio/mpeg">
+</audio>
+
+<style>
+  .countdown-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(3, 10, 24, 0.72);
+    backdrop-filter: blur(6px);
+  }
+
+  .countdown-overlay.oculto{
+    display:none;
+  }
+
+  .countdown-box{
+    min-width: min(88vw, 420px);
+    padding: 28px 24px;
+    border-radius: 24px;
+    background: rgba(8, 24, 48, 0.94);
+    border: 1px solid rgba(0, 200, 255, 0.28);
+    box-shadow: 0 14px 40px rgba(0,0,0,.35);
+    text-align:center;
+    color:#fff;
+    transform: scale(1);
+  }
+
+  .countdown-box.golpe{
+    animation: countdownGolpe .22s ease;
+  }
+
+  .countdown-box.vibra{
+    animation: countdownVibra .18s linear 2;
+  }
+
+  @keyframes countdownGolpe{
+    0% { transform: scale(.94); }
+    60% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes countdownVibra{
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+  }
+
+  .countdown-semaforo{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:18px;
+  }
+
+  .countdown-semaforo .luz{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background: rgba(255,255,255,.14);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.08);
+    transition: all .18s ease;
+    transform: scale(1);
+  }
+
+  .countdown-semaforo .luz.activa{
+    transform: scale(1.12);
+  }
+
+  .countdown-semaforo .luz.activa.roja{
+    background:#ff4d4f;
+    box-shadow:0 0 18px rgba(255,77,79,.65);
+  }
+
+  .countdown-semaforo .luz.activa.amarilla{
+    background:#ffd666;
+    box-shadow:0 0 18px rgba(255,214,102,.65);
+  }
+
+  .countdown-semaforo .luz.activa.verde{
+    background:#73d13d;
+    box-shadow:0 0 18px rgba(115,209,61,.75);
+  }
+
+  .countdown-numero{
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 800;
+    line-height:1;
+    margin-bottom:10px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 24px rgba(255,255,255,.12);
+  }
+
+  .countdown-numero.ya{
+    color:#9cff7a;
+    text-shadow: 0 0 26px rgba(115,209,61,.42);
+  }
+
+  .countdown-texto{
+    font-size: 1rem;
+    font-weight: 600;
+    color:#dff7ff;
+  }
+</style>
+
+<script>
+  window.oaiCountdown = (function () {
+    let running = false;
+
+    const overlay = document.getElementById("countdown-overlay");
+    const box = document.getElementById("countdown-box");
+    const numero = document.getElementById("countdown-numero");
+    const texto = document.getElementById("countdown-texto");
+    const luces = [
+      document.getElementById("luz-1"),
+      document.getElementById("luz-2"),
+      document.getElementById("luz-3")
+    ];
+    const audioFull = document.getElementById("countdown-full");
+
+    function resetLuces() {
+      luces.forEach(l => {
+        if (!l) return;
+        l.className = "luz";
+      });
+    }
+
+    function play(audioEl) {
+      if (!audioEl) return;
+      try {
+        audioEl.pause();
+        audioEl.currentTime = 0;
+        audioEl.play().catch(() => {});
+      } catch (_) {}
+    }
+
+    function esperar(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function golpeVisual() {
+      if (!box) return;
+      box.classList.remove("golpe");
+      void box.offsetWidth;
+      box.classList.add("golpe");
+    }
+
+    function vibraVisual() {
+      if (!box) return;
+      box.classList.remove("vibra");
+      void box.offsetWidth;
+      box.classList.add("vibra");
+    }
+
+    function setPaso(n, txt, idx, color) {
+      if (numero) {
+        numero.textContent = n;
+        numero.classList.toggle("ya", n === "¡YA!");
+      }
+      if (texto) {
+        texto.textContent = txt;
+      }
+      resetLuces();
+      if (luces[idx]) {
+        luces[idx].classList.add("activa", color);
+      }
+      golpeVisual();
+    }
+
+    async function run(onFinish) {
+      if (running || !overlay || !numero || !texto) return;
+      running = true;
+
+      overlay.classList.remove("oculto");
+      overlay.setAttribute("aria-hidden", "false");
+      resetLuces();
+
+      play(audioFull);
+
+      setPaso("3", "Preparados...", 0, "roja");
+      await esperar(1000);
+
+      setPaso("2", "Listos...", 1, "amarilla");
+      await esperar(1000);
+
+      setPaso("1", "Ya casi...", 1, "amarilla");
+      vibraVisual();
+      await esperar(1000);
+
+      setPaso("¡YA!", "Comienza ahora", 2, "verde");
+      vibraVisual();
+      await esperar(1000);
+
+      overlay.classList.add("oculto");
+      overlay.setAttribute("aria-hidden", "true");
+      resetLuces();
+
+      if (numero) numero.classList.remove("ya");
+
+      running = false;
+
+      if (typeof onFinish === "function") onFinish();
+    }
+
+    return {
+      run,
+      isRunning: () => running
+    };
+  })();
+</script>

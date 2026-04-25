@@ -4,92 +4,347 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ranking final</title>
+  <title>
+    {% if grupo.sesion.fase_actual == "f6_ranking" %}
+      Ranking final
+    {% else %}
+      Ranking parcial
+    {% endif %}
+  </title>
+
   <link rel="stylesheet" href="{% static 'css/estilo_ranking_animado.css' %}">
+
+  <style>
+    .ranking-parcial-wrap{
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 32px 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .ranking-parcial-card{
+      width: 100%;
+      max-width: 920px;
+      background: rgba(4, 17, 40, 0.88);
+      border: 1px solid rgba(82, 180, 255, 0.18);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03) inset,
+        0 20px 60px rgba(0,0,0,0.35);
+      border-radius: 28px;
+      backdrop-filter: blur(8px);
+      padding: 34px 28px 28px;
+    }
+
+    .ranking-parcial-card .titulo{
+      margin-bottom: 10px;
+    }
+
+    .ranking-parcial-card .subtitulo{
+      margin-bottom: 26px;
+    }
+
+    .ranking-barras{
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .ranking-fila{
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+
+    .ranking-fila.es-mi-equipo{
+      border: 1px solid rgba(115, 103, 240, 0.75);
+      box-shadow: 0 0 0 1px rgba(115, 103, 240, 0.18) inset;
+      background: rgba(115, 103, 240, 0.10);
+    }
+
+    .ranking-fila-top{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .ranking-fila-nombre{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag-mi-equipo{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(90deg, #7367f0, #5cdcff);
+    }
+
+    .ranking-fila-tokens{
+      color: #cde9ff;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .ranking-barra-wrap{
+      width: 100%;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ranking-barra-fill{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #7367f0 0%, #5cdcff 100%);
+      box-shadow: 0 0 16px rgba(92, 220, 255, 0.35);
+      transition: width 0.7s ease;
+    }
+
+    .tabla-final.parcial{
+      margin-top: 8px;
+      padding: 20px 20px 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .tabla-final.parcial h3{
+      margin-bottom: 14px;
+    }
+
+    .tabla-final.parcial ol{
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .tabla-final.parcial li{
+      color: #eaf6ff;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .ranking-actions{
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-ranking-listo{
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #7367f0 0%, #8d7bff 100%);
+      box-shadow: 0 14px 30px rgba(115,103,240,0.28);
+      cursor: pointer;
+      transition: transform .18s ease, opacity .18s ease, box-shadow .18s ease;
+    }
+
+    .btn-ranking-listo:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 18px 34px rgba(115,103,240,0.34);
+    }
+
+    .btn-ranking-listo:disabled{
+      opacity: .7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .ranking-estado{
+      color: #cde9ff;
+      font-weight: 700;
+      opacity: .92;
+    }
+
+    .hidden{
+      display: none !important;
+    }
+
+    @media (max-width: 768px){
+      .ranking-parcial-card{
+        padding: 24px 16px 18px;
+        border-radius: 22px;
+      }
+
+      .ranking-fila-top{
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .ranking-fila-tokens{
+        white-space: normal;
+      }
+    }
+  </style>
 </head>
 <body>
   <main class="ranking-scene">
-    <section class="carrera-wrap" id="carreraWrap">
-      <h1 class="titulo">Gran final</h1>
-      <p class="subtitulo">Último tramo. Todos aceleran. La meta está a la vista.</p>
 
-      <div class="camera-frame">
-        <div class="track-world">
-          <div class="carril carril-race">
-            <span class="nombre-equipo">{{ rankings.0.team_name|default:"Equipo 1" }}</span>
-            <div class="pista">
-              <div class="barra barra-1" id="barra1"></div>
+    {% if grupo.sesion.fase_actual == "f6_ranking" %}
+      <section class="carrera-wrap" id="carreraWrap">
+        <h1 class="titulo">Gran final</h1>
+        <p class="subtitulo">Último tramo. Todos aceleran. La meta está a la vista.</p>
+
+        <div class="camera-frame">
+          <div class="track-world">
+            <div class="carril carril-race">
+              <span class="nombre-equipo">{{ rankings.0.team_name|default:"Equipo 1" }}</span>
+              <div class="pista">
+                <div class="barra barra-1" id="barra1"></div>
+              </div>
             </div>
-          </div>
 
-          <div class="carril carril-race">
-            <span class="nombre-equipo">{{ rankings.1.team_name|default:"Equipo 2" }}</span>
-            <div class="pista">
-              <div class="barra barra-2" id="barra2"></div>
+            <div class="carril carril-race">
+              <span class="nombre-equipo">{{ rankings.1.team_name|default:"Equipo 2" }}</span>
+              <div class="pista">
+                <div class="barra barra-2" id="barra2"></div>
+              </div>
             </div>
-          </div>
 
-          <div class="carril carril-race">
-            <span class="nombre-equipo">{{ rankings.2.team_name|default:"Equipo 3" }}</span>
-            <div class="pista">
-              <div class="barra barra-3" id="barra3"></div>
+            <div class="carril carril-race">
+              <span class="nombre-equipo">{{ rankings.2.team_name|default:"Equipo 3" }}</span>
+              <div class="pista">
+                <div class="barra barra-3" id="barra3"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="ganador-overlay" id="ganadorOverlay">
-      <div class="ganador-box">
-        <p class="ganador-label">El ganador es...</p>
-        <h2 class="ganador-nombre">¡Felicitaciones!</h2>
-      </div>
-    </section>
+      <section class="ganador-overlay" id="ganadorOverlay">
+        <div class="ganador-box">
+          <p class="ganador-label">El ganador es...</p>
+          <h2 class="ganador-nombre">¡Felicitaciones!</h2>
+        </div>
+      </section>
 
-    <section class="podio-wrap" id="podioWrap">
-      <div class="podio-card">
-        <h2 class="podio-titulo">Podio final</h2>
+      <section class="podio-wrap" id="podioWrap">
+        <div class="podio-card">
+          <h2 class="podio-titulo">Podio final</h2>
 
-        <div class="podio">
-          <div class="puesto puesto-2">
-            <div class="caja">2</div>
-            <div class="equipo">{{ rankings.1.team_name|default:"Equipo 2" }}</div>
+          <div class="podio">
+            <div class="puesto puesto-2">
+              <div class="caja">2</div>
+              <div class="equipo">{{ rankings.1.team_name|default:"Equipo 2" }}</div>
+            </div>
+
+            <div class="puesto puesto-1">
+              <div class="caja">1</div>
+              <div class="equipo">{{ rankings.0.team_name|default:"Equipo 1" }}</div>
+            </div>
+
+            <div class="puesto puesto-3">
+              <div class="caja">3</div>
+              <div class="equipo">{{ rankings.2.team_name|default:"Equipo 3" }}</div>
+            </div>
           </div>
 
-          <div class="puesto puesto-1">
-            <div class="caja">1</div>
-            <div class="equipo">{{ rankings.0.team_name|default:"Equipo 1" }}</div>
-          </div>
-
-          <div class="puesto puesto-3">
-            <div class="caja">3</div>
-            <div class="equipo">{{ rankings.2.team_name|default:"Equipo 3" }}</div>
+          <div class="tabla-final">
+            <h3>Tabla completa</h3>
+            <ol>
+              {% for equipo in rankings %}
+                <li>
+                  {{ equipo.rank }}. {{ equipo.team_name }} — {{ equipo.tokens }} tokens
+                  {% if equipo.is_me %}<strong> (tu equipo)</strong>{% endif %}
+                </li>
+              {% endfor %}
+            </ol>
           </div>
         </div>
+      </section>
+    {% else %}
+      <section class="ranking-parcial-wrap">
+        <div class="ranking-parcial-card">
+          {% if grupo.sesion.fase_actual == "f1_ranking" %}
+            <h1 class="titulo">Ranking F1</h1>
+            <p class="subtitulo">Así van los equipos después de la sopa de letras.</p>
+          {% elif grupo.sesion.fase_actual == "f2_ranking" %}
+            <h1 class="titulo">Ranking F2</h1>
+            <p class="subtitulo">Así van los equipos después del Bubble Map.</p>
+          {% elif grupo.sesion.fase_actual == "f3_ranking" %}
+            <h1 class="titulo">Ranking F3</h1>
+            <p class="subtitulo">Así van los equipos después del desafío Lego.</p>
+          {% else %}
+            <h1 class="titulo">Ranking parcial</h1>
+            <p class="subtitulo">Así van los equipos en este momento.</p>
+          {% endif %}
 
-        <div class="tabla-final">
-          <h3>Tabla completa</h3>
-          <ol>
+          <div class="ranking-barras">
             {% for equipo in rankings %}
-              <li>
-                {{ equipo.rank }}. {{ equipo.team_name }} — {{ equipo.tokens }} tokens
-                {% if equipo.is_me %}<strong> (tu equipo)</strong>{% endif %}
-              </li>
-            {% endfor %}
-          </ol>
-        </div>
-      </div>
-    </section>
+              <div class="ranking-fila {% if equipo.is_me %}es-mi-equipo{% endif %}">
+                <div class="ranking-fila-top">
+                  <div class="ranking-fila-nombre">
+                    <span>{{ equipo.rank }}. {{ equipo.team_name }}</span>
+                    {% if equipo.is_me %}
+                      <span class="tag-mi-equipo">tu equipo</span>
+                    {% endif %}
+                  </div>
+                  <div class="ranking-fila-tokens">{{ equipo.tokens }} tokens</div>
+                </div>
 
-    <audio id="audioCelebracion" src="{% static 'sounds/victory.mp3' %}" preload="auto"></audio>
+                <div class="ranking-barra-wrap">
+                  <div
+                    class="ranking-barra-fill"
+                    data-tokens="{{ equipo.tokens|default:0 }}">
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+
+        </div>
+      </section>
+    {% endif %}
+
+    <div class="ranking-actions">
+      <button id="btnRankingListo" class="btn-ranking-listo" type="button">
+        Continuar
+      </button>
+      <p id="rankingEstado" class="ranking-estado">0/0 grupos listos</p>
+    </div>
+
+    {% if grupo.sesion.fase_actual == "f6_ranking" %}
+      <audio id="audioCelebracion" src="{% static 'sounds/victory.mp3' %}" preload="auto"></audio>
+    {% endif %}
   </main>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      const esRankingFinal = "{{ grupo.sesion.fase_actual }}" === "f6_ranking";
+      const faseActualEsperada = "{{ grupo.sesion.fase_actual }}";
+      const sesionId = "{{ grupo.sesion.idsesion }}";
+      const grupoId = "{{ grupo.idgrupo }}";
+
       const carrera = document.getElementById("carreraWrap");
       const overlay = document.getElementById("ganadorOverlay");
       const podio = document.getElementById("podioWrap");
       const audio = document.getElementById("audioCelebracion");
+      const btnRankingListo = document.getElementById("btnRankingListo");
+      const rankingEstado = document.getElementById("rankingEstado");
 
       const racers = [
         { barra: document.getElementById("barra1") },
@@ -102,12 +357,108 @@
       const END = 92;
       let frame = 0;
       let terminoCarrera = false;
-      let mostroPodio = false;
+      let redirigiendo = false;
+
+      function aplicarBarrasParciales() {
+        if (esRankingFinal) return;
+
+        const fills = Array.from(document.querySelectorAll(".ranking-barra-fill"));
+        if (!fills.length) return;
+
+        const valores = fills.map(el => Number(el.dataset.tokens || 0));
+        const max = Math.max(...valores, 1);
+
+        fills.forEach(el => {
+          const valor = Number(el.dataset.tokens || 0);
+          const porcentaje = Math.max(8, Math.round((valor / max) * 100));
+          el.style.width = `${porcentaje}%`;
+        });
+      }
 
       function easeInOutCubic(t) {
         return t < 0.5
           ? 4 * t * t * t
           : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+
+      function actualizarEstadoRanking(data) {
+        if (!rankingEstado) return;
+
+        const listos = Number(data.gruposListosF6 || 0);
+        const total = Number(data.totalGrupos || 0);
+        rankingEstado.textContent = `${listos}/${total} grupos listos`;
+
+        const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+        if (miGrupo && miGrupo.listoF6 && btnRankingListo) {
+          btnRankingListo.disabled = true;
+          btnRankingListo.textContent = "Esperando...";
+        }
+      }
+
+      async function refrescarEstadoRanking() {
+        if (redirigiendo || !sesionId) return;
+
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`, {
+            cache: "no-store",
+            credentials: "same-origin"
+          });
+
+          if (!res.ok) return;
+
+          const data = await res.json();
+          actualizarEstadoRanking(data);
+
+          if (data.faseActual && data.faseActual !== faseActualEsperada && data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.href = data.rutaAlumno;
+          }
+        } catch (e) {
+          console.error("Error consultando ranking:", e);
+        }
+      }
+
+      if (btnRankingListo) {
+        btnRankingListo.addEventListener("click", async () => {
+          btnRankingListo.disabled = true;
+          btnRankingListo.textContent = "Esperando...";
+
+          try {
+            const res = await fetch(`/grupo/${grupoId}/listo/`, {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+              },
+              body: JSON.stringify({ fase: "f6" })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.ok) {
+              throw new Error(data.error || "No se pudo marcar listo en ranking.");
+            }
+
+            const listos = Number(data.listos || 0);
+            const total = Number(data.total || 0);
+
+            if (rankingEstado) {
+              rankingEstado.textContent = `${listos}/${total} grupos listos`;
+            }
+          } catch (e) {
+            console.error("Error marcando listo ranking:", e);
+            btnRankingListo.disabled = false;
+            btnRankingListo.textContent = "Continuar";
+          }
+        });
+      }
+
+      if (!esRankingFinal) {
+        aplicarBarrasParciales();
+        refrescarEstadoRanking();
+        setInterval(refrescarEstadoRanking, 1500);
+        return;
       }
 
       function animarCarrera() {
@@ -118,27 +469,30 @@
         const pos = START + (END - START) * easeInOutCubic(t);
 
         racers.forEach((r) => {
-          r.barra.style.width = `${pos}%`;
+          if (r.barra) {
+            r.barra.style.width = `${pos}%`;
+          }
         });
 
         if (frame >= TOTAL_FRAMES) {
           terminoCarrera = true;
 
           setTimeout(() => {
-            carrera.classList.add("fade-out");
-            overlay.classList.add("visible");
+            if (carrera) carrera.classList.add("fade-out");
+            if (overlay) overlay.classList.add("visible");
           }, 300);
 
           setTimeout(() => {
-            carrera.classList.add("hidden");
-            overlay.classList.remove("visible");
-            podio.classList.add("visible");
-            mostroPodio = true;
+            if (carrera) carrera.classList.add("hidden");
+            if (overlay) overlay.classList.remove("visible");
+            if (podio) podio.classList.add("visible");
 
             try {
-              audio.currentTime = 0;
-              audio.volume = 1;
-              audio.play().catch(() => {});
+              if (audio) {
+                audio.currentTime = 0;
+                audio.volume = 1;
+                audio.play().catch(() => {});
+              }
             } catch (e) {}
           }, 2600);
 
@@ -149,14 +503,8 @@
       }
 
       requestAnimationFrame(animarCarrera);
-
-      const observador = new MutationObserver(() => {
-        if (!mostroPodio && podio.classList.contains("visible")) {
-          mostroPodio = true;
-        }
-      });
-
-      observador.observe(podio, { attributes: true, attributeFilter: ["class"] });
+      refrescarEstadoRanking();
+      setInterval(refrescarEstadoRanking, 1500);
     });
   </script>
 

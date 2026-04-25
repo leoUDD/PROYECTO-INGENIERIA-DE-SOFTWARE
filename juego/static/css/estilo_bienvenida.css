@@ -1,13 +1,14 @@
 /* ============================================================
-   Misión Emprende UDD — estilo_bienvenida.css  FINAL
-   Logo arriba · Video + botón abajo · Espacio limpio
+   Misión Emprende UDD — estilo_bienvenida.css
    ============================================================ */
 
 :root {
-  --text:    #E6EEF8;
-  --primary: #00C8FF;
-  --radius:  28px;
-  --shadow:  0 18px 40px rgba(0,0,0,.6);
+  --text:         #E6EEF8;
+  --primary:      #00C8FF;
+  --accent:       #FF7A1A;
+  --radius:       28px;
+  --shadow:       0 18px 40px rgba(0,0,0,.6);
+  --frame-offset: clamp(12px, 2vw, 24px);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -25,17 +26,47 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 12px;
+  padding: calc(var(--frame-offset) + 8px);
 }
 
-/* ---------- Card ---------- */
+/* ============================================================
+   SCREEN WRAPPER
+   ============================================================ */
+.screen-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeUp 0.6s ease both;
+  padding: var(--frame-offset);
+}
+
+.screen-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+  overflow: visible;
+}
+
+/* ============================================================
+   CARD (.phone)
+   ============================================================ */
 .phone {
   position: relative;
   container-type: inline-size;
   container-name: phone;
 
-  width:  min(820px, calc((100vh - 24px) * 0.808), 94vw);
-  height: min(calc(100vh - 24px), calc(min(820px, calc((100vh - 24px) * 0.808), 94vw) * 1.237));
+  width:  min(820px,
+              calc((100vh - (var(--frame-offset) * 2) - 16px) * 0.808),
+              calc(100vw - (var(--frame-offset) * 2) - 16px));
+
+  height: min(calc(100vh - (var(--frame-offset) * 2) - 16px),
+              calc(min(820px,
+                       calc((100vh - (var(--frame-offset) * 2) - 16px) * 0.808),
+                       calc(100vw - (var(--frame-offset) * 2) - 16px)) * 1.237));
 
   background-image: url('/static/images/mision_emprende_phone_bg.gif');
   background-size: 100% 100%;
@@ -43,7 +74,10 @@ body {
   background-position: center top;
 
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px rgba(0,200,255,0.15),
+    0 0 30px rgba(0,200,255,0.12);
 
   display: flex;
   flex-direction: column;
@@ -84,11 +118,28 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(10px, 2.5cqw, 20px);
+  gap: clamp(8px, 2cqw, 16px);
   animation: fadeUp 0.6s ease 0.2s both;
 }
 
-/* Video directo — sin overflow:hidden que corta controles */
+/* Instrucción */
+.video-instruccion {
+  margin: 0;
+  font-family: 'Share Tech Mono', monospace, system-ui;
+  font-size: clamp(11px, 2.5cqw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255,122,26,0.7);
+  animation: instruccionPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes instruccionPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+
 .video-container {
   position: relative;
   width: 100%;
@@ -108,43 +159,9 @@ body {
   background: #000;
 }
 
-/* ---------- Mensaje tap to unmute ---------- */
-.tap-sound {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  padding: 6px 16px;
-
-  background: rgba(0, 8, 20, 0.82);
-  border: 1px solid rgba(0,200,255,0.45);
-  border-radius: 999px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(9px, 1.8cqw, 12px);
-  letter-spacing: 0.08em;
-  color: var(--primary);
-  white-space: nowrap;
-  cursor: pointer;
-
-  box-shadow: 0 0 14px rgba(0,200,255,0.3);
-  animation: tapPulse 1.8s ease-in-out infinite;
-  transition: opacity .3s ease;
-}
-
-.tap-sound.oculto {
-  display: none;
-}
-
-.tap-icon { font-size: 1.1em; }
-
-@keyframes tapPulse {
-  0%,100% { opacity: 0.8; transform: scale(1); }
-  50%     { opacity: 1;   transform: scale(1.04); }
-}
-
-/* ---------- Botón estilo videojuego ---------- */
+/* ============================================================
+   BOTÓN
+   ============================================================ */
 .btn-iniciar {
   display: inline-flex;
   align-items: center;
@@ -162,50 +179,28 @@ body {
   letter-spacing: 0.15em;
   border-radius: 10px;
 
-  box-shadow:
-    0 0 18px rgba(0,200,255,0.5),
-    inset 0 0 14px rgba(0,200,255,0.06);
-
+  box-shadow: 0 0 18px rgba(0,200,255,0.5), inset 0 0 14px rgba(0,200,255,0.06);
   animation: pulse 2.2s ease-in-out infinite;
   transition: transform .2s ease, box-shadow .2s ease;
   position: relative;
   overflow: hidden;
 }
 
-/* Shine sweep */
 .btn-iniciar::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    110deg,
-    transparent 30%,
-    rgba(0,200,255,0.1) 50%,
-    transparent 70%
-  );
+  background: linear-gradient(110deg, transparent 30%, rgba(0,200,255,0.1) 50%, transparent 70%);
   animation: shine 2.8s linear infinite;
 }
 
 .btn-icon { font-size: 0.9em; }
 
-.btn-level {
-  font-size: 0.68em;
-  background: rgba(0,200,255,0.12);
-  border: 1px solid rgba(0,200,255,0.35);
-  border-radius: 5px;
-  padding: 1px 6px;
-  color: rgba(0,200,255,0.8);
-}
-
 .btn-iniciar:hover {
   transform: translateY(-3px);
   animation-play-state: paused;
-  box-shadow:
-    0 0 32px rgba(0,200,255,0.85),
-    inset 0 0 20px rgba(0,200,255,0.1);
+  box-shadow: 0 0 32px rgba(0,200,255,0.85), inset 0 0 20px rgba(0,200,255,0.1);
 }
-
-
 
 /* ============================================================
    ANIMACIONES
@@ -231,21 +226,28 @@ body {
    FALLBACK sin container queries
    ============================================================ */
 @supports not (width: 1cqw) {
-  .logo-top    { width: clamp(110px, 32vw, 240px); }
-  .btn-iniciar { font-size: clamp(12px, 1.7vw, 17px); }
+  .logo-top         { width: clamp(110px, 32vw, 240px); }
+  .btn-iniciar      { font-size: clamp(12px, 1.7vw, 17px); }
+  .video-instruccion { font-size: clamp(11px, 1.5vw, 15px); }
 }
 
 /* ============================================================
    BREAKPOINTS
    ============================================================ */
 @media (max-height: 600px) {
-  .phone      { padding-bottom: 8px; }
-  .logo-top   { width: clamp(80px, 26cqw, 160px); }
-  .video-wrap { padding: 3px; }
+  :root { --frame-offset: 8px; }
+  .phone              { padding-bottom: 8px; }
+  .logo-top           { width: clamp(80px, 26cqw, 160px); }
+  .video-instruccion  { display: none; }
+}
+
+@media (max-width: 400px) {
+  :root { --frame-offset: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .btn-iniciar, .btn-iniciar::before,
-  .logo-top, .video-overlay { animation: none; opacity: 1; }
+  .logo-top, .video-overlay,
+  .video-instruccion { animation: none; opacity: 1; }
   .logo-top { transform: translateX(-50%); }
 }
