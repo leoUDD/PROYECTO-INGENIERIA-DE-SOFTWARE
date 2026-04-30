@@ -1,7 +1,15 @@
 #NUEVO
 from django.shortcuts import render, redirect
 from .forms import FotoLegoForm
+from django.utils.text import slugify
+from .models import TiempoFase
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+import os
+from .models import BubbleMapRespuesta
+from django.utils.text import slugify
 from django.views.decorators.http import require_GET, require_POST
+from django.db.models import Sum
 import json
 from datetime import timedelta
 from django.views.decorators.cache import never_cache
@@ -9,11 +17,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.db.models import Count, Q
+from .models import Tematica, Desafio, Grupo, RuletaLegoOpcion
+from django.db import IntegrityError
+from django.shortcuts import get_object_or_404, redirect, render
+
 #NUEVO CIERRRE
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .tematicas_data import get_theme
+from .models import Tematica, Desafio
 import openpyxl
 import pandas as pd
 from .models import Alumno, Profesor, Usuario, Grupo, Desafio, Idadministrador, Sesion, Reto, Retogrupo, Evaluacion, PalabraSopaEncontrada
@@ -252,29 +265,28 @@ def siguiente_fase_automatica(fase_actual):
     except ValueError:
         pass
     return fase_actual
-
-#CAMBIAR TIMERS
+# CAMBIAR TIMERS
 def tiempo_por_fase(sesion, fase):
     tiempos = {
-        "f1_conocidos": 10,
+        "f1_conocidos": getattr(sesion, "t_rompehielo", 10),
         "f1_pre_sopa": 0,
-        "f1_sopa": 60,
+        "f1_sopa": getattr(sesion, "t_diferencias", 60),
         "f1_ranking": 0,
 
         "f2_transicion": 0,
-        "f2_tematicas": 120,
+        "f2_tematicas": getattr(sesion, "t_tematicas", 120),
         "f2_transicion_empatia": 0,
-        "f2_bubblemap": 10,
+        "f2_bubblemap": getattr(sesion, "t_empatia", 10),
         "f2_ranking": 0,
 
         "f3_transicion_creatividad": 0,
-        "f3_lego": 10,
+        "f3_lego": getattr(sesion, "t_creatividad", 10),
         "f3_ranking": 0,
 
         "f4_transicion_comunicacion": 0,
-        "f4_construccion_pitch": 10,
+        "f4_construccion_pitch": getattr(sesion, "t_pitch_prep", 10),
         "f4_orden_pitch": 0,
-        "f4_presentacion_pitch": 10,
+        "f4_presentacion_pitch": 90,
 
         "f5_evaluacion_pitch": 90,
         "f6_ranking": 0,
@@ -282,6 +294,7 @@ def tiempo_por_fase(sesion, fase):
         "f1_bienvenida": 0,
         "lobby": 0,
     }
+
     return int(tiempos.get(fase, 0))
 
 
@@ -1081,41 +1094,28 @@ def guardar_tematica(request):
     if grupo.sesion.fase_actual != "f2_tematicas":
         return JsonResponse({"ok": False, "error": "La sesión no está en la etapa de temáticas."}, status=400)
 
-    tema = ""
+    try:
+        payload = json.loads(request.body or "{}")
+        slug = str(payload.get("tema") or "").strip().lower()
+    except Exception:
+        return JsonResponse({"ok": False, "error": "Solicitud inválida."}, status=400)
 
-    if request.content_type and "application/json" in request.content_type:
-        try:
-            payload = json.loads(request.body or "{}")
-            tema = (payload.get("tema") or payload.get("slug") or "").strip().lower()
-        except Exception:
-            tema = ""
-    else:
-        tema = (request.POST.get("tema") or request.POST.get("slug") or "").strip().lower()
+    if not slug:
+        return JsonResponse({"ok": False, "error": "Debes seleccionar una temática."}, status=400)
 
-    if not tema or not get_theme(tema):
-        return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
+    tematica = Tematica.objects.filter(slug=slug, activa=True).first()
 
-    grupo.tema_elegido = tema
-    grupo.listo_f2_tematica = True
-    grupo.desafio_elegido = None
-    grupo.desafio_id_externo = None
-    grupo.desafio_nombre = None
-    grupo.desafio_descripcion = None
-    grupo.listo_f2_desafio = False
+    if not tematica:
+        return JsonResponse({"ok": False, "error": "Temática no válida."}, status=404)
 
-    grupo.save(update_fields=[
-        "tema_elegido",
-        "listo_f2_tematica",
-        "desafio_elegido",
-        "desafio_id_externo",
-        "desafio_nombre",
-        "desafio_descripcion",
-        "listo_f2_desafio",
-    ])
+    grupo.tema_elegido = tematica.slug
+
+    grupo.save(update_fields=["tema_elegido"])
 
     return JsonResponse({
         "ok": True,
-        "redirect_url": reverse("desafios")
+        "tema": tematica.slug,
+        "redirect_url": reverse("desafios"),
     })
 
 @require_POST
@@ -1164,25 +1164,24 @@ def guardar_desafio(request):
         return JsonResponse({"ok": False, "error": "Debes seleccionar un desafío."}, status=400)
 
     tema = (grupo.tema_elegido or "").strip().lower()
-    theme = get_theme(tema)
-    if not theme:
-        return JsonResponse({"ok": False, "error": "Tema no válido."}, status=400)
 
-    challenge = None
-    for c in theme.get("challenges", []):
-        if str(c.get("id")) == desafio_id:
-            challenge = c
-            break
+    desafio = Desafio.objects.filter(
+        iddesafio=desafio_id,
+        tematica__slug=tema,
+        activo=True
+    ).first()
 
-    if not challenge:
+    if not desafio:
         return JsonResponse({"ok": False, "error": "Desafío no válido."}, status=404)
 
-    grupo.desafio_id_externo = str(challenge.get("id"))
-    grupo.desafio_nombre = challenge.get("name", "")
-    grupo.desafio_descripcion = challenge.get("desc", "")
+    grupo.desafio_elegido = desafio
+    grupo.desafio_id_externo = str(desafio.iddesafio)
+    grupo.desafio_nombre = desafio.nombredesafio or ""
+    grupo.desafio_descripcion = desafio.descripciondesafio or ""
     grupo.listo_f2_desafio = True
 
     grupo.save(update_fields=[
+        "desafio_elegido",
         "desafio_id_externo",
         "desafio_nombre",
         "desafio_descripcion",
@@ -1719,18 +1718,13 @@ def tematicas(request):
     if (grupo.tema_elegido or "").strip():
         return redirect("desafios")
 
+    tematicas_bd = Tematica.objects.filter(activa=True).order_by("orden", "title")
+
     return render(request, "tematicas.html", {
         "grupo": grupo,
         "tema_actual": (grupo.tema_elegido or "").strip().lower(),
+        "tematicas": tematicas_bd,
     })
-
-    print(f"tematicas -> grupo actual: {grupo.idgrupo} | nombre: {grupo.nombregrupo} | sesion: {grupo.sesion.idsesion}")
-
-    if not acceso_permitido(grupo, "tematicas"):
-        print(f"tematicas -> acceso no permitido para grupo {grupo.idgrupo}")
-        return redirect("pantalla_espera")
-
-    return render(request, "tematicas.html", {"grupo": grupo})
 
 @never_cache
 def lego(request):
@@ -1759,6 +1753,8 @@ def lego(request):
             grupo.lego_sin_foto = False
             grupo.save(update_fields=["foto_lego", "listo_f3_lego", "lego_sin_foto"])
 
+            limpiar_fotos_lego_por_desafio(grupo.desafio_elegido)
+
         else:
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return JsonResponse({
@@ -1772,6 +1768,7 @@ def lego(request):
                 "desafio_nombre_actual": grupo.desafio_nombre or "Desafío no seleccionado",
                 "desafio_descripcion_actual": grupo.desafio_descripcion or "Aún no hay descripción disponible para este desafío.",
                 "tiempo_inicial_lego": grupo.sesion.segundos_restantes or 15,
+                "opciones_ruleta": RuletaLegoOpcion.objects.filter(activa=True).order_by("orden")[:8],
             })
 
         autoavanzar_si_todos_listos(sesion)
@@ -1801,6 +1798,7 @@ def lego(request):
         "desafio_nombre_actual": grupo.desafio_nombre or "Desafío no seleccionado",
         "desafio_descripcion_actual": grupo.desafio_descripcion or "Aún no hay descripción disponible para este desafío.",
         "tiempo_inicial_lego": grupo.sesion.segundos_restantes or 15,
+        "opciones_ruleta": RuletaLegoOpcion.objects.filter(activa=True).order_by("orden")[:8],
     })
 
 
@@ -1987,8 +1985,98 @@ def control_sesion(request, sesion_id):
         "es_profesor_panel": True,
     })
 
+
+
+def porcentaje(parte, total):
+    if not total:
+        return 0
+    return round((parte / total) * 100)
+
+
 def dashboardadmin(request):
-    return render(request, 'dashboardadmin.html')
+    total_grupos = Grupo.objects.count()
+
+    grupos_sopa = Grupo.objects.filter(sopa_ganada=True).count()
+    grupos_pitch = Grupo.objects.exclude(pitch_texto__isnull=True).exclude(pitch_texto__exact="").count()
+    grupos_lego = Grupo.objects.exclude(foto_lego__isnull=True).exclude(foto_lego__exact="").count()
+
+    tematicas_raw = (
+        Grupo.objects
+        .exclude(tema_elegido__isnull=True)
+        .exclude(tema_elegido__exact="")
+        .values("tema_elegido")
+        .annotate(total=Count("idgrupo"))
+        .order_by("-total")[:5]
+    )
+
+    max_tematica = max([x["total"] for x in tematicas_raw], default=0)
+
+    tematicas_stats = []
+    for item in tematicas_raw:
+        nombre = item["tema_elegido"]
+        tematica = Tematica.objects.filter(slug=nombre).first()
+        tematicas_stats.append({
+            "nombre": tematica.title if tematica else nombre,
+            "total": item["total"],
+            "porcentaje": porcentaje(item["total"], max_tematica),
+        })
+
+    desafios_raw = (
+        Grupo.objects
+        .exclude(desafio_nombre__isnull=True)
+        .exclude(desafio_nombre__exact="")
+        .values("desafio_nombre")
+        .annotate(total=Count("idgrupo"))
+        .order_by("-total")[:5]
+    )
+
+    max_desafio = max([x["total"] for x in desafios_raw], default=0)
+
+    desafios_stats = [
+        {
+            "nombre": item["desafio_nombre"],
+            "total": item["total"],
+            "porcentaje": porcentaje(item["total"], max_desafio),
+        }
+        for item in desafios_raw
+    ]
+
+    sesiones_recientes = []
+    for sesion in Sesion.objects.all().order_by("-idsesion")[:6]:
+        grupos = Grupo.objects.filter(sesion=sesion)
+        total = grupos.count()
+
+        sesiones_recientes.append({
+            "nombre": f"Sesión {sesion.idsesion}",
+            "fase_actual": sesion.fase_actual,
+            "total_grupos": total,
+            "sopa": porcentaje(grupos.filter(sopa_ganada=True).count(), total),
+            "pitch": porcentaje(
+                grupos.exclude(pitch_texto__isnull=True).exclude(pitch_texto__exact="").count(),
+                total
+            ),
+            "lego": porcentaje(
+                grupos.exclude(foto_lego__isnull=True).exclude(foto_lego__exact="").count(),
+                total
+            ),
+        })
+
+    kpis = {
+        "profesores": Profesor.objects.count(),
+        "grupos": total_grupos,
+        "sesiones": Sesion.objects.count(),
+        "desafios_activos": Desafio.objects.filter(activo=True).count(),
+        "pct_sopa": porcentaje(grupos_sopa, total_grupos),
+        "pct_pitch": porcentaje(grupos_pitch, total_grupos),
+        "pct_lego": porcentaje(grupos_lego, total_grupos),
+    }
+
+    return render(request, "dashboardadmin.html", {
+        "kpis": kpis,
+        "tematicas_stats": tematicas_stats,
+        "desafios_stats": desafios_stats,
+        "sesiones_recientes": sesiones_recientes,
+    })
 
 
 def agregardesafio(request):
@@ -2385,23 +2473,25 @@ def desafios(request):
     if not slug:
         return redirect("tematicas")
 
-    theme = get_theme(slug)
-    if not theme:
+    tematica = Tematica.objects.filter(slug=slug, activa=True).first()
+    if not tematica:
         return redirect("tematicas")
+
+    desafios_bd = Desafio.objects.filter(
+        tematica=tematica,
+        activo=True
+    ).order_by("orden", "nombredesafio")
 
     return render(request, "desafios.html", {
         "grupo": grupo,
-        "theme": theme,
+        "tematica": tematica,
+        "desafios": desafios_bd,
         "slug": slug,
         "desafio_confirmado": bool(grupo.listo_f2_desafio),
         "desafio_id_actual": str(grupo.desafio_id_externo or ""),
         "desafio_nombre_actual": grupo.desafio_nombre or "",
         "desafio_descripcion_actual": grupo.desafio_descripcion or "",
     })
-
-
-
-
 
 @never_cache
 def bubblemap(request):
@@ -2424,7 +2514,11 @@ def bubblemap(request):
         "sesion": sesion,
         "desafio_nombre_actual": grupo.desafio_nombre or "Desafío no seleccionado",
         "desafio_descripcion_actual": grupo.desafio_descripcion or "Aún no hay descripción disponible para este desafío.",
-        "desafio_foto_actual": "",
+        "desafio_foto_actual": (
+            grupo.desafio_elegido.imagen_desafio.url
+            if grupo.desafio_elegido and grupo.desafio_elegido.imagen_desafio
+            else ""
+        ),
         "segundos_restantes": segundos,
     })
 
@@ -2516,6 +2610,23 @@ def otorgar_tokens_bubblemap(request):
                 "nivel": nivel,
                 "rutaAlumno": reverse("ranking") if sesion.fase_actual == "f2_ranking" else reverse("bubblemap"),
             })
+        BubbleMapRespuesta.objects.filter(
+            sesion=sesion,
+            grupo=grupo
+        ).delete()
+
+        for item in burbujas:
+            if isinstance(item, dict):
+                BubbleMapRespuesta.objects.create(
+                    sesion=sesion,
+                    grupo=grupo,
+                    desafio=grupo.desafio_elegido,
+                    tipo=item.get("tipo") or "",
+                    titulo=item.get("titulo") or "",
+                    texto=(item.get("texto") or "").strip(),
+                    relato=relato,
+                    link=link
+                )
 
         grupo.tokensgrupo = (grupo.tokensgrupo or 0) + tokens
         grupo.bubble_tokens_otorgados = True
@@ -2608,21 +2719,21 @@ def pitch(request):
 def guardar_pitch(request):
     grupo = obtener_grupo_desde_session(request)
     if not grupo:
-        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=401)
+        return JsonResponse({"ok": False, "error": "Grupo no encontrado."}, status=403)
 
     try:
-        data = json.loads(request.body.decode("utf-8"))
+        payload = json.loads(request.body or "{}")
     except Exception:
-        return JsonResponse({"ok": False, "error": "JSON inválido."}, status=400)
+        payload = {}
 
-    texto = (data.get("pitch_texto") or "").strip()
+    pitch_texto = (payload.get("pitch") or "").strip()
 
-    grupo.pitch_texto = texto
+    grupo.pitch_texto = pitch_texto
     grupo.save(update_fields=["pitch_texto"])
 
     return JsonResponse({
         "ok": True,
-        "pitch_texto": grupo.pitch_texto or "",
+        "pitch": grupo.pitch_texto,
     })
 
 
@@ -2864,45 +2975,58 @@ def ranking(request):
 
 def registrarprofesor(request):
     if request.method == "POST":
-        email = (request.POST.get("email") or "").strip()
-        facultad = (request.POST.get("facultad") or "").strip()
+        email = request.POST.get("email")
+        facultad = request.POST.get("facultad")
 
-        if not email or not facultad:
-            messages.error(request, "Completa todos los campos obligatorios.")
-            return render(request, "registrarprofesor.html")
+        if email and facultad:
+            usuario = Usuario.objects.create(password="temp")
 
-        try:
-            validate_email(email)
-        except ValidationError:
-            messages.error(request, "El correo no es válido.")
-            return render(request, "registrarprofesor.html")
-
-        if Profesor.objects.filter(emailprofesor=email).exists():
-            messages.warning(request, "Ya existe un profesor con ese correo.")
-            return render(request, "registrarprofesor.html")
-
-        try:
-            with transaction.atomic():
-                tmp_password = secrets.token_urlsafe(8)
-                usuario = Usuario.objects.create(password=tmp_password)
-                profesor = Profesor.objects.create(
-                    usuario_idusuario=usuario,
-                    emailprofesor=email,
-                    facultad=facultad
-                )
-
-            messages.success(
-                request,
-                f"Profesor creado (ID {profesor.idprofesor}). Usuario ID {usuario.idusuario} asignado."
+            Profesor.objects.create(
+                usuario_idusuario=usuario,
+                emailprofesor=email,
+                facultad=facultad
             )
-            return redirect("dashboardadmin")
 
-        except Exception as e:
-            messages.error(request, f"Ocurrió un error al guardar: {e}")
-            return render(request, "registrarprofesor.html")
+            messages.success(request, "Profesor registrado correctamente.")
+            return redirect("registrarprofesor")
 
-    return render(request, "registrarprofesor.html")
+    profesores = Profesor.objects.all().order_by("emailprofesor")
 
+    return render(request, "registrarprofesor.html", {
+        "profesores": profesores
+    })
+
+
+@require_POST
+def eliminar_profesor(request, profesor_id):
+    profesor = get_object_or_404(Profesor, idprofesor=profesor_id)
+
+    alumnos_asociados = Alumno.objects.filter(profesor_idprofesor=profesor).count()
+    sesiones_asociadas = Sesion.objects.filter(profesor=profesor).count()
+
+    if alumnos_asociados > 0 or sesiones_asociadas > 0:
+        messages.warning(
+            request,
+            f"No se puede eliminar directamente. Tiene {alumnos_asociados} alumnos y {sesiones_asociadas} sesiones asociadas. Usa eliminación forzada si quieres borrar todo lo relacionado."
+        )
+        return redirect("registrarprofesor")
+
+    profesor.delete()
+    messages.success(request, "Profesor eliminado correctamente.")
+    return redirect("registrarprofesor")
+
+
+@require_POST
+def eliminar_profesor_forzado(request, profesor_id):
+    profesor = get_object_or_404(Profesor, idprofesor=profesor_id)
+
+    Alumno.objects.filter(profesor_idprofesor=profesor).delete()
+    Sesion.objects.filter(profesor=profesor).delete()
+
+    profesor.delete()
+
+    messages.success(request, "Profesor y datos asociados eliminados correctamente.")
+    return redirect("registrarprofesor")
 
 def listar_profesores(request):
     profesores = Profesor.objects.all().order_by('-idprofesor')
@@ -2953,6 +3077,10 @@ def reflexion(request):
         return redirect("pantalla_espera")
 
     return render(request, "reflexion.html", {"grupo": grupo})
+def obtener_tiempo(codigo, defecto):
+    tiempo = TiempoFase.objects.filter(codigo=codigo, activo=True).first()
+    return tiempo.segundos if tiempo else defecto
+
 
 def crear_sesion(request):
     profesor = Profesor.objects.first()
@@ -2973,14 +3101,21 @@ def crear_sesion(request):
             nombre=nombre,
             fase_actual="f1_bienvenida",
             timer_corriendo=False,
-            segundos_restantes=0
+            segundos_restantes=0,
+
+            t_rompehielo=obtener_tiempo("f1_conocidos", 10),
+            t_diferencias=obtener_tiempo("f1_sopa", 60),
+            t_tematicas=obtener_tiempo("f2_tematicas", 120),
+            t_empatia=obtener_tiempo("f2_bubblemap", 10),
+            t_creatividad=obtener_tiempo("f3_lego", 10),
+            t_pitch_prep=obtener_tiempo("f4_construccion_pitch", 300),
+            t_pitch=90,
         )
 
         messages.success(request, "Sesión creada correctamente.")
         return redirect("listar_sesiones")
 
     return render(request, "crear_sesion.html")
-
 
 def listar_sesiones(request):
     profesor = Profesor.objects.first()
@@ -3141,3 +3276,446 @@ def preview_pantalla_profesor(request, sesion_id):
 
     return render(request, template_name, context)
 
+def admin_tematicas(request):
+    tematicas = []
+
+    for tematica in Tematica.objects.all().order_by("orden", "title"):
+        grupos_tematica = Grupo.objects.filter(tema_elegido=tematica.slug)
+
+        desafio_mas_usado = (
+            grupos_tematica
+            .exclude(desafio_nombre__isnull=True)
+            .exclude(desafio_nombre__exact="")
+            .values("desafio_nombre")
+            .annotate(total=Count("idgrupo"))
+            .order_by("-total")
+            .first()
+        )
+
+        tematicas.append({
+            "id": tematica.idtematica,
+            "slug": tematica.slug,
+            "title": tematica.title,
+            "hero": tematica.hero,
+            "activa": tematica.activa,
+            "total_usos": grupos_tematica.count(),
+            "total_desafios": tematica.desafios.count(),
+            "desafio_mas_usado": desafio_mas_usado["desafio_nombre"] if desafio_mas_usado else "Sin datos",
+            "desafio_mas_usado_total": desafio_mas_usado["total"] if desafio_mas_usado else 0,
+        })
+
+    return render(request, "admin_tematicas.html", {
+        "tematicas": tematicas,
+    })
+
+def admin_desafios(request):
+    if request.method == "POST":
+        accion = request.POST.get("accion")
+
+        if accion == "editar_desafio":
+            desafio_id = request.POST.get("desafio_id")
+            desafio = get_object_or_404(Desafio, iddesafio=desafio_id)
+
+            desafio.nombredesafio = request.POST.get("nombre", "").strip()
+            desafio.summary = request.POST.get("summary", "").strip()
+            desafio.descripciondesafio = request.POST.get("descripcion", "").strip()
+            desafio.activo = bool(request.POST.get("activo"))
+
+            tematica_id = request.POST.get("tematica_id")
+            if tematica_id:
+                desafio.tematica = Tematica.objects.filter(idtematica=tematica_id).first()
+
+            if request.FILES.get("imagen_desafio"):
+                desafio.imagen_desafio = request.FILES.get("imagen_desafio")
+
+            desafio.save()
+            messages.success(request, "Desafío actualizado correctamente.")
+            return redirect("admin_desafios")
+
+        if accion == "crear_desafio":
+            nombre = request.POST.get("nombre", "").strip()
+            summary = request.POST.get("summary", "").strip()
+            descripcion = request.POST.get("descripcion", "").strip()
+            tematica_id = request.POST.get("tematica_id")
+
+            tematica = Tematica.objects.filter(idtematica=tematica_id).first()
+
+            if nombre and tematica:
+                desafio = Desafio.objects.create(
+                    tematica=tematica,
+                    nombredesafio=nombre,
+                    summary=summary,
+                    descripciondesafio=descripcion,
+                    activo=True,
+                    orden=tematica.desafios.count() + 1
+                )
+
+                if request.FILES.get("imagen_desafio"):
+                    desafio.imagen_desafio = request.FILES.get("imagen_desafio")
+                    desafio.save()
+
+                messages.success(request, "Desafío creado correctamente.")
+            else:
+                messages.error(request, "Debes completar nombre y temática.")
+
+            return redirect("admin_desafios")
+
+        if accion == "eliminar_desafio":
+            desafio_id = request.POST.get("desafio_id")
+            desafio = get_object_or_404(Desafio, iddesafio=desafio_id)
+
+            if Grupo.objects.filter(desafio_elegido=desafio).exists():
+                messages.warning(request, "No se puede eliminar porque ya fue elegido por grupos. Puedes desactivarlo.")
+            else:
+                desafio.delete()
+                messages.success(request, "Desafío eliminado correctamente.")
+
+            return redirect("admin_desafios")
+
+    desafios = []
+
+    for desafio in Desafio.objects.select_related("tematica").all().order_by("tematica__orden", "orden"):
+        grupos_desafio = Grupo.objects.filter(desafio_elegido=desafio)
+
+        if not grupos_desafio.exists():
+            grupos_desafio = Grupo.objects.filter(desafio_id_externo=str(desafio.iddesafio))
+
+        desafios.append({
+            "id": desafio.iddesafio,
+            "nombre": desafio.nombredesafio,
+            "summary": desafio.summary,
+            "descripcion": desafio.descripciondesafio,
+            "activo": desafio.activo,
+            "tematica_id": desafio.tematica.idtematica if desafio.tematica else "",
+            "tematica": desafio.tematica.title if desafio.tematica else "Sin temática",
+            "total_usos": grupos_desafio.count(),
+            "grupos": grupos_desafio.order_by("-idgrupo")[:10],
+            "imagen": desafio.imagen_desafio.url if desafio.imagen_desafio else "",
+        })
+
+    return render(request, "admin_desafios.html", {
+        "desafios": desafios,
+        "tematicas": Tematica.objects.filter(activa=True).order_by("orden", "title"),
+    })
+
+
+@require_POST
+def eliminar_profesor(request, profesor_id):
+    profesor = get_object_or_404(Profesor, idprofesor=profesor_id)
+
+    alumnos_asociados = Alumno.objects.filter(profesor_idprofesor=profesor).count()
+    sesiones_asociadas = Sesion.objects.filter(profesor=profesor).count()
+
+    if alumnos_asociados > 0 or sesiones_asociadas > 0:
+        messages.warning(
+            request,
+            f"No se puede eliminar directamente. Tiene {alumnos_asociados} alumnos y {sesiones_asociadas} sesiones asociadas. "
+            f"Usa eliminación forzada si quieres borrar todo lo relacionado."
+        )
+        return redirect("registrarprofesor")
+
+    profesor.delete()
+    messages.success(request, "Profesor eliminado correctamente.")
+    return redirect("registrarprofesor")
+
+
+@require_POST
+def eliminar_profesor_forzado(request, profesor_id):
+    profesor = get_object_or_404(Profesor, idprofesor=profesor_id)
+
+    Alumno.objects.filter(profesor_idprofesor=profesor).delete()
+    Sesion.objects.filter(profesor=profesor).delete()
+
+    profesor.delete()
+
+    messages.success(request, "Profesor y datos asociados eliminados correctamente.")
+    return redirect("registrarprofesor")
+
+def guardar_imagen_tematica(request_file):
+    if not request_file:
+        return ""
+
+    carpeta = os.path.join(settings.BASE_DIR, "juego", "static", "images", "tematicas")
+    os.makedirs(carpeta, exist_ok=True)
+
+    storage = FileSystemStorage(location=carpeta)
+    filename = storage.save(request_file.name, request_file)
+
+    return f"images/tematicas/{filename}"
+
+
+def admin_tematicas(request):
+    if request.method == "POST":
+        accion = request.POST.get("accion")
+
+        if accion == "crear_tematica":
+            title = request.POST.get("title", "").strip()
+            hero = request.POST.get("hero", "").strip()
+            chips_raw = request.POST.get("chips", "").strip()
+            accent = request.POST.get("accent", "#3b82f6").strip()
+
+            if title and hero:
+                slug_base = slugify(title)
+                slug = slug_base
+                contador = 1
+
+                while Tematica.objects.filter(slug=slug).exists():
+                    contador += 1
+                    slug = f"{slug_base}-{contador}"
+
+                image = guardar_imagen_tematica(request.FILES.get("image_file"))
+
+                tematica = Tematica.objects.create(
+                    slug=slug,
+                    title=title,
+                    hero=hero,
+                    chips=[c.strip() for c in chips_raw.split(",") if c.strip()],
+                    accent=accent,
+                    image=image,
+                    activa=True,
+                    orden=Tematica.objects.count() + 1
+                )
+
+                if request.POST.get("crear_desafio_ahora"):
+                    nombre = request.POST.get("desafio_nombre", "").strip()
+                    summary = request.POST.get("desafio_summary", "").strip()
+                    desc = request.POST.get("desafio_desc", "").strip()
+
+                    if nombre:
+                        Desafio.objects.create(
+                            tematica=tematica,
+                            nombredesafio=nombre,
+                            summary=summary,
+                            descripciondesafio=desc,
+                            activo=True,
+                            orden=tematica.desafios.count() + 1
+                        )
+
+                messages.success(request, "Temática creada correctamente.")
+            else:
+                messages.error(request, "Debes completar nombre y descripción de la temática.")
+
+            return redirect("admin_tematicas")
+
+        if accion == "editar_tematica":
+            tematica_id = request.POST.get("tematica_id")
+            tematica = get_object_or_404(Tematica, idtematica=tematica_id)
+
+            tematica.title = request.POST.get("title", "").strip()
+            tematica.hero = request.POST.get("hero", "").strip()
+            tematica.chips = [c.strip() for c in request.POST.get("chips", "").split(",") if c.strip()]
+            tematica.accent = request.POST.get("accent", "#3b82f6").strip()
+            tematica.activa = bool(request.POST.get("activa"))
+
+            nueva_imagen = guardar_imagen_tematica(request.FILES.get("image_file"))
+            if nueva_imagen:
+                tematica.image = nueva_imagen
+
+            tematica.save()
+            messages.success(request, "Temática actualizada correctamente.")
+            return redirect("admin_tematicas")
+
+        if accion == "eliminar_tematica":
+            tematica_id = request.POST.get("tematica_id")
+            tematica = get_object_or_404(Tematica, idtematica=tematica_id)
+
+            if tematica.desafios.exists():
+                messages.warning(request, "No se puede eliminar porque tiene desafíos asociados. Elimina o reasigna esos desafíos primero.")
+            else:
+                tematica.delete()
+                messages.success(request, "Temática eliminada correctamente.")
+
+            return redirect("admin_tematicas")
+
+    tematicas = []
+
+    for tematica in Tematica.objects.all().order_by("orden", "title"):
+        grupos_tematica = Grupo.objects.filter(tema_elegido=tematica.slug)
+
+        desafios = []
+        for desafio in tematica.desafios.all().order_by("orden", "nombredesafio"):
+            usos = Grupo.objects.filter(desafio_elegido=desafio).count()
+
+            if usos == 0:
+                usos = Grupo.objects.filter(desafio_id_externo=str(desafio.iddesafio)).count()
+
+            desafios.append({
+                "id": desafio.iddesafio,
+                "nombre": desafio.nombredesafio,
+                "total_usos": usos,
+            })
+
+        desafios = sorted(desafios, key=lambda x: x["total_usos"], reverse=True)
+
+        tematicas.append({
+            "id": tematica.idtematica,
+            "slug": tematica.slug,
+            "title": tematica.title,
+            "hero": tematica.hero,
+            "chips_texto": ", ".join(tematica.chips or []),
+            "accent": tematica.accent,
+            "image": tematica.image,
+            "activa": tematica.activa,
+            "total_usos": grupos_tematica.count(),
+            "total_desafios": tematica.desafios.count(),
+            "desafios": desafios,
+        })
+
+    return render(request, "admin_tematicas.html", {
+        "tematicas": tematicas,
+    })
+
+def admin_desafio_info(request, desafio_id):
+    desafio = get_object_or_404(Desafio, iddesafio=desafio_id)
+
+    grupos = Grupo.objects.filter(
+        desafio_elegido=desafio
+    ).select_related("sesion").order_by("-idgrupo")
+
+    if not grupos.exists():
+        grupos = Grupo.objects.filter(
+            desafio_id_externo=str(desafio.iddesafio)
+        ).select_related("sesion").order_by("-idgrupo")
+
+    return render(request, "admin_desafio_info.html", {
+        "desafio": desafio,
+        "grupos": grupos,
+    })
+
+def limpiar_fotos_lego_por_desafio(desafio):
+    if not desafio:
+        return
+
+    grupos_con_foto = (
+        Grupo.objects
+        .filter(desafio_elegido=desafio)
+        .exclude(foto_lego="")
+        .exclude(foto_lego__isnull=True)
+        .order_by("-idgrupo")
+    )
+
+    fotos_a_borrar = grupos_con_foto[7:]
+
+    for grupo in fotos_a_borrar:
+        if grupo.foto_lego:
+            ruta = grupo.foto_lego.path
+
+            if os.path.exists(ruta):
+                os.remove(ruta)
+
+            grupo.foto_lego = None
+            grupo.save(update_fields=["foto_lego"])
+
+
+def admin_ruleta(request):
+    if request.method == "POST":
+        accion = request.POST.get("accion")
+
+        if accion == "guardar_todo":
+            ids = request.POST.getlist("opcion_id")
+
+            opciones_temporales = []
+
+            for opcion_id in ids:
+                opciones_temporales.append({
+                    "id": int(opcion_id),
+                    "titulo": request.POST.get(f"titulo_{opcion_id}", "").strip(),
+                    "emoji": request.POST.get(f"emoji_{opcion_id}", "").strip(),
+                    "descripcion": request.POST.get(f"descripcion_{opcion_id}", "").strip(),
+                    "tokens": int(request.POST.get(f"tokens_{opcion_id}") or 0),
+                    "porcentaje": int(request.POST.get(f"porcentaje_{opcion_id}") or 0),
+                    "activa": request.POST.get(f"activa_{opcion_id}") == "on",
+                })
+
+            activas = [o for o in opciones_temporales if o["activa"]]
+            total_porcentaje = sum(o["porcentaje"] for o in activas)
+
+            if len(activas) > 8:
+                messages.error(request, "No se puede guardar. La ruleta permite máximo 8 opciones activas.")
+                return redirect("admin_ruleta")
+
+            if total_porcentaje != 100:
+                messages.error(request, f"No se puede guardar. Las opciones activas suman {total_porcentaje}%. Deben sumar exactamente 100%.")
+                return redirect("admin_ruleta")
+
+            with transaction.atomic():
+                for data in opciones_temporales:
+                    opcion = RuletaLegoOpcion.objects.get(idopcion=data["id"])
+                    opcion.titulo = data["titulo"]
+                    opcion.emoji = data["emoji"]
+                    opcion.descripcion = data["descripcion"]
+                    opcion.tokens = data["tokens"]
+                    opcion.porcentaje = data["porcentaje"]
+                    opcion.activa = data["activa"]
+                    opcion.save()
+
+            messages.success(request, "Ruleta guardada correctamente.")
+            return redirect("admin_ruleta")
+
+        if accion == "crear":
+            if RuletaLegoOpcion.objects.count() >= 8:
+                messages.error(request, "No se puede crear otra opción. La ruleta permite máximo 8 opciones.")
+                return redirect("admin_ruleta")
+
+            titulo = request.POST.get("titulo", "").strip()
+            emoji = request.POST.get("emoji", "").strip()
+            descripcion = request.POST.get("descripcion", "").strip()
+            tokens = int(request.POST.get("tokens") or 0)
+            porcentaje = int(request.POST.get("porcentaje") or 0)
+
+            codigo_base = slugify(titulo)
+            codigo = codigo_base
+            contador = 1
+
+            while RuletaLegoOpcion.objects.filter(codigo=codigo).exists():
+                contador += 1
+                codigo = f"{codigo_base}-{contador}"
+
+            RuletaLegoOpcion.objects.create(
+                codigo=codigo,
+                emoji=emoji,
+                titulo=titulo,
+                descripcion=descripcion,
+                tokens=tokens,
+                porcentaje=porcentaje,
+                activa=False,
+                orden=RuletaLegoOpcion.objects.count() + 1
+            )
+
+            messages.success(request, "Opción creada como inactiva. Ajusta la ruleta completa y luego presiona Guardar ruleta completa.")
+            return redirect("admin_ruleta")
+
+        if accion == "eliminar":
+            opcion = get_object_or_404(RuletaLegoOpcion, idopcion=request.POST.get("opcion_id"))
+            opcion.delete()
+            messages.success(request, "Opción eliminada. Revisa que la ruleta activa siga sumando 100%.")
+            return redirect("admin_ruleta")
+
+    opciones = RuletaLegoOpcion.objects.all().order_by("orden", "titulo")
+    total_porcentaje = sum(o.porcentaje for o in opciones if o.activa)
+    total_activas = sum(1 for o in opciones if o.activa)
+
+    return render(request, "admin_ruleta.html", {
+        "opciones": opciones,
+        "total_porcentaje": total_porcentaje,
+        "total_activas": total_activas,
+    })
+
+def admin_tiempos(request):
+    if request.method == "POST":
+        ids = request.POST.getlist("tiempo_id")
+
+        for tiempo_id in ids:
+            tiempo = get_object_or_404(TiempoFase, idtiempo=tiempo_id)
+            tiempo.segundos = int(request.POST.get(f"segundos_{tiempo_id}") or 60)
+            tiempo.activo = request.POST.get(f"activo_{tiempo_id}") == "on"
+            tiempo.save(update_fields=["segundos", "activo"])
+
+        messages.success(request, "Tiempos actualizados correctamente.")
+        return redirect("admin_tiempos")
+
+    tiempos = TiempoFase.objects.all().order_by("orden", "nombre")
+
+    return render(request, "admin_tiempos.html", {
+        "tiempos": tiempos,
+    })

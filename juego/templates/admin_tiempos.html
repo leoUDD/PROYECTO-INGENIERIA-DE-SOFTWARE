@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tiempos — Dashboard Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardadmin.css' %}">
+</head>
+
+<body>
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h2 class="sidebar-title">Dashboard Admin</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="{% url 'dashboardadmin' %}">Inicio</a></li>
+        <li><a href="{% url 'registrarprofesor' %}">Profesores</a></li>
+        <li><a href="{% url 'admin_tematicas' %}">Temáticas</a></li>
+        <li><a href="{% url 'admin_desafios' %}">Desafíos</a></li>
+        <li><a href="{% url 'admin_ruleta' %}">Ruleta</a></li>
+        <li><a href="{% url 'admin_tiempos' %}" class="active">Tiempos</a></li>
+
+        <li class="sidebar-separator"></li>
+        <li><a href="{% url 'perfiles' %}" class="back-link">⟵ Cambiar de perfil</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    {% if messages %}
+      <div class="messages">
+        {% for m in messages %}
+          <div class="msg {{ m.tags }}">{{ m }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <h1 class="title">Tiempos</h1>
+    <p class="subtitle">
+      Personaliza la duración de cada fase del juego.
+    </p>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <section class="charts">
+        {% for t in tiempos %}
+          <div class="chart-card">
+            <h3 class="chart-title">{{ t.nombre }}</h3>
+            <p>{{ t.descripcion }}</p>
+
+            <input type="hidden" name="tiempo_id" value="{{ t.idtiempo }}">
+
+            <label><strong>Duración en segundos</strong></label>
+            <input
+              type="number"
+              name="segundos_{{ t.idtiempo }}"
+              value="{{ t.segundos }}"
+              min="5"
+              style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; margin:8px 0 12px;"
+            >
+
+            <label>
+              <input type="checkbox" name="activo_{{ t.idtiempo }}" {% if t.activo %}checked{% endif %}>
+              Activo
+            </label>
+          </div>
+        {% empty %}
+          <p>No hay tiempos configurados.</p>
+        {% endfor %}
+      </section>
+
+      <button
+        type="submit"
+        style="margin-top:20px; padding:12px 18px; border:none; border-radius:12px; background:#2563eb; color:white; font-weight:800; cursor:pointer;"
+      >
+        Guardar tiempos
+      </button>
+    </form>
+  </main>
+</div>
+</body>
+</html>

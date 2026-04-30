@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
   <meta charset="UTF-8" />
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -350,65 +351,35 @@
 
         <div class="themes-track" id="themesTrack">
 
-          <article class="theme-card" tabindex="-1"
-                  data-slug="salud"
-                  data-url="{% url 'desafios' %}">
-            <div class="thumb">
-              <img src="{% static 'images/salud.png' %}" alt="Icono de salud">
-            </div>
-            <div class="content">
-              <h2 class="title">Salud</h2>
-              <div class="chips">
-                <span class="chip">🫶 Empatía</span>
-                <span class="chip">💡 Innovar</span>
-                <span class="chip">💪 Bienestar</span>
-              </div>
-              <p class="desc">Mejora hábitos y bienestar con soluciones prácticas.</p>
-            </div>
-            <div class="actions">
-              <button class="btn select" type="button" onclick="guardarTema('salud', this)">Elegir</button>
-            </div>
-          </article>
+          {% for tema in tematicas %}
+<article class="theme-card" tabindex="-1"
+        data-slug="{{ tema.slug }}"
+        data-url="{% url 'desafios' %}">
+  <div class="thumb">
+    <img src="{% static tema.image %}" alt="Icono de {{ tema.title }}">
+  </div>
 
-          <article class="theme-card" tabindex="-1"
-                  data-slug="sustentabilidad"
-                  data-url="{% url 'desafios' %}">
-            <div class="thumb">
-              <img src="{% static 'images/sustentabilidad.png' %}" alt="Icono de sustentabilidad">
-            </div>
-            <div class="content">
-              <h2 class="title">Sustentabilidad</h2>
-              <div class="chips">
-                <span class="chip">🌱 Ambiental</span>
-                <span class="chip">♻️ Reciclaje</span>
-                <span class="chip">⚙️ Creativo</span>
-              </div>
-              <p class="desc">Impacto ambiental positivo con ideas circulares.</p>
-            </div>
-            <div class="actions">
-              <button class="btn select" type="button" onclick="guardarTema('sustentabilidad', this)">Elegir</button>
-            </div>
-          </article>
+  <div class="content">
+    <h2 class="title">{{ tema.title }}</h2>
 
-          <article class="theme-card" tabindex="-1"
-                  data-slug="educacion"
-                  data-url="{% url 'desafios' %}">
-            <div class="thumb">
-              <img src="{% static 'images/educacion.png' %}" alt="Icono de educación">
-            </div>
-            <div class="content">
-              <h2 class="title">Educación</h2>
-              <div class="chips">
-                <span class="chip">🗣️ Comunicar</span>
-                <span class="chip">🎓 Liderazgo</span>
-                <span class="chip">💭 Ideas</span>
-              </div>
-              <p class="desc">Aprendizaje inclusivo con propuestas innovadoras.</p>
-            </div>
-            <div class="actions">
-              <button class="btn select" type="button" onclick="guardarTema('educacion', this)">Elegir</button>
-            </div>
-          </article>
+    <div class="chips">
+      {% for chip in tema.chips %}
+        <span class="chip">{{ chip }}</span>
+      {% endfor %}
+    </div>
+
+    <p class="desc">{{ tema.hero }}</p>
+  </div>
+
+  <div class="actions">
+    <button class="btn select" type="button" onclick="guardarTema('{{ tema.slug }}', this)">
+      Elegir
+    </button>
+  </div>
+</article>
+{% empty %}
+<p style="color:white;">No hay temáticas disponibles.</p>
+{% endfor %}
 
         </div>
 

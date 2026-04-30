@@ -20,21 +20,18 @@
     }
 
     .timer-box {
-      margin: 16px auto 0;
-      max-width: 860px;
-      padding: 14px 18px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      color: #ffffff;
-      font-weight: 700;
-      line-height: 1.45;
-    }
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.12);
+  color: white;
+  font-weight: 700;
+  line-height: 1.45;
+}
 
     .timer-box strong {
-      font-size: 22px;
-      color: #ffe29a;
-    }
+  color: #ffe29a;
+}
 
     .timer-box span {
       font-weight: 500;
@@ -113,17 +110,17 @@
 >
   <main class="selector-container" role="main" aria-labelledby="page-title">
     <header class="header">
-      <h1 id="page-title">{{ theme.title|default:slug|title }}</h1>
-      <p class="subtitle">{{ theme.hero }}</p>
+      <h1 id="page-title">{{ tematica.title|default:slug|title }}</h1>
+      <p class="subtitle">{{ tematica.hero }}</p>
 
-      <div class="timer-box">
-        ⏱️ Tiempo restante para elegir temática y desafío:
-        <strong id="timerTematica">--</strong>
-        <br>
-        <span>
-          Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
-        </span>
-      </div>
+      <div class="timer-box" style="margin-top:14px; padding:12px 16px; border-radius:14px; background:rgba(255,255,255,.12); color:white; font-weight:700;">
+  ⏱️ Tiempo para elegir temática y desafío:
+  <strong id="timerTematica">--</strong>
+  <br>
+  <span style="font-weight:500;">
+    Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
+  </span>
+</div>
 
       <div style="margin-top: 12px;">
   <a href="{% url 'cambiar_tematica' %}" class="btn-volver-tematica">
@@ -131,54 +128,32 @@
   </a>
 </div>
 
-      <p style="font-size:14px; opacity:.8; color:white;">
-        Equipo actual: {{ grupo.nombregrupo }} | ID: {{ grupo.idgrupo }} | Sesión: {{ grupo.sesion.idsesion }}
-      </p>
+
     </header>
 
-    {% if desafio_confirmado %}
-    <div class="estado-seleccion visible" id="estadoSeleccionConfirmado">
-      <strong>Desafío confirmado:</strong>
-      <span id="nombreDesafioConfirmado">{{ desafio_nombre_actual }}</span>
-      <div id="descripcionDesafioConfirmado" style="margin-top:8px;">
-        {{ desafio_descripcion_actual }}
-      </div>
-
-      <div class="estado-espera-profesor">
-        Tu equipo ya quedó listo en esta etapa.
-      </div>
-
-      <div id="contadorGruposListosConfirmado" class="contador-grupos-listos">0/0 grupos listos</div>
-
-      <div style="margin-top:14px;">
-        <button id="btnCambiarDesafio" class="btn select" type="button">
-          Cambiar desafío
-        </button>
-      </div>
-    </div>
-    {% endif %}
+    
 
     <section class="challenges-grid" aria-label="Desafíos disponibles">
-      {% for challenge in theme.challenges %}
+      {% for challenge in desafios %}
       <article
-        class="challenge-card {% if desafio_confirmado and desafio_id_actual == challenge.id|stringformat:'s' %}seleccionado bloqueada{% endif %}"
+        class="challenge-card {% if desafio_confirmado and desafio_id_actual == challenge.iddesafio|stringformat:'s' %}seleccionado bloqueada{% endif %}"
         id="card-{{ challenge.id }}"
         tabindex="0"
-        data-id="{{ challenge.id }}"
-        data-title="{{ challenge.name|escape }}"
-        data-desc="{{ challenge.desc|escape }}"
+        data-id="{{ challenge.iddesafio }}"
+        data-title="{{ challenge.nombredesafio|escape }}"
+        data-desc="{{ challenge.descripciondesafio|escape }}"
         data-slug="{{ slug }}"
       >
         <div class="content">
-          <h2 class="title">{{ challenge.name }}</h2>
-          <p class="desc">{{ challenge.summary|default:challenge.desc }}</p>
+          <h2 class="title">{{ challenge.nombredesafio }}</h2>
+          <p class="desc">{{ challenge.summary|default:challenge.descripciondesafio }}</p>
         </div>
 
         <div class="actions">
           <button
             class="btn select"
             type="button"
-            data-desafio-id="{{ challenge.id }}"
+            data-desafio-id="{{ challenge.iddesafio }}"
             {% if desafio_confirmado %}disabled{% endif %}
           >
             {% if desafio_confirmado and desafio_id_actual == challenge.id|stringformat:"s" %}
@@ -244,7 +219,6 @@
       const desafioData = document.getElementById("desafio-data");
       const estadoError = document.getElementById("estadoError");
       const contador = document.getElementById("contadorGruposListos");
-      const contadorConfirmado = document.getElementById("contadorGruposListosConfirmado");
       const timerTematica = document.getElementById("timerTematica");
 
       const sesionId = document.body.dataset.sesionId;
@@ -283,7 +257,6 @@
         const texto = `${listos}/${total} grupos listos`;
 
         if (contador) contador.textContent = texto;
-        if (contadorConfirmado) contadorConfirmado.textContent = texto;
       }
 
       async function refrescarEstadoSesion() {

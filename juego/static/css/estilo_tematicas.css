@@ -23,7 +23,13 @@ body {
   padding: clamp(12px, 4vw, 24px);
   background: var(--bg);
   color: var(--text);
-  font-family: "Poppins", system-ui;
+  font-family:
+  "Poppins",
+  "Segoe UI Emoji",
+  "Apple Color Emoji",
+  "Noto Color Emoji",
+  system-ui,
+  sans-serif;
 }
 
 /* CONTENEDOR */
@@ -174,6 +180,10 @@ body {
   gap: 8px;
 }
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
   font-size: 12px;
   font-weight: 700;
   padding: 6px 10px;
@@ -182,6 +192,20 @@ body {
   color: #E6EEF8;
   border: 1px solid rgba(255,255,255,0.12);
 }
+
+.emoji {
+  font-family:
+    "Segoe UI Emoji",
+    "Apple Color Emoji",
+    "Noto Color Emoji",
+    sans-serif;
+  font-size: 14px;
+}
+
+.texto {
+  font-family: "Poppins", system-ui;
+}
+
 .desc {
   color: var(--muted);
   font-size: clamp(13px, 1.8vw, 15px);

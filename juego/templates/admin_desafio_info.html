@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Info desafío — Dashboard Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardadmin.css' %}">
+
+  <style>
+    .btn-small {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      background: #0f172a;
+      color: white;
+      font-size: 13px;
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+
+    .info-card summary {
+      cursor: pointer;
+      padding: 18px;
+      font-weight: 800;
+      list-style: none;
+    }
+
+    .info-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .summary-meta {
+      color: #64748b;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .info-body {
+      border-top: 1px solid #e5e7eb;
+      padding: 18px;
+      background: #f8fafc;
+      display: grid;
+      gap: 16px;
+    }
+
+    .info-section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-section h3 {
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .lego-img {
+      max-width: 320px;
+      width: 100%;
+      border-radius: 14px;
+      margin-top: 8px;
+      display: block;
+    }
+
+    .muted {
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+<div class="dashboard">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h2 class="sidebar-title">Dashboard Admin</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="{% url 'dashboardadmin' %}">Inicio</a></li>
+        <li><a href="{% url 'registrarprofesor' %}">Profesores</a></li>
+        <li><a href="{% url 'admin_tematicas' %}">Temáticas</a></li>
+        <li><a href="{% url 'admin_desafios' %}" class="active">Desafíos</a></li>
+        <li><a href="{% url 'admin_ruleta' %}">Ruleta</a></li>
+        <li><a href="{% url 'admin_tiempos' %}">Tiempos</a></li>
+        <li class="sidebar-separator"></li>
+        <li><a href="{% url 'perfiles' %}" class="back-link">⟵ Cambiar de perfil</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <a href="{% url 'admin_desafios' %}" class="btn-small">← Volver a desafíos</a>
+
+    <h1 class="title" style="margin-top:18px;">{{ desafio.nombredesafio }}</h1>
+    <p class="subtitle">Información generada por los grupos que eligieron este desafío.</p>
+
+    <section class="info-list">
+      {% for g in grupos %}
+        <details class="info-card">
+          <summary>
+            <div class="summary-row">
+              <div>
+                {{ g.nombregrupo|default:"Grupo sin nombre" }}
+                <div class="summary-meta">
+                  Sesión {{ g.sesion.idsesion }}
+                  {% if g.sesion.fecha_creacion %}
+                    · {{ g.sesion.fecha_creacion|date:"d/m/Y H:i" }}
+                  {% endif %}
+                </div>
+              </div>
+
+              <span class="summary-meta">Ver detalle</span>
+            </div>
+          </summary>
+
+          <div class="info-body">
+            <div class="info-section">
+  <h3>Bubble Map</h3>
+
+  {% with respuestas=g.bubble_respuestas.all %}
+    {% if respuestas %}
+      {% for r in respuestas %}
+        <div style="margin-bottom:10px; padding:10px; border:1px solid #e5e7eb; border-radius:10px;">
+          <p><strong>{{ r.titulo|default:r.tipo }}:</strong></p>
+          <p>{{ r.texto|default:"Sin respuesta." }}</p>
+        </div>
+      {% endfor %}
+
+      {% with primera=respuestas.0 %}
+        <p><strong>Relato breve:</strong></p>
+        <p>{{ primera.relato|default:"Sin relato registrado." }}</p>
+
+        <p><strong>Link o noticia:</strong></p>
+        <p>{{ primera.link|default:"Sin link registrado." }}</p>
+      {% endwith %}
+    {% else %}
+      <p class="muted">Sin respuestas de Bubble Map registradas.</p>
+    {% endif %}
+  {% endwith %}
+</div>
+
+            <div class="info-section">
+              <h3>Pitch</h3>
+              <p>{{ g.pitch_texto|default:"Sin pitch registrado." }}</p>
+            </div>
+
+            <div class="info-section">
+              <h3>Imagen LEGO</h3>
+              {% if g.foto_lego %}
+                <img src="{{ g.foto_lego.url }}" class="lego-img" alt="LEGO {{ g.nombregrupo }}">
+              {% else %}
+                <p>Sin imagen LEGO registrada.</p>
+              {% endif %}
+            </div>
+          </div>
+        </details>
+      {% empty %}
+        <div class="info-card">
+          <div class="info-body">
+            <p>No hay grupos asociados a este desafío todavía.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </section>
+  </main>
+</div>
+</body>
+</html>

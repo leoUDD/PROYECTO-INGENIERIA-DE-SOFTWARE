@@ -500,6 +500,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLimpiar = document.getElementById("btnLimpiar");
   const textarea = document.getElementById("pitch-text");
 
+  let guardarPitchTimeout = null;
+
+async function guardarPitch() {
+  if (!textarea) return;
+
+  try {
+    await fetch("{% url 'guardar_pitch' %}", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify({
+        pitch: textarea.value || ""
+      })
+    });
+  } catch (error) {
+    console.error("Error guardando pitch:", error);
+  }
+}
+
+textarea?.addEventListener("input", () => {
+  clearTimeout(guardarPitchTimeout);
+
+  guardarPitchTimeout = setTimeout(() => {
+    guardarPitch();
+  }, 700);
+});
+
+textarea?.addEventListener("blur", guardarPitch);
+
   const desafioToggle = document.getElementById("desafioToggle");
   const desafioBody = document.getElementById("desafioBody");
   const desafioIcono = document.getElementById("desafioIcono");
@@ -619,6 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmar = window.confirm("¿Estás segura de que quieres borrar tu pitch?");
     if (!confirmar) return;
     if (textarea) textarea.value = "";
+    guardarPitch();
   });
 
   async function syncTimer() {

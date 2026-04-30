@@ -15,16 +15,62 @@ class Alumno(models.Model):
     class Meta:
         db_table = 'alumno'
 
+class Tematica(models.Model):
+    idtematica = models.AutoField(db_column='idTematica', primary_key=True)
+    slug = models.SlugField(max_length=80, unique=True)
+    title = models.CharField(max_length=150)
+    hero = models.TextField(blank=True, null=True)
+    chips = models.JSONField(default=list, blank=True)
+    accent = models.CharField(max_length=20, default="#3b82f6")
+    image = models.CharField(max_length=255, blank=True, null=True)
+    activa = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'tematica'
+        ordering = ['orden', 'title']
+
+    def __str__(self):
+        return self.title
 
 class Desafio(models.Model):
     iddesafio = models.AutoField(db_column='idDesafio', primary_key=True)
-    idadministrador_idadministrador = models.ForeignKey('Idadministrador', models.DO_NOTHING, db_column='idadministrador_idAdministrador')
-    nombredesafio = models.CharField(db_column='nombreDesafio', max_length=100, blank=True, null=True)
+
+    idadministrador_idadministrador = models.ForeignKey(
+        'Idadministrador',
+        models.DO_NOTHING,
+        db_column='idadministrador_idAdministrador',
+        null=True,
+        blank=True
+    )
+
+    tematica = models.ForeignKey(
+        'Tematica',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='desafios'
+    )
+
+    nombredesafio = models.CharField(db_column='nombreDesafio', max_length=150, blank=True, null=True)
     tokensdesafio = models.IntegerField(db_column='tokensDesafio', blank=True, null=True)
-    descripciondesafio = models.CharField(db_column='descripcionDesafio', max_length=300, blank=True, null=True)
+    descripciondesafio = models.TextField(db_column='descripcionDesafio', blank=True, null=True)
+    imagen_desafio = models.ImageField(
+        upload_to="desafios/",
+        null=True,
+        blank=True
+    )
+
+    summary = models.TextField(blank=True, null=True)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
 
     class Meta:
         db_table = 'desafio'
+        ordering = ['orden', 'nombredesafio']
+
+    def __str__(self):
+        return self.nombredesafio or "Desafío sin nombre"
 
 
 class Desafiolego(models.Model):
@@ -225,6 +271,8 @@ class Sesion(models.Model):
     t_creatividad = models.IntegerField(default=900)
     t_pitch_prep = models.IntegerField(default=600)
     t_pitch = models.IntegerField(default=90)
+    t_tematicas = models.PositiveIntegerField(default=120)
+    t_presentacion = models.PositiveIntegerField(default=90)
 
     
 
@@ -277,3 +325,56 @@ class PalabraSopaEncontrada(models.Model):
     class Meta:
         db_table = 'palabra_sopa_encontrada'
         unique_together = ('sesion', 'grupo', 'palabra')
+
+class BubbleMapRespuesta(models.Model):
+    idrespuesta = models.AutoField(primary_key=True)
+    sesion = models.ForeignKey('Sesion', on_delete=models.CASCADE, related_name='bubble_respuestas')
+    grupo = models.ForeignKey('Grupo', on_delete=models.CASCADE, related_name='bubble_respuestas')
+    desafio = models.ForeignKey('Desafio', on_delete=models.SET_NULL, null=True, blank=True, related_name='bubble_respuestas')
+
+    tipo = models.CharField(max_length=50, blank=True, null=True)
+    titulo = models.CharField(max_length=100, blank=True, null=True)
+    texto = models.TextField(blank=True, null=True)
+
+    relato = models.TextField(blank=True, null=True)
+    link = models.TextField(blank=True, null=True)
+
+    creada_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'bubblemap_respuesta'
+
+
+class RuletaLegoOpcion(models.Model):
+    idopcion = models.AutoField(primary_key=True)
+    codigo = models.SlugField(max_length=80, unique=True)
+    emoji = models.CharField(max_length=20, blank=True, null=True)
+    titulo = models.CharField(max_length=120)
+    descripcion = models.TextField(blank=True, null=True)
+    tokens = models.IntegerField(default=0)
+    porcentaje = models.PositiveIntegerField(default=0)
+    activa = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = "ruleta_lego_opcion"
+        ordering = ["orden", "titulo"]
+
+    def __str__(self):
+        return f"{self.emoji or ''} {self.titulo}"
+    
+class TiempoFase(models.Model):
+    idtiempo = models.AutoField(primary_key=True)
+    codigo = models.CharField(max_length=80, unique=True)
+    nombre = models.CharField(max_length=120)
+    descripcion = models.TextField(blank=True, null=True)
+    segundos = models.PositiveIntegerField(default=60)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = "tiempo_fase"
+        ordering = ["orden", "nombre"]
+
+    def __str__(self):
+        return f"{self.nombre} - {self.segundos}s"

@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruleta — Dashboard Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardadmin.css' %}">
+
+  <style>
+    .top-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px}
+    .ruleta-status{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+    .status-pill{background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.06);font-weight:800}
+    .status-pill.ok{border-left:6px solid #22c55e}
+    .status-pill.bad{border-left:6px solid #dc2626}
+    .btn-primary,.btn-dark,.btn-danger,.btn-muted{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;text-decoration:none}
+    .btn-primary{background:#2563eb;color:#fff}
+    .btn-dark{background:#0f172a;color:#fff}
+    .btn-danger{background:#dc2626;color:#fff}
+    .btn-muted{background:#64748b;color:#fff}
+
+    .ruleta-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:20px}
+    .ruleta-card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06);display:grid;grid-template-columns:92px 1fr;gap:16px}
+    .preview{width:86px;height:86px;border-radius:50%;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;border:4px solid #0ea5e9;box-shadow:0 8px 18px rgba(14,165,233,.25)}
+    .card-title{font-size:17px;font-weight:900;color:#111827;margin-bottom:6px}
+    .card-desc{font-size:14px;color:#4b5563;line-height:1.35;margin-bottom:10px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+    .chip{font-size:12px;font-weight:800;padding:6px 10px;border-radius:999px;background:#eef2ff;color:#1e3a8a}
+    .chip.positivo{background:#dcfce7;color:#166534}
+    .chip.negativo{background:#fee2e2;color:#991b1b}
+    .chip.inactiva{background:#f1f5f9;color:#475569}
+    .chip.activa{background:#dcfce7;color:#166534}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+    .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.68);justify-content:center;align-items:center;z-index:999;padding:18px}
+    .modal-content{background:#fff;border-radius:20px;padding:22px;width:min(560px,94vw);box-shadow:0 18px 50px rgba(0,0,0,.28)}
+    .modal-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-group{margin-bottom:12px}
+    .form-group.full{grid-column:1/-1}
+    .form-group label{font-weight:800;font-size:14px;color:#111827}
+    .form-group input,.form-group textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #cbd5e1;margin-top:6px}
+    .form-group textarea{min-height:90px;resize:vertical}
+    .preview-live{background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:16px;text-align:center}
+    .preview-live .circle{width:86px;height:86px;border-radius:50%;background:#0f172a;color:white;display:flex;align-items:center;justify-content:center;font-size:30px;margin:auto;border:4px solid #0ea5e9}
+    .check-line{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid #e5e7eb;padding:12px;border-radius:14px}
+    .check-line input{width:auto;margin:0}
+    .help{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#0f172a;color:#fff;font-size:12px;font-weight:900;cursor:help;position:relative}
+    .help:hover::after{content:attr(data-help);position:absolute;left:26px;top:-8px;width:310px;background:#111827;color:#fff;padding:10px;border-radius:10px;font-size:12px;line-height:1.35;z-index:20}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+    @media(max-width:800px){.ruleta-card{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+
+<body>
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h2 class="sidebar-title">Dashboard Admin</h2></div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="{% url 'dashboardadmin' %}">Inicio</a></li>
+        <li><a href="{% url 'registrarprofesor' %}">Profesores</a></li>
+        <li><a href="{% url 'admin_tematicas' %}">Temáticas</a></li>
+        <li><a href="{% url 'admin_desafios' %}">Desafíos</a></li>
+        <li><a href="{% url 'admin_ruleta' %}" class="active">Ruleta</a></li>
+        <li><a href="{% url 'admin_tiempos' %}">Tiempos</a></li>
+        <li class="sidebar-separator"></li>
+        <li><a href="{% url 'perfiles' %}" class="back-link">⟵ Cambiar de perfil</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    {% if messages %}
+      <div class="messages">
+        {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="top-actions">
+      <div>
+        <h1 class="title">Ruleta</h1>
+        <p class="subtitle">Administra opciones, tokens y probabilidades. Las opciones activas deben sumar exactamente 100%.</p>
+      </div>
+      <button class="btn-primary" onclick="abrirModalCrear()">+ Crear opción</button>
+    </div>
+
+    <div class="ruleta-status">
+      <div class="status-pill {% if total_porcentaje == 100 %}ok{% else %}bad{% endif %}">
+        Total activo: {{ total_porcentaje }}%
+      </div>
+      <div class="status-pill">Opciones activas: {{ total_activas }}/8</div>
+    </div>
+<form method="POST">
+  {% csrf_token %}
+  <input type="hidden" name="accion" value="guardar_todo">
+
+  <section class="ruleta-list">
+    {% for o in opciones %}
+      <article class="ruleta-card">
+
+        <div class="preview">{{ o.emoji|default:"?" }}</div>
+
+        <div>
+
+          <input type="hidden" name="opcion_id" value="{{ o.idopcion }}">
+
+          <div class="form-group">
+            <label>Título</label>
+            <input type="text" name="titulo_{{ o.idopcion }}" value="{{ o.titulo }}">
+          </div>
+
+          <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" name="emoji_{{ o.idopcion }}" value="{{ o.emoji }}">
+          </div>
+
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea name="descripcion_{{ o.idopcion }}">{{ o.descripcion }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Tokens</label>
+            <input type="number" name="tokens_{{ o.idopcion }}" value="{{ o.tokens }}">
+          </div>
+
+          <div class="form-group">
+            <label>Probabilidad (%)</label>
+            <input type="number" name="porcentaje_{{ o.idopcion }}" value="{{ o.porcentaje }}">
+          </div>
+
+          <div class="form-group">
+            <label class="check-line">
+              <input type="checkbox" name="activa_{{ o.idopcion }}" {% if o.activa %}checked{% endif %}>
+              Activa
+              <span class="help" data-help="Activa = aparece en el juego. Deben sumar 100%.">?</span>
+            </label>
+          </div>
+
+        </div>
+
+      </article>
+    {% endfor %}
+  </section>
+
+  <div style="margin-top:25px; text-align:right;">
+    <button class="btn-primary" type="submit">
+      💾 Guardar ruleta completa
+    </button>
+  </div>
+</form>
+  </main>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <div>
+        <h3 id="modal-title">Crear opción</h3>
+        <p class="subtitle" style="margin:4px 0 0;">Recuerda que las opciones activas deben sumar 100%.</p>
+      </div>
+      <button type="button" class="btn-muted" onclick="cerrarModal()">Cerrar</button>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="accion" id="accion" value="crear">
+      <input type="hidden" name="opcion_id" id="opcion_id">
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" name="titulo" id="titulo" required>
+        </div>
+
+        <div class="form-group">
+          <label>Emoji / texto corto</label>
+          <input type="text" name="emoji" id="emoji" maxlength="8" oninput="preview()" required>
+        </div>
+
+        <div class="form-group full">
+          <label>Descripción</label>
+          <textarea name="descripcion" id="descripcion"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Tokens (+/-)</label>
+          <input type="number" name="tokens" id="tokens" value="0" required>
+        </div>
+
+        <div class="form-group">
+          <label>Probabilidad (%)</label>
+          <input type="number" name="porcentaje" id="porcentaje" min="0" max="100" required>
+        </div>
+
+        <div class="form-group">
+          <label class="check-line">
+            <input type="checkbox" name="activa" id="activa">
+            Activa
+            <span class="help" data-help="Si está activa, aparece en la ruleta del juego y su porcentaje cuenta dentro del 100%. Si está inactiva, queda guardada en el admin, pero no aparece en el juego.">?</span>
+          </label>
+        </div>
+
+        <div class="preview-live">
+          <div class="circle" id="preview-emoji">?</div>
+          <p style="margin-top:10px;font-weight:800;">Vista previa</p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-primary" type="submit">Guardar</button>
+        <button class="btn-muted" type="button" onclick="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirModalCrear() {
+  document.getElementById("modal-title").innerText = "Crear opción";
+  document.getElementById("accion").value = "crear";
+  document.getElementById("opcion_id").value = "";
+  document.getElementById("titulo").value = "";
+  document.getElementById("emoji").value = "";
+  document.getElementById("descripcion").value = "";
+  document.getElementById("tokens").value = 0;
+  document.getElementById("porcentaje").value = "";
+  document.getElementById("activa").checked = true;
+  preview();
+  document.getElementById("modal").style.display = "flex";
+}
+
+function cerrarModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+function preview() {
+  document.getElementById("preview-emoji").innerText =
+    document.getElementById("emoji").value || "?";
+}
+
+function editarDesdeBoton(btn) {
+  document.getElementById("modal-title").innerText = "Editar opción";
+  document.getElementById("accion").value = "editar";
+  document.getElementById("opcion_id").value = btn.dataset.id;
+  document.getElementById("titulo").value = btn.dataset.titulo || "";
+  document.getElementById("emoji").value = btn.dataset.emoji || "";
+  document.getElementById("descripcion").value = btn.dataset.descripcion || "";
+  document.getElementById("tokens").value = btn.dataset.tokens || 0;
+  document.getElementById("porcentaje").value = btn.dataset.porcentaje || 0;
+  document.getElementById("activa").checked = btn.dataset.activa === "1";
+  preview();
+  document.getElementById("modal").style.display = "flex";
+}
+</script>
+</body>
+</html>

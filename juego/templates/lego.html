@@ -1040,14 +1040,9 @@
 
         <div class="ruleta-wheel-wrap-nuevo">
           <div id="ruletaWheel" class="ruleta-wheel-nueva">
-            <span class="ruleta-op ruleta-op-1">+2</span>
-            <span class="ruleta-op ruleta-op-2">+1</span>
-            <span class="ruleta-op ruleta-op-3">-1</span>
-            <span class="ruleta-op ruleta-op-4">-2</span>
-            <span class="ruleta-op ruleta-op-5">👀</span>
-            <span class="ruleta-op ruleta-op-6">🧑‍🏫</span>
-            <span class="ruleta-op ruleta-op-7">🤐</span>
-            <span class="ruleta-op ruleta-op-8">😌</span>
+            {% for op in opciones_ruleta %}
+  <span class="ruleta-op ruleta-op-{{ forloop.counter }}">{{ op.emoji }}</span>
+{% endfor %}
           </div>
 
           <div class="ruleta-centro-nuevo">UDD</div>
@@ -1067,72 +1062,21 @@
       </div>
 
       <div class="ruleta-tabla-nueva">
-        <h3>Oportunidades</h3>
+  <h3>Oportunidades</h3>
 
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini positivo">+2</span>
-          <div>
-            <strong>Ganas 2 tokens</strong>
-            <small>Suma 2 tokens inmediatos para tu equipo.</small>
-          </div>
-        </div>
+  {% for op in opciones_ruleta %}
+    <div class="ruleta-item-nuevo">
+      <span class="ruleta-mini {% if op.tokens > 0 %}positivo{% elif op.tokens < 0 %}negativo{% else %}neutro{% endif %}">
+        {{ op.emoji }}
+      </span>
 
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini positivo">+1</span>
-          <div>
-            <strong>Ganas 1 token</strong>
-            <small>Suma 1 token inmediato para tu equipo.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini negativo">-1</span>
-          <div>
-            <strong>Pierdes 1 token</strong>
-            <small>Se resta 1 token al equipo.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini negativo">-2</span>
-          <div>
-            <strong>Pierdes 2 tokens</strong>
-            <small>Se restan 2 tokens al equipo.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">👀</span>
-          <div>
-            <strong>Espía</strong>
-            <small>Pueden mirar a otro equipo durante 1 minuto.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">🧑‍🏫</span>
-          <div>
-            <strong>Opinión del profe</strong>
-            <small>Pueden pedir una opinión breve al profesor.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">🤐</span>
-          <div>
-            <strong>Silencio parcial</strong>
-            <small>La mitad del equipo no puede hablar durante 30 segundos.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">😌</span>
-          <div>
-            <strong>Nada pasa</strong>
-            <small>No ganan ni pierden tokens.</small>
-          </div>
-        </div>
+      <div>
+        <strong>{{ op.titulo }}</strong>
+        <small>{{ op.descripcion }}</small>
       </div>
+    </div>
+  {% endfor %}
+</div>
     </div>
 
     <audio id="ruletaAudio" preload="auto">
@@ -1750,72 +1694,18 @@
       const MAX_INTENTOS = 3;
 
 const OPCIONES = [
+  {% for op in opciones_ruleta %}
   {
-    id: "plus2",
-    titulo: "+2 tokens",
-    detalle: "Tu equipo gana 2 tokens.",
-    tokens: 2,
-    prob: 15,
-    slice: 0
-  },
-  {
-    id: "plus1",
-    titulo: "+1 token",
-    detalle: "Tu equipo gana 1 token.",
-    tokens: 1,
-    prob: 20,
-    slice: 1
-  },
-  {
-    id: "minus1",
-    titulo: "-1 token",
-    detalle: "Tu equipo pierde 1 token.",
-    tokens: -1,
-    prob: 15,
-    slice: 2
-  },
-  {
-    id: "minus2",
-    titulo: "-2 tokens",
-    detalle: "Tu equipo pierde 2 tokens.",
-    tokens: -2,
-    prob: 10,
-    slice: 3
-  },
-  {
-    id: "espia",
-    titulo: "Espía",
-    detalle: "Pueden mirar a otro equipo durante 1 minuto.",
-    tokens: 0,
-    prob: 10,
-    slice: 4
-  },
-  {
-    id: "opinion_profe",
-    titulo: "Opinión del profe",
-    detalle: "Pueden pedir una opinión breve al profesor.",
-    tokens: 0,
-    prob: 10,
-    slice: 5
-  },
-  {
-    id: "silencio",
-    titulo: "Silencio parcial",
-    detalle: "La mitad del equipo no puede hablar durante 30 segundos.",
-    tokens: 0,
-    prob: 10,
-    slice: 6
-  },
-  {
-    id: "nada",
-    titulo: "Nada pasa",
-    detalle: "No ganan ni pierden tokens.",
-    tokens: 0,
-    prob: 10,
-    slice: 7
-  }
+    id: "{{ op.codigo }}",
+    icono: "{{ op.emoji|escapejs }}",
+    titulo: "{{ op.titulo|escapejs }}",
+    detalle: "{{ op.descripcion|escapejs }}",
+    tokens: {{ op.tokens }},
+    prob: {{ op.porcentaje }},
+    slice: {{ forloop.counter0 }}
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
 ];
-
       let girando = false;
       let anguloActual = 0;
 
