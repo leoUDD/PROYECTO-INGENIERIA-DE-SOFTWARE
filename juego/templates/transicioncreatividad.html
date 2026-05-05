@@ -8,15 +8,37 @@
   <title>Misión Emprende UDD — Creatividad</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_transicioncreatividad.css' %}" />
+
+  <style>
+    .tablet-reminder {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 122, 26, 0.16);
+      border: 1.5px solid rgba(255, 122, 26, 0.75);
+      color: #FFD2A8;
+      font-weight: 700;
+      font-size: 0.92em;
+      line-height: 1.35;
+      box-shadow: 0 0 14px rgba(255, 122, 26, 0.25);
+    }
+  </style>
 </head>
 <body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a creatividad">
     <section class="team-section">
       <h1 class="title">Creatividad</h1>
 
-      <p class="speech-bubble">
-        La creatividad impulsa soluciones únicas. Ahora la pondrás a prueba construyendo con LEGO.
-      </p>
+      <div class="speech-bubble">
+        <p>
+          Agentes, la creatividad impulsa soluciones únicas.
+          Ahora pondrán a prueba su idea construyendo con LEGO.
+        </p>
+
+        <div class="tablet-reminder">
+          📱 Recuerden: roten la tablet para que otro integrante lidere esta parte de la misión.
+        </div>
+      </div>
 
       <div class="next-step">
         {% include "includes/boton_listo_fase.html" with fase_clave="f3" fase_actual_esperada="f3_transicion_creatividad" campo_listos="gruposListosF3" campo_mi_grupo="listoF3" texto_boton="¡Estoy listo!" %}

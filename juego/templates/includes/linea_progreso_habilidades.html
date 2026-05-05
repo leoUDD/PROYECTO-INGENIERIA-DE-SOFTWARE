@@ -1,0 +1,289 @@
+{% comment %}
+LINEA PROGRESO HABILIDADES
+Panel lateral de misión.
+{% endcomment %}
+
+<div class="metro-progreso-habilidades" id="metroProgresoHabilidades">
+  <div class="metro-header">
+    <span class="metro-header-icon">◆</span>
+    <span>Ruta de misión</span>
+  </div>
+
+  <div class="metro-linea-base"></div>
+  <div class="metro-linea-activa" id="metroLineaActiva"></div>
+
+  <div class="metro-punto" data-fases="conocidos,trabajoenequipo,minijuego1,sopa" data-index="0">
+    <span class="metro-circulo">1</span>
+    <small>Trabajo<br>en equipo</small>
+  </div>
+
+  <div class="metro-punto" data-fases="transicion,desafios,tematicas,espera_eleccion,bubblemap,empatia" data-index="1">
+    <span class="metro-circulo">2</span>
+    <small>Empatía</small>
+  </div>
+
+  <div class="metro-punto" data-fases="creatividad,lego" data-index="2">
+    <span class="metro-circulo">3</span>
+    <small>Creatividad</small>
+  </div>
+
+  <div class="metro-punto" data-fases="comunicacion,pitch,orden_presentacion,presentar_pitch" data-index="3">
+    <span class="metro-circulo">4</span>
+    <small>Comunicación</small>
+  </div>
+
+  <div class="metro-punto" data-fases="apoyo,peer_review,evaluacion,ranking,reflexion" data-index="4">
+    <span class="metro-circulo">5</span>
+    <small>Apoyo</small>
+  </div>
+</div>
+
+<style>
+  .metro-progreso-habilidades {
+    position: fixed;
+    top: 50%;
+    left: 22px;
+    transform: translateY(-50%);
+    width: 122px;
+    min-height: 560px;
+    padding: 18px 10px 22px;
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at top, rgba(0, 200, 255, .28), transparent 35%),
+      linear-gradient(180deg, rgba(8, 26, 45, .92), rgba(2, 10, 24, .96));
+    border: 2px solid rgba(0, 200, 255, .45);
+    box-shadow:
+      0 0 26px rgba(0, 200, 255, .25),
+      0 18px 36px rgba(0,0,0,.36),
+      inset 0 0 0 1px rgba(255,255,255,.08);
+    backdrop-filter: blur(12px);
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    font-family: "Poppins", Arial, sans-serif;
+  }
+
+  .metro-header {
+    color: #AEEBFF;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.2;
+    text-shadow: 0 0 10px rgba(0, 200, 255, .7);
+    margin-bottom: 4px;
+  }
+
+  .metro-header-icon {
+    display: block;
+    color: #FF7A1A;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .metro-linea-base,
+  .metro-linea-activa {
+    position: absolute;
+    top: 86px;
+    bottom: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .metro-linea-base {
+    background: rgba(174, 235, 255, .18);
+    box-shadow: inset 0 0 8px rgba(0,0,0,.55);
+  }
+
+  .metro-linea-activa {
+    height: 0%;
+    bottom: auto;
+    background: linear-gradient(180deg, #00C8FF, #7c3aed, #FF7A1A);
+    box-shadow: 0 0 14px rgba(0, 200, 255, .8);
+    transition: height .45s ease;
+  }
+
+  .metro-punto {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #AAB7C8;
+    width: 100%;
+  }
+
+  .metro-circulo {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 6px;
+    border-radius: 50%;
+    background: #061326;
+    border: 3px solid rgba(174, 235, 255, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #E6EEF8;
+    font-weight: 900;
+    box-sizing: border-box;
+    transition: .25s ease;
+    box-shadow:
+      0 0 10px rgba(0, 200, 255, .18),
+      inset 0 0 10px rgba(0, 200, 255, .12);
+  }
+
+  .metro-punto small {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .metro-punto.completado .metro-circulo {
+    background: #00C8FF;
+    border-color: #AEEBFF;
+    color: #00101C;
+    box-shadow: 0 0 16px rgba(0, 200, 255, .75);
+  }
+
+  .metro-punto.activo .metro-circulo {
+    background: #FF7A1A;
+    border-color: #FFD2A8;
+    color: #081A2D;
+    transform: scale(1.16);
+    box-shadow:
+      0 0 0 8px rgba(255, 122, 26, .18),
+      0 0 20px rgba(255, 122, 26, .85);
+  }
+
+  .metro-punto.activo small {
+    color: #FFFFFF;
+    text-shadow: 0 0 8px rgba(255, 122, 26, .75);
+  }
+
+  @media (max-width: 1100px) {
+    .metro-progreso-habilidades {
+      left: 10px;
+      width: 86px;
+      min-height: 460px;
+      padding: 14px 8px 18px;
+    }
+
+    .metro-header span:last-child {
+      display: none;
+    }
+
+    .metro-linea-base,
+    .metro-linea-activa {
+      top: 64px;
+      bottom: 34px;
+    }
+
+    .metro-circulo {
+      width: 34px;
+      height: 34px;
+      font-size: 13px;
+    }
+
+    .metro-punto small {
+      display: none;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .metro-progreso-habilidades {
+      top: auto;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 94vw;
+      min-height: auto;
+      height: 72px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      flex-direction: row;
+    }
+
+    .metro-header {
+      display: none;
+    }
+
+    .metro-linea-base,
+    .metro-linea-activa {
+      top: 50%;
+      bottom: auto;
+      left: 36px;
+      right: 36px;
+      transform: translateY(-50%);
+      width: auto;
+      height: 6px;
+    }
+
+    .metro-linea-activa {
+      width: 0%;
+      height: 6px;
+      right: auto;
+      background: linear-gradient(90deg, #00C8FF, #7c3aed, #FF7A1A);
+      transition: width .45s ease;
+    }
+
+    .metro-circulo {
+      width: 32px;
+      height: 32px;
+      font-size: 12px;
+      margin-bottom: 0;
+    }
+
+    .metro-punto small {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const barra = document.getElementById("metroProgresoHabilidades");
+    if (!barra) return;
+
+    const pathname = window.location.pathname.toLowerCase();
+    const puntos = Array.from(barra.querySelectorAll(".metro-punto"));
+    const lineaActiva = document.getElementById("metroLineaActiva");
+
+    let activo = -1;
+
+    puntos.forEach((punto, index) => {
+      const fases = (punto.dataset.fases || "")
+        .split(",")
+        .map(fase => fase.trim().toLowerCase());
+
+      if (fases.some(fase => pathname.includes(fase))) {
+        activo = index;
+      }
+    });
+
+    if (activo === -1) {
+      barra.style.display = "none";
+      return;
+    }
+
+    puntos.forEach((punto, index) => {
+      punto.classList.remove("activo", "completado");
+      if (index < activo) punto.classList.add("completado");
+      if (index === activo) punto.classList.add("activo");
+    });
+
+    const porcentaje = activo === 0 ? 0 : (activo / (puntos.length - 1)) * 100;
+
+    if (window.innerWidth <= 700) {
+      lineaActiva.style.width = porcentaje + "%";
+      lineaActiva.style.height = "6px";
+    } else {
+      lineaActiva.style.height = porcentaje + "%";
+      lineaActiva.style.width = "8px";
+    }
+  })();
+</script>

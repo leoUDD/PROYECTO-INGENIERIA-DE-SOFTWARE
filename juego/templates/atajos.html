@@ -1,4 +1,5 @@
 {% load static %}
+
 <script>
   window.FLUJO_JUEGO = [
     "{% url 'pantalla_inicio' %}",
@@ -13,6 +14,64 @@
     "{% url 'pitch' %}"
   ];
 </script>
+
 <script src="{% static 'js/atajos.js' %}"></script>
+
+{% include "includes/linea_progreso_habilidades.html" %}
+
+<style>
+  .next-step {
+    width: min(90%, 430px) !important;
+    min-height: 120px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 18px 22px !important;
+    border-radius: 22px !important;
+    background:
+      linear-gradient(180deg, rgba(8, 26, 45, .94), rgba(3, 16, 32, .96)) !important;
+    border: 2px solid rgba(174, 235, 255, .75) !important;
+    box-shadow:
+      0 0 22px rgba(0, 200, 255, .28),
+      inset 0 0 0 1px rgba(255,255,255,.08) !important;
+    backdrop-filter: blur(10px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    text-align: center !important;
+    position: relative;
+    z-index: 8;
+  }
+
+  .next-step::before {
+    content: "PUNTO DE CONTROL";
+    color: #AEEBFF;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    opacity: .9;
+    text-shadow: 0 0 8px rgba(0, 200, 255, .55);
+  }
+
+  .next-step button,
+  .next-step .btn,
+  .next-step .btn-chip {
+    min-width: 210px !important;
+  }
+
+  @media (max-width: 700px) {
+    .next-step {
+      width: min(92%, 360px) !important;
+      min-height: 105px !important;
+      padding: 14px 16px !important;
+      border-radius: 18px !important;
+    }
+
+    .next-step::before {
+      font-size: 9px;
+    }
+  }
+</style>
 
 {% include "includes/hud_tokens_ranking.html" %}

@@ -198,6 +198,47 @@
         white-space: normal;
       }
     }
+
+
+    .ranking-fila.ranking-primero{
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 102, .35), transparent 38%),
+    linear-gradient(135deg, rgba(105, 75, 10, .92), rgba(35, 22, 4, .92));
+  border: 2px solid rgba(255, 214, 102, .85);
+  box-shadow:
+    0 0 24px rgba(255, 190, 40, .38),
+    inset 0 0 0 1px rgba(255,255,255,.12);
+}
+
+.ranking-fila.ranking-primero .ranking-fila-nombre::before{
+  content: "👑 🪙";
+  font-size: 1.2rem;
+}
+
+.ranking-fila.ranking-primero .ranking-barra-fill{
+  background: linear-gradient(90deg, #ffb703, #ffe066, #fff3b0);
+  box-shadow: 0 0 18px rgba(255, 214, 102, .65);
+}
+
+.ranking-fila.ranking-ultimo{
+  background:
+    radial-gradient(circle at top right, rgba(255, 70, 70, .24), transparent 42%),
+    linear-gradient(135deg, rgba(70, 10, 18, .88), rgba(22, 5, 10, .92));
+  border: 2px solid rgba(255, 82, 82, .70);
+  box-shadow:
+    0 0 20px rgba(255, 60, 60, .24),
+    inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.ranking-fila.ranking-ultimo .ranking-fila-nombre::before{
+  content: "⚠️";
+  font-size: 1.1rem;
+}
+
+.ranking-fila.ranking-ultimo .ranking-barra-fill{
+  background: linear-gradient(90deg, #7f1d1d, #ef4444, #fb7185);
+  box-shadow: 0 0 16px rgba(239, 68, 68, .45);
+}
   </style>
 </head>
 <body>
@@ -294,7 +335,7 @@
 
           <div class="ranking-barras">
             {% for equipo in rankings %}
-              <div class="ranking-fila {% if equipo.is_me %}es-mi-equipo{% endif %}">
+              <div class="ranking-fila {% if equipo.rank == 1 %}ranking-primero{% endif %} {% if forloop.last %}ranking-ultimo{% endif %} {% if equipo.is_me %}es-mi-equipo{% endif %}">
                 <div class="ranking-fila-top">
                   <div class="ranking-fila-nombre">
                     <span>{{ equipo.rank }}. {{ equipo.team_name }}</span>

@@ -341,6 +341,63 @@
       to { transform: translateY(0) scale(1); opacity: 1; }
     }
 
+
+    .astro-trigger {
+  width: 118px;
+  height: 118px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.astro-img-falling {
+  width: 150px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(0, 200, 255, .55));
+}
+
+.astro-card {
+  position: relative;
+  padding-left: 155px;
+  min-height: 260px;
+  text-align: left;
+}
+
+.astro-img-standing {
+  position: absolute;
+  left: -35px;
+  bottom: -8px;
+  width: 185px;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(255, 122, 26, .45));
+}
+
+.astro-card h3,
+.astro-card p {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 640px) {
+  .astro-img-falling {
+    width: 115px;
+  }
+
+  .astro-card {
+    padding-left: 18px;
+    padding-top: 145px;
+    text-align: center;
+  }
+
+  .astro-img-standing {
+    left: 50%;
+    top: -40px;
+    bottom: auto;
+    transform: translateX(-50%);
+    width: 135px;
+  }
+}
   </style>
 </head>
 <body>
@@ -404,11 +461,12 @@
     <!-- 🚀 ASTRONAUTA INTERACTIVO -->
     <button id="astro-trigger" class="astro-trigger" type="button" aria-label="Abrir mensaje del astronauta">
       <span class="astro-signal" aria-hidden="true"></span>
-      <span class="astro-icon" aria-hidden="true">👨‍🚀</span>
+      <img class="astro-img-falling" src="{% static 'images/Cayendo.png' %}" alt="" aria-hidden="true">
     </button>
 
     <div id="astro-overlay" class="astro-overlay" aria-hidden="true">
       <div id="astro-card" class="astro-card">
+        <img class="astro-img-standing" src="{% static 'images/Parado.png' %}" alt="" aria-hidden="true">
         <h3>👨‍🚀 Mensaje del astronauta</h3>
         <p>
           ¡Gracias por ayudarme! En compensación, les aviso algo importante:

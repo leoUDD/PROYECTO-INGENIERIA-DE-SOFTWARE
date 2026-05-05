@@ -271,7 +271,46 @@
       .objeto-camara-icon {
         font-size: 1.9rem;
       }
+
     }
+
+.objeto-camara-img {
+  width: 72px;
+  height: auto;
+  pointer-events: none;
+}
+
+.objeto-camara-trigger {
+  width: 90px;
+  height: 90px;
+}
+
+.astro-img {
+  width: 140px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.astro-object-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  text-align: left;
+}
+
+.astro-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.astro-flex {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
   </style>
 </head>
 
@@ -323,23 +362,30 @@
 
       <!-- 📷 OBJETO INTERACTUABLE — ETAPA TEMÁTICAS -->
       <button id="objetoCamaraTrigger" class="objeto-camara-trigger" type="button" aria-label="Encontrar cámara perdida">
-        <span class="objeto-camara-icon">📷</span>
+        <img src="{% static 'images/Camara.png' %}" class="objeto-camara-img">
       </button>
 
       <div id="objetoCamaraOverlay" class="astro-object-overlay" aria-hidden="true">
-        <div class="astro-object-card">
-          <h3>📷 Objeto encontrado</h3>
+<div class="astro-flex">
 
-          <!-- #cambiar concejo: cambia este texto por el consejo definitivo de esta etapa -->
-          <p>
-            Buen hallazgo. Más adelante te van a evaluar por: <strong>Cambio</strong>.
-          </p>
-          <p>
-            Sigue atento a los próximos objetos, pueden darte pistas importantes para la misión.
-          </p>
+  <img src="{% static 'images/Parado.png' %}" class="astro-img">
 
-          <button id="objetoCamaraClose" class="astro-object-close" type="button">Entendido</button>
-        </div>
+  <div class="astro-text">
+    <h3>📷 Objeto encontrado</h3>
+
+    <p>Agente… gracias por encontrar mi equipo.</p>
+
+    <p>
+      Te dejo una pista clave:
+      serán evaluados por <strong>cómo conectan su solución con las necesidades reales del usuario</strong>.
+    </p>
+
+    <p>Sigue atento… aún quedan objetos perdidos en la misión.</p>
+
+    <button id="objetoCamaraClose" class="astro-object-close" type="button">Entendido</button>
+  </div>
+
+</div>
 
         <audio id="objetoCamaraTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
         <audio id="objetoCamaraExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>

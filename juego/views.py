@@ -1329,15 +1329,6 @@ def profesor_siguiente_fase(request, sesion_id):
 
     nueva_fase = FASES_ORDEN[idx + 1]
 
-    if nueva_fase == "f6_ranking":
-        total = Grupo.objects.filter(sesion=sesion).count()
-        listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
-
-        if total == 0 or listos_ranking < total:
-            return JsonResponse({
-                "ok": False,
-                "error": f"Aún faltan grupos por presionar Ranking final ({listos_ranking}/{total})."
-            }, status=400)
 
     sesion.fase_actual = nueva_fase
     sesion.segundos_restantes = tiempo_por_fase(sesion, nueva_fase)

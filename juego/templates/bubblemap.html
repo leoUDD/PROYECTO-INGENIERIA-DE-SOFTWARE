@@ -578,10 +578,12 @@
       box-shadow: 0 14px 30px rgba(0,0,0,.34), 0 0 24px rgba(0,200,255,.30);
     }
 
-    .objeto-celular-icon {
-      font-size: 2.25rem;
-      animation: celularBounce 1.4s ease-in-out infinite alternate;
-    }
+.objeto-celular-icon {
+  width: 82px;
+  height: auto;
+  object-fit: contain;
+  animation: celularBounce 1.4s ease-in-out infinite alternate;
+}
 
     @keyframes celularFloat {
       from { translate: 0 0; }
@@ -813,7 +815,34 @@
         font-size: 1.9rem;
       }
     }
+.astro-flex {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
 
+.astro-img {
+  width: 140px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.astro-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .astro-flex {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .astro-img {
+    width: 110px;
+  }
+}
   </style>
 </head>
 
@@ -871,23 +900,34 @@
 
     <!-- 📱 OBJETO INTERACTUABLE — ETAPA BUBBLE MAP -->
     <button id="objetoCelularTrigger" class="objeto-celular-trigger blur-target-bloqueado" type="button" aria-label="Encontrar celular perdido">
-      <span class="objeto-celular-icon">📱</span>
+      <img src="{% static 'images/Tablet.png' %}" class="objeto-celular-icon">
     </button>
 
     <div id="objetoCelularOverlay" class="astro-object-overlay" aria-hidden="true">
-      <div class="astro-object-card">
-        <h3>📱 Objeto encontrado</h3>
+<div class="astro-object-card">
 
-        <!-- #cambiar concejo: cambia este texto por el consejo definitivo de esta etapa -->
-        <p>
-          El consejo es: <strong>Cambio</strong>.
-        </p>
-        <p>
-          Observa con atención a la persona objetivo. Mientras mejor entiendan sus necesidades, mejores ideas podrán crear.
-        </p>
+  <div class="astro-flex">
 
-        <button id="objetoCelularClose" class="astro-object-close" type="button">Entendido</button>
-      </div>
+    <img src="{% static 'images/Parado.png' %}" class="astro-img">
+
+    <div class="astro-text">
+      <h3>📱 Objeto encontrado</h3>
+
+      <p>Agente… encontraste otro fragmento del equipo.</p>
+
+      <p>
+        Esta pista es clave:
+        serán evaluados por <strong>la claridad de su propuesta y cómo la comunican</strong>.
+      </p>
+
+      <p>Sigan avanzando… la misión aún no termina.</p>
+
+      <button id="objetoCelularClose" class="astro-object-close" type="button">Entendido</button>
+    </div>
+
+  </div>
+
+</div>
 
       <audio id="objetoCelularTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
       <audio id="objetoCelularExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>

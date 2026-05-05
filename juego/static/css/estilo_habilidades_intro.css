@@ -439,3 +439,89 @@ svg.msvg {
   background: rgba(64,128,255,.5);
   transform: scale(1.05);
 }
+
+.habilidad-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 8, 22, .78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+}
+
+.habilidad-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.habilidad-box {
+  width: min(90vw, 560px);
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: scale(.94);
+  transition: transform .35s ease;
+}
+
+.habilidad-overlay.show .habilidad-box {
+  transform: scale(1);
+}
+
+.habilidad-label {
+  font-family: 'Share Tech Mono', monospace;
+  color: rgba(140,185,255,.75);
+  font-size: 14px;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+}
+
+#habilidadTitulo {
+  font-family: 'Share Tech Mono', monospace;
+  color: #ffffff;
+  font-size: clamp(38px, 6vw, 72px);
+  letter-spacing: 5px;
+  text-align: center;
+  text-shadow:
+    0 0 18px rgba(64,128,255,.95),
+    0 0 42px rgba(64,128,255,.55);
+  margin-bottom: 28px;
+}
+
+#habilidadVideo {
+  width: min(72vw, 360px);
+  height: auto;
+  border-radius: 18px;
+  box-shadow:
+    0 0 24px rgba(64,128,255,.45),
+    0 0 70px rgba(64,128,255,.25);
+  background: #020816;
+}
+
+@media (max-width: 768px) {
+  .habilidad-box {
+  width: min(96vw, 900px);
+  min-height: 70vh;
+}
+
+  .habilidad-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  #habilidadTitulo {
+    font-size: 34px;
+    letter-spacing: 3px;
+  }
+
+  #habilidadVideo {
+  width: min(72vw, 360px);
+}
+}

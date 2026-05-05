@@ -21,35 +21,34 @@
   </div>
 
   <div class="body">
-
-    <!-- PANEL IZQUIERDA -->
     <div class="panel">
       <div class="panel-empty" id="pempty">
         <div class="pe-icon">📍</div>
         <div class="pe-text">SELECCIONA<br>EL PUNTO<br>EN EL MAPA</div>
       </div>
+
       <div class="panel-card" id="pcard">
         <div class="pc-header">
-          <div class="pc-em"   id="pc-em"></div>
+          <div class="pc-em" id="pc-em"></div>
           <div class="pc-name" id="pc-name"></div>
-          <div class="pc-sub"  id="pc-sub"></div>
+          <div class="pc-sub" id="pc-sub"></div>
         </div>
+
         <div class="pc-body">
-          <div class="pc-desc"  id="pc-desc"></div>
+          <div class="pc-desc" id="pc-desc"></div>
           <div class="pc-pills" id="pc-pills"></div>
         </div>
+
         <div class="pc-footer">
           <button class="pc-btn" id="pc-btn" onclick="markDone()">[ ENTENDIDO ]</button>
         </div>
       </div>
     </div>
 
-    <!-- MAPA DERECHA -->
     <div class="map-wrap" id="map-wrap">
       <svg class="msvg" id="msvg"></svg>
       <div class="pdot" id="pdot"></div>
     </div>
-
   </div>
 
   <div class="bottom">
@@ -58,10 +57,84 @@
   </div>
 </div>
 
+<div class="habilidad-overlay" id="habilidadOverlay">
+  <div class="habilidad-box">
+    <div class="habilidad-label">HABILIDAD ACTIVADA</div>
+    <h1 id="habilidadTitulo">EMPATÍA</h1>
+    <video id="habilidadVideo" muted playsinline preload="auto"></video>
+  </div>
+</div>
+
 <audio id="bg-music" loop>
   <source src="{% static 'sounds/musica_habilidades.mp3' %}" type="audio/mpeg">
 </audio>
 
 <script src="{% static 'js/mapa_agente.js' %}"></script>
+
+<script>
+  const videosHabilidades = {
+    "trabajo en equipo": "{% static 'videos/TeamWork.mp4' %}",
+    "empatía": "{% static 'videos/Empatia.mp4' %}",
+    "empatia": "{% static 'videos/Empatia.mp4' %}",
+    "creatividad": "{% static 'videos/Creatividad.mp4' %}",
+    "comunicación": "{% static 'videos/Comunicacion.mp4' %}",
+    "comunicacion": "{% static 'videos/Comunicacion.mp4' %}",
+    "apoyo": "{% static 'videos/Apoyo.mp4' %}"
+  };
+
+  function normalizarTexto(texto) {
+    return texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  }
+
+  function mostrarAnimacionHabilidad(nombre) {
+    const overlay = document.getElementById("habilidadOverlay");
+    const titulo = document.getElementById("habilidadTitulo");
+    const video = document.getElementById("habilidadVideo");
+
+    const clave = normalizarTexto(nombre);
+    const src = videosHabilidades[clave];
+
+    if (!src) return;
+
+    titulo.textContent = nombre.toUpperCase();
+    video.pause();
+    video.currentTime = 0;
+    video.src = src;
+
+    overlay.classList.add("show");
+
+    video.play().catch(() => {
+      setTimeout(cerrarAnimacionHabilidad, 2600);
+    });
+
+    video.onended = cerrarAnimacionHabilidad;
+  }
+
+  function cerrarAnimacionHabilidad() {
+    const overlay = document.getElementById("habilidadOverlay");
+    const video = document.getElementById("habilidadVideo");
+
+    overlay.classList.remove("show");
+    video.pause();
+    video.currentTime = 0;
+  }
+
+  document.addEventListener("click", function(event) {
+    const nodo = event.target.closest(".nd");
+    if (!nodo || nodo.classList.contains("locked")) return;
+
+    const label = nodo.querySelector(".nd-lbl");
+    if (!label) return;
+
+    setTimeout(() => {
+      mostrarAnimacionHabilidad(label.textContent);
+    }, 120);
+  });
+</script>
+
 </body>
 </html>
