@@ -4,84 +4,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Misión Emprende UDD — Mis sesiones</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <!-- IMPORTANTE: ambos estilos -->
   <link rel="stylesheet" href="{% static 'css/estilo_dashboardprofesor.css' %}">
   <link rel="stylesheet" href="{% static 'css/estilo_listar_sesiones.css' %}">
 </head>
 
 <body>
-  <div class="dashboard">
+<div class="dashboard">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <h2 class="sidebar-title">Dashboard<br>Profesor</h2>
-      </div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h2 class="sidebar-title">Dashboard Profesor</h2>
+    </div>
 
-      <nav class="sidebar-nav">
-        <ul>
-          <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
-          <li><a href="{% url 'registraralumnos' %}">Registrar alumnos</a></li>
-          <li><a href="{% url 'registrargrupos' %}">Registrar grupos</a></li>
-          <li><a class="active" href="{% url 'listar_sesiones' %}">Ver sesiones</a></li>
-          <li style="margin-top:20px;">
-            <a href="{% url 'perfiles' %}" class="to-home">Volver a Perfiles</a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
+        <li><a href="{% url 'crear_sesion' %}">Crear sesión</a></li>
+        <li><a class="active" href="{% url 'listar_sesiones' %}">Ver sesiones</a></li>
+        <li class="sidebar-separator"></li>
+        <li><a href="{% url 'perfiles' %}" class="back-link">⟵ Cambiar de perfil</a></li>
+      </ul>
+    </nav>
+  </aside>
 
-    <!-- Contenido principal -->
-    <main class="main-content">
+  <!-- Contenido -->
+  <main class="main-content">
 
-      <a href="{% url 'crear_sesion' %}" class="btn-primary btn-floating">
-        + Crear sesión
-      </a>
+    <!-- Botón flotante -->
+    <a href="{% url 'crear_sesion' %}" class="btn-primary btn-floating">
+      + Crear sesión
+    </a>
 
-      <div class="header-actions">
-        <div>
-          <h1 class="title">Mis sesiones</h1>
-          <p class="subtitle">Cada sesión representa una clase o sección diferente.</p>
-        </div>
-      </div>
+    <h1 class="title">Mis sesiones</h1>
+    <p class="subtitle">
+      Revisa tus sesiones creadas y entra al panel de control.
+    </p>
 
-      {% if sesiones %}
-      <table class="table-sesiones">
-        <thead>
-  <tr>
-    <th>Nombre de sesión</th>
-    <th>Fecha de creación</th>
-    <th>ID</th>
-    <th>Control</th>
-  </tr>
-</thead>
+    {% if sesiones_info %}
+    <table class="table-sesiones">
+      <thead>
+        <tr>
+          <th>Sesión</th>
+          <th>Fecha</th>
+          <th>Grupos</th>
+          <th>Alumnos</th>
+          <th>Fase</th>
+          <th>Control</th>
+        </tr>
+      </thead>
 
-        <tbody>
-  {% for s in sesiones %}
-  <tr>
-    <td data-label="Nombre">{{ s.nombre }}</td>
-    <td data-label="Fecha">{{ s.fecha_creacion|date:"d/m/Y H:i" }}</td>
-    <td data-label="ID">{{ s.idsesion }}</td>
-    <td data-label="Control">
-      <a href="{% url 'control_sesion' s.idsesion %}" class="btn-primary">
-        Controlar
-      </a>
-    </td>
-  </tr>
-  {% endfor %}
-</tbody>
-      </table>
+      <tbody>
+        {% for item in sesiones_info %}
+        <tr>
+          <td data-label="Sesión">{{ item.sesion.nombre }}</td>
+          <td data-label="Fecha">{{ item.sesion.fecha_creacion|date:"d/m/Y H:i" }}</td>
+          <td data-label="Grupos">{{ item.total_grupos }}</td>
+          <td data-label="Alumnos">{{ item.total_alumnos }}</td>
+          <td data-label="Fase">{{ item.sesion.fase_actual }}</td>
+          <td data-label="Control">
+            <a href="{% url 'control_sesion' item.sesion.idsesion %}" class="btn-primary">
+              Controlar
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-      {% else %}
-      <div class="empty-state">
-        No has creado ninguna sesión todavía.<br>
-        Presiona el botón <strong>“Crear sesión”</strong> para comenzar.
-      </div>
-      {% endif %}
+    {% else %}
+    <div class="empty-state">
+      No has creado ninguna sesión todavía.<br>
+      Presiona <strong>“Crear sesión”</strong> para comenzar.
+    </div>
+    {% endif %}
 
-    </main>
-  </div>
+  </main>
+</div>
 </body>
 </html>

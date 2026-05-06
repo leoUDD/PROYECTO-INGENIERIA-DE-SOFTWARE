@@ -7,6 +7,7 @@ urlpatterns = [
     #NUEVO
     path("dashboardadmin/tiempos/", views.admin_tiempos, name="admin_tiempos"),
     path("dashboardadmin/ruleta/", views.admin_ruleta, name="admin_ruleta"),
+    path("ver-grupo/<int:grupo_id>/", views.ver_como_grupo, name="ver_como_grupo"),
     path("dashboardadmin/desafios/<int:desafio_id>/info/", views.admin_desafio_info, name="admin_desafio_info"),
     path("profesores/", views.registrarprofesor, name="listar_profesores"),
     path("profesor/<int:profesor_id>/eliminar/", views.eliminar_profesor, name="eliminar_profesor"),

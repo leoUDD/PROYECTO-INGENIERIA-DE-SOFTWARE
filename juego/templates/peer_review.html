@@ -1,5 +1,8 @@
 {% load static %}
-{% include "atajos.html" %}
+{% with grupo=evaluator_team %}
+  {% include "atajos.html" %}
+{% endwith %}
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,92 +11,307 @@
   <title>Misión Emprende UDD — Evaluación de Proyectos</title>
 
   <link rel="stylesheet" href="{% static 'css/estilo_peer_review.css' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
-    .peer-card {
-      border-radius: 18px;
-      overflow: hidden;
-      color: #1f2937;
+    body {
+      font-family: "Poppins", system-ui, sans-serif;
     }
 
-    .peer-card .card-body,
-    .peer-card p,
-    .peer-card label,
-    .peer-card h1,
-    .peer-card h2,
-    .peer-card strong {
-      color: #1f2937;
+    .peer-card {
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(3, 18, 38, 0.96) !important;
+      border: 1px solid rgba(0, 200, 255, 0.34) !important;
+      color: #e5eef8 !important;
+      box-shadow: 0 18px 40px rgba(0,0,0,.55);
+    }
+
+    .peer-card .card-body {
+      padding: clamp(20px, 3vw, 34px);
+    }
+
+    .peer-title {
+      color: #00C8FF !important;
+      font-weight: 900;
+      text-shadow: 0 0 16px rgba(0,200,255,.35);
     }
 
     .texto-secundario {
-      color: #4b5563 !important;
+      color: #dbe7f5 !important;
+    }
+
+    .texto-secundario strong {
+      color: #ffffff !important;
     }
 
     .bloque-instrucciones {
-      background: #fff7e6;
+      background: rgba(255, 247, 230, 0.97);
       border: 1px solid #ffd27a;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 14px 16px;
       margin-bottom: 18px;
-      color: #3f2a00;
+      color: #3f2a00 !important;
+      line-height: 1.45;
     }
 
     .bloque-instrucciones strong {
-      color: #3f2a00;
+      color: #3f2a00 !important;
     }
 
     .bloque-progreso {
-      background: #f8f9fa;
-      border: 1px solid #d7dde3;
-      border-radius: 14px;
+      background: rgba(238, 246, 255, 0.97);
+      border: 1px solid #b8d7ff;
+      border-radius: 16px;
       padding: 14px 16px;
       margin-bottom: 18px;
-      color: #1f2937;
+      color: #1f2937 !important;
+    }
+
+    .bloque-progreso strong,
+    .bloque-progreso p,
+    .bloque-progreso .texto-ayuda {
+      color: #1f2937 !important;
     }
 
     .timer-evaluacion {
       font-size: 1.15rem;
-      font-weight: 700;
-      color: #7a3cff;
-    }
-
-    .criterio-box {
-      border: 1px solid #d7dde3;
-      border-radius: 14px;
-      padding: 16px;
-      background: #ffffff;
-      color: #1f2937;
-    }
-
-    .texto-ayuda {
-      font-size: 0.92rem;
-      color: #4b5563 !important;
+      font-weight: 900;
+      color: #7c3aed !important;
     }
 
     .equipo-objetivo-box {
-      background: #eef6ff;
-      border: 1px solid #b8d7ff;
-      border-radius: 14px;
+      background: rgba(236, 253, 255, 0.98);
+      border: 1px solid #67e8f9;
+      border-radius: 16px;
       padding: 14px 16px;
       margin-bottom: 18px;
-      color: #1f2937;
+      color: #083344 !important;
+    }
+
+    .equipo-objetivo-box label,
+    .equipo-objetivo-box strong {
+      color: #083344 !important;
+    }
+
+    .criterio-box {
+      border: 1px solid rgba(0, 200, 255, 0.45) !important;
+      border-radius: 18px !important;
+      padding: 18px !important;
+      background: #07182b !important;
+      color: #f8fbff !important;
+    }
+
+    .criterio-box h2 {
+      color: #00C8FF !important;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .criterio-slider-item {
+  padding: 18px !important;
+  border-radius: 16px !important;
+  background: #102944 !important;
+  border: 1px solid rgba(0, 200, 255, 0.28) !important;
+  margin-bottom: 16px !important;
+}
+
+    .criterio-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.criterio-label {
+  color: #FF7A1A !important;
+  font-weight: 900;
+  margin: 0;
+  font-size: 1.12rem;
+}
+
+    .score-pill {
+      min-width: 132px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.26), rgba(0, 110, 255, 0.24));
+      border: 1px solid rgba(0, 200, 255, 0.78);
+      color: #ffffff !important;
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: 0 0 14px rgba(0, 200, 255, 0.25);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .score-emoji {
+      font-size: 1.32rem;
+      line-height: 1;
+    }
+
+    .score-text {
+      font-size: 0.9rem;
+      color: #ffffff !important;
+    }
+
+    .range-wrap {
+      display: grid;
+      grid-template-columns: 34px 1fr 34px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .range-min,
+    .range-max {
+      color: #ffffff !important;
+      font-weight: 900;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .score-range {
+      width: 100%;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(to right, #00C8FF 0%, #00C8FF 50%, #334155 50%, #334155 100%);
+      outline: none;
+    }
+
+    .score-range::-webkit-slider-runnable-track {
+      height: 10px;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .score-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: #00C8FF;
+      border: 3px solid #ffffff;
+      box-shadow:
+        0 0 0 4px rgba(0,200,255,.20),
+        0 0 16px rgba(0,200,255,.55);
+    }
+
+    .score-range::-moz-range-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #334155;
+    }
+
+    .score-range::-moz-range-progress {
+      height: 10px;
+      border-radius: 999px;
+      background: #00C8FF;
+    }
+
+    .score-range::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #00C8FF;
+      border: 3px solid #ffffff;
+      box-shadow:
+        0 0 0 4px rgba(0,200,255,.20),
+        0 0 16px rgba(0,200,255,.55);
+    }
+
+    .range-help {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 9px;
+      color: #d5e5f8 !important;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .comentario-box {
+      margin-top: 18px;
+    }
+
+    .comentario-box label {
+      color: #ffffff !important;
+      font-weight: 800;
+    }
+
+    textarea.form-control {
+      background: rgba(3, 14, 30, 0.98) !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(0, 200, 255, 0.38) !important;
+      border-radius: 16px !important;
+      padding: 13px !important;
+    }
+
+    textarea.form-control::placeholder {
+      color: #94a3b8 !important;
+      opacity: 1;
+    }
+
+    textarea.form-control:focus {
+      border-color: #00C8FF !important;
+      box-shadow: 0 0 0 .18rem rgba(0,200,255,.18) !important;
     }
 
     .form-text {
-      color: #5b6470 !important;
+      color: #AAB7C8 !important;
+    }
+
+    .btn-enviar-peer {
+      border: none !important;
+      border-radius: 999px !important;
+      padding: 12px 26px !important;
+      background: linear-gradient(135deg, #00C8FF, #4be4ff) !important;
+      color: #00151f !important;
+      font-weight: 900 !important;
+      box-shadow: 0 0 18px rgba(0, 200, 255, .45);
+    }
+
+    .btn-enviar-peer:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(0, 200, 255, .65);
+    }
+
+    .alert {
+      border-radius: 16px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 640px) {
+      .criterio-slider-header {
+        flex-direction: column;
+      }
+
+      .score-pill {
+        width: 100%;
+      }
+
+      .range-wrap {
+        grid-template-columns: 26px 1fr 26px;
+      }
     }
   </style>
 </head>
 
 <body>
 <div class="container py-4">
-  <div class="row justify-content-center">
+  <div class="row justify-content-center w-100">
     <div class="col-lg-10">
       <div class="card shadow-sm peer-card">
         <div class="card-body">
-          <h1 class="h4 mb-2">Evaluación de Proyectos</h1>
+
+          <h1 class="h4 mb-2 peer-title">Evaluación de Proyectos</h1>
 
           <div class="bloque-instrucciones">
             <strong>Antes de evaluar:</strong><br>
@@ -108,6 +326,8 @@
             <strong>{{ session.nombre }}</strong>
             · Tu equipo:
             <strong>{{ evaluator_team.nombregrupo }}</strong>
+            · Tokens:
+            <strong>{{ evaluator_team.tokensgrupo|default:0 }}</strong>
           </p>
 
           {% if messages %}
@@ -161,85 +381,70 @@
             <form method="post" id="peerReviewForm" action="{% url 'peer_review' %}">
               {% csrf_token %}
 
-              <div class="mb-4">
-                <label class="form-label fw-semibold" for="reflection">
-                  Reflexión final (opcional)
-                </label>
-                <textarea
-                  id="reflection"
-                  name="reflection"
-                  rows="3"
-                  class="form-control"
-                  maxlength="500"
-                  placeholder="¿Qué aprendiste de esta presentación?"
-                ></textarea>
-                <div class="form-text">Máx. 500 caracteres.</div>
-              </div>
-
               <div class="criterio-box mb-3">
-                <h2 class="h6 mb-3">
-                  Criterios (1 = muy bajo, 5 = excelente)
-                </h2>
+                <h2 class="h6">Evalúa la presentación</h2>
 
                 {% for c in criteria %}
-                  <div class="mb-3">
-                    <label class="form-label d-block fw-semibold">
-                      {{ c.label }}
-                    </label>
-                    <div class="d-flex gap-2 flex-wrap">
-                      {% for v in "12345" %}
-                        <div class="form-check form-check-inline">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            name="score_{{ c.key }}"
-                            id="score_{{ c.key }}_{{ v }}"
-                            value="{{ v }}"
-                            required
-                          >
-                          <label
-                            class="form-check-label"
-                            for="score_{{ c.key }}_{{ v }}"
-                          >
-                            {{ v }}
-                          </label>
-                        </div>
-                      {% endfor %}
+                  <div class="criterio-slider-item">
+                    <div class="criterio-slider-header">
+                      <label class="criterio-label" for="score_{{ c.key }}">
+                        {{ c.label }}
+                      </label>
+
+                      <div class="score-pill" id="score_pill_{{ c.key }}">
+                        <span class="score-emoji" id="score_emoji_{{ c.key }}">😊</span>
+                        <span class="score-text" id="score_text_{{ c.key }}">3 / 5</span>
+                      </div>
+                    </div>
+
+                    <div class="range-wrap">
+                      <span class="range-min">1</span>
+
+                      <input
+                        class="score-range"
+                        type="range"
+                        name="score_{{ c.key }}"
+                        id="score_{{ c.key }}"
+                        min="1"
+                        max="5"
+                        step="1"
+                        value="3"
+                        data-key="{{ c.key }}"
+                        required
+                      >
+
+                      <span class="range-max">5</span>
+                    </div>
+
+                    <div class="range-help">
+                      <span>Muy bajo</span>
+                      <span>Excelente</span>
                     </div>
                   </div>
                 {% endfor %}
               </div>
 
-              <div class="mb-3">
-                <label class="form-label fw-semibold" for="comment">
-                  Comentario para el equipo
+              <div class="comentario-box mb-3">
+                <label class="form-label" for="comment">
+                  Comentario para el equipo <span style="font-weight:600; color:#AAB7C8;">(opcional)</span>
                 </label>
+
                 <textarea
                   id="comment"
                   name="comment"
                   rows="3"
                   class="form-control"
                   maxlength="600"
-                  placeholder="Fortalezas y sugerencias concretas…"
-                  required
+                  placeholder="Puedes escribir una fortaleza o una sugerencia concreta para el equipo..."
                 ></textarea>
-              </div>
 
-              <div class="form-check mb-3">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="confirm_honesty"
-                  name="confirm_honesty"
-                  required
-                >
-                <label class="form-check-label" for="confirm_honesty">
-                  Confirmo que esta evaluación es honesta y corresponde al equipo que está presentando ahora.
-                </label>
+                <div class="form-text">
+                  Este comentario quedará guardado para mostrarse más adelante al profesor/admin.
+                </div>
               </div>
 
               <div class="d-flex gap-2 flex-wrap">
-                <button type="submit" class="btn btn-primary" id="btnEnviarEvaluacion">
+                <button type="submit" class="btn btn-primary btn-enviar-peer" id="btnEnviarEvaluacion">
                   Enviar evaluación
                 </button>
               </div>
@@ -267,6 +472,82 @@
       const seg = segundos % 60;
       return `${min}:${String(seg).padStart(2, "0")}`;
     }
+
+    function textoScore(valor) {
+      const v = Number(valor);
+
+      if (v <= 1) {
+        return {
+          emoji: "😕",
+          texto: "1 / 5"
+        };
+      }
+
+      if (v === 2) {
+        return {
+          emoji: "🙂",
+          texto: "2 / 5"
+        };
+      }
+
+      if (v === 3) {
+        return {
+          emoji: "😊",
+          texto: "3 / 5"
+        };
+      }
+
+      if (v === 4) {
+        return {
+          emoji: "🤩",
+          texto: "4 / 5"
+        };
+      }
+
+      return {
+        emoji: "🚀",
+        texto: "5 / 5"
+      };
+    }
+
+    function actualizarSlider(slider) {
+      const key = slider.dataset.key;
+      const valor = Number(slider.value || 3);
+      const resultado = textoScore(valor);
+
+      const emoji = document.getElementById(`score_emoji_${key}`);
+      const text = document.getElementById(`score_text_${key}`);
+      const pill = document.getElementById(`score_pill_${key}`);
+
+      if (emoji) emoji.textContent = resultado.emoji;
+      if (text) text.textContent = resultado.texto;
+
+      const porcentaje = ((valor - 1) / 4) * 100;
+
+      slider.style.background =
+        `linear-gradient(to right, #00C8FF 0%, #00C8FF ${porcentaje}%, #334155 ${porcentaje}%, #334155 100%)`;
+
+      if (pill) {
+        pill.style.transform = `scale(${1 + (valor - 3) * 0.025})`;
+
+        if (valor <= 2) {
+          pill.style.boxShadow = "0 0 14px rgba(248, 113, 113, 0.35)";
+          pill.style.borderColor = "rgba(248, 113, 113, 0.75)";
+        } else if (valor === 3) {
+          pill.style.boxShadow = "0 0 14px rgba(0, 200, 255, 0.25)";
+          pill.style.borderColor = "rgba(0, 200, 255, 0.78)";
+        } else {
+          pill.style.boxShadow = "0 0 18px rgba(34, 197, 94, 0.42)";
+          pill.style.borderColor = "rgba(34, 197, 94, 0.78)";
+        }
+      }
+    }
+
+    document.querySelectorAll(".score-range").forEach(slider => {
+      actualizarSlider(slider);
+      slider.addEventListener("input", () => actualizarSlider(slider));
+      slider.addEventListener("change", () => actualizarSlider(slider));
+    });
 
     if (form && btn) {
       form.addEventListener("submit", () => {
@@ -316,6 +597,8 @@
   });
 </script>
 
-{% include "includes/sincronizacion_fase.html" %}
+{% with grupo=evaluator_team %}
+  {% include "includes/sincronizacion_fase.html" %}
+{% endwith %}
 </body>
-</html>
+</html> 

@@ -5,74 +5,263 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Misión Emprende UDD — Crear Sesión</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_dashboardprofesor.css' %}">
-  
-  <style>
-    .form-card {
-      background: #0a1a2a;
-      border: 1px solid rgba(0, 200, 255, 0.25);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-      border-radius: 20px;
-      padding: 26px 28px;
-      max-width: 480px;
-      margin-top: 20px;
-    }
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-    .form-card label {
-      font-weight: 600;
-      margin-bottom: 6px;
-      display: block;
-      color: #AAB7C8;
-    }
+<style>
+body {
+  align-items: stretch;
+}
 
-    .form-card input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(0, 200, 255, 0.35);
-      background: #06121f;
-      color: white;
-      font-size: 15px;
-      margin-bottom: 14px;
-      outline: none;
-    }
+.dashboard {
+  min-height: 100vh;
+  align-items: stretch;
+}
 
-    .form-card input:focus {
-      border-color: #00C8FF;
-      box-shadow: 0 0 8px #00C8FF;
-    }
+.sidebar {
+  min-height: 100vh;
+  height: auto;
+  align-self: stretch;
+}
 
-    .btn-primary {
-      margin-top: 10px;
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #00C8FF, #4be4ff);
-      color: #00151f;
-      border: none;
-      font-size: 15px;
-      font-weight: 700;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: 0.2s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
+.main-content {
+  align-items: center;
+  padding-bottom: 70px;
+}
 
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 15px rgba(0, 200, 255, 0.8);
-    }
-  </style>
+.form-card,
+.codes-card {
+  background: rgba(8, 22, 40, 0.92);
+  border: 1px solid rgba(0, 200, 255, 0.18);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 18px 38px rgba(0,0,0,.28);
+  margin-top: 20px;
+  color: #E6EEF8;
+  max-width: 900px;
+  width: 100%;
+}
 
+.field {
+  margin-bottom: 18px;
+}
+
+.field label {
+  font-weight: 800;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.field input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 200, 255, 0.28);
+  background: #06121f;
+  color: white;
+  font-size: 15px;
+  outline: none;
+}
+
+.field input[type="file"] {
+  background: white;
+  color: black;
+}
+
+.hint {
+  font-size: 13px;
+  color: #AAB7C8;
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+.option-box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.radio-card {
+  border: 1px solid rgba(0, 200, 255, 0.22);
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.radio-card:hover {
+  background: rgba(0, 200, 255, 0.09);
+  transform: translateY(-2px);
+}
+
+.radio-card input {
+  accent-color: #00C8FF;
+}
+
+.radio-card strong {
+  display: block;
+  margin: 8px 0 6px;
+  color: white;
+}
+
+.radio-card span {
+  color: #AAB7C8;
+  font-size: 13px;
+}
+
+.personalizado-box {
+  display: none;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(0, 200, 255, 0.22);
+}
+
+.personalizado-box.visible {
+  display: block;
+}
+
+.personalizado-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.preview-card {
+  display: none;
+  margin-top: 22px;
+  margin-bottom: 24px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(0, 200, 255, 0.22);
+  border-radius: 20px;
+  padding: 22px;
+  color: #E6EEF8;
+}
+
+.preview-card.visible {
+  display: block;
+}
+
+.preview-card h2 {
+  margin-bottom: 16px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.preview-box {
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+}
+
+.preview-box strong {
+  display: block;
+  font-size: 28px;
+  color: #4be4ff;
+}
+
+.preview-box span {
+  display: block;
+  font-size: 14px;
+  color: #E6EEF8;
+  margin-top: 4px;
+}
+
+.btn-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-clean {
+  border: none;
+  padding: 13px 28px;
+  border-radius: 999px;
+  font-family: Poppins, sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-create {
+  background: linear-gradient(135deg, #00C8FF, #4be4ff);
+  color: #00151f;
+  box-shadow: 0 0 14px rgba(0, 200, 255, 0.45);
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.codes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.codes-table th,
+.codes-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  text-align: left;
+}
+
+.codes-table th {
+  color: #4be4ff;
+}
+
+.codigo {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.msg {
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  max-width: 900px;
+  width: 100%;
+}
+
+.msg.success { background: #16a34a; color: white; }
+.msg.error { background: #dc2626; color: white; }
+.msg.warning { background: #f59e0b; color: #111827; }
+
+@media(max-width: 900px) {
+  .option-box,
+  .preview-grid,
+  .personalizado-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    min-height: auto;
+  }
+}
+</style>
 </head>
-<body>
 
+<body>
 <div class="dashboard">
 
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <h2 class="sidebar-title">Dashboard Profesor</h2>
@@ -81,40 +270,282 @@
     <nav class="sidebar-nav">
       <ul>
         <li><a href="{% url 'dashboardprofesor' %}">Inicio</a></li>
-        <li><a href="{% url 'registraralumnos' %}">Registrar alumnos</a></li>
-        <li><a href="{% url 'registrargrupos' %}">Registrar grupos</a></li>
         <li><a class="active" href="{% url 'crear_sesion' %}">Crear sesión</a></li>
         <li><a href="{% url 'listar_sesiones' %}">Ver sesiones</a></li>
+        <li class="sidebar-separator"></li>
+        <li><a href="{% url 'perfiles' %}" class="back-link">⟵ Cambiar de perfil</a></li>
       </ul>
     </nav>
   </aside>
 
-
   <main class="main-content">
 
     {% if messages %}
-      <div class="messages">
-        {% for m in messages %}
+      {% for m in messages %}
         <div class="msg {{ m.tags }}">{{ m }}</div>
-        {% endfor %}
-      </div>
+      {% endfor %}
     {% endif %}
 
-    <h1 class="title">Crear nueva sesión</h1>
-    <p class="subtitle">Una sesión agrupa alumnos, grupos y desafíos de una misma clase.</p>
+    <h1 class="title">Crear sesión</h1>
+    <p class="subtitle">Carga el Excel, revisa la distribución automática y luego crea la sesión.</p>
 
-    <form method="POST" class="form-card">
+    <form method="POST" enctype="multipart/form-data" class="form-card">
       {% csrf_token %}
 
-      <label for="nombre">Nombre de la sesión *</label>
-      <input type="text" id="nombre" name="nombre" placeholder="Ej: 2025 – Sección A" required>
+      <div class="field">
+        <label>Nombre de la sesión *</label>
+        <input type="text" name="nombre" required>
+      </div>
 
-      <button type="submit" class="btn-primary">Crear Sesión</button>
+      <div class="field">
+        <label>Archivo Excel *</label>
+        <input type="file" name="archivo_excel" id="archivoExcel" accept=".xlsx,.xls,.csv" required>
+        <div class="hint">
+          Columnas: Correo, RUT, Nombre, Apellido Paterno, Apellido Materno, Carrera.
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Forma de creación *</label>
+
+        <div class="option-box">
+          <label class="radio-card">
+            <input type="radio" name="modo_creacion" value="recomendado" checked>
+            <strong>Grupos recomendados</strong>
+            <span>Una sola sesión con grupos automáticos.</span>
+          </label>
+
+          <label class="radio-card">
+            <input type="radio" name="modo_creacion" value="dividir_dos">
+            <strong>Dividir sala en 2</strong>
+            <span>Dos sesiones independientes con alumnos repartidos.</span>
+          </label>
+
+          <label class="radio-card">
+            <input type="radio" name="modo_creacion" value="personalizado">
+            <strong>Personalizada</strong>
+            <span>Define cuántas sesiones y cuántos grupos quieres.</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="personalizadoBox" class="personalizado-box">
+        <p class="hint" id="textoRecomendacion">
+          Sube el Excel para ver la recomendación del sistema.
+        </p>
+
+        <div class="personalizado-grid">
+          <div class="field">
+            <label>Cantidad de sesiones *</label>
+            <input type="number" name="cantidad_sesiones" id="cantidadSesiones" min="1" value="1">
+          </div>
+
+          <div class="field">
+            <label>Grupos por sesión *</label>
+            <input type="number" name="grupos_por_sesion" id="gruposPorSesion" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <section id="previewCard" class="preview-card">
+        <h2>Previsualización</h2>
+        <div id="previewContenido"></div>
+      </section>
+
+      <div class="btn-row">
+        <button type="submit" class="btn-clean btn-create">
+          Crear sesión
+        </button>
+
+        <a href="{% url 'listar_sesiones' %}" class="btn-clean btn-secondary">
+          Ver sesiones
+        </a>
+      </div>
     </form>
 
-  </main>
+    {% if sesiones_creadas %}
+    <section class="codes-card">
+      <h2>Códigos para unirse</h2>
+      <p class="hint">Entrega estos códigos a cada grupo para que ingresen a su sesión.</p>
 
+      {% for bloque in sesiones_creadas %}
+        <h3 style="margin-top:18px;">{{ bloque.sesion.nombre }}</h3>
+
+        <table class="codes-table">
+          <thead>
+            <tr>
+              <th>Grupo</th>
+              <th>Código de acceso</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for grupo in bloque.grupos %}
+            <tr>
+              <td>{{ grupo.nombregrupo }}</td>
+              <td class="codigo">{{ grupo.codigoacceso }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+  </main>
 </div>
+
+<script>
+let totalAlumnos = 0;
+
+const archivoExcel = document.getElementById("archivoExcel");
+const previewCard = document.getElementById("previewCard");
+const previewContenido = document.getElementById("previewContenido");
+const personalizadoBox = document.getElementById("personalizadoBox");
+const textoRecomendacion = document.getElementById("textoRecomendacion");
+const cantidadSesiones = document.getElementById("cantidadSesiones");
+const gruposPorSesion = document.getElementById("gruposPorSesion");
+
+function modoActual() {
+  const seleccionado = document.querySelector('input[name="modo_creacion"]:checked');
+  return seleccionado ? seleccionado.value : "recomendado";
+}
+
+function gruposRecomendados(alumnos) {
+  return Math.max(1, Math.ceil(alumnos / 8));
+}
+
+function alumnosPorSesion(total, sesiones, indice) {
+  const base = Math.floor(total / sesiones);
+  const resto = total % sesiones;
+  return base + (indice < resto ? 1 : 0);
+}
+
+function actualizarPersonalizado() {
+  if (modoActual() === "personalizado") {
+    personalizadoBox.classList.add("visible");
+  } else {
+    personalizadoBox.classList.remove("visible");
+  }
+}
+
+function renderPreview() {
+  actualizarPersonalizado();
+
+  if (!totalAlumnos) {
+    previewCard.classList.remove("visible");
+    return;
+  }
+
+  const modo = modoActual();
+  previewCard.classList.add("visible");
+
+  if (modo === "recomendado") {
+    const grupos = gruposRecomendados(totalAlumnos);
+
+    previewContenido.innerHTML = `
+      <div class="preview-grid">
+        <div class="preview-box">
+          <strong>${totalAlumnos}</strong>
+          <span>Total de estudiantes cargados</span>
+        </div>
+        <div class="preview-box">
+          <strong>${grupos}</strong>
+          <span>Grupos que se crearán</span>
+        </div>
+        <div class="preview-box">
+          <strong>1</strong>
+          <span>Sesión única</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (modo === "dividir_dos") {
+    const sala1 = Math.ceil(totalAlumnos / 2);
+    const sala2 = totalAlumnos - sala1;
+    const grupos1 = gruposRecomendados(sala1);
+    const grupos2 = gruposRecomendados(sala2);
+
+    previewContenido.innerHTML = `
+      <div class="preview-grid">
+        <div class="preview-box">
+          <strong>Sala 1</strong>
+          <span>${sala1} estudiantes asignados</span>
+          <span>${grupos1} grupos que se crearán</span>
+        </div>
+        <div class="preview-box">
+          <strong>Sala 2</strong>
+          <span>${sala2} estudiantes asignados</span>
+          <span>${grupos2} grupos que se crearán</span>
+        </div>
+        <div class="preview-box">
+          <strong>2</strong>
+          <span>Sesiones independientes</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (modo === "personalizado") {
+    const sesiones = Math.max(1, parseInt(cantidadSesiones.value || "1"));
+    const grupos = Math.max(1, parseInt(gruposPorSesion.value || "1"));
+    const recomendados = gruposRecomendados(totalAlumnos);
+
+    textoRecomendacion.innerHTML = `
+      El sistema recomienda aproximadamente <strong>${recomendados}</strong> grupos en total para ${totalAlumnos} estudiantes.
+      Puedes ajustar manualmente la cantidad de sesiones y grupos por sesión.
+    `;
+
+    let cajas = "";
+
+    for (let i = 0; i < sesiones; i++) {
+      const alumnos = alumnosPorSesion(totalAlumnos, sesiones, i);
+      cajas += `
+        <div class="preview-box">
+          <strong>Sesión ${i + 1}</strong>
+          <span>${alumnos} estudiantes asignados</span>
+          <span>${grupos} grupos que se crearán</span>
+        </div>
+      `;
+    }
+
+    previewContenido.innerHTML = `
+      <div class="preview-grid">
+        ${cajas}
+      </div>
+    `;
+  }
+}
+
+archivoExcel.addEventListener("change", async function(e) {
+  const file = e.target.files[0];
+
+  if (!file) {
+    totalAlumnos = 0;
+    renderPreview();
+    return;
+  }
+
+  const data = await file.arrayBuffer();
+  const workbook = XLSX.read(data);
+  const hoja = workbook.Sheets[workbook.SheetNames[0]];
+  const filas = XLSX.utils.sheet_to_json(hoja, { defval: "" });
+
+  totalAlumnos = filas.length;
+
+  gruposPorSesion.value = gruposRecomendados(totalAlumnos);
+  renderPreview();
+});
+
+document.querySelectorAll('input[name="modo_creacion"]').forEach(radio => {
+  radio.addEventListener("change", renderPreview);
+});
+
+cantidadSesiones.addEventListener("input", renderPreview);
+gruposPorSesion.addEventListener("input", renderPreview);
+
+renderPreview();
+</script>
 
 </body>
 </html>

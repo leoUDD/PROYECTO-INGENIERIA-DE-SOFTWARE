@@ -9,9 +9,11 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_pitch.css' %}">
+
   <style>
     .pitch-editor {
       position: relative;
+      overflow: hidden;
     }
 
     .inicio-fase-overlay {
@@ -125,8 +127,6 @@
       display: none;
     }
 
-
-    /* === TIMER Y PANEL DESAFÍO: ESTILO GLOBAL, NO SOLO MOBILE === */
     .timer-wrap-pitch {
       display: flex;
       flex-direction: column;
@@ -152,11 +152,13 @@
       color: #ffffff;
       background: rgba(5, 18, 35, 0.92);
       border: 3px solid rgba(0, 200, 255, 0.85);
-      box-shadow: 0 0 18px rgba(0, 200, 255, 0.35), inset 0 0 18px rgba(0, 200, 255, 0.12);
+      box-shadow:
+        0 0 18px rgba(0, 200, 255, 0.35),
+        inset 0 0 18px rgba(0, 200, 255, 0.12);
       letter-spacing: 1px;
     }
 
-    .desafio-panel{
+    .desafio-panel {
       width: 100%;
       max-width: 760px;
       margin: 14px auto 22px;
@@ -167,7 +169,7 @@
       box-shadow: 0 10px 28px rgba(0,0,0,.22);
     }
 
-    .desafio-toggle{
+    .desafio-toggle {
       width: 100%;
       border: none;
       background: transparent;
@@ -180,40 +182,186 @@
       text-align: left;
     }
 
-    .desafio-toggle-head{
+    .desafio-toggle-head {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
 
-    .desafio-etiqueta{
+    .desafio-etiqueta {
       font-size: 0.95rem;
       font-weight: 700;
       color: #00c8ff;
     }
 
-    .desafio-titulo{
+    .desafio-titulo {
       font-size: 1.08rem;
       font-weight: 700;
       color: #ffffff;
     }
 
-    .desafio-icono{
+    .desafio-icono {
       font-size: 1rem;
       font-weight: 800;
       color: #00c8ff;
     }
 
-    .desafio-body{
+    .desafio-body {
       border-top: 1px solid rgba(255,255,255,.12);
       padding: 16px 18px 18px;
     }
 
-    .desafio-descripcion{
+    .desafio-descripcion {
       margin: 0;
       color: #d9e6f2;
       line-height: 1.5;
       font-size: 0.98rem;
+    }
+
+    /* ===== ASTRONAUTA INTERACTIVO PITCH ===== */
+    .astro-trigger-pitch {
+      position: absolute;
+      top: clamp(130px, 22vh, 230px);
+      left: clamp(18px, 6vw, 80px);
+      width: 118px;
+      height: 118px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      z-index: 28;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: astroPitchFloat 6s ease-in-out infinite alternate;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+
+    .astro-trigger-pitch.visible {
+      display: flex;
+    }
+
+    .astro-trigger-pitch:hover {
+      transform: scale(1.07);
+    }
+
+    .astro-trigger-pitch.oculto {
+      display: none;
+    }
+
+    .astro-img-falling-pitch {
+      width: 150px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 0 18px rgba(0, 200, 255, .55));
+      animation: astroPitchBounce 1.25s ease-in-out infinite alternate;
+    }
+
+    .astro-signal-pitch {
+      position: absolute;
+      right: 6px;
+      top: 8px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #00c8ff;
+      box-shadow: 0 0 0 0 rgba(0,200,255,.65);
+      animation: astroPitchPing 1.5s infinite;
+    }
+
+    @keyframes astroPitchFloat {
+      0% { transform: translate(0, 0) rotate(-4deg); }
+      50% { transform: translate(58px, 34px) rotate(5deg); }
+      100% { transform: translate(122px, 72px) rotate(-3deg); }
+    }
+
+    @keyframes astroPitchBounce {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-10px) scale(1.04); }
+    }
+
+    @keyframes astroPitchPing {
+      0% { box-shadow: 0 0 0 0 rgba(0,200,255,.65); }
+      75% { box-shadow: 0 0 0 13px rgba(0,200,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(0,200,255,0); }
+    }
+
+    .astro-pitch-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.54);
+      backdrop-filter: blur(5px);
+    }
+
+    .astro-pitch-overlay.visible {
+      display: flex;
+    }
+
+    .astro-pitch-card {
+      width: min(92vw, 560px);
+      min-height: 260px;
+      border-radius: 24px;
+      padding: 24px 24px 22px 160px;
+      background:
+        radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 42%),
+        rgba(7, 21, 43, 0.96);
+      border: 1px solid rgba(0, 200, 255, 0.34);
+      box-shadow: 0 18px 44px rgba(0,0,0,.42);
+      color: #ffffff;
+      position: relative;
+      animation: astroPitchIn .28s ease both;
+    }
+
+    @keyframes astroPitchIn {
+      from { opacity: 0; transform: translateY(14px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .astro-pitch-img {
+      position: absolute;
+      left: -35px;
+      bottom: -8px;
+      width: 185px;
+      height: auto;
+      filter: drop-shadow(0 0 20px rgba(255, 122, 26, .45));
+    }
+
+    .astro-pitch-text h3 {
+      margin: 0 0 10px;
+      color: #00c8ff;
+      font-size: 1.28rem;
+      font-weight: 900;
+    }
+
+    .astro-pitch-text p {
+      margin: 0;
+      line-height: 1.55;
+      color: #d9e6f2;
+      font-weight: 600;
+    }
+
+    .astro-pitch-text strong {
+      color: #ffe29a;
+    }
+
+    .astro-pitch-btn {
+      margin-top: 14px;
+      border: 1px solid rgba(0, 200, 255, 0.42);
+      border-radius: 999px;
+      padding: 11px 18px;
+      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
+      color: #ffffff;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(0,200,255,.20);
+    }
+
+    .astro-pitch-btn:hover {
+      transform: translateY(-1px);
     }
 
     @media (max-width: 900px) {
@@ -252,109 +400,41 @@
         font-size: 0.9rem;
       }
 
-      .timer-wrap-pitch {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 12px 0 18px;
-}
+      .timer-label-pitch {
+        font-size: 0.95rem;
+      }
 
-.timer-label-pitch {
-  margin-bottom: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #e8f7ff;
-}
+      .timer-box-pitch {
+        min-width: 150px;
+        font-size: 1.75rem;
+        padding: 14px 20px;
+        border-radius: 18px;
+      }
 
-.timer-box-pitch {
-  min-width: 190px;
-  padding: 16px 26px;
-  border-radius: 22px;
-  text-align: center;
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: #ffffff;
-  background: rgba(5, 18, 35, 0.92);
-  border: 3px solid rgba(0, 200, 255, 0.85);
-  box-shadow:
-    0 0 18px rgba(0, 200, 255, 0.35),
-    inset 0 0 18px rgba(0, 200, 255, 0.12);
-  letter-spacing: 1px;
-}
+      .astro-trigger-pitch {
+        width: 86px;
+        height: 86px;
+        top: 120px;
+        left: 18px;
+      }
 
-@media (max-width: 640px) {
-  .timer-label-pitch {
-    font-size: 0.95rem;
-  }
+      .astro-img-falling-pitch {
+        width: 115px;
+      }
 
-  .timer-box-pitch {
-    min-width: 150px;
-    font-size: 1.75rem;
-    padding: 14px 20px;
-    border-radius: 18px;
-  }
-}  
-.desafio-panel{
-  width: 100%;
-  max-width: 760px;
-  margin: 14px auto 22px;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 2px solid rgba(0, 200, 255, 0.35);
-  background: rgba(7, 38, 70, 0.78);
-  box-shadow: 0 10px 28px rgba(0,0,0,.22);
-}
+      .astro-pitch-card {
+        padding: 145px 18px 18px;
+        text-align: center;
+        min-height: auto;
+      }
 
-.desafio-toggle{
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: #fff;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  text-align: left;
-}
-
-.desafio-toggle-head{
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.desafio-etiqueta{
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #00c8ff;
-}
-
-.desafio-titulo{
-  font-size: 1.08rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.desafio-icono{
-  font-size: 1rem;
-  font-weight: 800;
-  color: #00c8ff;
-}
-
-.desafio-body{
-  border-top: 1px solid rgba(255,255,255,.12);
-  padding: 16px 18px 18px;
-}
-
-.desafio-descripcion{
-  margin: 0;
-  color: #d9e6f2;
-  line-height: 1.5;
-  font-size: 0.98rem;
-}
-
+      .astro-pitch-img {
+        left: 50%;
+        top: -40px;
+        bottom: auto;
+        transform: translateX(-50%);
+        width: 135px;
+      }
     }
   </style>
 </head>
@@ -401,28 +481,28 @@
       Escribe un pitch, o simplemente prepara algunas notas para tu presentación.
     </p>
 
-<div id="timer-wrap-pitch" class="timer-wrap-pitch blur-target-bloqueado timer-esperando">
-  <div class="timer-label-pitch">Tiempo restante</div>
-  <div id="timer" class="timer-box-pitch">00:00</div>
-</div>
+    <div id="timer-wrap-pitch" class="timer-wrap-pitch blur-target-bloqueado timer-esperando">
+      <div class="timer-label-pitch">Tiempo restante</div>
+      <div id="timer" class="timer-box-pitch">00:00</div>
+    </div>
 
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
-<div id="desafioPitchWrap" class="blur-target-bloqueado">
-  <section id="desafioPanel" class="desafio-panel">
-    <button type="button" class="desafio-toggle" id="desafioToggle">
-      <div class="desafio-toggle-head">
-        <span class="desafio-etiqueta">Desafío seleccionado</span>
-        <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
-      </div>
-      <span class="desafio-icono" id="desafioIcono">▼</span>
-    </button>
+    <div id="desafioPitchWrap" class="blur-target-bloqueado">
+      <section id="desafioPanel" class="desafio-panel">
+        <button type="button" class="desafio-toggle" id="desafioToggle">
+          <div class="desafio-toggle-head">
+            <span class="desafio-etiqueta">Desafío seleccionado</span>
+            <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
+          </div>
+          <span class="desafio-icono" id="desafioIcono">▼</span>
+        </button>
 
-    <div class="desafio-body" id="desafioBody" hidden>
-      <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
+        <div class="desafio-body" id="desafioBody" hidden>
+          <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
+        </div>
+      </section>
     </div>
-  </section>
-</div>
 
     <div
       id="pitch-desafio-data"
@@ -454,12 +534,36 @@
       </div>
     </form>
 
+    <!-- ASTRONAUTA FLOTANTE PITCH -->
+    <button id="astroTriggerPitch" class="astro-trigger-pitch oculto" type="button" aria-label="Abrir consejo del astronauta">
+      <span class="astro-signal-pitch" aria-hidden="true"></span>
+      <img class="astro-img-falling-pitch" src="{% static 'images/Cayendo.png' %}" alt="" aria-hidden="true">
+    </button>
+
+    <!-- POPUP ASTRONAUTA PITCH -->
+    <div id="astroPitchOverlay" class="astro-pitch-overlay" aria-hidden="true">
+      <div class="astro-pitch-card">
+        <img src="{% static 'images/Parado.png' %}" alt="" aria-hidden="true" class="astro-pitch-img">
+
+        <div class="astro-pitch-text">
+          <h3 id="astroPitchTitulo">Estructura recomendada</h3>
+          <p id="astroPitchMensaje">
+            Para tu pitch, usa esta estructura: primero explica el problema, luego presenta tu solución,
+            después cuenta por qué es valiosa y termina con un cierre claro.
+          </p>
+
+          <button type="button" id="astroPitchCerrar" class="astro-pitch-btn">
+            Entendido
+          </button>
+        </div>
+      </div>
+
+      <audio id="astroPitchTalkAudio" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
+      <audio id="astroPitchExitAudio" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
+    </div>
+
   </main>
 
-  <!-- AUDIO -->
-  <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
-
-  <!-- MODAL -->
   <div id="modal-fin" class="modal-fin">
     <div class="modal-fin-box">
       <h2>¡Tiempo terminado!</h2>
@@ -471,23 +575,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const sesionId = "{{ grupo.sesion.idsesion }}";
   const grupoId = "{{ grupo.idgrupo }}";
-
-  function actualizarBadgeDesafio(data) {
-  const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
-  if (!miGrupo) return;
-
-  const titulo = miGrupo.desafioNombre || "Desafío no seleccionado";
-  const descripcion = miGrupo.desafioDescripcion || "Aún no hay descripción disponible para este desafío.";
-
-  const dbTitle = document.getElementById("dbTitle");
-  const dbShort = document.getElementById("dbShort");
-  const dbDesc = document.getElementById("dbDesc");
-
-  if (dbTitle) dbTitle.textContent = titulo;
-  if (dbShort) dbShort.textContent = descripcion;
-  if (dbDesc) dbDesc.textContent = descripcion;
-}
-
   const csrfToken = "{{ csrf_token }}";
 
   const boton = document.getElementById("btn-listo-fase");
@@ -500,53 +587,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLimpiar = document.getElementById("btnLimpiar");
   const textarea = document.getElementById("pitch-text");
 
-  let guardarPitchTimeout = null;
-
-async function guardarPitch() {
-  if (!textarea) return;
-
-  try {
-    await fetch("{% url 'guardar_pitch' %}", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken
-      },
-      body: JSON.stringify({
-        pitch: textarea.value || ""
-      })
-    });
-  } catch (error) {
-    console.error("Error guardando pitch:", error);
-  }
-}
-
-textarea?.addEventListener("input", () => {
-  clearTimeout(guardarPitchTimeout);
-
-  guardarPitchTimeout = setTimeout(() => {
-    guardarPitch();
-  }, 700);
-});
-
-textarea?.addEventListener("blur", guardarPitch);
-
   const desafioToggle = document.getElementById("desafioToggle");
   const desafioBody = document.getElementById("desafioBody");
   const desafioIcono = document.getElementById("desafioIcono");
 
-  desafioToggle?.addEventListener("click", () => {
-    const abierto = !desafioBody.hasAttribute("hidden");
+  const astroTriggerPitch = document.getElementById("astroTriggerPitch");
+  const astroPitchOverlay = document.getElementById("astroPitchOverlay");
+  const astroPitchTitulo = document.getElementById("astroPitchTitulo");
+  const astroPitchMensaje = document.getElementById("astroPitchMensaje");
+  const astroPitchCerrar = document.getElementById("astroPitchCerrar");
+  const astroPitchTalkAudio = document.getElementById("astroPitchTalkAudio");
+  const astroPitchExitAudio = document.getElementById("astroPitchExitAudio");
 
-  if (abierto) {
-    desafioBody.setAttribute("hidden", "");
-    if (desafioIcono) desafioIcono.textContent = "▼";
-  } else {
-    desafioBody.removeAttribute("hidden");
-    if (desafioIcono) desafioIcono.textContent = "▲";
-  }
-});
+  if (astroPitchTalkAudio) astroPitchTalkAudio.volume = 0.25;
+  if (astroPitchExitAudio) astroPitchExitAudio.volume = 0.25;
 
   const blurTargets = [
     document.getElementById("tituloPitch"),
@@ -557,15 +611,164 @@ textarea?.addEventListener("blur", guardarPitch);
     document.getElementById("pitchFormWrap"),
   ];
 
+  let guardarPitchTimeout = null;
   let timeLeft = 0;
   let timerInterval = null;
   let timerStarted = false;
   let redirigiendo = false;
 
-  // 🔥 NUEVO (igual que LEGO)
   let countdownMostrado = false;
   let countdownEnCurso = false;
   let timerRealSolicitado = false;
+
+  let astroInicioMostrado = false;
+  let astroMitadMostrado = false;
+  let astroActivo = false;
+  let astroModo = "inicio";
+
+  function actualizarBadgeDesafio(data) {
+    const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+    if (!miGrupo) return;
+
+    const titulo = miGrupo.desafioNombre || "Desafío no seleccionado";
+    const descripcion = miGrupo.desafioDescripcion || "Aún no hay descripción disponible para este desafío.";
+
+    const desafioNombre = document.getElementById("desafioNombre");
+    const desafioDescripcion = document.getElementById("desafioDescripcion");
+
+    if (desafioNombre) desafioNombre.textContent = titulo;
+    if (desafioDescripcion) desafioDescripcion.textContent = descripcion;
+  }
+
+  function abrirAstroPitch(titulo, mensaje) {
+    if (!astroPitchOverlay) return;
+
+    if (astroPitchTitulo) astroPitchTitulo.textContent = titulo;
+    if (astroPitchMensaje) astroPitchMensaje.textContent = mensaje;
+
+    astroPitchOverlay.classList.add("visible");
+    astroPitchOverlay.setAttribute("aria-hidden", "false");
+
+    if (astroPitchTalkAudio) {
+      astroPitchTalkAudio.currentTime = 0;
+      astroPitchTalkAudio.play().catch(() => {});
+    }
+  }
+
+  function cerrarAstroPitch() {
+    if (!astroPitchOverlay) return;
+
+    astroPitchOverlay.classList.remove("visible");
+    astroPitchOverlay.setAttribute("aria-hidden", "true");
+
+    astroActivo = false;
+
+    if (astroPitchExitAudio) {
+      astroPitchExitAudio.currentTime = 0;
+      astroPitchExitAudio.play().catch(() => {});
+    }
+  }
+
+  function analizarPitchActual() {
+    const texto = (textarea?.value || "").trim();
+    const palabras = texto.split(/\s+/).filter(Boolean).length;
+
+    if (palabras < 20) {
+      return "Tu pitch aún está muy corto. Agrega el problema, la solución y por qué tu idea aporta valor.";
+    }
+
+    if (palabras < 45) {
+      return "Vas bien. Ahora intenta explicar mejor el beneficio de tu solución y cómo ayuda a la persona del desafío.";
+    }
+
+    return "Buen avance. Revisa que tu pitch tenga problema, solución, valor diferencial y un cierre claro.";
+  }
+
+  function mostrarAstroFlotando(modo) {
+    if (!astroTriggerPitch) return;
+
+    astroModo = modo;
+    astroActivo = false;
+
+    astroTriggerPitch.classList.remove("oculto");
+    astroTriggerPitch.classList.add("visible");
+  }
+
+  function ocultarAstroFlotando() {
+    if (!astroTriggerPitch) return;
+
+    astroTriggerPitch.classList.remove("visible");
+    astroTriggerPitch.classList.add("oculto");
+  }
+
+  function abrirAstroPitchInteractivo() {
+    if (astroActivo) return;
+
+    astroActivo = true;
+    ocultarAstroFlotando();
+
+    if (astroModo === "inicio") {
+      abrirAstroPitch(
+        "Estructura recomendada",
+        "Usen esta estructura: 1) Problema, 2) Solución, 3) Beneficio o valor, 4) Cierre convincente. No intenten decirlo todo: sean claros y directos."
+      );
+    } else {
+      abrirAstroPitch(
+        "Mitad del tiempo",
+        analizarPitchActual()
+      );
+    }
+  }
+
+  async function guardarPitch() {
+    if (!textarea) return;
+
+    try {
+      await fetch("{% url 'guardar_pitch' %}", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({
+          pitch: textarea.value || ""
+        })
+      });
+    } catch (error) {
+      console.error("Error guardando pitch:", error);
+    }
+  }
+
+  textarea?.addEventListener("input", () => {
+    clearTimeout(guardarPitchTimeout);
+    guardarPitchTimeout = setTimeout(() => {
+      guardarPitch();
+    }, 700);
+  });
+
+  textarea?.addEventListener("blur", guardarPitch);
+
+  desafioToggle?.addEventListener("click", () => {
+    const abierto = !desafioBody.hasAttribute("hidden");
+
+    if (abierto) {
+      desafioBody.setAttribute("hidden", "");
+      if (desafioIcono) desafioIcono.textContent = "▼";
+    } else {
+      desafioBody.removeAttribute("hidden");
+      if (desafioIcono) desafioIcono.textContent = "▲";
+    }
+  });
+
+  astroTriggerPitch?.addEventListener("click", abrirAstroPitchInteractivo);
+  astroPitchCerrar?.addEventListener("click", cerrarAstroPitch);
+
+  astroPitchOverlay?.addEventListener("click", (e) => {
+    if (e.target === astroPitchOverlay) {
+      cerrarAstroPitch();
+    }
+  });
 
   function activarFase() {
     blurTargets.forEach(el => {
@@ -576,6 +779,14 @@ textarea?.addEventListener("blur", guardarPitch);
 
     if (timerContainer) timerContainer.classList.remove("timer-esperando");
     if (overlay) overlay.classList.add("overlay-hidden");
+
+    if (!astroInicioMostrado) {
+      astroInicioMostrado = true;
+
+      setTimeout(() => {
+        mostrarAstroFlotando("inicio");
+      }, 700);
+    }
   }
 
   function bloquearFase() {
@@ -587,11 +798,15 @@ textarea?.addEventListener("blur", guardarPitch);
 
     if (timerContainer) timerContainer.classList.add("timer-esperando");
     if (overlay) overlay.classList.remove("overlay-hidden");
+
+    ocultarAstroFlotando();
+    cerrarAstroPitch();
   }
 
   function renderTimer() {
     const min = Math.floor(Math.max(0, timeLeft) / 60);
     const sec = Math.max(0, timeLeft) % 60;
+
     if (timerElement) {
       timerElement.textContent = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
     }
@@ -612,7 +827,6 @@ textarea?.addEventListener("blur", guardarPitch);
     }, 1000);
   }
 
-  // 🔥 IGUAL QUE LEGO
   async function iniciarTimerRealDespuesCountdown() {
     if (timerRealSolicitado) return;
 
@@ -662,6 +876,7 @@ textarea?.addEventListener("blur", guardarPitch);
       });
 
       if (!res.ok) return;
+
       const data = await res.json();
       actualizarBadgeDesafio(data);
 
@@ -683,7 +898,6 @@ textarea?.addEventListener("blur", guardarPitch);
         return;
       }
 
-      // 🔥 COUNTDOWN
       if (data.inicioFaseHabilitado) {
 
         if (!countdownMostrado && !countdownEnCurso) {
@@ -708,10 +922,22 @@ textarea?.addEventListener("blur", guardarPitch);
         countdownMostrado = false;
         countdownEnCurso = false;
         timerRealSolicitado = false;
+        astroInicioMostrado = false;
+        astroMitadMostrado = false;
         bloquearFase();
       }
 
       const backendTime = Number(data.segundosRestantes);
+
+      if (
+        data.inicioFaseHabilitado &&
+        data.timerCorriendo &&
+        !astroMitadMostrado &&
+        backendTime <= 150
+      ) {
+        astroMitadMostrado = true;
+        mostrarAstroFlotando("mitad");
+      }
 
       if (!timerStarted) {
         timeLeft = backendTime;
@@ -719,7 +945,6 @@ textarea?.addEventListener("blur", guardarPitch);
       }
 
       if (!timerStarted && data.timerCorriendo && data.inicioFaseHabilitado) {
-
         if (!countdownMostrado || countdownEnCurso) return;
 
         timerStarted = true;
@@ -771,6 +996,7 @@ textarea?.addEventListener("blur", guardarPitch);
   syncTimer();
 });
 </script>
+
   {% include "includes/sincronizacion_fase.html" %}
   {% include "includes/countdown_inicio_fase.html" %}
 </body>

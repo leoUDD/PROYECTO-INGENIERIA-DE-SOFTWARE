@@ -319,19 +319,8 @@
     {% else %}
       <section class="ranking-parcial-wrap">
         <div class="ranking-parcial-card">
-          {% if grupo.sesion.fase_actual == "f1_ranking" %}
-            <h1 class="titulo">Ranking F1</h1>
-            <p class="subtitulo">Así van los equipos después de la sopa de letras.</p>
-          {% elif grupo.sesion.fase_actual == "f2_ranking" %}
-            <h1 class="titulo">Ranking F2</h1>
-            <p class="subtitulo">Así van los equipos después del Bubble Map.</p>
-          {% elif grupo.sesion.fase_actual == "f3_ranking" %}
-            <h1 class="titulo">Ranking F3</h1>
-            <p class="subtitulo">Así van los equipos después del desafío Lego.</p>
-          {% else %}
-            <h1 class="titulo">Ranking parcial</h1>
-            <p class="subtitulo">Así van los equipos en este momento.</p>
-          {% endif %}
+          <h1 class="titulo">Ranking parcial</h1>
+          <p class="subtitulo">Así van los equipos en este momento.</p>
 
           <div class="ranking-barras">
             {% for equipo in rankings %}

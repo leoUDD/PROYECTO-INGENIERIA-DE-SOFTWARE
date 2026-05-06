@@ -1218,6 +1218,32 @@ def profesor_actualizar_estado(request, sesion_id):
     fase_anterior = sesion.fase_actual
     nueva_fase = payload.get("faseActual")
 
+    accion_timer = payload.get("accionTimer")
+
+    if accion_timer == "reiniciar_fase":
+        sesion.segundos_restantes = tiempo_por_fase(sesion, sesion.fase_actual)
+        sesion.timer_corriendo = False
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
+        sesion.save()
+
+    elif accion_timer == "iniciar":
+        segundos = int(sesion.segundos_restantes or tiempo_por_fase(sesion, sesion.fase_actual))
+
+        sesion.segundos_restantes = segundos
+        sesion.timer_corriendo = segundos > 0
+        sesion.timer_inicio_at = timezone.now() if segundos > 0 else None
+        sesion.timer_fin_at = timezone.now() + timedelta(seconds=segundos) if segundos > 0 else None
+        sesion.save()
+
+    elif accion_timer == "detener":
+        restantes = calcular_segundos_restantes(sesion)
+        sesion.segundos_restantes = restantes
+        sesion.timer_corriendo = False
+        sesion.timer_inicio_at = None
+        sesion.timer_fin_at = None
+        sesion.save()
+
     if nueva_fase:
         if nueva_fase not in FASES_ORDEN:
             return JsonResponse({"ok": False, "error": "Pantalla inválida"}, status=400)
@@ -3072,7 +3098,71 @@ def obtener_tiempo(codigo, defecto):
     tiempo = TiempoFase.objects.filter(codigo=codigo, activo=True).first()
     return tiempo.segundos if tiempo else defecto
 
+def leer_alumnos_desde_archivo(archivo):
+    nombre = archivo.name.lower()
 
+    if nombre.endswith(".xlsx") or nombre.endswith(".xls"):
+        df = pd.read_excel(archivo)
+    elif nombre.endswith(".csv"):
+        df = pd.read_csv(archivo)
+    else:
+        raise ValueError("Formato no soportado. Usa .xlsx, .xls o .csv.")
+
+    df = df.fillna("")
+    return df
+
+
+def crear_alumnos_en_sesion(df, profesor, sesion):
+    alumnos_creados = []
+
+    for _, row in df.iterrows():
+        alumno = Alumno.objects.create(
+            profesor_idprofesor=profesor,
+            sesion=sesion,
+            emailalumno=row.get("Correo", ""),
+            rutalumno=row.get("RUT", ""),
+            nombrealumno=row.get("Nombre", ""),
+            apellidopaternoalumno=row.get("Apellido Paterno", ""),
+            apellidomaternoalumno=row.get("Apellido Materno", ""),
+            carreraalumno=row.get("Carrera", ""),
+        )
+        alumnos_creados.append(alumno)
+
+    return alumnos_creados
+
+def generar_codigo_grupo_profesor():
+    while True:
+        codigo = "".join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        if not Grupo.objects.filter(codigoacceso=codigo).exists():
+            return codigo
+
+def crear_grupos_para_alumnos(sesion, alumnos, max_por_grupo=8, cantidad_grupos_manual=None):
+    if not alumnos:
+        return 0
+
+    if cantidad_grupos_manual:
+        cantidad_grupos = max(1, int(cantidad_grupos_manual))
+    else:
+        cantidad_grupos = ceil(len(alumnos) / max_por_grupo)
+
+    grupos = []
+
+    for i in range(cantidad_grupos):
+        grupo = Grupo.objects.create(
+            sesion=sesion,
+            nombregrupo=f"Grupo {i + 1}",
+            tokensgrupo=10,
+            etapa=1,
+            codigoacceso=generar_codigo_grupo_profesor(),
+        )
+        grupos.append(grupo)
+
+    for index, alumno in enumerate(alumnos):
+        grupo = grupos[index % len(grupos)]
+        alumno.grupo = grupo
+        alumno.save(update_fields=["grupo"])
+
+    return len(grupos)
 def crear_sesion(request):
     profesor = Profesor.objects.first()
 
@@ -3082,29 +3172,91 @@ def crear_sesion(request):
 
     if request.method == "POST":
         nombre = (request.POST.get("nombre") or "").strip()
+        modo_creacion = request.POST.get("modo_creacion", "recomendado")
+        archivo = request.FILES.get("archivo_excel")
+
+        cantidad_sesiones = int(request.POST.get("cantidad_sesiones") or 1)
+        grupos_por_sesion = int(request.POST.get("grupos_por_sesion") or 1)
 
         if not nombre:
             messages.error(request, "Debes darle un nombre a la sesión.")
             return render(request, "crear_sesion.html")
 
-        Sesion.objects.create(
-            profesor=profesor,
-            nombre=nombre,
-            fase_actual="f1_bienvenida",
-            timer_corriendo=False,
-            segundos_restantes=0,
+        if not archivo:
+            messages.error(request, "Debes subir el archivo de estudiantes.")
+            return render(request, "crear_sesion.html")
 
-            t_rompehielo=obtener_tiempo("f1_conocidos", 10),
-            t_diferencias=obtener_tiempo("f1_sopa", 60),
-            t_tematicas=obtener_tiempo("f2_tematicas", 120),
-            t_empatia=obtener_tiempo("f2_bubblemap", 10),
-            t_creatividad=obtener_tiempo("f3_lego", 10),
-            t_pitch_prep=obtener_tiempo("f4_construccion_pitch", 300),
-            t_pitch=90,
-        )
+        try:
+            df = leer_alumnos_desde_archivo(archivo)
 
-        messages.success(request, "Sesión creada correctamente.")
-        return redirect("listar_sesiones")
+            if df.empty:
+                messages.error(request, "El archivo no tiene estudiantes.")
+                return render(request, "crear_sesion.html")
+
+            sesiones_creadas = []
+
+            with transaction.atomic():
+
+                if modo_creacion == "dividir_dos":
+                    cantidad_sesiones = 2
+                    grupos_por_sesion = None
+
+                elif modo_creacion == "personalizado":
+                    cantidad_sesiones = max(1, cantidad_sesiones)
+                    grupos_por_sesion = max(1, grupos_por_sesion)
+
+                else:
+                    cantidad_sesiones = 1
+                    grupos_por_sesion = None
+
+                total_alumnos = len(df)
+                inicio = 0
+
+                for numero_sesion in range(1, cantidad_sesiones + 1):
+                    alumnos_en_esta_sesion = total_alumnos // cantidad_sesiones
+
+                    if numero_sesion <= total_alumnos % cantidad_sesiones:
+                        alumnos_en_esta_sesion += 1
+
+                    fin = inicio + alumnos_en_esta_sesion
+                    df_sesion = df.iloc[inicio:fin]
+                    inicio = fin
+
+                    if cantidad_sesiones == 1:
+                        nombre_sesion = nombre
+                    else:
+                        nombre_sesion = f"{nombre} - Sala {numero_sesion}"
+
+                    sesion = Sesion.objects.create(
+                        profesor=profesor,
+                        nombre=nombre_sesion,
+                        fase_actual="f1_bienvenida",
+                        timer_corriendo=False,
+                        segundos_restantes=0,
+                    )
+
+                    alumnos = crear_alumnos_en_sesion(df_sesion, profesor, sesion)
+
+                    crear_grupos_para_alumnos(
+                        sesion,
+                        alumnos,
+                        cantidad_grupos_manual=grupos_por_sesion
+                    )
+
+                    sesiones_creadas.append({
+                        "sesion": sesion,
+                        "grupos": Grupo.objects.filter(sesion=sesion).order_by("idgrupo"),
+                    })
+
+                messages.success(request, "Sesión creada correctamente.")
+
+            return render(request, "crear_sesion.html", {
+                "sesiones_creadas": sesiones_creadas,
+            })
+
+        except Exception as e:
+            messages.error(request, f"No se pudo procesar la sesión: {e}")
+            return render(request, "crear_sesion.html")
 
     return render(request, "crear_sesion.html")
 
@@ -3115,8 +3267,20 @@ def listar_sesiones(request):
         messages.warning(request, "Aún no hay profesores registrados.")
         return redirect("registrarprofesor")
 
-    sesiones = Sesion.objects.filter(profesor=profesor).order_by('-fecha_creacion')
-    return render(request, "listar_sesiones.html", {"sesiones": sesiones})
+    sesiones = Sesion.objects.filter(profesor=profesor).order_by("-fecha_creacion")
+
+    sesiones_info = []
+
+    for sesion in sesiones:
+        sesiones_info.append({
+            "sesion": sesion,
+            "total_grupos": Grupo.objects.filter(sesion=sesion).count(),
+            "total_alumnos": Alumno.objects.filter(sesion=sesion).count(),
+        })
+
+    return render(request, "listar_sesiones.html", {
+        "sesiones_info": sesiones_info
+    })
 
 def otorgar_tokens_peer_review(grupo_evaluador: Grupo):
 
@@ -3710,3 +3874,13 @@ def admin_tiempos(request):
     return render(request, "admin_tiempos.html", {
         "tiempos": tiempos,
     })
+
+def ver_como_grupo(request, grupo_id):
+    grupo = Grupo.objects.get(idgrupo=grupo_id)
+
+    request.session["grupo_id"] = grupo.idgrupo
+    request.session["sesion_id"] = grupo.sesion.idsesion
+
+    request.session["modo_profesor"] = True 
+
+    return redirect("pantalla_espera")

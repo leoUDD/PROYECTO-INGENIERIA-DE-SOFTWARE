@@ -123,29 +123,38 @@
     }
 
     .reglas-bubble {
-      width: min(92%, 980px);
-      margin: 12px auto 16px;
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.20);
-      color: #fff;
-      line-height: 1.45;
-    }
+  width: min(92%, 980px);
+  margin: 12px auto 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
 
-    .reglas-bubble summary {
-      cursor: pointer;
-      font-weight: 800;
-    }
+  background: rgba(7, 21, 43, 0.92); /* 🔥 fondo sólido tipo juego */
+  border: 1px solid rgba(0, 200, 255, 0.30);
+
+  color: #E6EEF8;
+  line-height: 1.5;
+
+  box-shadow: 0 10px 28px rgba(0,0,0,.25);
+}
+.reglas-bubble summary {
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 1rem;
+  color: #00C8FF;
+}
+
+.reglas-bubble li {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #d9e6f2;
+}
+
 
     .reglas-bubble ul {
       margin: 10px 0 0 18px;
       padding: 0;
     }
 
-    .reglas-bubble li {
-      margin-bottom: 5px;
-    }
 
     .bubble-stage {
       width: min(94vw, 980px);
@@ -933,17 +942,21 @@
       <audio id="objetoCelularExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
     </div>
 
-    <details id="reglasBubble" class="reglas-bubble blur-target-bloqueado">
-      <summary>📌 Reglas para ganar fichas</summary>
-      <ul>
-        <li>Solo cuentan respuestas con al menos <strong>5 caracteres</strong>.</li>
-        <li>Mientras más burbujas completas tengan, más fichas ganan.</li>
-        <li>Las respuestas más desarrolladas suman fichas extra.</li>
-        <li>La burbuja <strong>Otros</strong> permite agregar varias ideas adicionales.</li>
-        <li>Agregar un relato breve o un link de referencia puede subir el nivel a <strong>Experto</strong>.</li>
-        <li>Al terminar el tiempo aparecerá un resumen. Deben confirmar para avanzar.</li>
-      </ul>
-    </details>
+      <details id="reglasBubble" class="reglas-bubble blur-target-bloqueado">
+  <summary>📌 ¿Cómo ganar más fichas?</summary>
+
+  <ul>
+    <li>Mientras más <strong>burbujas completas</strong>, más fichas ganan.</li>
+
+    <li>Las respuestas más <strong>claras y desarrolladas</strong> otorgan más fichas.</li>
+
+    <li>La burbuja <strong>“Otros”</strong> permite agregar varias ideas extra (¡aprovéchenla!).</li>
+
+    <li>Agregar un <strong>relato breve</strong> ayuda a entender mejor a la persona.</li>
+
+    <li>Agregar un <strong>link o noticia</strong> le da más valor a su análisis.</li>
+  </ul>
+</details>
 
     <div
       id="bubblemap-desafio-data"
@@ -999,7 +1012,7 @@
           <source src="{% static 'audio/success.mp3' %}" type="audio/mpeg">
         </audio>
         <h2>¡Tiempo terminado!</h2>
-        <div id="resultadoNivel" class="resultado-nivel">Nivel</div>
+        <div id="resultadoNivel" class="resultado-nivel">Resultado</div>
         <p id="resultadoResumen"></p>
 
         <div id="resultadoDetalle" class="resultado-detalle"></div>
@@ -1477,10 +1490,10 @@ desafioToggle?.addEventListener("click", () => {
         const relatoValido = (datos.relato || "").trim().split(/\s+/).filter(Boolean).length >= 18;
         const linkValido = /https?:\/\/|www\./i.test(datos.link || "");
 
-        let nivel = "Inicial";
-        if (respuestasValidas.length >= 3) nivel = "Intermedio";
-        if (baseValidas.length >= 5) nivel = "Completo";
-        if (baseValidas.length >= 5 && (relatoValido || linkValido)) nivel = "Experto";
+        let nivel = "En desarrollo";
+        if (respuestasValidas.length >= 3) nivel = "Buen avance";
+        if (baseValidas.length >= 5) nivel = "Bubble Map completo";
+        if (baseValidas.length >= 5 && (relatoValido || linkValido)) nivel = "Análisis destacado";
 
         return {
           nivel,
@@ -1499,16 +1512,17 @@ desafioToggle?.addEventListener("click", () => {
 
         const r = calcularResultadoLocal();
 
-        resultadoNivel.textContent = `Nivel ${r.nivel}`;
+        resultadoNivel.textContent = r.nivel;
         resultadoResumen.textContent = `Completaron ${r.respuestasValidas} respuesta(s) válida(s).`;
 
         resultadoDetalle.innerHTML = `
-          <strong>Resumen:</strong><br>
+          <strong>Resumen de fichas:</strong><br>
           Burbujas principales completas: ${r.baseValidas}/5<br>
+          Ideas adicionales en “Otros”: ${cantidadOtrosValidos()}<br>
           Respuestas desarrolladas: ${r.respuestasLargas}<br>
-          Relato breve válido: ${r.relatoValido ? "Sí" : "No"}<br>
-          Link o noticia válida: ${r.linkValido ? "Sí" : "No"}<br><br>
-          Al confirmar, se guardarán sus fichas y avanzarán cuando todos los equipos hayan confirmado.
+          Relato breve agregado: ${r.relatoValido ? "Sí" : "No"}<br>
+          Link o noticia agregada: ${r.linkValido ? "Sí" : "No"}<br><br>
+
         `;
 
         resultadoModal.classList.add("visible");
