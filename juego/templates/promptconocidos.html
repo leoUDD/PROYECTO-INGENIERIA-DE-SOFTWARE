@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Misión Emprende UDD — Modo de juego</title>
+  <title data-i18n="modo_juego_document_title">Misión Emprende UDD — Modo de juego</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Orbitron:wght@700;900&family=Exo+2:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_promptconocidos.css' %}" />
 </head>
@@ -13,8 +13,8 @@
 <body>
   <main class="mode-container" role="region" aria-label="Elegir modo de juego">
     <header class="mode-header">
-      <h1 class="mode-title">Reclutas, seleccionen un modo de juego:</h1>
-      <p class="mode-subtitle">
+      <h1 class="mode-title" data-i18n="modo_juego_titulo">Reclutas, seleccionen un modo de juego:</h1>
+      <p class="mode-subtitle" data-i18n="modo_juego_subtitulo">
         ¿Ya se conocen o es su primera misión juntos?
       </p>
     </header>
@@ -23,8 +23,8 @@
       <a href="{% url 'elegir_modo_conocidos' 'normal' %}" class="mode-card mode-intro">
         <div class="overlay"></div>
         <div class="mode-content">
-          <h2 class="mode-name">"Primera vez juntos"</h2>
-          <p class="mode-desc">
+          <h2 class="mode-name" data-i18n="modo_juego_primera_vez">Primera vez juntos</h2>
+          <p class="mode-desc" data-i18n="modo_juego_primera_vez_desc">
             Rompe el hielo, preséntense y activen la energía del escuadrón.
           </p>
         </div>
@@ -33,8 +33,8 @@
       <a href="{% url 'elegir_modo_conocidos' 'rapido' %}" class="mode-card mode-known">
         <div class="overlay"></div>
         <div class="mode-content">
-          <h2 class="mode-name">"Viejos conocidos"</h2>
-          <p class="mode-desc">
+          <h2 class="mode-name" data-i18n="modo_juego_viejos_conocidos">Viejos conocidos</h2>
+          <p class="mode-desc" data-i18n="modo_juego_viejos_conocidos_desc">
             Este modo está pensado para escuadrones con experiencia previa.
           </p>
         </div>
@@ -94,6 +94,5 @@
     card.addEventListener('mouseenter', playHoverSound);
   });
   </script>
-
 </body>
 </html>

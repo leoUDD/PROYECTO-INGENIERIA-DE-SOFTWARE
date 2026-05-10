@@ -18,7 +18,10 @@
 <script src="{% static 'js/atajos.js' %}"></script>
 
 {% include "includes/selector_idioma.html" %}
-{% include "includes/linea_progreso_habilidades.html" %}
+
+{% if not ocultar_mapa_habilidades %}
+  {% include "includes/linea_progreso_habilidades.html" %}
+{% endif %}
 
 <style>
   .next-step {
@@ -46,7 +49,7 @@
   }
 
   .next-step::before {
-    content: "PUNTO DE CONTROL";
+    content: var(--atajos-punto-control, "PUNTO DE CONTROL");
     color: #AEEBFF;
     font-size: 11px;
     font-weight: 800;
@@ -75,4 +78,27 @@
   }
 </style>
 
-{% include "includes/hud_tokens_ranking.html" %}
+<script>
+  function tAtajos(clave, fallback) {
+    try {
+      const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+      return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function aplicarTraduccionAtajos() {
+    const texto = tAtajos("atajos_punto_control", "PUNTO DE CONTROL");
+    document.querySelectorAll(".next-step").forEach(el => {
+      el.style.setProperty("--atajos-punto-control", `"${texto}"`);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", aplicarTraduccionAtajos);
+  window.addEventListener("idiomaJuegoCambiado", aplicarTraduccionAtajos);
+</script>
+
+{% if not ocultar_hud_ranking %}
+  {% include "includes/hud_tokens_ranking.html" %}
+{% endif %}

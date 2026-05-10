@@ -188,26 +188,30 @@
   data-sesion-id="{{ grupo.sesion.idsesion|default:'' }}"
   data-grupo-id="{{ grupo.idgrupo|default:'' }}"
 >
-  <div class="hud-team-box" title="{{ grupo.nombregrupo|default:'Escuadrón sin nombre' }}">
-    <span class="hud-team-label">Escuadrón</span>
+  <div
+    class="hud-team-box"
+    id="hudTeamBox"
+    title="{{ grupo.nombregrupo|default:'Escuadrón sin nombre' }}"
+  >
+    <span class="hud-team-label" data-i18n="hud_escuadron">Escuadrón</span>
     <span class="hud-team-name" id="hudTeamName">
       {{ grupo.nombregrupo|default:"Sin nombre" }}
     </span>
   </div>
 
-  <div class="hud-token-box">
+  <div class="hud-token-box" title="Tokens">
     🪙 <span id="hudTokens">--</span>
   </div>
 
   <button type="button" id="hudRankingBtn" class="hud-ranking-btn">
-    🏆 Ranking
+    🏆 <span data-i18n="hud_ranking">Ranking</span>
   </button>
 </div>
 
 <div id="hudRankingPanel" class="hud-ranking-panel">
-  <h3>Ranking actual</h3>
+  <h3 data-i18n="hud_ranking_actual">Ranking actual</h3>
   <div id="hudRankingLista">
-    Cargando...
+    <span data-i18n="hud_cargando">Cargando...</span>
   </div>
 </div>
 
@@ -218,12 +222,41 @@
     const grupoId = hud?.dataset?.grupoId;
 
     const teamNameEl = document.getElementById("hudTeamName");
+    const teamBoxEl = document.getElementById("hudTeamBox");
     const tokensEl = document.getElementById("hudTokens");
     const btn = document.getElementById("hudRankingBtn");
     const panel = document.getElementById("hudRankingPanel");
     const lista = document.getElementById("hudRankingLista");
 
-    if (!sesionId || !grupoId) return;
+    function tHud(clave, fallback) {
+      try {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function aplicarTraduccionHud() {
+      try {
+        if (window.i18nJuego && typeof window.i18nJuego.aplicar === "function") {
+          window.i18nJuego.aplicar();
+        }
+      } catch (e) {}
+
+      if (teamBoxEl) {
+        const nombreActual = teamNameEl?.textContent?.trim() || "";
+        teamBoxEl.setAttribute(
+          "title",
+          nombreActual || tHud("hud_escuadron_sin_nombre", "Escuadrón sin nombre")
+        );
+      }
+    }
+
+    if (!sesionId || !grupoId) {
+      aplicarTraduccionHud();
+      return;
+    }
 
     btn?.addEventListener("click", () => {
       panel?.classList.toggle("visible");
@@ -269,8 +302,14 @@
           }
 
           if (teamNameEl) {
-            teamNameEl.textContent = miGrupo.nombre || "Sin nombre";
-            teamNameEl.parentElement?.setAttribute("title", miGrupo.nombre || "Escuadrón sin nombre");
+            teamNameEl.textContent = miGrupo.nombre || tHud("hud_sin_nombre", "Sin nombre");
+          }
+
+          if (teamBoxEl) {
+            teamBoxEl.setAttribute(
+              "title",
+              miGrupo.nombre || tHud("hud_escuadron_sin_nombre", "Escuadrón sin nombre")
+            );
           }
         }
 
@@ -278,13 +317,13 @@
 
         if (lista) {
           if (!ordenados.length) {
-            lista.innerHTML = `<div class="hud-ranking-empty">Aún no hay grupos en ranking.</div>`;
+            lista.innerHTML = `<div class="hud-ranking-empty">${tHud("hud_ranking_vacio", "Aún no hay grupos en ranking.")}</div>`;
             return;
           }
 
           lista.innerHTML = ordenados.map((g, index) => {
             const esMiGrupo = Number(g.id) === Number(grupoId);
-            const nombreSeguro = escaparHtml(g.nombre || "Sin nombre");
+            const nombreSeguro = escaparHtml(g.nombre || tHud("hud_sin_nombre", "Sin nombre"));
             const tokens = Number(g.tokens || 0);
 
             return `
@@ -295,12 +334,20 @@
             `;
           }).join("");
         }
+
+        aplicarTraduccionHud();
       } catch (error) {
         console.error("Error actualizando HUD:", error);
       }
     }
 
+    aplicarTraduccionHud();
     actualizarHud();
     setInterval(actualizarHud, 3000);
+
+    window.addEventListener("idiomaJuegoCambiado", () => {
+      aplicarTraduccionHud();
+      actualizarHud();
+    });
   });
 </script>

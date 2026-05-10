@@ -6,7 +6,7 @@ Panel lateral de misión.
 <div class="metro-progreso-habilidades" id="metroProgresoHabilidades">
   <div class="metro-header">
     <span class="metro-header-icon">◆</span>
-    <span>Ruta de misión</span>
+    <span data-i18n="mapa_ruta_mision">Ruta de misión</span>
   </div>
 
   <div class="metro-linea-base"></div>
@@ -14,27 +14,27 @@ Panel lateral de misión.
 
   <div class="metro-punto" data-fases="conocidos,trabajoenequipo,minijuego1,sopa" data-index="0">
     <span class="metro-circulo">1</span>
-    <small>Trabajo<br>en equipo</small>
+    <small data-i18n="mapa_trabajo_equipo_html">Trabajo<br>en equipo</small>
   </div>
 
   <div class="metro-punto" data-fases="transicion,desafios,tematicas,espera_eleccion,bubblemap,empatia" data-index="1">
     <span class="metro-circulo">2</span>
-    <small>Empatía</small>
+    <small data-i18n="mapa_empatia">Empatía</small>
   </div>
 
   <div class="metro-punto" data-fases="creatividad,lego" data-index="2">
     <span class="metro-circulo">3</span>
-    <small>Creatividad</small>
+    <small data-i18n="mapa_creatividad">Creatividad</small>
   </div>
 
   <div class="metro-punto" data-fases="comunicacion,pitch,orden_presentacion,presentar_pitch" data-index="3">
     <span class="metro-circulo">4</span>
-    <small>Comunicación</small>
+    <small data-i18n="mapa_comunicacion">Comunicación</small>
   </div>
 
   <div class="metro-punto" data-fases="apoyo,peer_review,evaluacion,ranking,reflexion" data-index="4">
     <span class="metro-circulo">5</span>
-    <small>Apoyo</small>
+    <small data-i18n="mapa_apoyo">Apoyo</small>
   </div>
 </div>
 
@@ -249,6 +249,14 @@ Panel lateral de misión.
     const barra = document.getElementById("metroProgresoHabilidades");
     if (!barra) return;
 
+    function aplicarTraduccionMetro() {
+      try {
+        if (window.i18nJuego && typeof window.i18nJuego.aplicar === "function") {
+          window.i18nJuego.aplicar();
+        }
+      } catch (e) {}
+    }
+
     const pathname = window.location.pathname.toLowerCase();
     const puntos = Array.from(barra.querySelectorAll(".metro-punto"));
     const lineaActiva = document.getElementById("metroLineaActiva");
@@ -285,5 +293,8 @@ Panel lateral de misión.
       lineaActiva.style.height = porcentaje + "%";
       lineaActiva.style.width = "8px";
     }
+
+    aplicarTraduccionMetro();
+    window.addEventListener("idiomaJuegoCambiado", aplicarTraduccionMetro);
   })();
 </script>

@@ -478,6 +478,8 @@ def tiempo_por_fase(sesion, fase):
     return int(tiempos.get(fase, 0))
 
 
+from django.utils import timezone
+
 def calcular_segundos_restantes(sesion):
     if not sesion.timer_corriendo or not sesion.timer_fin_at:
         return max(int(sesion.segundos_restantes or 0), 0)
@@ -492,6 +494,7 @@ def calcular_segundos_restantes(sesion):
         sesion.timer_inicio_at = None
         sesion.timer_fin_at = None
 
+        # ===================== F4 PRESENTACION PITCH =====================
         if fase_vencida == "f4_presentacion_pitch":
             sesion.fase_actual = "f5_evaluacion_pitch"
             sesion.save(update_fields=[
@@ -503,12 +506,13 @@ def calcular_segundos_restantes(sesion):
             ])
             return 0
 
+        # ===================== F2 TEMATICAS =====================
         fases_con_autoavance = {
             "f1_conocidos",
             "f1_sopa",
             "f4_construccion_pitch",
         }
-        
+
         if fase_vencida == "f2_tematicas":
             asignar_tematica_y_desafio_aleatorio(sesion)
             sesion.fase_actual = "f2_transicion_empatia"
@@ -522,11 +526,36 @@ def calcular_segundos_restantes(sesion):
             ])
             return 0
 
+        # ===================== F5 EVALUACION PITCH =====================
         if fase_vencida == "f5_evaluacion_pitch":
+            # 1️⃣ Completar evaluaciones faltantes (penalización a los que no enviaron)
             completar_evaluaciones_faltantes(sesion)
+
+            # 2️⃣ Recompensar al/los grupo(s) mejor evaluado(s) según los puntajes recibidos
+            from juego.models import EvaluacionPeer, Grupo
+
+            evaluaciones = EvaluacionPeer.objects.filter(sesion=sesion)
+            puntaje_recibido = {}  # {grupo_id: total_puntaje}
+
+            for e in evaluaciones:
+                total = (e.claridad or 0) + (e.creatividad or 0) + (e.viabilidad or 0) + (e.equipo or 0) + (e.presentacion or 0)
+                gid = e.grupo_evaluado.id
+                puntaje_recibido[gid] = puntaje_recibido.get(gid, 0) + total
+
+            if puntaje_recibido:
+                max_puntaje = max(puntaje_recibido.values())
+                mejores = [gid for gid, puntaje in puntaje_recibido.items() if puntaje == max_puntaje]
+
+                for gid in mejores:
+                    grupo = Grupo.objects.get(pk=gid)
+                    grupo.tokensgrupo = (grupo.tokensgrupo or 0) + 3
+                    grupo.save(update_fields=["tokensgrupo"])
+
+            # 3️⃣ Avanzar al siguiente pitch o ranking
             avanzar_al_siguiente_pitch_o_ranking(sesion)
             return 0
 
+        # ===================== OTRAS FASES CON AUTOAVANCE =====================
         if fase_vencida in fases_con_autoavance:
             nueva_fase = siguiente_fase_automatica(fase_vencida)
             sesion.fase_actual = nueva_fase
@@ -1669,7 +1698,6 @@ def marcar_grupo_listo(request, grupo_id):
         if fase_actual == "f1_conocidos" and todos and not sesion.inicio_fase_habilitado:
             sesion.inicio_fase_habilitado = True
             sesion.save(update_fields=["inicio_fase_habilitado"])
-            iniciar_timer_de_sesion(sesion)
 
         return JsonResponse({
             "ok": True,
@@ -1709,6 +1737,38 @@ def marcar_grupo_listo(request, grupo_id):
             "todos_listos": todos,
             "gruposListosF1": listos,
             "todosListosF1": todos,
+        })
+
+    # ============================================================
+    # F1 — INICIO SOPA DE LETRAS
+    # Botón "Listo para comenzar" dentro de la sopa.
+    # ============================================================
+    if fase_actual == "f1_sopa" and fase_clave in ["f1_sopa", "sopa", "f1", None, ""]:
+        if not grupo.listo_f1:
+            grupo.listo_f1 = True
+            grupo.save(update_fields=["listo_f1"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f1=True).count()
+        todos = total > 0 and listos == total
+
+        if todos and not sesion.inicio_fase_habilitado:
+            sesion.inicio_fase_habilitado = True
+            sesion.save(update_fields=["inicio_fase_habilitado"])
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "faseActual": sesion.fase_actual,
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+            "gruposListosF1": listos,
+            "todosListosF1": todos,
+            "inicio_fase_habilitado": sesion.inicio_fase_habilitado,
+            "segundosRestantes": sesion.segundos_restantes,
         })
 
     # ============================================================
@@ -1850,7 +1910,6 @@ def marcar_grupo_listo(request, grupo_id):
 
     # ============================================================
     # F3 — INICIO LEGO
-    # Botón "Listo para comenzar" dentro de la pantalla LEGO.
     # ============================================================
     if fase_actual == "f3_lego" and fase_clave in ["inicio_f3", "f3_lego", "f3", None, ""]:
         if not grupo.listo_inicio_f3:
@@ -1907,7 +1966,6 @@ def marcar_grupo_listo(request, grupo_id):
 
     # ============================================================
     # F4 — INICIO CONSTRUCCIÓN PITCH
-    # Botón "Listo para comenzar" dentro de la pantalla de pitch.
     # ============================================================
     if fase_actual == "f4_construccion_pitch" and fase_clave in ["f4_pitch", "f4_construccion_pitch", "f4", None, ""]:
         if not grupo.listo_f4:
@@ -1935,6 +1993,36 @@ def marcar_grupo_listo(request, grupo_id):
             "todosListosF4": todos,
             "inicio_fase_habilitado": sesion.inicio_fase_habilitado,
             "segundosRestantes": sesion.segundos_restantes,
+        })
+
+    # ============================================================
+    # F4 — ORDEN PRESENTACIÓN PITCH
+    # ============================================================
+    if fase_actual == "f4_orden_pitch" and fase_clave in ["f4_orden_pitch", "orden_pitch", "f4_orden", None, ""]:
+        if not grupo.listo_f4_orden:
+            grupo.listo_f4_orden = True
+            grupo.save(update_fields=["listo_f4_orden"])
+
+        total = Grupo.objects.filter(sesion=sesion).count()
+        listos = Grupo.objects.filter(sesion=sesion, listo_f4_orden=True).count()
+        todos = total > 0 and listos == total
+
+        autoavanzar_si_todos_listos(sesion)
+        sesion.refresh_from_db()
+
+        return JsonResponse({
+            "ok": True,
+            "fase": fase_actual,
+            "faseActual": sesion.fase_actual,
+            "rutaAlumno": reverse(RUTA_POR_FASE.get(sesion.fase_actual, "pantalla_espera")),
+            "total": total,
+            "listos": listos,
+            "gruposListos": listos,
+            "totalGrupos": total,
+            "todos_listos": todos,
+            "gruposListosF4Orden": listos,
+            "todosListosF4Orden": todos,
+            "ordenSorteado": getattr(sesion, "orden_sorteado", False),
         })
 
     # ============================================================

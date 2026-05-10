@@ -309,8 +309,8 @@
   <main class="pitch-container" role="main" aria-labelledby="page-title">
     <header class="header">
       <div>
-        <h1 id="page-title" class="title">Pitch del equipo</h1>
-        <p class="subtitle">Presenten su solución usando el texto que prepararon.</p>
+        <h1 id="page-title" class="title" data-i18n="presentar_pitch_titulo">Pitch del equipo</h1>
+        <p class="subtitle" data-i18n="presentar_pitch_subtitulo">Presenten su solución usando el texto que prepararon.</p>
       </div>
     </header>
 
@@ -319,7 +319,7 @@
       <!-- BLOQUE SUPERIOR: FOTO + TEMPORIZADOR -->
       <section class="presentacion-top">
         <article class="panel media-panel">
-          <h3>Presentación actual</h3>
+          <h3 data-i18n="presentar_pitch_presentacion_actual">Presentación actual</h3>
 
           <div id="grupoActualAlumnoNombre" class="grupo-actual-nombre">
             Esperando sorteo...
@@ -338,7 +338,7 @@
               style="display:none;"
             >
 
-            <div id="grupoActualAlumnoSinFoto" class="pitch-media-fallback" style="display:none;">
+            <div id="grupoActualAlumnoSinFoto" class="pitch-media-fallback" style="display:none;" data-i18n="presentar_pitch_sin_foto">
               Este equipo no subió foto de su solución LEGO.
             </div>
           </div>
@@ -346,16 +346,16 @@
 
         <aside class="timer-card timer-panel" aria-label="Temporizador de Pitch">
           <div class="timer-display-wrap">
-            <div class="timer-label-pitch">Temporizador</div>
+            <div class="timer-label-pitch" data-i18n="presentar_pitch_temporizador">Temporizador</div>
             <div id="timer" class="timer-display" data-seconds="90">01:30</div>
           </div>
 
           <div id="pitchStartWrap" class="pitch-start-wrap" style="display:none;">
-            <button id="btnIniciarPresentacion" type="button" class="btn-chip">
+            <button id="btnIniciarPresentacion" type="button" class="btn-chip" data-i18n="presentar_pitch_boton_iniciar">
               ⚡ Iniciar presentación
             </button>
 
-            <p id="pitchStartHelp" class="pitch-start-help">
+            <p id="pitchStartHelp" class="pitch-start-help" data-i18n="presentar_pitch_help_solo_equipo">
               Solo el equipo que está presentando puede iniciar el temporizador.
             </p>
           </div>
@@ -367,22 +367,22 @@
       <!-- BLOQUE INFERIOR: TEXTO + ORDEN -->
       <section class="presentacion-bottom">
         <article class="panel pitch-panel">
-          <h3>Pitch de mi equipo</h3>
+          <h3 data-i18n="presentar_pitch_mi_pitch">Pitch de mi equipo</h3>
 
           <div id="textoGuardado" class="pitch-text" aria-live="polite">
             {% if miPitch %}
               <div style="white-space: pre-wrap;">{{ miPitch }}</div>
             {% else %}
-              <em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>
+              <em data-i18n="presentar_pitch_sin_texto">No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>
             {% endif %}
           </div>
         </article>
 
         <article class="panel orden-panel">
-          <h3>Orden del pitch</h3>
+          <h3 data-i18n="presentar_pitch_orden_titulo">Orden del pitch</h3>
 
           <ol id="ordenPitchAlumno" class="orden-pitch-lista">
-            <li>Esperando sorteo...</li>
+            <li data-i18n="presentar_pitch_esperando_sorteo">Esperando sorteo...</li>
           </ol>
         </article>
       </section>
@@ -391,7 +391,7 @@
 
     <footer class="footer-actions">
       <div class="left-actions">
-        <span class="subtitle">Consejo: enfoquen problema, solución, impacto y próximos pasos.</span>
+        <span class="subtitle" data-i18n="presentar_pitch_consejo">Consejo: enfoquen problema, solución, impacto y próximos pasos.</span>
       </div>
     </footer>
   </main>
@@ -403,6 +403,29 @@
     const grupoId = "{{ grupo.idgrupo }}";
     let redirigiendoPitch = false;
     let pollingEstadoPresentacion = null;
+
+    function tPitch(clave, fallback) {
+      try {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function actualizarTextosEstaticosPitch() {
+      document.title = tPitch("presentar_pitch_document_title", "Misión Emprende UDD — Presentar Pitch");
+
+      const img = document.getElementById("grupoActualAlumnoFoto");
+      if (img) {
+        img.alt = tPitch("presentar_pitch_foto_alt", "Foto del lego del grupo que está presentando");
+      }
+
+      const aside = document.querySelector(".timer-panel");
+      if (aside) {
+        aside.setAttribute("aria-label", tPitch("presentar_pitch_aria_temporizador", "Temporizador de Pitch"));
+      }
+    }
 
     function formatearTiempo(totalSegundos) {
       const segundos = Math.max(0, Number(totalSegundos || 0));
@@ -416,14 +439,14 @@
       if (!lista) return;
 
       if (!ordenPitch || !ordenPitch.length) {
-        lista.innerHTML = "<li>Esperando sorteo...</li>";
+        lista.innerHTML = `<li>${tPitch("presentar_pitch_esperando_sorteo", "Esperando sorteo...")}</li>`;
         return;
       }
 
       lista.innerHTML = ordenPitch.map(item => {
         const esActual = grupoActual && String(grupoActual.id) === String(item.id);
         return `<li ${esActual ? 'style="font-weight:700;color:#00C8FF;"' : ""}>
-          ${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}
+          ${item.orden}. ${item.nombre}${esActual ? ` ${tPitch("presentar_pitch_presentando_flecha", "← presentando")}` : ""}
         </li>`;
       }).join("");
     }
@@ -444,6 +467,7 @@
       foto.removeAttribute("src");
       foto.style.display = "none";
       sinFoto.style.display = "flex";
+      sinFoto.textContent = tPitch("presentar_pitch_sin_foto", "Este equipo no subió foto de su solución LEGO.");
     }
 
     function renderBotonInicio(data) {
@@ -467,24 +491,29 @@
 
       if (timerCorriendo) {
         btn.disabled = true;
-        btn.textContent = "Presentando...";
-        help.textContent = "Tu presentación está en curso.";
+        btn.textContent = tPitch("presentar_pitch_boton_presentando", "Presentando...");
+        help.textContent = tPitch("presentar_pitch_help_en_curso", "Tu presentación está en curso.");
         return;
       }
 
       if (tiempo <= 0) {
         btn.disabled = true;
-        btn.textContent = "Tiempo finalizado";
-        help.textContent = "Esperando cambio a evaluación.";
+        btn.textContent = tPitch("presentar_pitch_boton_tiempo_finalizado", "Tiempo finalizado");
+        help.textContent = tPitch("presentar_pitch_help_esperando_evaluacion", "Esperando cambio a evaluación.");
         return;
       }
 
       btn.disabled = false;
-      btn.textContent = "⚡ Iniciar presentación";
-      help.innerHTML = "Tu equipo está presentando ahora. Presionen <strong>“Iniciar presentación”</strong> para comenzar el temporizador.";
+      btn.textContent = tPitch("presentar_pitch_boton_iniciar", "⚡ Iniciar presentación");
+      help.innerHTML = tPitch(
+        "presentar_pitch_help_iniciar_html",
+        "Tu equipo está presentando ahora. Presionen <strong>“Iniciar presentación”</strong> para comenzar el temporizador."
+      );
     }
 
     function renderEstadoPresentacion(data) {
+      actualizarTextosEstaticosPitch();
+
       if (data.faseActual && data.faseActual !== "f4_presentacion_pitch") {
         if (!redirigiendoPitch) {
           redirigiendoPitch = true;
@@ -501,11 +530,11 @@
       const textoGuardado = document.getElementById("textoGuardado");
 
       if (nombre) {
-        nombre.textContent = grupoActual ? grupoActual.nombre : "Esperando sorteo...";
+        nombre.textContent = grupoActual ? grupoActual.nombre : tPitch("presentar_pitch_esperando_sorteo", "Esperando sorteo...");
       }
 
       if (orden) {
-        orden.textContent = grupoActual ? `Orden ${grupoActual.orden}` : "-";
+        orden.textContent = grupoActual ? `${tPitch("presentar_pitch_orden_label", "Orden")} ${grupoActual.orden}` : "-";
       }
 
       renderFotoOTexto(grupoActual);
@@ -525,7 +554,7 @@
               .replace(/&/g, "&amp;")
               .replace(/</g, "&lt;")
               .replace(/>/g, "&gt;")}</div>`
-          : `<em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>`;
+          : `<em>${tPitch("presentar_pitch_sin_texto", "No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.")}</em>`;
       }
 
       renderOrdenAlumno(data.ordenPitch, grupoActual);
@@ -566,7 +595,7 @@
       if (!btn) return;
 
       btn.disabled = true;
-      btn.textContent = "Iniciando...";
+      btn.textContent = tPitch("presentar_pitch_boton_iniciando", "Iniciando...");
 
       try {
         const res = await fetch(`/sesion/${sesionId}/iniciar-presentacion/`, {
@@ -582,7 +611,7 @@
         const data = await res.json();
 
         if (!res.ok || !data.ok) {
-          throw new Error(data.error || "No se pudo iniciar la presentación.");
+          throw new Error(data.error || tPitch("presentar_pitch_error_no_iniciar", "No se pudo iniciar la presentación."));
         }
 
         renderEstadoPresentacion(data);
@@ -590,15 +619,17 @@
         console.error("Error iniciando presentación:", error);
 
         btn.disabled = false;
-        btn.textContent = "⚡ Iniciar presentación";
+        btn.textContent = tPitch("presentar_pitch_boton_iniciar", "⚡ Iniciar presentación");
 
         if (help) {
-          help.textContent = error.message || "No se pudo iniciar el temporizador.";
+          help.textContent = error.message || tPitch("presentar_pitch_error_temporizador", "No se pudo iniciar el temporizador.");
         }
       }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      actualizarTextosEstaticosPitch();
+
       const btn = document.getElementById("btnIniciarPresentacion");
 
       if (btn) {

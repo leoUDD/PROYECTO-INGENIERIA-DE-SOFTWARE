@@ -110,27 +110,27 @@
     }
 
     .criterio-slider-item {
-  padding: 18px !important;
-  border-radius: 16px !important;
-  background: #102944 !important;
-  border: 1px solid rgba(0, 200, 255, 0.28) !important;
-  margin-bottom: 16px !important;
-}
+      padding: 18px !important;
+      border-radius: 16px !important;
+      background: #102944 !important;
+      border: 1px solid rgba(0, 200, 255, 0.28) !important;
+      margin-bottom: 16px !important;
+    }
 
     .criterio-slider-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
-}
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
 
-.criterio-label {
-  color: #FF7A1A !important;
-  font-weight: 900;
-  margin: 0;
-  font-size: 1.12rem;
-}
+    .criterio-label {
+      color: #FF7A1A !important;
+      font-weight: 900;
+      margin: 0;
+      font-size: 1.12rem;
+    }
 
     .score-pill {
       min-width: 132px;
@@ -311,24 +311,15 @@
       <div class="card shadow-sm peer-card">
         <div class="card-body">
 
-          <h1 class="h4 mb-2 peer-title">Evaluación de Proyectos</h1>
+          <h1 class="h4 mb-2 peer-title" data-i18n="peer_titulo">Evaluación de Proyectos</h1>
 
           <div class="bloque-instrucciones">
-            <strong>Antes de evaluar:</strong><br>
-            1) Solo se evalúa al equipo que está presentando en esta ronda.<br>
-            2) Tienen <strong>1 minuto y 30 segundos</strong> para evaluar.<br>
-            3) Si todos evalúan antes, el juego avanza automáticamente.<br>
-            4) Si un equipo no termina a tiempo, las áreas faltantes se completarán con nota máxima y ese equipo perderá <strong>2 tokens</strong>.
+            <strong data-i18n="peer_antes_evaluar">Antes de evaluar:</strong><br>
+            <span data-i18n="peer_instruccion_1">1) Solo se evalúa al equipo que está presentando en esta ronda.</span><br>
+            <span data-i18n="peer_instruccion_2_html">2) Tienen <strong>1 minuto y 30 segundos</strong> para evaluar.</span><br>
+            <span data-i18n="peer_instruccion_3">3) Si todos evalúan antes, el juego avanza automáticamente.</span><br>
+            <span data-i18n="peer_instruccion_4_html">4) Si un equipo no termina a tiempo, las áreas faltantes se completarán con nota máxima y ese equipo perderá <strong>2 tokens</strong>.</span>
           </div>
-
-          <p class="texto-secundario mb-3">
-            Sesión:
-            <strong>{{ session.nombre }}</strong>
-            · Tu equipo:
-            <strong>{{ evaluator_team.nombregrupo }}</strong>
-            · Tokens:
-            <strong>{{ evaluator_team.tokensgrupo|default:0 }}</strong>
-          </p>
 
           {% if messages %}
             {% for message in messages %}
@@ -340,39 +331,39 @@
 
           <div class="bloque-progreso">
             <p class="mb-1">
-              Equipo presentando ahora:
+              <span data-i18n="peer_equipo_presentando_ahora">Equipo presentando ahora:</span>
               <strong>{{ grupo_objetivo.nombregrupo }}</strong>
             </p>
 
             <p class="mb-1">
-              ⏱️ Tiempo restante:
-              <strong id="timerEvaluacion" class="timer-evaluacion">--</strong>
+              ⏱️ <span data-i18n="peer_tiempo_restante">Tiempo restante:</span>
+              <strong id="timerEvaluacion" class="timer-evaluacion">1:30</strong>
             </p>
 
             {% if mi_equipo_presenta %}
-              <p class="mb-0 texto-ayuda">
+              <p class="mb-0 texto-ayuda" data-i18n="peer_mi_equipo_presenta_help">
                 Tu equipo está presentando. Espera a que los demás equipos terminen de evaluar.
               </p>
             {% else %}
-              <p class="mb-0 texto-ayuda">
+              <p class="mb-0 texto-ayuda" data-i18n="peer_evalua_este_equipo">
                 Evalúa solo a este equipo en esta ronda.
               </p>
             {% endif %}
           </div>
 
           {% if mi_equipo_presenta %}
-            <div class="alert alert-info">
+            <div class="alert alert-info" data-i18n="peer_alert_mi_equipo_presenta">
               Tu equipo está presentando en este momento. No debes completar esta evaluación.
             </div>
 
           {% elif ya_evaluo %}
-            <div class="alert alert-success">
+            <div class="alert alert-success" data-i18n="peer_alert_ya_evaluo">
               Tu equipo ya envió la evaluación de esta presentación. Espera a que termine la ronda.
             </div>
 
           {% else %}
             <div class="equipo-objetivo-box">
-              <label class="form-label fw-semibold mb-1">Equipo evaluado en esta ronda</label>
+              <label class="form-label fw-semibold mb-1" data-i18n="peer_equipo_evaluado_label">Equipo evaluado en esta ronda</label>
               <div>
                 <strong>{{ grupo_objetivo.nombregrupo }}</strong>
               </div>
@@ -382,12 +373,16 @@
               {% csrf_token %}
 
               <div class="criterio-box mb-3">
-                <h2 class="h6">Evalúa la presentación</h2>
+                <h2 class="h6" data-i18n="peer_evalua_presentacion">Evalúa la presentación</h2>
 
                 {% for c in criteria %}
                   <div class="criterio-slider-item">
                     <div class="criterio-slider-header">
-                      <label class="criterio-label" for="score_{{ c.key }}">
+                      <label
+                        class="criterio-label"
+                        for="score_{{ c.key }}"
+                        data-criterio-key="{{ c.key }}"
+                      >
                         {{ c.label }}
                       </label>
 
@@ -417,8 +412,8 @@
                     </div>
 
                     <div class="range-help">
-                      <span>Muy bajo</span>
-                      <span>Excelente</span>
+                      <span data-i18n="peer_muy_bajo">Muy bajo</span>
+                      <span data-i18n="peer_excelente">Excelente</span>
                     </div>
                   </div>
                 {% endfor %}
@@ -426,7 +421,8 @@
 
               <div class="comentario-box mb-3">
                 <label class="form-label" for="comment">
-                  Comentario para el equipo <span style="font-weight:600; color:#AAB7C8;">(opcional)</span>
+                  <span data-i18n="peer_comentario_label">Comentario para el equipo</span>
+                  <span style="font-weight:600; color:#AAB7C8;" data-i18n="peer_opcional">(opcional)</span>
                 </label>
 
                 <textarea
@@ -438,13 +434,13 @@
                   placeholder="Puedes escribir una fortaleza o una sugerencia concreta para el equipo..."
                 ></textarea>
 
-                <div class="form-text">
+                <div class="form-text" data-i18n="peer_comentario_help">
                   Este comentario quedará guardado para mostrarse más adelante al profesor/admin.
                 </div>
               </div>
 
               <div class="d-flex gap-2 flex-wrap">
-                <button type="submit" class="btn btn-primary btn-enviar-peer" id="btnEnviarEvaluacion">
+                <button type="submit" class="btn btn-primary btn-enviar-peer" id="btnEnviarEvaluacion" data-i18n="peer_boton_enviar">
                   Enviar evaluación
                 </button>
               </div>
@@ -465,12 +461,60 @@
     const timerEvaluacion = document.getElementById("timerEvaluacion");
 
     let redirigiendo = false;
+    let fallbackInicioEvaluacion = Date.now();
+    const FALLBACK_SEGUNDOS_EVALUACION = 90;
+
+    function tPeer(clave, fallback) {
+      try {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function aplicarTextosPeer() {
+      document.title = tPeer("peer_document_title", "Misión Emprende UDD — Evaluación de Proyectos");
+
+      const comment = document.getElementById("comment");
+      if (comment) {
+        comment.placeholder = tPeer(
+          "peer_comentario_placeholder",
+          "Puedes escribir una fortaleza o una sugerencia concreta para el equipo..."
+        );
+      }
+
+      document.querySelectorAll("[data-criterio-key]").forEach(label => {
+        const key = label.dataset.criterioKey;
+        const fallback = label.textContent.trim();
+        label.textContent = tPeer(`peer_criterio_${key}`, fallback);
+      });
+    }
 
     function formatearTiempo(segundos) {
       segundos = Math.max(Number(segundos || 0), 0);
       const min = Math.floor(segundos / 60);
       const seg = segundos % 60;
       return `${min}:${String(seg).padStart(2, "0")}`;
+    }
+
+    function segundosFallback() {
+      const transcurridos = Math.floor((Date.now() - fallbackInicioEvaluacion) / 1000);
+      return Math.max(FALLBACK_SEGUNDOS_EVALUACION - transcurridos, 0);
+    }
+
+    function segundosParaMostrar(data) {
+      const segundosBackend = Number(data?.segundosRestantes || 0);
+
+      if (segundosBackend > 0) {
+        return segundosBackend;
+      }
+
+      if (data?.faseActual === "f5_evaluacion_pitch") {
+        return segundosFallback();
+      }
+
+      return 0;
     }
 
     function textoScore(valor) {
@@ -543,6 +587,8 @@
       }
     }
 
+    aplicarTextosPeer();
+
     document.querySelectorAll(".score-range").forEach(slider => {
       actualizarSlider(slider);
       slider.addEventListener("input", () => actualizarSlider(slider));
@@ -552,7 +598,7 @@
     if (form && btn) {
       form.addEventListener("submit", () => {
         btn.disabled = true;
-        btn.textContent = "Enviando...";
+        btn.textContent = tPeer("peer_boton_enviando", "Enviando...");
       });
     }
 
@@ -570,7 +616,7 @@
         const data = await res.json();
 
         if (timerEvaluacion) {
-          timerEvaluacion.textContent = formatearTiempo(data.segundosRestantes);
+          timerEvaluacion.textContent = formatearTiempo(segundosParaMostrar(data));
         }
 
         if (data.faseActual !== "f5_evaluacion_pitch") {
@@ -601,4 +647,4 @@
   {% include "includes/sincronizacion_fase.html" %}
 {% endwith %}
 </body>
-</html> 
+</html>
