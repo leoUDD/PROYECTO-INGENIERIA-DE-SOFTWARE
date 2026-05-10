@@ -14,6 +14,103 @@
       overflow: hidden;
     }
 
+    /* ── Diálogo del agente ── */
+    .dialogo-inicial-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(1, 12, 28, 0.55);
+      backdrop-filter: blur(5px);
+      padding: 20px;
+    }
+
+    .dialogo-inicial-overlay.oculto {
+      display: none;
+    }
+
+    .dialogo-inicial-card {
+      width: min(90%, 540px);
+      background: radial-gradient(circle at top left, rgba(0,200,255,.15), transparent 40%),
+                  rgba(8, 24, 48, 0.96);
+      border: 1px solid rgba(0,200,255,.30);
+      border-radius: 24px;
+      padding: 24px 24px 20px;
+      box-shadow: 0 18px 42px rgba(0,0,0,.4);
+      color: #fff;
+      animation: astroCardIn .35s ease both;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .dialogo-texto {
+      flex: 1;
+    }
+
+    .dialogo-texto h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #00c8ff;
+      margin-bottom: 10px;
+    }
+
+    .dialogo-texto p {
+      font-size: 1rem;
+      line-height: 1.55;
+      color: #d9e6f2;
+      margin-bottom: 14px;
+    }
+
+    .dialogo-texto p strong {
+      color: #ffe29a;
+    }
+
+    .dialogo-agente-img {
+      width: 160px;
+      height: auto;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 20px rgba(255,122,26,.45));
+      pointer-events: none;
+    }
+
+    .btn-dialogo-continuar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,200,255,.4);
+      background: linear-gradient(135deg, rgba(0,200,255,.85), rgba(0,120,255,.85));
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .25s ease;
+      box-shadow: 0 0 14px rgba(0,200,255,.3);
+    }
+
+    .btn-dialogo-continuar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 22px rgba(0,200,255,.5);
+    }
+
+    @media (max-width: 640px) {
+      .dialogo-inicial-card {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+
+      .dialogo-agente-img { width: 120px; }
+
+      .btn-dialogo-continuar {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     .inicio-fase-overlay {
       position: absolute;
       inset: 0;
@@ -85,9 +182,7 @@
       box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
     }
 
-    .btn-chip:active {
-      transform: scale(0.97);
-    }
+    .btn-chip:active { transform: scale(0.97); }
 
     .btn-chip:disabled {
       opacity: 0.65;
@@ -117,136 +212,52 @@
       transition: all .3s ease;
     }
 
-    .timer-esperando {
-      opacity: .55;
-    }
-
-    .overlay-hidden {
-      display: none;
-    }
+    .timer-esperando { opacity: .55; }
+    .overlay-hidden  { display: none; }
 
     @media (max-width: 900px) {
-      .inicio-fase-overlay {
-        padding-top: 20px;
-      }
-
-      .inicio-fase-card {
-        width: min(94%, 680px);
-        padding: 16px 18px;
-      }
-
-      .inicio-fase-card h3 {
-        font-size: 1.05rem;
-      }
-
-      .inicio-fase-card p {
-        font-size: 0.95rem;
-      }
-
-      .btn-chip {
-        font-size: 0.92rem;
-        padding: 10px 16px;
-      }
-
-      .astro-card {
-        width: min(90%, 520px);
-      }
+      .inicio-fase-overlay { padding-top: 20px; }
+      .inicio-fase-card { width: min(94%, 680px); padding: 16px 18px; }
+      .inicio-fase-card h3 { font-size: 1.05rem; }
+      .inicio-fase-card p  { font-size: 0.95rem; }
+      .btn-chip { font-size: 0.92rem; padding: 10px 16px; }
+      .astro-card { width: min(90%, 520px); }
     }
 
     @media (max-width: 640px) {
-      .inicio-fase-overlay {
-        padding: 14px 12px 12px;
-        align-items: flex-start;
-      }
-
-      .inicio-fase-card {
-        width: 100%;
-        border-radius: 18px;
-        padding: 14px 14px 16px;
-      }
-
-      .inicio-fase-badge {
-        font-size: 0.8rem;
-        padding: 6px 12px;
-      }
-
-      .inicio-fase-card h3 {
-        font-size: 1rem;
-      }
-
-      .inicio-fase-card p {
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
-
-      .btn-chip {
-        width: 100%;
-        justify-content: center;
-        font-size: 0.92rem;
-      }
-
-      .contador-fase {
-        font-size: 0.9rem;
-      }
-
-      .astro-trigger {
-        width: 74px;
-        height: 74px;
-      }
-
-      .astro-card {
-        width: min(92%, 420px);
-        padding: 18px 16px 16px;
-        border-radius: 20px;
-      }
-
-      .astro-card h3 {
-        font-size: 1.05rem;
-      }
-
-      .astro-card p {
-        font-size: 0.9rem;
-        line-height: 1.45;
-      }
+      .inicio-fase-overlay { padding: 14px 12px 12px; align-items: flex-start; }
+      .inicio-fase-card { width: 100%; border-radius: 18px; padding: 14px 14px 16px; }
+      .inicio-fase-badge { font-size: 0.8rem; padding: 6px 12px; }
+      .inicio-fase-card h3 { font-size: 1rem; }
+      .inicio-fase-card p  { font-size: 0.9rem; line-height: 1.4; }
+      .btn-chip { width: 100%; justify-content: center; font-size: 0.92rem; }
+      .contador-fase { font-size: 0.9rem; }
+      .astro-card { width: min(92%, 420px); padding: 18px 16px 16px; border-radius: 20px; }
+      .astro-card h3 { font-size: 1.05rem; }
+      .astro-card p  { font-size: 0.9rem; line-height: 1.45; }
     }
-
 
     /* ===== ASTRONAUTA INTERACTIVO ===== */
     .astro-trigger {
       position: absolute;
       top: clamp(92px, 18vh, 190px);
       left: clamp(18px, 7vw, 86px);
-      width: 86px;
-      height: 86px;
+      width: 118px;
+      height: 118px;
       border: none;
       border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(0,200,255,.24);
-      box-shadow: 0 10px 26px rgba(0,0,0,.25), 0 0 18px rgba(0,200,255,.18);
+      background: transparent;
+      box-shadow: none;
       cursor: pointer;
       z-index: 12;
       display: grid;
       place-items: center;
       animation: astroFloat 6s ease-in-out infinite alternate;
-      transition: transform .2s ease, box-shadow .2s ease;
+      transition: transform .2s ease;
     }
 
-    .astro-trigger:hover {
-      transform: scale(1.06);
-      box-shadow: 0 12px 30px rgba(0,0,0,.30), 0 0 24px rgba(0,200,255,.32);
-    }
-
-    .astro-trigger.oculto {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .astro-icon {
-      font-size: 2.9rem;
-      line-height: 1;
-      animation: astroBounce 1.25s ease-in-out infinite alternate;
-      filter: drop-shadow(0 5px 8px rgba(0,0,0,.25));
-    }
+    .astro-trigger:hover { transform: scale(1.06); }
+    .astro-trigger.oculto { opacity: 0; pointer-events: none; }
 
     .astro-signal {
       position: absolute;
@@ -260,20 +271,22 @@
       animation: astroPing 1.5s infinite;
     }
 
+    .astro-img-falling {
+      width: 150px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 0 18px rgba(0,200,255,.55));
+    }
+
     @keyframes astroFloat {
-      0% { transform: translate(0, 0) rotate(-4deg); }
-      50% { transform: translate(58px, 34px) rotate(5deg); }
+      0%   { transform: translate(0, 0) rotate(-4deg); }
+      50%  { transform: translate(58px, 34px) rotate(5deg); }
       100% { transform: translate(122px, 72px) rotate(-3deg); }
     }
 
-    @keyframes astroBounce {
-      from { transform: translateY(0) scale(1); }
-      to { transform: translateY(-10px) scale(1.04); }
-    }
-
     @keyframes astroPing {
-      0% { box-shadow: 0 0 0 0 rgba(0,200,255,.65); }
-      75% { box-shadow: 0 0 0 13px rgba(0,200,255,0); }
+      0%   { box-shadow: 0 0 0 0 rgba(0,200,255,.65); }
+      75%  { box-shadow: 0 0 0 13px rgba(0,200,255,0); }
       100% { box-shadow: 0 0 0 0 rgba(0,200,255,0); }
     }
 
@@ -289,13 +302,14 @@
       padding: 18px;
     }
 
-    .astro-overlay.activo {
-      display: flex;
-    }
+    .astro-overlay.activo { display: flex; }
 
     .astro-card {
       width: min(90%, 480px);
       padding: 22px 22px 18px;
+      padding-left: 155px;
+      min-height: 260px;
+      text-align: left;
       border-radius: 24px;
       background:
         radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%),
@@ -303,25 +317,21 @@
       border: 1px solid rgba(0,200,255,.30);
       box-shadow: 0 18px 42px rgba(0,0,0,.38);
       color: #ffffff;
-      text-align: center;
       animation: astroCardIn .32s ease both;
+      position: relative;
     }
 
-    .astro-card h3 {
-      margin: 0 0 12px;
-      color: #00c8ff;
-      font-size: 1.25rem;
-    }
+    .astro-card h3 { margin: 0 0 12px; color: #00c8ff; font-size: 1.25rem; position: relative; z-index: 2; }
+    .astro-card p  { margin: 0 0 10px; line-height: 1.5; color: #d9e6f2; font-size: .98rem; position: relative; z-index: 2; }
+    .astro-card strong { color: #ffe29a; }
 
-    .astro-card p {
-      margin: 0 0 10px;
-      line-height: 1.5;
-      color: #d9e6f2;
-      font-size: .98rem;
-    }
-
-    .astro-card strong {
-      color: #ffe29a;
+    .astro-img-standing {
+      position: absolute;
+      left: -35px;
+      bottom: -8px;
+      width: 185px;
+      height: auto;
+      filter: drop-shadow(0 0 20px rgba(255,122,26,.45));
     }
 
     .astro-close {
@@ -334,81 +344,47 @@
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 10px 24px rgba(0,200,255,.20);
+      position: relative;
+      z-index: 2;
     }
 
     @keyframes astroCardIn {
       from { transform: translateY(12px) scale(.96); opacity: 0; }
-      to { transform: translateY(0) scale(1); opacity: 1; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-
-    .astro-trigger {
-  width: 118px;
-  height: 118px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
-.astro-img-falling {
-  width: 150px;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 0 18px rgba(0, 200, 255, .55));
-}
-
-.astro-card {
-  position: relative;
-  padding-left: 155px;
-  min-height: 260px;
-  text-align: left;
-}
-
-.astro-img-standing {
-  position: absolute;
-  left: -35px;
-  bottom: -8px;
-  width: 185px;
-  height: auto;
-  filter: drop-shadow(0 0 20px rgba(255, 122, 26, .45));
-}
-
-.astro-card h3,
-.astro-card p {
-  position: relative;
-  z-index: 2;
-}
-
-@media (max-width: 640px) {
-  .astro-img-falling {
-    width: 115px;
-  }
-
-  .astro-card {
-    padding-left: 18px;
-    padding-top: 145px;
-    text-align: center;
-  }
-
-  .astro-img-standing {
-    left: 50%;
-    top: -40px;
-    bottom: auto;
-    transform: translateX(-50%);
-    width: 135px;
-  }
-}
+    @media (max-width: 640px) {
+      .astro-img-falling { width: 115px; }
+      .astro-card { padding-left: 18px; padding-top: 145px; text-align: center; }
+      .astro-img-standing { left: 50%; top: -40px; bottom: auto; transform: translateX(-50%); width: 135px; }
+    }
   </style>
 </head>
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
 
+    <!-- Diálogo del agente — aparece cuando todos están listos -->
+    <div id="dialogo-inicial-overlay" class="dialogo-inicial-overlay oculto">
+      <div class="dialogo-inicial-card">
+        <div class="dialogo-texto">
+          <h3>¡Hola, Agente!</h3>
+          <p>
+            Soy <strong>NOMBRE_DEL_AGENTE</strong>, tu guía en esta misión.<br>
+            Estás a punto de comenzar una experiencia que pondrá a prueba a tu equipo.
+          </p>
+          <p>¿Estás listo para aceptar el desafío?</p>
+          <button class="btn-dialogo-continuar" id="btn-dialogo-continuar" type="button">
+            ¡Entendido!
+          </button>
+        </div>
+        <img class="dialogo-agente-img" src="{% static 'images/foto2.png' %}" alt="Agente">
+      </div>
+    </div>
+
     <div id="inicio-fase-overlay" class="inicio-fase-overlay">
       <section id="inicio-fase-card" class="inicio-fase-card">
         <div class="inicio-fase-badge">Fase de activación</div>
-
         <h3>Antes de comenzar</h3>
-
         <p>
           {% if modo_rapido %}
             Cada integrante debe compartir un dato curioso o responder una pregunta rápida.
@@ -416,48 +392,32 @@
             Cada integrante debe decir su nombre y compartir un dato curioso sobre sí mismo.
           {% endif %}
         </p>
-
         <p>
           Tendrán <strong>10 segundos</strong> para esta actividad. Cuando todos los equipos presionen
-          <strong>“Listo para comenzar”</strong>, la dinámica se habilitará automáticamente.
+          <strong>"Listo para comenzar"</strong>, la dinámica se habilitará automáticamente.
         </p>
-
         <button class="btn-chip" id="btn-listo-fase" type="button">
           ⚡ Listo para comenzar
         </button>
-
-        <p id="texto-espera-fase" class="contador-fase">
-          Esperando a los demás equipos...
-        </p>
-
-        <p id="contador-listos-fase" class="contador-fase">
-          0/0 grupos listos
-        </p>
+        <p id="texto-espera-fase" class="contador-fase">Esperando a los demás equipos...</p>
+        <p id="contador-listos-fase" class="contador-fase">0/0 grupos listos</p>
       </section>
     </div>
 
     <h1 id="tituloConocidos" class="title blur-target-bloqueado">¡Es momento de conocerse!</h1>
 
     <div id="speechBubbleConocidos" class="speech-bubble blur-target-bloqueado">
-
-
       <p class="body">
         {% if modo_rapido %}
           Compartan un dato curioso o respondan una pregunta para activar al equipo.
         {% else %}
-           Di tu nombre y comparte un dato curioso sobre ti.
+          Di tu nombre y comparte un dato curioso sobre ti.
         {% endif %}
       </p>
-
-      <p class="body pregunta-random" id="preguntaTexto">
-        👉 Cargando pregunta...
-      </p>
-
-      <button class="btn-random" id="btnPregunta" type="button">
-        Nueva pregunta
-      </button>
+      <p class="body pregunta-random" id="preguntaTexto">👉 Cargando pregunta...</p>
+      <button class="btn-random" id="btnPregunta" type="button">Nueva pregunta</button>
     </div>
-    
+
     <!-- 🚀 ASTRONAUTA INTERACTIVO -->
     <button id="astro-trigger" class="astro-trigger" type="button" aria-label="Abrir mensaje del astronauta">
       <span class="astro-signal" aria-hidden="true"></span>
@@ -468,25 +428,16 @@
       <div id="astro-card" class="astro-card">
         <img class="astro-img-standing" src="{% static 'images/Parado.png' %}" alt="" aria-hidden="true">
         <h3>👨‍🚀 Mensaje del astronauta</h3>
-        <p>
-          ¡Gracias por ayudarme! En compensación, les aviso algo importante:
-        </p>
-        <p>
-          Más adelante serán evaluados por <strong>Creatividad</strong>.
-        </p>
-        <p>
-          Si encuentran mis objetos perdidos durante la misión, les daré más consejos.
-        </p>
-
+        <p>¡Gracias por ayudarme! En compensación, les aviso algo importante:</p>
+        <p>Más adelante serán evaluados por <strong>Creatividad</strong>.</p>
+        <p>Si encuentran mis objetos perdidos durante la misión, les daré más consejos.</p>
         <button id="astro-close" class="astro-close" type="button">Entendido</button>
       </div>
-
       <audio id="astro-talk-audio" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
       <audio id="astro-exit-audio" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
     </div>
 
     <h2 id="timer" class="blur-target-bloqueado timer-esperando">00:10</h2>
-
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
     <div
@@ -497,30 +448,29 @@
 
     <script>
       (function () {
-        const routesEl = document.getElementById("routes");
-        const sesionId = routesEl?.dataset?.sesionId;
-        const grupoId = "{{ grupo.idgrupo }}";
-        const csrfToken = "{{ csrf_token }}";
+        const routesEl       = document.getElementById("routes");
+        const sesionId       = routesEl?.dataset?.sesionId;
+        const grupoId        = "{{ grupo.idgrupo }}";
+        const csrfToken      = "{{ csrf_token }}";
 
-        const timerElement = document.getElementById("timer");
-        const alarmAudio = document.getElementById("alarm-audio");
-
-        const btnPregunta = document.getElementById("btnPregunta");
-        const preguntaTexto = document.getElementById("preguntaTexto");
-
-        const overlay = document.getElementById("inicio-fase-overlay");
-        const botonListo = document.getElementById("btn-listo-fase");
-        const textoEspera = document.getElementById("texto-espera-fase");
+        const timerElement   = document.getElementById("timer");
+        const alarmAudio     = document.getElementById("alarm-audio");
+        const btnPregunta    = document.getElementById("btnPregunta");
+        const preguntaTexto  = document.getElementById("preguntaTexto");
+        const overlay        = document.getElementById("inicio-fase-overlay");
+        const botonListo     = document.getElementById("btn-listo-fase");
+        const textoEspera    = document.getElementById("texto-espera-fase");
         const contadorListos = document.getElementById("contador-listos-fase");
-
-        const astroTrigger = document.getElementById("astro-trigger");
-        const astroOverlay = document.getElementById("astro-overlay");
-        const astroClose = document.getElementById("astro-close");
+        const astroTrigger   = document.getElementById("astro-trigger");
+        const astroOverlay   = document.getElementById("astro-overlay");
+        const astroClose     = document.getElementById("astro-close");
         const astroTalkAudio = document.getElementById("astro-talk-audio");
         const astroExitAudio = document.getElementById("astro-exit-audio");
+        const dialogoOverlay = document.getElementById("dialogo-inicial-overlay");
+        const btnDialogoContinuar = document.getElementById("btn-dialogo-continuar");
+
         if (astroTalkAudio) astroTalkAudio.volume = 0.25;
         if (astroExitAudio) astroExitAudio.volume = 0.25;
-        const speechBubble = document.getElementById("speechBubbleConocidos");
 
         const blurTargets = [
           document.getElementById("tituloConocidos"),
@@ -541,27 +491,23 @@
           "¿Qué harías si no tuvieras miedo a nada?"
         ];
 
-        let ultimoIndice = -1;
-        let timeLeft = Number(routesEl?.dataset?.tiempo || 10);
-        let timerInterval = null;
-        let timerIniciado = false;
-        let tiempoFinalizado = false;
-        let redirigiendo = false;
-        let yaListo = false;
-        let astroActivo = false;
-        let astroCerrado = false;
+        let ultimoIndice      = -1;
+        let timeLeft          = Number(routesEl?.dataset?.tiempo || 10);
+        let timerInterval     = null;
+        let timerIniciado     = false;
+        let tiempoFinalizado  = false;
+        let redirigiendo      = false;
+        let yaListo           = false;
+        let astroActivo       = false;
+        let astroCerrado      = false;
+        let yaDialogoMostrado = false;
 
         function cambiarPregunta() {
           if (!preguntaTexto) return;
-
           let random = Math.floor(Math.random() * preguntas.length);
-
           if (preguntas.length > 1) {
-            while (random === ultimoIndice) {
-              random = Math.floor(Math.random() * preguntas.length);
-            }
+            while (random === ultimoIndice) random = Math.floor(Math.random() * preguntas.length);
           }
-
           ultimoIndice = random;
           preguntaTexto.textContent = "👉 " + preguntas[random];
         }
@@ -570,7 +516,7 @@
           const minutes = Math.floor(Math.max(0, timeLeft) / 60);
           const seconds = Math.max(0, timeLeft) % 60;
           timerElement.textContent =
-            `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+            `${minutes.toString().padStart(2,"0")}:${seconds.toString().padStart(2,"0")}`;
         }
 
         function reproducirAlarma() {
@@ -584,12 +530,15 @@
         function activarFase() {
           blurTargets.forEach(el => {
             if (!el) return;
-            el.classList.remove("blur-target-bloqueado", "timer-esperando");
+            el.classList.remove("blur-target-bloqueado","timer-esperando");
             el.classList.add("blur-target-activo");
           });
+          if (overlay) overlay.classList.add("overlay-hidden");
 
-          if (overlay) {
-            overlay.classList.add("overlay-hidden");
+          // Mostrar diálogo del agente solo la primera vez
+          if (dialogoOverlay && !yaDialogoMostrado) {
+            yaDialogoMostrado = true;
+            dialogoOverlay.classList.remove("oculto");
           }
         }
 
@@ -599,79 +548,47 @@
             el.classList.remove("blur-target-activo");
             el.classList.add("blur-target-bloqueado");
           });
-
-          if (timerElement) {
-            timerElement.classList.add("timer-esperando");
-          }
-
-          if (overlay) {
-            overlay.classList.remove("overlay-hidden");
-          }
+          if (timerElement) timerElement.classList.add("timer-esperando");
+          if (overlay) overlay.classList.remove("overlay-hidden");
         }
 
         function pausarTimerLocal() {
-          if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-          }
+          if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         }
 
         function iniciarTimerLocal() {
           if (timerInterval || tiempoFinalizado || redirigiendo) return;
-
           timerIniciado = true;
           pintarTiempo();
-
           timerInterval = setInterval(() => {
-            if (redirigiendo) {
-              pausarTimerLocal();
-              return;
-            }
-
-            if (timeLeft > 0) {
-              timeLeft--;
-              pintarTiempo();
-            }
-
+            if (redirigiendo) { pausarTimerLocal(); return; }
+            if (timeLeft > 0) { timeLeft--; pintarTiempo(); }
             if (timeLeft <= 0) {
-              timeLeft = 0;
-              pintarTiempo();
-              pausarTimerLocal();
-
-              if (!tiempoFinalizado) {
-                tiempoFinalizado = true;
-                reproducirAlarma();
-              }
+              timeLeft = 0; pintarTiempo(); pausarTimerLocal();
+              if (!tiempoFinalizado) { tiempoFinalizado = true; reproducirAlarma(); }
             }
           }, 1000);
         }
 
         function sincronizarBoton(miGrupo) {
           if (!botonListo) return;
-
           if (miGrupo && miGrupo.listoLobby) {
             yaListo = true;
             botonListo.disabled = true;
             botonListo.textContent = "Esperando...";
-            if (textoEspera) {
-              textoEspera.textContent = "Esperando a los demás equipos...";
-            }
+            if (textoEspera) textoEspera.textContent = "Esperando a los demás equipos...";
           }
         }
 
         function procesarEstadoSesion(data) {
           if (!data) return;
-
           const faseActual = data.faseActual;
-
           if (contadorListos) {
             contadorListos.textContent =
               `${data.gruposListosLobby || 0}/${data.totalGrupos || 0} grupos listos`;
           }
-
           const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId)) || null;
           sincronizarBoton(miGrupo);
-
           if (faseActual && faseActual !== "f1_conocidos") {
             if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
               redirigiendo = true;
@@ -679,144 +596,87 @@
             }
             return;
           }
-
-          if (data.inicioFaseHabilitado) {
-            activarFase();
-          } else {
-            bloquearFase();
-          }
-
+          if (data.inicioFaseHabilitado) { activarFase(); } else { bloquearFase(); }
           const backendSeconds = Number(data.segundosRestantes);
-
           if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
-            timeLeft = backendSeconds;
-            pintarTiempo();
+            timeLeft = backendSeconds; pintarTiempo();
           }
-
           if (!timerIniciado && data.timerCorriendo && data.inicioFaseHabilitado) {
-            if (!Number.isNaN(backendSeconds)) {
-              timeLeft = backendSeconds;
-              pintarTiempo();
-            }
-            iniciarTimerLocal();
-            return;
+            if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+            iniciarTimerLocal(); return;
           }
-
           if (timerIniciado && !data.timerCorriendo) {
             pausarTimerLocal();
-
-            if (!Number.isNaN(backendSeconds)) {
-              timeLeft = backendSeconds;
-              pintarTiempo();
-            }
-
+            if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
             timerIniciado = false;
           }
         }
 
         async function consultarEstadoSesion() {
           if (redirigiendo || !sesionId) return;
-
           try {
             const res = await fetch(`/sesion/${sesionId}/estado/`, {
-              cache: "no-store",
-              credentials: "same-origin"
+              cache: "no-store", credentials: "same-origin"
             });
-
             if (!res.ok) return;
-
             const data = await res.json();
             procesarEstadoSesion(data);
           } catch (err) {
-            console.error("Error consultando estado de sesión:", err);
+            console.error("Error consultando estado:", err);
           }
         }
 
         function abrirAstro() {
           if (astroActivo || astroCerrado || !astroTrigger || !astroOverlay) return;
-
           astroActivo = true;
           astroTrigger.classList.add("oculto");
           astroOverlay.classList.add("activo");
-          astroOverlay.setAttribute("aria-hidden", "false");
-
-          if (astroTalkAudio) {
-            astroTalkAudio.currentTime = 0;
-            astroTalkAudio.play().catch(() => {});
-          }
+          astroOverlay.setAttribute("aria-hidden","false");
+          if (astroTalkAudio) { astroTalkAudio.currentTime = 0; astroTalkAudio.play().catch(() => {}); }
         }
 
         function cerrarAstro() {
           if (!astroActivo || !astroOverlay) return;
-
           astroOverlay.classList.remove("activo");
-          astroOverlay.setAttribute("aria-hidden", "true");
-
-          if (astroExitAudio) {
-            astroExitAudio.currentTime = 0;
-            astroExitAudio.play().catch(() => {});
-          }
-
+          astroOverlay.setAttribute("aria-hidden","true");
+          if (astroExitAudio) { astroExitAudio.currentTime = 0; astroExitAudio.play().catch(() => {}); }
           astroActivo = false;
           astroCerrado = true;
         }
 
-        if (btnPregunta) {
-          btnPregunta.addEventListener("click", cambiarPregunta);
-          cambiarPregunta();
-        }
+        if (btnPregunta)  { btnPregunta.addEventListener("click", cambiarPregunta); cambiarPregunta(); }
+        if (astroTrigger)  astroTrigger.addEventListener("click", abrirAstro);
+        if (astroClose)    astroClose.addEventListener("click", cerrarAstro);
 
-        if (astroTrigger) {
-          astroTrigger.addEventListener("click", abrirAstro);
-        }
-
-        if (astroClose) {
-          astroClose.addEventListener("click", cerrarAstro);
+        if (btnDialogoContinuar) {
+          btnDialogoContinuar.addEventListener("click", () => {
+            if (dialogoOverlay) dialogoOverlay.classList.add("oculto");
+          });
         }
 
         if (botonListo) {
           botonListo.addEventListener("click", async () => {
             if (yaListo) return;
-
             botonListo.disabled = true;
             botonListo.textContent = "Esperando...";
-
             try {
               const res = await fetch(`/grupo/${grupoId}/listo/`, {
                 method: "POST",
                 credentials: "same-origin",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-CSRFToken": csrfToken
-                },
+                headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
                 body: JSON.stringify({ fase: "f1_conocidos" })
               });
-
               const data = await res.json();
-
               yaListo = true;
-
               if (contadorListos) {
-                contadorListos.textContent =
-                  `${data.listos || 0}/${data.total || 0} grupos listos`;
+                contadorListos.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
               }
-
-              if (textoEspera) {
-                textoEspera.textContent = "Esperando a los demás equipos...";
-              }
-
+              if (textoEspera) textoEspera.textContent = "Esperando a los demás equipos...";
               if (data.inicio_fase_habilitado) {
                 activarFase();
-
                 const backendSeconds = Number(data.segundosRestantes);
-                if (!Number.isNaN(backendSeconds)) {
-                  timeLeft = backendSeconds;
-                  pintarTiempo();
-                }
-
-                if (!timerIniciado) {
-                  iniciarTimerLocal();
-                }
+                if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+                if (!timerIniciado) iniciarTimerLocal();
               }
             } catch (err) {
               console.error("Error marcando listo:", err);

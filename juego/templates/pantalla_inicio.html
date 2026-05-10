@@ -20,13 +20,11 @@
       <h1>¡Has sido reclutado para la misión!</h1>
 
       <div class="console-card">
-        <p class="console-title console-line">RECLUTAMIENTO CONFIRMADO</p>
-
-        <p class="console-line"><span class="console-label">Rol asignado:</span> Agente en entrenamiento</p>
-        <p class="console-line"><span class="console-label">Fase actual:</span> Activación</p>
-        <p class="console-line"><span class="console-label">Estado:</span> Preparado para iniciar</p>
-
-        <p class="console-prompt console-line">¿Aceptar misión?</p>
+        <p class="console-title console-line" data-text="RECLUTAMIENTO CONFIRMADO"></p>
+        <p class="console-line"><span class="console-label">Rol asignado:</span><span class="console-val" data-text=" Agente en entrenamiento"></span></p>
+        <p class="console-line"><span class="console-label">Fase actual:</span><span class="console-val" data-text=" Activación"></span></p>
+        <p class="console-line"><span class="console-label">Estado:</span><span class="console-val" data-text=" Preparado para iniciar"></span></p>
+        <p class="console-prompt console-line"><span class="console-val" data-text="¿Aceptar misión?"></span></p>
       </div>
 
       <div class="next-step">
@@ -40,6 +38,59 @@
   {% include "includes/sincronizacion_fase.html" %}
 
   <script>
+  // ── Typewriter ──
+  let sharedCtx = null;
+  function getCtx() {
+    if (!sharedCtx || sharedCtx.state === 'closed') {
+      sharedCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return sharedCtx;
+  }
+
+  function makeTypewriterSound() {
+    try {
+      const ctx  = getCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.value = 160 + Math.random() * 140;
+      const t = ctx.currentTime;
+      gain.gain.setValueAtTime(0.035, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+      osc.start(t); osc.stop(t + 0.05);
+    } catch(e) {}
+  }
+
+  function typewrite(el, text, cb) {
+    el.textContent = '';
+    let i = 0;
+    function tick() {
+      if (i < text.length) {
+        el.textContent += text[i++];
+        makeTypewriterSound();
+        setTimeout(tick, 32 + Math.random() * 28);
+      } else {
+        setTimeout(cb, 150);
+      }
+    }
+    tick();
+  }
+
+  function typewriteSequence(elements) {
+    let i = 0;
+    function next() {
+      if (i >= elements.length) return;
+      const el   = elements[i++];
+      const text = el.getAttribute('data-text');
+      typewrite(el, text, next);
+    }
+    setTimeout(next, 500);
+  }
+
+  typewriteSequence([...document.querySelectorAll('[data-text]')]);
+
+  // ── Sincronización original intacta ──
   (function () {
     const boton = document.getElementById("btnComenzar");
     const estado = document.getElementById("estado-listo-lobby");
@@ -106,7 +157,7 @@
     setInterval(refrescarEstado, 2000);
     refrescarEstado();
   })();
-</script>
+  </script>
 
 </body>
 </html>

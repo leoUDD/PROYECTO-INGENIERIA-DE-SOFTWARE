@@ -33,7 +33,7 @@ const skills = [
   },
   {
     e: '🛡️',
-    name: 'APOYO',
+    name: 'NEGOCIACIÓN',
     sub: 'MEJORA CONTINUA',
     c: '#44dd88',
     desc: 'Evalúa, ajusta y crece. El feedback honesto es el entrenamiento más duro y más valioso.',
