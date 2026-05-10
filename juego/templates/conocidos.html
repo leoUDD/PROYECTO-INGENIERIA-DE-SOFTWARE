@@ -27,9 +27,7 @@
       padding: 20px;
     }
 
-    .dialogo-inicial-overlay.oculto {
-      display: none;
-    }
+    .dialogo-inicial-overlay.oculto { display: none; }
 
     .dialogo-inicial-card {
       width: min(90%, 540px);
@@ -46,27 +44,10 @@
       gap: 20px;
     }
 
-    .dialogo-texto {
-      flex: 1;
-    }
-
-    .dialogo-texto h3 {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #00c8ff;
-      margin-bottom: 10px;
-    }
-
-    .dialogo-texto p {
-      font-size: 1rem;
-      line-height: 1.55;
-      color: #d9e6f2;
-      margin-bottom: 14px;
-    }
-
-    .dialogo-texto p strong {
-      color: #ffe29a;
-    }
+    .dialogo-texto { flex: 1; }
+    .dialogo-texto h3 { font-size: 1.3rem; font-weight: 800; color: #00c8ff; margin-bottom: 10px; }
+    .dialogo-texto p { font-size: 1rem; line-height: 1.55; color: #d9e6f2; margin-bottom: 14px; }
+    .dialogo-texto p strong { color: #ffe29a; }
 
     .dialogo-agente-img {
       width: 160px;
@@ -98,17 +79,9 @@
     }
 
     @media (max-width: 640px) {
-      .dialogo-inicial-card {
-        flex-direction: column-reverse;
-        text-align: center;
-      }
-
+      .dialogo-inicial-card { flex-direction: column-reverse; text-align: center; }
       .dialogo-agente-img { width: 120px; }
-
-      .btn-dialogo-continuar {
-        width: 100%;
-        justify-content: center;
-      }
+      .btn-dialogo-continuar { width: 100%; justify-content: center; }
     }
 
     .inicio-fase-overlay {
@@ -146,17 +119,8 @@
       color: #dff7ff;
     }
 
-    .inicio-fase-card h3 {
-      margin: 0 0 10px 0;
-      font-size: 1.15rem;
-      font-weight: 800;
-    }
-
-    .inicio-fase-card p {
-      margin: 0 0 10px 0;
-      line-height: 1.5;
-      font-size: 1rem;
-    }
+    .inicio-fase-card h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 800; }
+    .inicio-fase-card p  { margin: 0 0 10px 0; line-height: 1.5; font-size: 1rem; }
 
     .btn-chip {
       display: inline-flex;
@@ -183,18 +147,9 @@
     }
 
     .btn-chip:active { transform: scale(0.97); }
+    .btn-chip:disabled { opacity: 0.65; cursor: not-allowed; box-shadow: none; }
 
-    .btn-chip:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .contador-fase {
-      margin-top: 10px;
-      font-size: 0.95rem;
-      opacity: 0.95;
-    }
+    .contador-fase { margin-top: 10px; font-size: 0.95rem; opacity: 0.95; }
 
     .blur-target-bloqueado {
       filter: blur(6px);
@@ -321,7 +276,7 @@
       position: relative;
     }
 
-    .astro-card h3 { margin: 0 0 12px; color: #00c8ff; font-size: 1.25rem; position: relative; z-index: 2; }
+    .astro-card h3 { margin: 0 0 12px; color: #FF7A1A; font-size: 1.25rem; position: relative; z-index: 2; }
     .astro-card p  { margin: 0 0 10px; line-height: 1.5; color: #d9e6f2; font-size: .98rem; position: relative; z-index: 2; }
     .astro-card strong { color: #ffe29a; }
 
@@ -358,23 +313,31 @@
       .astro-card { padding-left: 18px; padding-top: 145px; text-align: center; }
       .astro-img-standing { left: 50%; top: -40px; bottom: auto; transform: translateX(-50%); width: 135px; }
     }
+    .dialogo-texto p{
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #d9e6f2;
+    margin-bottom: 14px;
+    text-align: left;
+    text-wrap: balance;
+    }
   </style>
 </head>
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
 
-    <!-- Diálogo del agente — aparece cuando todos están listos -->
+    <!-- Diálogo del agente -->
     <div id="dialogo-inicial-overlay" class="dialogo-inicial-overlay oculto">
       <div class="dialogo-inicial-card">
         <div class="dialogo-texto">
-          <h3>¡Hola, Agente!</h3>
+          <h3>¡Hola, Agentes!</h3>
           <p>
-            Soy <strong>NOMBRE_DEL_AGENTE</strong>, tu guía en esta misión.<br>
-            Estás a punto de comenzar una experiencia que pondrá a prueba a tu equipo.
+            Soy la <strong>Comandante Nova</strong>, su guía en esta misión. Están a punto de comenzar
+            una experiencia que pondrá a prueba su escuadrón.
           </p>
-          <p>¿Estás listo para aceptar el desafío?</p>
+          <p>¿Están listos para aceptar el desafío?</p>
           <button class="btn-dialogo-continuar" id="btn-dialogo-continuar" type="button">
-            ¡Entendido!
+            ¡Listos!
           </button>
         </div>
         <img class="dialogo-agente-img" src="{% static 'images/foto2.png' %}" alt="Agente">
@@ -387,15 +350,12 @@
         <h3>Antes de comenzar</h3>
         <p>
           {% if modo_rapido %}
-            Cada integrante debe compartir un dato curioso o responder una pregunta rápida.
+            Cada agente comparte un dato curioso o responde una pregunta rápida.
           {% else %}
-            Cada integrante debe decir su nombre y compartir un dato curioso sobre sí mismo.
+            Cada integrante dice su nombre y comparte un dato curioso.
           {% endif %}
         </p>
-        <p>
-          Tendrán <strong>10 segundos</strong> para esta actividad. Cuando todos los equipos presionen
-          <strong>"Listo para comenzar"</strong>, la dinámica se habilitará automáticamente.
-        </p>
+        <p>Presionen <strong>"Listo para comenzar"</strong> cuando estén listos.</p>
         <button class="btn-chip" id="btn-listo-fase" type="button">
           ⚡ Listo para comenzar
         </button>
@@ -409,7 +369,7 @@
     <div id="speechBubbleConocidos" class="speech-bubble blur-target-bloqueado">
       <p class="body">
         {% if modo_rapido %}
-          Compartan un dato curioso o respondan una pregunta para activar al equipo.
+          Compartan algunos datos curiosos o respondan unas preguntas para activar al escuadrón.
         {% else %}
           Di tu nombre y comparte un dato curioso sobre ti.
         {% endif %}
@@ -418,7 +378,7 @@
       <button class="btn-random" id="btnPregunta" type="button">Nueva pregunta</button>
     </div>
 
-    <!-- 🚀 ASTRONAUTA INTERACTIVO -->
+    <!-- ASTRONAUTA INTERACTIVO -->
     <button id="astro-trigger" class="astro-trigger" type="button" aria-label="Abrir mensaje del astronauta">
       <span class="astro-signal" aria-hidden="true"></span>
       <img class="astro-img-falling" src="{% static 'images/Cayendo.png' %}" alt="" aria-hidden="true">
@@ -427,7 +387,7 @@
     <div id="astro-overlay" class="astro-overlay" aria-hidden="true">
       <div id="astro-card" class="astro-card">
         <img class="astro-img-standing" src="{% static 'images/Parado.png' %}" alt="" aria-hidden="true">
-        <h3>👨‍🚀 Mensaje del astronauta</h3>
+        <h3>Mensaje del astronauta</h3>
         <p>¡Gracias por ayudarme! En compensación, les aviso algo importante:</p>
         <p>Más adelante serán evaluados por <strong>Creatividad</strong>.</p>
         <p>Si encuentran mis objetos perdidos durante la misión, les daré más consejos.</p>
@@ -440,6 +400,9 @@
     <h2 id="timer" class="blur-target-bloqueado timer-esperando">00:10</h2>
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
+    <!-- Música de fondo -->
+    <audio id="musica-fondo" src="{% static 'sounds/musica_conocidos.mp3' %}" loop preload="auto"></audio>
+
     <div
       id="routes"
       data-sesion-id="{{ grupo.sesion.idsesion }}"
@@ -448,6 +411,24 @@
 
     <script>
       (function () {
+        // ── Música de fondo ──
+        const musicaFondo = document.getElementById("musica-fondo");
+        musicaFondo.volume = 0.4;
+
+        function intentarReproducir() {
+          musicaFondo.play().catch(() => {
+            const reanudar = () => {
+              musicaFondo.play().catch(() => {});
+              document.removeEventListener("click", reanudar);
+              document.removeEventListener("touchstart", reanudar);
+            };
+            document.addEventListener("click", reanudar, { once: true });
+            document.addEventListener("touchstart", reanudar, { once: true });
+          });
+        }
+
+        intentarReproducir();
+
         const routesEl       = document.getElementById("routes");
         const sesionId       = routesEl?.dataset?.sesionId;
         const grupoId        = "{{ grupo.idgrupo }}";
@@ -534,8 +515,6 @@
             el.classList.add("blur-target-activo");
           });
           if (overlay) overlay.classList.add("overlay-hidden");
-
-          // Mostrar diálogo del agente solo la primera vez
           if (dialogoOverlay && !yaDialogoMostrado) {
             yaDialogoMostrado = true;
             dialogoOverlay.classList.remove("oculto");
