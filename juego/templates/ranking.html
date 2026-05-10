@@ -199,55 +199,59 @@
       }
     }
 
-
     .ranking-fila.ranking-primero{
-  background:
-    radial-gradient(circle at top left, rgba(255, 214, 102, .35), transparent 38%),
-    linear-gradient(135deg, rgba(105, 75, 10, .92), rgba(35, 22, 4, .92));
-  border: 2px solid rgba(255, 214, 102, .85);
-  box-shadow:
-    0 0 24px rgba(255, 190, 40, .38),
-    inset 0 0 0 1px rgba(255,255,255,.12);
-}
+      background:
+        radial-gradient(circle at top left, rgba(255, 214, 102, .35), transparent 38%),
+        linear-gradient(135deg, rgba(105, 75, 10, .92), rgba(35, 22, 4, .92));
+      border: 2px solid rgba(255, 214, 102, .85);
+      box-shadow:
+        0 0 24px rgba(255, 190, 40, .38),
+        inset 0 0 0 1px rgba(255,255,255,.12);
+    }
 
-.ranking-fila.ranking-primero .ranking-fila-nombre::before{
-  content: "👑 🪙";
-  font-size: 1.2rem;
-}
+    .ranking-fila.ranking-primero .ranking-fila-nombre::before{
+      content: "👑 🪙";
+      font-size: 1.2rem;
+    }
 
-.ranking-fila.ranking-primero .ranking-barra-fill{
-  background: linear-gradient(90deg, #ffb703, #ffe066, #fff3b0);
-  box-shadow: 0 0 18px rgba(255, 214, 102, .65);
-}
+    .ranking-fila.ranking-primero .ranking-barra-fill{
+      background: linear-gradient(90deg, #ffb703, #ffe066, #fff3b0);
+      box-shadow: 0 0 18px rgba(255, 214, 102, .65);
+    }
 
-.ranking-fila.ranking-ultimo{
-  background:
-    radial-gradient(circle at top right, rgba(255, 70, 70, .24), transparent 42%),
-    linear-gradient(135deg, rgba(70, 10, 18, .88), rgba(22, 5, 10, .92));
-  border: 2px solid rgba(255, 82, 82, .70);
-  box-shadow:
-    0 0 20px rgba(255, 60, 60, .24),
-    inset 0 0 0 1px rgba(255,255,255,.08);
-}
+    .ranking-fila.ranking-ultimo{
+      background:
+        radial-gradient(circle at top right, rgba(255, 70, 70, .24), transparent 42%),
+        linear-gradient(135deg, rgba(70, 10, 18, .88), rgba(22, 5, 10, .92));
+      border: 2px solid rgba(255, 82, 82, .70);
+      box-shadow:
+        0 0 20px rgba(255, 60, 60, .24),
+        inset 0 0 0 1px rgba(255,255,255,.08);
+    }
 
-.ranking-fila.ranking-ultimo .ranking-fila-nombre::before{
-  content: "⚠️";
-  font-size: 1.1rem;
-}
+    .ranking-fila.ranking-ultimo .ranking-fila-nombre::before{
+      content: "⚠️";
+      font-size: 1.1rem;
+    }
 
-.ranking-fila.ranking-ultimo .ranking-barra-fill{
-  background: linear-gradient(90deg, #7f1d1d, #ef4444, #fb7185);
-  box-shadow: 0 0 16px rgba(239, 68, 68, .45);
-}
+    .ranking-fila.ranking-ultimo .ranking-barra-fill{
+      background: linear-gradient(90deg, #7f1d1d, #ef4444, #fb7185);
+      box-shadow: 0 0 16px rgba(239, 68, 68, .45);
+    }
   </style>
 </head>
+
 <body>
+  {% include "includes/selector_idioma.html" %}
+
   <main class="ranking-scene">
 
     {% if grupo.sesion.fase_actual == "f6_ranking" %}
       <section class="carrera-wrap" id="carreraWrap">
-        <h1 class="titulo">Gran final</h1>
-        <p class="subtitulo">Último tramo. Todos aceleran. La meta está a la vista.</p>
+        <h1 class="titulo" data-i18n="ranking_final_titulo">Gran final</h1>
+        <p class="subtitulo" data-i18n="ranking_final_subtitulo">
+          Último tramo. Todos aceleran. La meta está a la vista.
+        </p>
 
         <div class="camera-frame">
           <div class="track-world">
@@ -277,14 +281,14 @@
 
       <section class="ganador-overlay" id="ganadorOverlay">
         <div class="ganador-box">
-          <p class="ganador-label">El ganador es...</p>
-          <h2 class="ganador-nombre">¡Felicitaciones!</h2>
+          <p class="ganador-label" data-i18n="ranking_ganador_label">El ganador es...</p>
+          <h2 class="ganador-nombre" data-i18n="ranking_felicitaciones">¡Felicitaciones!</h2>
         </div>
       </section>
 
       <section class="podio-wrap" id="podioWrap">
         <div class="podio-card">
-          <h2 class="podio-titulo">Podio final</h2>
+          <h2 class="podio-titulo" data-i18n="ranking_podio_final">Podio final</h2>
 
           <div class="podio">
             <div class="puesto puesto-2">
@@ -304,23 +308,32 @@
           </div>
 
           <div class="tabla-final">
-            <h3>Tabla completa</h3>
+            <h3 data-i18n="ranking_tabla_completa">Tabla completa</h3>
             <ol>
               {% for equipo in rankings %}
                 <li>
-                  {{ equipo.rank }}. {{ equipo.team_name }} — {{ equipo.tokens }} tokens
-                  {% if equipo.is_me %}<strong> (tu equipo)</strong>{% endif %}
+                  {{ equipo.rank }}. {{ equipo.team_name }} —
+                  {{ equipo.tokens }} <span data-i18n="ranking_tokens">tokens</span>
+                  {% if equipo.is_me %}
+                    <strong>
+                      (<span data-i18n="ranking_tu_equipo">tu equipo</span>)
+                    </strong>
+                  {% endif %}
                 </li>
               {% endfor %}
             </ol>
           </div>
         </div>
       </section>
+
     {% else %}
+
       <section class="ranking-parcial-wrap">
         <div class="ranking-parcial-card">
-          <h1 class="titulo">Ranking parcial</h1>
-          <p class="subtitulo">Así van los equipos en este momento.</p>
+          <h1 class="titulo" data-i18n="ranking_parcial_titulo">Ranking parcial</h1>
+          <p class="subtitulo" data-i18n="ranking_parcial_subtitulo">
+            Así van los equipos en este momento.
+          </p>
 
           <div class="ranking-barras">
             {% for equipo in rankings %}
@@ -328,11 +341,15 @@
                 <div class="ranking-fila-top">
                   <div class="ranking-fila-nombre">
                     <span>{{ equipo.rank }}. {{ equipo.team_name }}</span>
+
                     {% if equipo.is_me %}
-                      <span class="tag-mi-equipo">tu equipo</span>
+                      <span class="tag-mi-equipo" data-i18n="ranking_tu_equipo">tu equipo</span>
                     {% endif %}
                   </div>
-                  <div class="ranking-fila-tokens">{{ equipo.tokens }} tokens</div>
+
+                  <div class="ranking-fila-tokens">
+                    {{ equipo.tokens }} <span data-i18n="ranking_tokens">tokens</span>
+                  </div>
                 </div>
 
                 <div class="ranking-barra-wrap">
@@ -344,17 +361,19 @@
               </div>
             {% endfor %}
           </div>
-
-
         </div>
       </section>
+
     {% endif %}
 
     <div class="ranking-actions">
-      <button id="btnRankingListo" class="btn-ranking-listo" type="button">
+      <button id="btnRankingListo" class="btn-ranking-listo" type="button" data-i18n="ranking_continuar">
         Continuar
       </button>
-      <p id="rankingEstado" class="ranking-estado">0/0 grupos listos</p>
+
+      <p id="rankingEstado" class="ranking-estado">
+        0/0 <span data-i18n="ranking_grupos_listos">grupos listos</span>
+      </p>
     </div>
 
     {% if grupo.sesion.fase_actual == "f6_ranking" %}
@@ -388,6 +407,41 @@
       let frame = 0;
       let terminoCarrera = false;
       let redirigiendo = false;
+      let ultimoListos = 0;
+      let ultimoTotal = 0;
+
+      function tJuego(clave, fallback = "") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+
+      function textoGruposListos(listos, total) {
+        return `${listos}/${total} ${tJuego("ranking_grupos_listos", "grupos listos")}`;
+      }
+
+      function setTextoBotonContinuar() {
+        if (!btnRankingListo || btnRankingListo.disabled) return;
+        btnRankingListo.textContent = tJuego("ranking_continuar", "Continuar");
+      }
+
+      function setTextoBotonEsperando() {
+        if (!btnRankingListo) return;
+        btnRankingListo.textContent = tJuego("ranking_esperando", "Esperando...");
+      }
+
+      function aplicarTraduccionRankingDinamica() {
+        if (rankingEstado) {
+          rankingEstado.textContent = textoGruposListos(ultimoListos, ultimoTotal);
+        }
+
+        if (btnRankingListo) {
+          if (btnRankingListo.disabled) {
+            setTextoBotonEsperando();
+          } else {
+            setTextoBotonContinuar();
+          }
+        }
+      }
 
       function aplicarBarrasParciales() {
         if (esRankingFinal) return;
@@ -416,12 +470,17 @@
 
         const listos = Number(data.gruposListosF6 || 0);
         const total = Number(data.totalGrupos || 0);
-        rankingEstado.textContent = `${listos}/${total} grupos listos`;
+
+        ultimoListos = listos;
+        ultimoTotal = total;
+
+        rankingEstado.textContent = textoGruposListos(listos, total);
 
         const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+
         if (miGrupo && miGrupo.listoF6 && btnRankingListo) {
           btnRankingListo.disabled = true;
-          btnRankingListo.textContent = "Esperando...";
+          setTextoBotonEsperando();
         }
       }
 
@@ -451,7 +510,7 @@
       if (btnRankingListo) {
         btnRankingListo.addEventListener("click", async () => {
           btnRankingListo.disabled = true;
-          btnRankingListo.textContent = "Esperando...";
+          setTextoBotonEsperando();
 
           try {
             const res = await fetch(`/grupo/${grupoId}/listo/`, {
@@ -473,16 +532,25 @@
             const listos = Number(data.listos || 0);
             const total = Number(data.total || 0);
 
+            ultimoListos = listos;
+            ultimoTotal = total;
+
             if (rankingEstado) {
-              rankingEstado.textContent = `${listos}/${total} grupos listos`;
+              rankingEstado.textContent = textoGruposListos(listos, total);
             }
           } catch (e) {
             console.error("Error marcando listo ranking:", e);
             btnRankingListo.disabled = false;
-            btnRankingListo.textContent = "Continuar";
+            setTextoBotonContinuar();
           }
         });
       }
+
+      window.addEventListener("idiomaJuegoCambiado", () => {
+        aplicarTraduccionRankingDinamica();
+      });
+
+      setTextoBotonContinuar();
 
       if (!esRankingFinal) {
         aplicarBarrasParciales();
