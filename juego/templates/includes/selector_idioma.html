@@ -1,0 +1,86 @@
+{% load static %}
+
+<style>
+  .idioma-juego-box {
+    position: fixed;
+    top: 46px;
+    left: 14px;
+    z-index: 999999;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 9px;
+    border-radius: 999px;
+    background: rgba(7, 21, 43, .92);
+    border: 1px solid rgba(0, 200, 255, .55);
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    backdrop-filter: blur(6px);
+    color: white;
+    font-family: Poppins, Arial, sans-serif;
+  }
+
+  .idioma-juego-icon {
+    font-size: 14px;
+  }
+
+  .idioma-juego-select {
+    background: transparent;
+    border: none;
+    color: #E6EEF8;
+    font-weight: 800;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .idioma-juego-select option {
+    background: #081A2D;
+    color: #E6EEF8;
+  }
+
+  @media (max-width: 640px) {
+    .idioma-juego-box {
+      top: 46px;
+      left: 8px;
+      padding: 6px 8px;
+    }
+
+    .idioma-juego-select {
+      font-size: 11px;
+    }
+  }
+</style>
+
+<div id="idiomaJuegoBox" class="idioma-juego-box">
+  <span class="idioma-juego-icon">🌐</span>
+
+  <select id="selectorIdiomaJuego" class="idioma-juego-select" aria-label="Idioma del juego">
+    <option value="es">ES</option>
+    <option value="en">EN</option>
+  </select>
+</div>
+
+<script src="{% static 'js/i18n_juego.js' %}"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const selector = document.getElementById("selectorIdiomaJuego");
+
+    if (!selector) return;
+
+    const idiomaGuardado = localStorage.getItem("idiomaJuego") || "es";
+    selector.value = idiomaGuardado;
+
+    selector.addEventListener("change", function () {
+      localStorage.setItem("idiomaJuego", selector.value);
+
+      if (window.i18nJuego && typeof window.i18nJuego.traducir === "function") {
+        window.i18nJuego.traducir(selector.value);
+      }
+
+      window.dispatchEvent(new CustomEvent("idiomaJuegoCambiado", {
+        detail: { idioma: selector.value }
+      }));
+    });
+  });
+</script>

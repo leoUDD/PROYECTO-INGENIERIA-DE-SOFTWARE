@@ -182,9 +182,10 @@ mapa_cargando: "LOADING MISSION...",
   }
 
   function crearSelectorIdioma() {
-    if (document.getElementById("idiomaJuegoBox")) return;
+  let box = document.getElementById("idiomaJuegoBox");
 
-    const box = document.createElement("div");
+  if (!box) {
+    box = document.createElement("div");
     box.id = "idiomaJuegoBox";
     box.className = "idioma-juego-box";
 
@@ -197,32 +198,32 @@ mapa_cargando: "LOADING MISSION...",
     `;
 
     document.body.appendChild(box);
-
-    const selector = document.getElementById("selectorIdiomaJuego");
-    selector.value = obtenerIdioma();
-
-    selector.addEventListener("change", () => {
-      guardarIdioma(selector.value);
-      aplicarTraduccion(selector.value);
-
-      window.dispatchEvent(new CustomEvent("idiomaJuegoCambiado", {
-        detail: { idioma: selector.value }
-      }));
-    });
   }
+
+  const selector = document.getElementById("selectorIdiomaJuego");
+  if (!selector) return;
+
+  selector.value = obtenerIdioma();
+
+  if (selector.dataset.listenerIdioma === "true") return;
+
+  selector.dataset.listenerIdioma = "true";
+
+  selector.addEventListener("change", () => {
+    guardarIdioma(selector.value);
+    aplicarTraduccion(selector.value);
+
+    window.dispatchEvent(new CustomEvent("idiomaJuegoCambiado", {
+      detail: { idioma: selector.value }
+    }));
+  });
+}
 
   document.addEventListener("DOMContentLoaded", () => {
     crearSelectorIdioma();
     aplicarTraduccion();
 
-    const observer = new MutationObserver(() => {
-      aplicarTraduccion();
-    });
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
   });
 
   window.i18nJuego = {
