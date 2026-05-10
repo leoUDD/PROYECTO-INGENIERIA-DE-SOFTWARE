@@ -33,7 +33,7 @@ const skills = [
   },
   {
     e: '🛡️',
-    name: 'APOYO',
+    name: 'NEGOCIACIÓN',
     sub: 'MEJORA CONTINUA',
     c: '#44dd88',
     desc: 'Evalúa, ajusta y crece. El feedback honesto es el entrenamiento más duro y más valioso.',
@@ -56,6 +56,31 @@ let done = new Set();
 let activeIdx = null;
 
 function rpx(f, t) { return Math.round(f * t); }
+
+// ── HELPERS DE ÍCONO ────────────────────────────────────────────
+// Devuelve el HTML del ícono: imagen si existe en STATIC_IMAGES, emoji si no
+function iconHTML(skill) {
+  const key = normalizarClave(skill.name);
+  if (typeof STATIC_IMAGES !== 'undefined' && STATIC_IMAGES[key]) {
+    return `<div class="img-oct-wrap"><img src="${STATIC_IMAGES[key]}" alt="${skill.name}"></div>`;
+  }
+  return skill.e;
+}
+
+function hasImage(skill) {
+  const key = normalizarClave(skill.name);
+  return typeof STATIC_IMAGES !== 'undefined' && !!STATIC_IMAGES[key];
+}
+
+// Normaliza el nombre de la habilidad para buscar en STATIC_IMAGES
+// (minúsculas, sin tildes, sin espacios dobles)
+function normalizarClave(texto) {
+  return texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
 
 // ── SONIDO HOVER ────────────────────────────────────────────────
 function playHoverSound() {
@@ -161,25 +186,23 @@ function build() {
     const isLocked = i > 0 && !done.has(i - 1) && !isDone;
 
     const nd = document.createElement('div');
-    nd.className = 'nd' + (isDone ? ' done' : '') + (isLocked ? ' locked' : '');
+    nd.className = 'nd' + (isDone ? ' done' : '') + (isLocked ? ' locked' : '') + (hasImage(s) ? ' has-img' : '');
     nd.id = 'nd' + i;
     nd.style.cssText = `left:${p.x}px;top:${p.y}px;--c:${s.c};--spd:${SPEEDS[i]};--dly:${DELAYS[i]};`;
     nd.innerHTML = `
       <div class="nd-outer">
         <div class="nd-pulse"></div>
-        <div class="nd-icon">${s.e}</div>
+        <div class="nd-icon">${iconHTML(s)}</div>
         <div class="nd-check">✓</div>
         <div class="nd-lock">🔒</div>
       </div>
       <div class="nd-lbl">${s.name}</div>
     `;
 
-    // Sonido hover (solo si no está bloqueado)
     nd.addEventListener('mouseenter', () => {
       if (!nd.classList.contains('locked')) playHoverSound();
     });
 
-    // Sonido + acción al click
     nd.onclick = () => {
       if (!nd.classList.contains('locked')) playClickSound();
       openSkill(i);
@@ -202,7 +225,6 @@ function buildPips() {
   });
 }
 
-// Almacena el índice actual del dot para animar desde ahí
 let dotCurrentIdx = 0;
 
 function moveDot(idx, animate) {
@@ -219,7 +241,6 @@ function moveDot(idx, animate) {
     return;
   }
 
-  // Construir el path SVG en memoria para medir distancias
   const pts = ROUTE.map(r => ({ x: rpx(r.fx, W), y: rpx(r.fy, H) }));
   const ns = 'http://www.w3.org/2000/svg';
   const tmpSvg = document.createElementNS(ns, 'svg');
@@ -237,13 +258,9 @@ function moveDot(idx, animate) {
   tmpSvg.appendChild(tmpPath);
   document.body.appendChild(tmpSvg);
 
-  const totalLength = tmpPath.getTotalLength();
-
-  // Calcular longitud acumulada hasta cada nodo
   function lengthAtNode(i) {
-    const tempD_ns = 'http://www.w3.org/2000/svg';
-    const s = document.createElementNS(tempD_ns, 'svg');
-    const p = document.createElementNS(tempD_ns, 'path');
+    const s2 = document.createElementNS(ns, 'svg');
+    const p2 = document.createElementNS(ns, 'path');
     let pd = `M${pts[0].x},${pts[0].y}`;
     for (let j = 1; j <= i; j++) {
       const a = pts[j-1], b = pts[j];
@@ -251,12 +268,12 @@ function moveDot(idx, animate) {
       const cy = (a.y + b.y) / 2 - Math.abs(b.x - a.x) * .18;
       pd += ` Q${cx},${cy} ${b.x},${b.y}`;
     }
-    p.setAttribute('d', pd);
-    s.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;top:0;left:0;width:0;height:0;overflow:hidden;';
-    s.appendChild(p);
-    document.body.appendChild(s);
-    const len = p.getTotalLength();
-    document.body.removeChild(s);
+    p2.setAttribute('d', pd);
+    s2.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;top:0;left:0;width:0;height:0;overflow:hidden;';
+    s2.appendChild(p2);
+    document.body.appendChild(s2);
+    const len = p2.getTotalLength();
+    document.body.removeChild(s2);
     return len;
   }
 
@@ -264,18 +281,14 @@ function moveDot(idx, animate) {
   const toLen   = lengthAtNode(idx);
   document.body.removeChild(tmpSvg);
 
-  // Animar el punto a lo largo del path
   const duration = 1200;
   const start = performance.now();
 
-  // Reconstruir path para animar
-  const animPts = ROUTE.map(r => ({ x: rpx(r.fx, W), y: rpx(r.fy, H) }));
-  const animNs = 'http://www.w3.org/2000/svg';
-  const animSvg = document.createElementNS(animNs, 'svg');
-  const animPath = document.createElementNS(animNs, 'path');
-  let animD = `M${animPts[0].x},${animPts[0].y}`;
-  for (let i = 1; i < animPts.length; i++) {
-    const a = animPts[i-1], b = animPts[i];
+  const animSvg  = document.createElementNS(ns, 'svg');
+  const animPath = document.createElementNS(ns, 'path');
+  let animD = `M${pts[0].x},${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i-1], b = pts[i];
     const cx = (a.x + b.x) / 2;
     const cy = (a.y + b.y) / 2 - Math.abs(b.x - a.x) * .18;
     animD += ` Q${cx},${cy} ${b.x},${b.y}`;
@@ -286,17 +299,14 @@ function moveDot(idx, animate) {
   document.body.appendChild(animSvg);
 
   dot.style.transition = 'none';
+  dot.classList.add('moving');
 
-  function easeInOut(t) {
-    return t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
-  }
+  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
   function step(now) {
     const elapsed = now - start;
     const t = Math.min(elapsed / duration, 1);
-    const eased = easeInOut(t);
-    const currentLen = fromLen + (toLen - fromLen) * eased;
-    const pt = animPath.getPointAtLength(currentLen);
+    const pt = animPath.getPointAtLength(fromLen + (toLen - fromLen) * easeInOut(t));
     dot.style.left = pt.x + 'px';
     dot.style.top  = pt.y + 'px';
     if (t < 1) {
@@ -304,6 +314,7 @@ function moveDot(idx, animate) {
     } else {
       document.body.removeChild(animSvg);
       dotCurrentIdx = idx;
+      dot.classList.remove('moving');
     }
   }
 
@@ -323,9 +334,23 @@ function openSkill(idx) {
   card.style.display = 'none';
   void card.offsetWidth;
 
-  document.getElementById('pc-em').textContent   = s.e;
+  // Ícono en el panel: octagonal si hay imagen, emoji si no
+  const pcEm = document.getElementById('pc-em');
+  const key = normalizarClave(s.name);
+  if (typeof STATIC_IMAGES !== 'undefined' && STATIC_IMAGES[key]) {
+    pcEm.innerHTML = `
+      <div class="img-oct-wrap">
+        <img src="${STATIC_IMAGES[key]}" alt="${s.name}">
+      </div>`;
+  } else {
+    pcEm.textContent = s.e;
+  }
+
   document.getElementById('pc-name').textContent = s.name;
   document.getElementById('pc-desc').textContent = s.desc;
+
+  // Inyectar color de la habilidad como variable CSS en el header del panel
+  document.getElementById('pcard').style.setProperty('--skill-c', s.c);
 
   const sub = document.getElementById('pc-sub');
   sub.textContent = s.sub;
@@ -392,11 +417,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', startMusic);
   });
 
-  // Sonido en botón ENTENDIDO
   const pcBtn = document.getElementById('pc-btn');
   if (pcBtn) pcBtn.addEventListener('mouseenter', playHoverSound);
 
-  // Sonido en botón INICIAR MISIÓN
   const btBtn = document.getElementById('bt-btn');
   if (btBtn) {
     btBtn.addEventListener('mouseenter', playHoverSound);
