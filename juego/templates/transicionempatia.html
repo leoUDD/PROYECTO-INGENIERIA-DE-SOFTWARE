@@ -24,21 +24,22 @@
     }
   </style>
 </head>
+
 <body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a empatía">
     <section class="team-section">
       <div class="title">
-        <h1>Empatía</h1>
+        <h1 data-i18n="empatia_intro_titulo">Empatía</h1>
       </div>
 
       <div class="speech-bubble">
-        <p>
+        <p data-i18n="empatia_intro_texto">
           Agentes, antes de crear una solución deben entender a quién están ayudando.
           Completarán un Bubble Map sobre su persona objetivo.
         </p>
 
-        <div class="tablet-reminder">
-          📱 Recuerden: roten la tablet para que otro integrante tome el control en esta etapa de la misión.
+        <div class="tablet-reminder" data-i18n="empatia_intro_tablet">
+          📱 Protocolo: roten la tablet.
         </div>
       </div>
 
@@ -49,6 +50,71 @@
   </main>
 
   <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      function tJuego(clave, fallback = "") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+
+      function traducirBotonListoFase() {
+        const botones = document.querySelectorAll(".next-step button, .btn-chip, .oai-btn-chip");
+
+        botones.forEach(btn => {
+          if (!btn) return;
+
+          const textoActual = (btn.textContent || "").trim().toLowerCase();
+
+          if (
+            btn.disabled ||
+            textoActual.includes("esperando") ||
+            textoActual.includes("waiting") ||
+            textoActual.includes("listo") ||
+            textoActual.includes("ready")
+          ) {
+            if (btn.disabled) {
+              btn.textContent = tJuego("empatia_intro_boton_esperando", "Esperando...");
+            } else {
+              btn.textContent = tJuego("empatia_intro_boton_listo", "¡Estoy listo!");
+            }
+          }
+        });
+      }
+
+      function traducirContadoresListos() {
+        const textos = document.querySelectorAll(".contador-fase, #contador-listos-fase, #texto-espera-fase, .oai-estado-listo");
+
+        textos.forEach(el => {
+          if (!el) return;
+
+          const texto = el.textContent || "";
+          const match = texto.match(/(\d+)\/(\d+)/);
+
+          if (match) {
+            el.textContent = `${match[1]}/${match[2]} ${tJuego("empatia_intro_grupos_listos", "grupos listos")}`;
+          } else if (
+            texto.toLowerCase().includes("esperando") ||
+            texto.toLowerCase().includes("waiting")
+          ) {
+            el.textContent = tJuego("empatia_intro_esperando", "Esperando a los demás equipos...");
+          }
+        });
+      }
+
+      function traducirEmpatiaIntroDinamico() {
+        traducirBotonListoFase();
+        traducirContadoresListos();
+      }
+
+      setTimeout(traducirEmpatiaIntroDinamico, 300);
+
+      window.addEventListener("idiomaJuegoCambiado", () => {
+        traducirEmpatiaIntroDinamico();
+      });
+    });
+  </script>
+
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

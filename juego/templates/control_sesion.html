@@ -268,6 +268,16 @@
 .btn-start:hover {
   background: #16a34a;
 }
+
+.btn-timer-10 {
+  background: #f97316;
+  color: white;
+  margin-top: 10px;
+}
+
+.btn-timer-10:hover {
+  background: #ea580c;
+}
   </style>
 </head>
 
@@ -336,6 +346,11 @@
   <button type="button" class="btn-dev btn-reset" onclick="reiniciarTimerDev()">
     Reiniciar tiempo de fase
   </button>
+
+  <button type="button" class="btn-dev btn-timer-10" onclick="timer10Dev()">
+  T imer a 10 segundos
+  </button>
+
 </div>
     <div class="card">
       <h2>Avance general</h2>
@@ -760,6 +775,36 @@ async function reiniciarTimerDev() {
   } catch (error) {
     console.error(error);
     alert("Error al reiniciar timer");
+  }
+}
+
+async function timer10Dev() {
+  if (!confirm("DEV: ¿Dejar el timer actual en 10 segundos?")) return;
+
+  try {
+    const res = await fetch(`/sesion/${sesionId}/dev/timer-10/`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": obtenerCSRFToken()
+      },
+      body: JSON.stringify({})
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || data.ok === false) {
+      alert(data.error || "No se pudo ajustar el timer a 10 segundos.");
+      return;
+    }
+
+    actualizarUI(data);
+    cargarEstado();
+
+  } catch (error) {
+    console.error("Error DEV ajustando timer a 10 segundos:", error);
+    alert("Error al ajustar timer a 10 segundos.");
   }
 }
 setInterval(cargarEstado, 1500);

@@ -5,6 +5,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     #NUEVO
+    path(
+    "sesion/<int:sesion_id>/dev/timer-10/",
+    views.dev_timer_10_segundos,
+    name="dev_timer_10_segundos"
+    ),
     path("continuar-desde-mapa/", views.continuar_desde_mapa, name="continuar_desde_mapa"),
     path("sesion/<int:sesion_id>/fase-anterior/", views.profesor_fase_anterior, name="profesor_fase_anterior"),
     path("dashboardadmin/tiempos/", views.admin_tiempos, name="admin_tiempos"),

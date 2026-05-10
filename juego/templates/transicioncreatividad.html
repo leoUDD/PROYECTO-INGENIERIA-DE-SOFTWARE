@@ -24,19 +24,22 @@
     }
   </style>
 </head>
+
 <body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a creatividad">
     <section class="team-section">
-      <h1 class="title">Creatividad</h1>
+      <h1 class="title" data-i18n="creatividad_intro_titulo">
+        Creatividad
+      </h1>
 
       <div class="speech-bubble">
-        <p>
+        <p data-i18n="creatividad_intro_texto">
           Agentes, la creatividad impulsa soluciones únicas.
           Ahora pondrán a prueba su idea construyendo con LEGO.
         </p>
 
-        <div class="tablet-reminder">
-          📱 Recuerden: roten la tablet para que otro integrante lidere esta parte de la misión.
+        <div class="tablet-reminder" data-i18n="creatividad_intro_tablet">
+          📱 Protocolo: recuerden rotar la tablet.
         </div>
       </div>
 
@@ -47,6 +50,70 @@
   </main>
 
   <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      function tJuego(clave, fallback = "") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+
+      function traducirBotonListoFase() {
+        const botones = document.querySelectorAll(".next-step button, .btn-chip, .oai-btn-chip");
+
+        botones.forEach(btn => {
+          if (!btn) return;
+
+          const textoActual = (btn.textContent || "").trim().toLowerCase();
+
+          if (btn.disabled) {
+            btn.textContent = tJuego("creatividad_intro_boton_esperando", "Esperando...");
+            return;
+          }
+
+          if (
+            textoActual.includes("estoy listo") ||
+            textoActual.includes("ready") ||
+            textoActual.includes("listo")
+          ) {
+            btn.textContent = tJuego("creatividad_intro_boton_listo", "¡Estoy listo!");
+          }
+        });
+      }
+
+      function traducirContadoresListos() {
+        const textos = document.querySelectorAll(".contador-fase, #contador-listos-fase, #texto-espera-fase, .oai-estado-listo");
+
+        textos.forEach(el => {
+          if (!el) return;
+
+          const texto = el.textContent || "";
+          const match = texto.match(/(\d+)\/(\d+)/);
+
+          if (match) {
+            el.textContent = `${match[1]}/${match[2]} ${tJuego("creatividad_intro_grupos_listos", "grupos listos")}`;
+          } else if (
+            texto.toLowerCase().includes("esperando") ||
+            texto.toLowerCase().includes("waiting")
+          ) {
+            el.textContent = tJuego("creatividad_intro_esperando", "Esperando a los demás equipos...");
+          }
+        });
+      }
+
+      function traducirCreatividadIntroDinamico() {
+        traducirBotonListoFase();
+        traducirContadoresListos();
+      }
+
+      setTimeout(traducirCreatividadIntroDinamico, 300);
+
+      window.addEventListener("idiomaJuegoCambiado", () => {
+        traducirCreatividadIntroDinamico();
+      });
+    });
+  </script>
+
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

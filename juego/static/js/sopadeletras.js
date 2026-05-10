@@ -2,6 +2,10 @@ const gridSize = 12;
 const words = ["IDEA", "EQUIPO", "NEGOCIO", "CREATIVIDAD", "LIDERAZGO"];
 const gridEl = document.getElementById("grid");
 const statusEl = document.getElementById("status");
+function tJuego(clave, fallback = "") {
+  const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+  return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+}
 
 function getCookie(name) {
   let cookieValue = null;
@@ -325,7 +329,7 @@ function updateStatus() {
   const total = words.length;
   const items = document.querySelectorAll("#word-list li.found");
   const found = items ? items.length : 0;
-  statusEl.textContent = `${found}/${total} encontradas`;
+  statusEl.textContent = `${found}/${total} ${tJuego("sopa_estado_encontradas", "encontradas")}`;
 }
 
 function allFound() {
@@ -398,12 +402,12 @@ async function showWinModal() {
   const resultado = await registrarSopaCompletada();
 
   if (resultado?.primer_equipo) {
-    title.textContent = "¡Ganaste! Fuiste el primer equipo";
-    text.textContent = "Por completar primero la sopa de letras, tu equipo recibió 5 tokens.";
-  } else {
-    title.textContent = "¡Terminaste!";
-    text.textContent = "Otro grupo se adelantó. Por no ser el primero, tu equipo recibió 3 tokens. ¡Aún pueden ganar!";
-  }
+  title.textContent = tJuego("sopa_win_primer_titulo", "¡Ganaste! Fuiste el primer equipo");
+  text.textContent = tJuego("sopa_win_primer_texto", "Por completar primero la sopa de letras, tu equipo recibió 5 tokens.");
+} else {
+  title.textContent = tJuego("sopa_win_otro_titulo", "¡Terminaste!");
+  text.textContent = tJuego("sopa_win_otro_texto", "Otro grupo se adelantó. Por no ser el primero, tu equipo recibió 3 tokens. ¡Aún pueden ganar!");
+}
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
@@ -598,6 +602,17 @@ async function revisarEstadoProfesor() {
     console.error("Error sincronizando sopa:", error);
   }
 }
+
+window.addEventListener("idiomaJuegoCambiado", () => {
+  updateStatus();
+
+  const title = document.getElementById("winTitle");
+  const text = document.getElementById("winText");
+
+  if (title && text && gameEnded) {
+
+  }
+});
 
 (function init() {
   createFixedBoard();

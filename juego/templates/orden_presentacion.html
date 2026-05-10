@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -428,10 +429,10 @@
 <body>
   <main class="contenedor">
     <section class="card">
-      <h1 class="titulo">Orden de presentación</h1>
-      <p class="subtexto">
-        El profesor realizará el sorteo del orden en que cada equipo presentará su pitch.
-      </p>
+      <h1 class="titulo" data-i18n="orden_presentacion_titulo">Orden de presentación</h1>
+<p class="subtexto" data-i18n="orden_presentacion_subtexto">
+  El profesor realizará el sorteo del orden en que cada equipo presentará su pitch.
+</p>
 
       <div id="panelOrden" class="lista">
         <div class="flash-sorteo" id="flashSorteo"></div>
@@ -478,7 +479,7 @@
       <div class="estado-fase" id="estadoFaseTexto"></div>
 
       <div class="acciones-listo" id="accionesListoOrden">
-        <button id="btnOrdenListo" class="btn-listo">¡Estoy listo!</button>
+        <button id="btnOrdenListo" class="btn-listo" data-i18n="orden_presentacion_boton">¡Estoy listo!</button>
         <p id="ordenListoEstado" class="estado-listos">0/0 grupos listos</p>
       </div>
     </section>
@@ -610,7 +611,7 @@
         listaOrdenBonita.innerHTML = "";
       }
 
-      if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = "Sorteando...";
+      if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = tJuego("orden_presentacion_sorteando", "Sorteando...");
       setDots(1);
 
       if (varitasEl) {
@@ -621,7 +622,7 @@
       reproducirAudio(audioSorteoAgitar);
 
       setTimeout(() => {
-        if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = "Y el primero es...";
+        if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = tJuego("orden_presentacion_primero", "Y el primero es...");
         if (chispasEl) chispasEl.classList.add("visible");
 
         const indiceGanador = elegirVaritaGanadora(ordenPitch);

@@ -385,6 +385,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       const esRankingFinal = "{{ grupo.sesion.fase_actual }}" === "f6_ranking";
       const faseActualEsperada = "{{ grupo.sesion.fase_actual }}";
+      const faseClaveRanking = esRankingFinal ? "f6" : "ranking";
       const sesionId = "{{ grupo.sesion.idsesion }}";
       const grupoId = "{{ grupo.idgrupo }}";
 
@@ -465,24 +466,33 @@
           : 1 - Math.pow(-2 * t + 2, 3) / 2;
       }
 
-      function actualizarEstadoRanking(data) {
-        if (!rankingEstado) return;
+     function actualizarEstadoRanking(data) {
+  if (!rankingEstado) return;
 
-        const listos = Number(data.gruposListosF6 || 0);
-        const total = Number(data.totalGrupos || 0);
+  const listos = Number(
+    esRankingFinal
+      ? (data.gruposListosF6 || 0)
+      : (data.gruposListosRanking || data.gruposListosF6 || 0)
+  );
 
-        ultimoListos = listos;
-        ultimoTotal = total;
+  const total = Number(data.totalGrupos || 0);
 
-        rankingEstado.textContent = textoGruposListos(listos, total);
+  ultimoListos = listos;
+  ultimoTotal = total;
 
-        const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+  rankingEstado.textContent = textoGruposListos(listos, total);
 
-        if (miGrupo && miGrupo.listoF6 && btnRankingListo) {
-          btnRankingListo.disabled = true;
-          setTextoBotonEsperando();
-        }
-      }
+  const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+
+  const miGrupoListo = esRankingFinal
+    ? miGrupo?.listoF6
+    : (miGrupo?.listoRanking || miGrupo?.listoF6);
+
+  if (miGrupoListo && btnRankingListo) {
+    btnRankingListo.disabled = true;
+    setTextoBotonEsperando();
+  }
+}
 
       async function refrescarEstadoRanking() {
         if (redirigiendo || !sesionId) return;
@@ -520,7 +530,7 @@
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}"
               },
-              body: JSON.stringify({ fase: "f6" })
+              body: JSON.stringify({ fase: faseClaveRanking })
             });
 
             const data = await res.json();

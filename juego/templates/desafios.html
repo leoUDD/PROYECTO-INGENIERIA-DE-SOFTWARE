@@ -20,18 +20,18 @@
     }
 
     .timer-box {
-  margin-top: 14px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: rgba(255,255,255,.12);
-  color: white;
-  font-weight: 700;
-  line-height: 1.45;
-}
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.12);
+      color: white;
+      font-weight: 700;
+      line-height: 1.45;
+    }
 
     .timer-box strong {
-  color: #ffe29a;
-}
+      color: #ffe29a;
+    }
 
     .timer-box span {
       font-weight: 500;
@@ -87,20 +87,20 @@
     }
 
     .btn-volver-tematica {
-  display: inline-block;
-  border: 1px solid rgba(0, 200, 255, .36);
-  border-radius: 999px;
-  padding: 8px 14px;
-  background: rgba(7, 21, 43, .82);
-  color: #ffffff;
-  font-weight: 800;
-  text-decoration: none;
-  cursor: pointer;
-}
+      display: inline-block;
+      border: 1px solid rgba(0, 200, 255, .36);
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: rgba(7, 21, 43, .82);
+      color: #ffffff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
 
-.btn-volver-tematica:hover {
-  background: rgba(0, 200, 255, .16);
-}
+    .btn-volver-tematica:hover {
+      background: rgba(0, 200, 255, .16);
+    }
   </style>
 </head>
 
@@ -113,72 +113,75 @@
       <h1 id="page-title">{{ tematica.title|default:slug|title }}</h1>
       <p class="subtitle">{{ tematica.hero }}</p>
 
-      <div class="timer-box" style="margin-top:14px; padding:12px 16px; border-radius:14px; background:rgba(255,255,255,.12); color:white; font-weight:700;">
-  ⏱️ Tiempo para elegir temática y desafío:
-  <strong id="timerTematica">--</strong>
-  <br>
-  <span style="font-weight:500;">
-    Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
-  </span>
-</div>
+      <div class="timer-box">
+        <span data-i18n="desafios_timer_label">
+          ⏱️ Tiempo para elegir temática y desafío:
+        </span>
+        <strong id="timerTematica">--</strong>
+        <br>
+        <span data-i18n="desafios_timer_hint">
+          Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
+        </span>
+      </div>
 
       <div style="margin-top: 12px;">
-  <a href="{% url 'cambiar_tematica' %}" class="btn-volver-tematica">
-    ↩ Volver y cambiar temática
-  </a>
-</div>
-
-
+        <a href="{% url 'cambiar_tematica' %}" class="btn-volver-tematica" data-i18n="desafios_volver_tematica">
+          ↩ Volver y cambiar temática
+        </a>
+      </div>
     </header>
 
-    
-
     <section class="challenges-grid" aria-label="Desafíos disponibles">
-      {% for challenge in desafios %}
-      <article
-        class="challenge-card {% if desafio_confirmado and desafio_id_actual == challenge.iddesafio|stringformat:'s' %}seleccionado bloqueada{% endif %}"
-        id="card-{{ challenge.id }}"
-        tabindex="0"
-        data-id="{{ challenge.iddesafio }}"
-        data-title="{{ challenge.nombredesafio|escape }}"
-        data-desc="{{ challenge.descripciondesafio|escape }}"
-        data-slug="{{ slug }}"
-      >
-        <div class="content">
-          <h2 class="title">{{ challenge.nombredesafio }}</h2>
-          <p class="desc">{{ challenge.summary|default:challenge.descripciondesafio }}</p>
-        </div>
 
-        <div class="actions">
-          <button
-            class="btn select"
-            type="button"
-            data-desafio-id="{{ challenge.iddesafio }}"
-            {% if desafio_confirmado %}disabled{% endif %}
-          >
-            {% if desafio_confirmado and desafio_id_actual == challenge.id|stringformat:"s" %}
-              Confirmado
-            {% else %}
-              Elegir
-            {% endif %}
-          </button>
-        </div>
-      </article>
+      {% for challenge in desafios %}
+        <article
+          class="challenge-card {% if desafio_confirmado and desafio_id_actual == challenge.iddesafio|stringformat:'s' %}seleccionado bloqueada{% endif %}"
+          id="card-{{ challenge.iddesafio }}"
+          tabindex="0"
+          data-id="{{ challenge.iddesafio }}"
+          data-title="{{ challenge.nombredesafio|escape }}"
+          data-desc="{{ challenge.descripciondesafio|escape }}"
+          data-slug="{{ slug }}"
+        >
+          <div class="content">
+            <h2 class="title">{{ challenge.nombredesafio }}</h2>
+            <p class="desc">{{ challenge.summary|default:challenge.descripciondesafio }}</p>
+          </div>
+
+          <div class="actions">
+            <button
+              class="btn select"
+              type="button"
+              data-desafio-id="{{ challenge.iddesafio }}"
+              {% if desafio_confirmado %}disabled{% endif %}
+            >
+              {% if desafio_confirmado and desafio_id_actual == challenge.iddesafio|stringformat:"s" %}
+                Confirmado
+              {% else %}
+                Elegir
+              {% endif %}
+            </button>
+          </div>
+        </article>
       {% empty %}
-      <p>No hay desafíos disponibles.</p>
+        <p data-i18n="desafios_sin_disponibles">No hay desafíos disponibles.</p>
       {% endfor %}
+
     </section>
 
     <div id="estadoSeleccion" class="estado-seleccion" aria-live="polite">
-      <strong>Desafío seleccionado:</strong>
+      <strong data-i18n="desafios_estado_label">Desafío seleccionado:</strong>
       <span id="nombreDesafioSeleccionado">-</span>
+
       <div id="descripcionDesafioSeleccionado" style="margin-top:8px;"></div>
 
-      <div id="estadoEsperaProfesor" class="estado-espera-profesor">
+      <div id="estadoEsperaProfesor" class="estado-espera-profesor" data-i18n="desafios_espera_equipos">
         Esperando a que los demás equipos seleccionen su desafío.
       </div>
 
-      <div id="contadorGruposListos" class="contador-grupos-listos">0/0 grupos listos</div>
+      <div id="contadorGruposListos" class="contador-grupos-listos">
+        0/0 grupos listos
+      </div>
     </div>
 
     <div id="estadoError" class="estado-error" aria-live="polite"></div>
@@ -196,22 +199,61 @@
   <script>
     function getCookie(name) {
       let cookieValue = null;
+
       if (document.cookie && document.cookie !== "") {
         const cookies = document.cookie.split(";");
+
         for (let cookie of cookies) {
           cookie = cookie.trim();
+
           if (cookie.substring(0, name.length + 1) === (name + "=")) {
             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
             break;
           }
         }
       }
+
       return cookieValue;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      function tJuego(clave, fallback = "") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+
+      function textoElegir() {
+        return tJuego("desafios_elegir", "Elegir");
+      }
+
+      function textoConfirmado() {
+        return tJuego("desafios_confirmado", "Confirmado");
+      }
+
+      function textoGruposListos(listos, total) {
+        return `${listos}/${total} ${tJuego("desafios_grupos_listos", "grupos listos")}`;
+      }
+
+      function textoConfirmarDesafio(nombre) {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+
+        if (idioma === "en") {
+          return `Confirm the challenge "${nombre}" for your team?`;
+        }
+
+        return `¿Confirmar el desafío "${nombre}" para tu equipo?`;
+      }
+
+      function textoCambiarDesafio() {
+        return tJuego(
+          "desafios_confirmar_cambio",
+          "¿Desean cambiar el desafío? El equipo dejará de estar listo hasta confirmar otro."
+        );
+      }
+
       const botones = document.querySelectorAll("[data-desafio-id]");
       const cards = document.querySelectorAll(".challenge-card");
+
       const estadoSeleccion = document.getElementById("estadoSeleccion");
       const nombreDesafio = document.getElementById("nombreDesafioSeleccionado");
       const descripcionDesafio = document.getElementById("descripcionDesafioSeleccionado");
@@ -232,6 +274,9 @@
       let enviando = false;
       let bloqueado = desafioConfirmado;
       let redirigiendo = false;
+      let ultimoListos = 0;
+      let ultimoTotal = 0;
+      let desafioBloqueadoActual = desafioIdActual;
 
       function formatearTiempo(segundos) {
         segundos = Math.max(Number(segundos || 0), 0);
@@ -242,11 +287,13 @@
 
       function mostrarError(texto) {
         if (!estadoError) return;
+
         if (!texto) {
           estadoError.classList.remove("visible");
           estadoError.textContent = "";
           return;
         }
+
         estadoError.textContent = texto;
         estadoError.classList.add("visible");
       }
@@ -254,9 +301,93 @@
       function actualizarContador(data) {
         const listos = Number(data?.gruposListosF2 || 0);
         const total = Number(data?.totalGrupos || 0);
-        const texto = `${listos}/${total} grupos listos`;
 
-        if (contador) contador.textContent = texto;
+        ultimoListos = listos;
+        ultimoTotal = total;
+
+        if (contador) {
+          contador.textContent = textoGruposListos(listos, total);
+        }
+      }
+
+      function marcarSeleccion(cardId) {
+        cards.forEach((card) => {
+          card.classList.remove("seleccionado");
+        });
+
+        const card = document.getElementById(cardId);
+
+        if (card) {
+          card.classList.add("seleccionado");
+        }
+      }
+
+      function aplicarTextoBotones() {
+        botones.forEach((b) => {
+          const esElegido = b.dataset.desafioId === String(desafioBloqueadoActual);
+
+          if (bloqueado) {
+            b.textContent = esElegido ? textoConfirmado() : textoElegir();
+          } else {
+            b.textContent = textoElegir();
+          }
+        });
+      }
+
+      function aplicarModoBloqueado(desafioId, nombre, descripcion) {
+        bloqueado = true;
+        desafioBloqueadoActual = String(desafioId || "");
+
+        mostrarError("");
+
+        botones.forEach((b) => {
+          const esElegido = b.dataset.desafioId === String(desafioId);
+          b.disabled = true;
+          b.textContent = esElegido ? textoConfirmado() : textoElegir();
+        });
+
+        cards.forEach((card) => {
+          if (String(card.dataset.id) === String(desafioId)) {
+            card.classList.add("seleccionado", "bloqueada");
+          } else {
+            card.classList.remove("seleccionado");
+            card.classList.add("bloqueada");
+          }
+        });
+
+        if (nombreDesafio) {
+          nombreDesafio.textContent = nombre || "-";
+        }
+
+        if (descripcionDesafio) {
+          descripcionDesafio.textContent = descripcion || "";
+        }
+
+        if (estadoSeleccion) {
+          estadoSeleccion.classList.add("visible");
+        }
+
+        marcarSeleccion(`card-${desafioId}`);
+      }
+
+      function aplicarModoEditable() {
+        bloqueado = false;
+        desafioBloqueadoActual = "";
+
+        mostrarError("");
+
+        botones.forEach((b) => {
+          b.disabled = false;
+          b.textContent = textoElegir();
+        });
+
+        cards.forEach((card) => {
+          card.classList.remove("bloqueada", "seleccionado");
+        });
+
+        if (estadoSeleccion) {
+          estadoSeleccion.classList.remove("visible");
+        }
       }
 
       async function refrescarEstadoSesion() {
@@ -298,67 +429,14 @@
         }
       }
 
-      function marcarSeleccion(cardId) {
-        cards.forEach((card) => {
-          card.classList.remove("seleccionado");
-        });
-
-        const card = document.getElementById(cardId);
-        if (card) {
-          card.classList.add("seleccionado");
-        }
-      }
-
-      function aplicarModoBloqueado(desafioId, nombre, descripcion) {
-        bloqueado = true;
-        mostrarError("");
-
-        botones.forEach((b) => {
-          const esElegido = b.dataset.desafioId === String(desafioId);
-          b.disabled = true;
-          b.textContent = esElegido ? "Confirmado" : "Elegir";
-        });
-
-        cards.forEach((card) => {
-          if (String(card.dataset.id) === String(desafioId)) {
-            card.classList.add("seleccionado", "bloqueada");
-          } else {
-            card.classList.remove("seleccionado");
-            card.classList.add("bloqueada");
-          }
-        });
-
-        if (nombreDesafio) nombreDesafio.textContent = nombre || "-";
-        if (descripcionDesafio) descripcionDesafio.textContent = descripcion || "";
-        if (estadoSeleccion) estadoSeleccion.classList.add("visible");
-
-        marcarSeleccion(`card-${desafioId}`);
-      }
-
-      function aplicarModoEditable() {
-        bloqueado = false;
-        mostrarError("");
-
-        botones.forEach((b) => {
-          b.disabled = false;
-          b.textContent = "Elegir";
-        });
-
-        cards.forEach((card) => {
-          card.classList.remove("bloqueada", "seleccionado");
-        });
-
-        if (estadoSeleccion) {
-          estadoSeleccion.classList.remove("visible");
-        }
-      }
-
       if (desafioConfirmado) {
         aplicarModoBloqueado(
           desafioIdActual,
           desafioNombreActual,
           desafioDescripcionActual
         );
+      } else {
+        aplicarTextoBotones();
       }
 
       botones.forEach((btn) => {
@@ -373,7 +451,7 @@
           const nombre = card.dataset.title || "";
           const descripcion = card.dataset.desc || "";
 
-          if (!confirm(`¿Confirmar el desafío "${nombre}" para tu equipo?`)) {
+          if (!confirm(textoConfirmarDesafio(nombre))) {
             return;
           }
 
@@ -402,7 +480,7 @@
             const data = await res.json();
 
             if (!res.ok || !data.ok) {
-              throw new Error(data.error || "No se pudo guardar el desafío.");
+              throw new Error(data.error || tJuego("desafios_error_guardar", "No se pudo guardar el desafío."));
             }
 
             aplicarModoBloqueado(
@@ -414,7 +492,7 @@
             await refrescarEstadoSesion();
           } catch (error) {
             console.error("Error guardando desafío:", error);
-            mostrarError(error.message || "Hubo un problema al guardar el desafío.");
+            mostrarError(error.message || tJuego("desafios_error_guardar_generico", "Hubo un problema al guardar el desafío."));
             aplicarModoEditable();
           } finally {
             enviando = false;
@@ -423,7 +501,7 @@
       });
 
       btnCambiar?.addEventListener("click", async () => {
-        if (!confirm("¿Desean cambiar el desafío? El equipo dejará de estar listo hasta confirmar otro.")) {
+        if (!confirm(textoCambiarDesafio())) {
           return;
         }
 
@@ -443,14 +521,22 @@
           const data = await res.json();
 
           if (!res.ok || !data.ok) {
-            throw new Error(data.error || "No se pudo desbloquear el desafío.");
+            throw new Error(data.error || tJuego("desafios_error_desbloquear", "No se pudo desbloquear el desafío."));
           }
 
           aplicarModoEditable();
           location.reload();
         } catch (error) {
           console.error("Error desbloqueando desafío:", error);
-          mostrarError(error.message || "No se pudo cambiar el desafío.");
+          mostrarError(error.message || tJuego("desafios_error_cambiar", "No se pudo cambiar el desafío."));
+        }
+      });
+
+      window.addEventListener("idiomaJuegoCambiado", () => {
+        aplicarTextoBotones();
+
+        if (contador) {
+          contador.textContent = textoGruposListos(ultimoListos, ultimoTotal);
         }
       });
 

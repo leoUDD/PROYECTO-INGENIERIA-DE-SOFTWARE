@@ -132,6 +132,7 @@ class Grupo(models.Model):
     desafio_id_externo = models.CharField(max_length=50, blank=True, null=True)
     desafio_nombre = models.CharField(max_length=255, blank=True, null=True)
     desafio_descripcion = models.TextField(blank=True, null=True)
+    listo_f2_tematicas = models.BooleanField(default=False)
     listo_f2_tematica = models.BooleanField(default=False)
     listo_f2_desafio = models.BooleanField(default=False)
     listo_f3_lego = models.BooleanField(default=False)

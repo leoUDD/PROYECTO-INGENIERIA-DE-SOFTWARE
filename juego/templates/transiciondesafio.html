@@ -8,18 +8,46 @@
   <title>Misión Emprende UDD — Desafíos</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_transiciondesafio.css' %}" />
+  <style>
+  .tablet-reminder {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    background: rgba(0, 200, 255, 0.10);
+    border: 1px solid rgba(0, 200, 255, 0.30);
+    color: #E6F7FF;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 0 12px rgba(0, 200, 255, 0.16);
+  }
+
+  @media (max-width: 640px) {
+    .tablet-reminder {
+      font-size: 0.9rem;
+      padding: 10px 12px;
+      border-radius: 14px;
+    }
+  }
+</style>
 </head>
+
 <body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a desafíos">
     <section class="team-section">
-      <h1 class="title">Desafíos</h1>
+      <h1 class="title" data-i18n="desafios_intro_titulo">
+        Desafíos
+      </h1>
 
-      <div class="speech-bubble">
-        <p>
-          Agentes, toda misión inicia con un desafío.
-          Ahora elegirán su siguiente objetivo.
-        </p>
-      </div>
+<div class="speech-bubble">
+  <p data-i18n="desafios_intro_texto">
+    Agentes, toda misión inicia con un desafío.
+    Ahora elegirán su siguiente objetivo.
+  </p>
+
+  <div class="tablet-reminder" data-i18n="desafios_intro_tablet">
+    📱 Protocolo: recuerden rotar la tablet.
+  </div>
+</div>
 
       <div class="next-step">
         {% include "includes/boton_listo_fase.html" with fase_clave="f2" fase_actual_esperada="f2_transicion" campo_listos="gruposListosF2Generico" campo_mi_grupo="listoF2Generico" texto_boton="¡Estoy listo!" %}
@@ -28,6 +56,67 @@
   </main>
 
   <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      function tJuego(clave, fallback = "") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+
+      function traducirBotonListoFase() {
+        const botones = document.querySelectorAll(".next-step button, .btn-chip");
+
+        botones.forEach(btn => {
+          if (!btn) return;
+
+          const textoActual = (btn.textContent || "").trim().toLowerCase();
+
+          if (
+            btn.disabled ||
+            textoActual.includes("esperando") ||
+            textoActual.includes("waiting")
+          ) {
+            btn.textContent = tJuego("desafios_intro_boton_esperando", "Esperando...");
+          } else {
+            btn.textContent = tJuego("desafios_intro_boton_listo", "¡Estoy listo!");
+          }
+        });
+      }
+
+      function traducirContadoresListos() {
+        const textos = document.querySelectorAll(".contador-fase, #contador-listos-fase, #texto-espera-fase");
+
+        textos.forEach(el => {
+          if (!el) return;
+
+          const texto = el.textContent || "";
+          const match = texto.match(/(\d+)\/(\d+)/);
+
+          if (match) {
+            el.textContent = `${match[1]}/${match[2]} ${tJuego("desafios_intro_grupos_listos", "grupos listos")}`;
+          } else if (
+            texto.toLowerCase().includes("esperando") ||
+            texto.toLowerCase().includes("waiting")
+          ) {
+            el.textContent = tJuego("desafios_intro_esperando", "Esperando a los demás equipos...");
+          }
+        });
+      }
+
+      function traducirDesafiosIntroDinamico() {
+        traducirBotonListoFase();
+        traducirContadoresListos();
+      }
+
+      setTimeout(traducirDesafiosIntroDinamico, 300);
+
+      window.addEventListener("idiomaJuegoCambiado", () => {
+        traducirDesafiosIntroDinamico();
+      });
+    });
+  </script>
+
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

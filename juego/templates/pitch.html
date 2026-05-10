@@ -218,7 +218,6 @@
       font-size: 0.98rem;
     }
 
-    /* ===== ASTRONAUTA INTERACTIVO PITCH ===== */
     .astro-trigger-pitch {
       position: absolute;
       top: clamp(130px, 22vh, 230px);
@@ -436,6 +435,51 @@
         width: 135px;
       }
     }
+
+    /* ============================================================
+   FIX PITCH — permitir scroll y evitar corte inferior
+   ============================================================ */
+
+html,
+body {
+  min-height: 100%;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+body {
+  align-items: flex-start !important;
+}
+
+.pitch-editor {
+  min-height: 100svh;
+  height: auto !important;
+  overflow: visible !important;
+  padding-top: 24px;
+  padding-bottom: 120px;
+}
+
+.pitch-form {
+  margin-bottom: 80px;
+}
+
+#pitch-text {
+  max-height: 42vh;
+  overflow-y: auto;
+  resize: vertical;
+}
+
+@media (max-width: 640px) {
+  .pitch-editor {
+    padding-top: 14px;
+    padding-bottom: 150px;
+  }
+
+  #pitch-text {
+    max-height: 34vh;
+  }
+}
   </style>
 </head>
 
@@ -443,29 +487,31 @@
   data-sesion-id="{{ grupo.sesion.idsesion }}"
   data-tiempo-inicial="{{ tiempo_inicial_pitch|default:300 }}"
 >
-
   <main class="pitch-editor">
 
     <div id="inicio-fase-overlay" class="inicio-fase-overlay">
       <section id="inicio-fase-card" class="inicio-fase-card">
-        <div class="inicio-fase-badge">Fase de activación</div>
+        <div class="inicio-fase-badge" data-i18n="pitch_overlay_badge">
+          MISIÓN DE COMUNICACIÓN
+        </div>
 
-        <h3>Antes de comenzar</h3>
+        <h3 data-i18n="pitch_overlay_titulo">
+          Antes de comenzar
+        </h3>
 
-        <p>
-          Redacten un pitch claro, breve y persuasivo para presentar su solución.
+        <p data-i18n="pitch_overlay_p1">
+          Agentes, redacten un pitch claro, breve y persuasivo para presentar su solución.
         </p>
 
-        <p>
-          Tendrán el tiempo configurado para esta fase. Cuando todos los equipos presionen
-          <strong>“Listo para comenzar”</strong>, la redacción se habilitará automáticamente.
+        <p data-i18n="pitch_overlay_p2">
+          Tendrán el tiempo configurado para esta fase. Cuando todos los equipos presionen “Listo para comenzar”, la redacción se habilitará automáticamente.
         </p>
 
-        <button type="button" id="btn-listo-fase" class="btn-chip">
+        <button type="button" id="btn-listo-fase" class="btn-chip" data-i18n="pitch_boton_listo">
           ⚡ Listo para comenzar
         </button>
 
-        <div id="texto-espera-fase" class="contador-fase">
+        <div id="texto-espera-fase" class="contador-fase" data-i18n="pitch_esperando_equipos">
           Esperando a los demás equipos...
         </div>
 
@@ -475,14 +521,18 @@
       </section>
     </div>
 
-    <h1 id="tituloPitch" class="title blur-target-bloqueado">¡Crea tu pitch!</h1>
+    <h1 id="tituloPitch" class="title blur-target-bloqueado" data-i18n="pitch_titulo">
+      ¡Crea tu pitch!
+    </h1>
 
-    <p id="subtituloPitch" class="subtitle blur-target-bloqueado">
+    <p id="subtituloPitch" class="subtitle blur-target-bloqueado" data-i18n="pitch_subtitulo">
       Escribe un pitch, o simplemente prepara algunas notas para tu presentación.
     </p>
 
     <div id="timer-wrap-pitch" class="timer-wrap-pitch blur-target-bloqueado timer-esperando">
-      <div class="timer-label-pitch">Tiempo restante</div>
+      <div class="timer-label-pitch" data-i18n="pitch_timer_label">
+        Tiempo restante
+      </div>
       <div id="timer" class="timer-box-pitch">00:00</div>
     </div>
 
@@ -492,7 +542,9 @@
       <section id="desafioPanel" class="desafio-panel">
         <button type="button" class="desafio-toggle" id="desafioToggle">
           <div class="desafio-toggle-head">
-            <span class="desafio-etiqueta">Desafío seleccionado</span>
+            <span class="desafio-etiqueta" data-i18n="pitch_desafio_label">
+              Desafío seleccionado
+            </span>
             <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
           </div>
           <span class="desafio-icono" id="desafioIcono">▼</span>
@@ -512,12 +564,12 @@
     ></div>
 
     <section id="tipsPitch" class="tips blur-target-bloqueado">
-      <h2>Consejos para un buen pitch</h2>
+      <h2 data-i18n="pitch_tips_titulo">Consejos para un buen pitch</h2>
       <ul>
-        <li>Comienza explicando claramente tu problema.</li>
-        <li>Explica brevemente tu solución construida con LEGOs.</li>
-        <li>Destaca por qué tu solución es especial y sus beneficios.</li>
-        <li>Manténlo breve (Tendrás 1 minuto y 30 segundos para decir tu pitch).</li>
+        <li data-i18n="pitch_tip_1">Comienza explicando claramente tu problema.</li>
+        <li data-i18n="pitch_tip_2">Explica brevemente tu solución construida con LEGOs.</li>
+        <li data-i18n="pitch_tip_3">Destaca por qué tu solución es especial y sus beneficios.</li>
+        <li data-i18n="pitch_tip_4">Manténlo breve. Tendrás 1 minuto y 30 segundos para decir tu pitch.</li>
       </ul>
     </section>
 
@@ -525,34 +577,45 @@
       <textarea
         id="pitch-text"
         name="pitch-text"
+        data-i18n="pitch_placeholder"
+        data-i18n-attr="placeholder"
         placeholder="Escribe tu pitch..."
         rows="10"
       >{{ pitch_guardado }}</textarea>
 
       <div class="actions">
-        <button type="button" class="btn ghost" id="btnLimpiar">Limpiar</button>
+        <button type="button" class="btn ghost" id="btnLimpiar" data-i18n="pitch_limpiar">
+          Limpiar
+        </button>
       </div>
     </form>
 
-    <!-- ASTRONAUTA FLOTANTE PITCH -->
-    <button id="astroTriggerPitch" class="astro-trigger-pitch oculto" type="button" aria-label="Abrir consejo del astronauta">
+    <button
+      id="astroTriggerPitch"
+      class="astro-trigger-pitch oculto"
+      type="button"
+      aria-label="Abrir consejo del astronauta"
+      data-i18n="pitch_astro_aria"
+      data-i18n-attr="aria-label"
+    >
       <span class="astro-signal-pitch" aria-hidden="true"></span>
       <img class="astro-img-falling-pitch" src="{% static 'images/Cayendo.png' %}" alt="" aria-hidden="true">
     </button>
 
-    <!-- POPUP ASTRONAUTA PITCH -->
     <div id="astroPitchOverlay" class="astro-pitch-overlay" aria-hidden="true">
       <div class="astro-pitch-card">
         <img src="{% static 'images/Parado.png' %}" alt="" aria-hidden="true" class="astro-pitch-img">
 
         <div class="astro-pitch-text">
-          <h3 id="astroPitchTitulo">Estructura recomendada</h3>
-          <p id="astroPitchMensaje">
-            Para tu pitch, usa esta estructura: primero explica el problema, luego presenta tu solución,
-            después cuenta por qué es valiosa y termina con un cierre claro.
+          <h3 id="astroPitchTitulo" data-i18n="pitch_astro_titulo_inicio">
+            Estructura recomendada
+          </h3>
+
+          <p id="astroPitchMensaje" data-i18n="pitch_astro_mensaje_inicio">
+            Para tu pitch, usa esta estructura: primero explica el problema, luego presenta tu solución, después cuenta por qué es valiosa y termina con un cierre claro.
           </p>
 
-          <button type="button" id="astroPitchCerrar" class="astro-pitch-btn">
+          <button type="button" id="astroPitchCerrar" class="astro-pitch-btn" data-i18n="pitch_astro_cerrar">
             Entendido
           </button>
         </div>
@@ -566,8 +629,8 @@
 
   <div id="modal-fin" class="modal-fin">
     <div class="modal-fin-box">
-      <h2>¡Tiempo terminado!</h2>
-      <p>Prepárate para presentar tu pitch.</p>
+      <h2 data-i18n="pitch_modal_titulo">¡Tiempo terminado!</h2>
+      <p data-i18n="pitch_modal_texto">Prepárate para presentar tu pitch.</p>
     </div>
   </div>
 
@@ -626,12 +689,50 @@ document.addEventListener("DOMContentLoaded", () => {
   let astroActivo = false;
   let astroModo = "inicio";
 
+  function tJuego(clave, fallback = "") {
+    const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+    return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+  }
+
+  function textoGruposListos(listos, total) {
+    return `${listos}/${total} ${tJuego("pitch_grupos_listos", "grupos listos")}`;
+  }
+
+  function textoBotonListo() {
+    return tJuego("pitch_boton_listo", "⚡ Listo para comenzar");
+  }
+
+  function textoEsperando() {
+    return tJuego("pitch_boton_esperando", "Esperando...");
+  }
+
+  function textoEsperandoEquipos() {
+    return tJuego("pitch_esperando_equipos", "Esperando a los demás equipos...");
+  }
+
+  function aplicarTraduccionDinamicaPitch() {
+    if (boton) {
+      boton.textContent = boton.disabled ? textoEsperando() : textoBotonListo();
+    }
+
+    if (textoEspera) {
+      textoEspera.textContent = textoEsperandoEquipos();
+    }
+
+    if (contador) {
+      const match = (contador.textContent || "").match(/(\d+)\/(\d+)/);
+      if (match) {
+        contador.textContent = textoGruposListos(match[1], match[2]);
+      }
+    }
+  }
+
   function actualizarBadgeDesafio(data) {
     const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
     if (!miGrupo) return;
 
-    const titulo = miGrupo.desafioNombre || "Desafío no seleccionado";
-    const descripcion = miGrupo.desafioDescripcion || "Aún no hay descripción disponible para este desafío.";
+    const titulo = miGrupo.desafioNombre || tJuego("pitch_desafio_no_seleccionado", "Desafío no seleccionado");
+    const descripcion = miGrupo.desafioDescripcion || tJuego("pitch_desafio_sin_descripcion", "Aún no hay descripción disponible para este desafío.");
 
     const desafioNombre = document.getElementById("desafioNombre");
     const desafioDescripcion = document.getElementById("desafioDescripcion");
@@ -669,20 +770,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function analizarPitchActual() {
-    const texto = (textarea?.value || "").trim();
-    const palabras = texto.split(/\s+/).filter(Boolean).length;
+  function tJuego(clave, fallback = "") {
+  const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+  return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+}
 
-    if (palabras < 20) {
-      return "Tu pitch aún está muy corto. Agrega el problema, la solución y por qué tu idea aporta valor.";
-    }
+function analizarPitchActual() {
+  const texto = (textarea?.value || "").trim();
+  const palabras = texto.split(/\s+/).filter(Boolean).length;
 
-    if (palabras < 45) {
-      return "Vas bien. Ahora intenta explicar mejor el beneficio de tu solución y cómo ayuda a la persona del desafío.";
-    }
-
-    return "Buen avance. Revisa que tu pitch tenga problema, solución, valor diferencial y un cierre claro.";
+  if (palabras < 20) {
+    return tJuego(
+      "pitch_astro_corto",
+      "Tu pitch aún está muy corto. Agrega el problema, la solución y por qué tu idea aporta valor."
+    );
   }
+
+  if (palabras < 45) {
+    return tJuego(
+      "pitch_astro_medio",
+      "Vas bien. Ahora intenta explicar mejor el beneficio de tu solución y cómo ayuda a la persona del desafío."
+    );
+  }
+
+  return tJuego(
+    "pitch_astro_bueno",
+    "Buen avance. Revisa que tu pitch tenga problema, solución, valor diferencial y un cierre claro."
+  );
+}
 
   function mostrarAstroFlotando(modo) {
     if (!astroTriggerPitch) return;
@@ -709,12 +824,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (astroModo === "inicio") {
       abrirAstroPitch(
-        "Estructura recomendada",
-        "Usen esta estructura: 1) Problema, 2) Solución, 3) Beneficio o valor, 4) Cierre convincente. No intenten decirlo todo: sean claros y directos."
+        tJuego("pitch_astro_titulo_inicio", "Estructura recomendada"),
+        tJuego(
+          "pitch_astro_mensaje_inicio",
+          "Usen esta estructura: 1) Problema, 2) Solución, 3) Beneficio o valor, 4) Cierre convincente. No intenten decirlo todo: sean claros y directos."
+        )
       );
     } else {
       abrirAstroPitch(
-        "Mitad del tiempo",
+        tJuego("pitch_astro_titulo_mitad", "Mitad del tiempo"),
         analizarPitchActual()
       );
     }
@@ -840,13 +958,13 @@ document.addEventListener("DOMContentLoaded", () => {
           "Content-Type": "application/json",
           "X-CSRFToken": csrfToken
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({ fase: "f4_construccion_pitch" })
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.ok) {
-        throw new Error(data.error || "No se pudo iniciar el timer.");
+        throw new Error(data.error || tJuego("pitch_error_timer", "No se pudo iniciar el timer."));
       }
 
       const backendSeconds = Number(data.segundosRestantes);
@@ -862,8 +980,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   btnLimpiar?.addEventListener("click", () => {
-    const confirmar = window.confirm("¿Estás segura de que quieres borrar tu pitch?");
+    const confirmar = window.confirm(
+      tJuego("pitch_confirmar_limpiar", "¿Estás segura de que quieres borrar tu pitch?")
+    );
+
     if (!confirmar) return;
+
     if (textarea) textarea.value = "";
     guardarPitch();
   });
@@ -881,13 +1003,13 @@ document.addEventListener("DOMContentLoaded", () => {
       actualizarBadgeDesafio(data);
 
       if (contador) {
-        contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0}`;
+        contador.textContent = textoGruposListos(data.listosInicio || 0, data.totalListosInicio || 0);
       }
 
       const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
       if (miGrupo && miGrupo.listoF4) {
         boton.disabled = true;
-        boton.textContent = "Esperando...";
+        boton.textContent = textoEsperando();
       }
 
       if (data.faseActual && data.faseActual !== "f4_construccion_pitch") {
@@ -899,7 +1021,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (data.inicioFaseHabilitado) {
-
         if (!countdownMostrado && !countdownEnCurso) {
           countdownEnCurso = true;
 
@@ -917,7 +1038,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (countdownMostrado && !countdownEnCurso) {
           activarFase();
         }
-
       } else {
         countdownMostrado = false;
         countdownEnCurso = false;
@@ -930,14 +1050,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const backendTime = Number(data.segundosRestantes);
 
       if (
-        data.inicioFaseHabilitado &&
-        data.timerCorriendo &&
-        !astroMitadMostrado &&
-        backendTime <= 150
-      ) {
-        astroMitadMostrado = true;
-        mostrarAstroFlotando("mitad");
-      }
+  !astroMitadMostrado &&
+  timerStarted &&
+  Number(timeLeft) <= 150
+) {
+  astroMitadMostrado = true;
+  mostrarAstroFlotando("mitad");
+}
 
       if (!timerStarted) {
         timeLeft = backendTime;
@@ -969,29 +1088,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   boton?.addEventListener("click", async () => {
     boton.disabled = true;
-    boton.textContent = "Esperando...";
+    boton.textContent = textoEsperando();
 
     try {
-      await fetch(`/grupo/${grupoId}/listo/`, {
+      const res = await fetch(`/grupo/${grupoId}/listo/`, {
         method: "POST",
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": csrfToken
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({ fase: "f4" })
       });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || tJuego("pitch_error_listo", "No se pudo marcar listo."));
+      }
 
       syncTimer();
 
     } catch (err) {
+      console.error("Error marcando listo pitch:", err);
       boton.disabled = false;
-      boton.textContent = "⚡ Listo";
+      boton.textContent = textoBotonListo();
+
+      if (textoEspera) {
+        textoEspera.textContent = tJuego("pitch_error_registro", "No se pudo registrar. Intenta nuevamente.");
+      }
     }
+  });
+
+  window.addEventListener("idiomaJuegoCambiado", () => {
+    aplicarTraduccionDinamicaPitch();
   });
 
   bloquearFase();
   renderTimer();
+  aplicarTraduccionDinamicaPitch();
   setInterval(syncTimer, 1000);
   syncTimer();
 });
