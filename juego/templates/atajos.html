@@ -16,7 +16,7 @@
 </script>
 
 <script src="{% static 'js/atajos.js' %}"></script>
-
+<script src="{% static 'js/i18n_juego.js' %}"></script>
 {% include "includes/linea_progreso_habilidades.html" %}
 
 <style>
@@ -70,6 +70,57 @@
 
     .next-step::before {
       font-size: 9px;
+    }
+  }
+</style>
+
+<style>
+  .idioma-juego-box {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 9px;
+    border-radius: 999px;
+    background: rgba(7, 21, 43, .88);
+    border: 1px solid rgba(0, 200, 255, .45);
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    backdrop-filter: blur(6px);
+    color: white;
+    font-family: Poppins, Arial, sans-serif;
+  }
+
+  .idioma-juego-icon {
+    font-size: 14px;
+  }
+
+  .idioma-juego-select {
+    background: transparent;
+    border: none;
+    color: #E6EEF8;
+    font-weight: 800;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .idioma-juego-select option {
+    background: #081A2D;
+    color: #E6EEF8;
+  }
+
+  @media (max-width: 640px) {
+    .idioma-juego-box {
+      top: 8px;
+      left: 8px;
+      padding: 6px 8px;
+    }
+
+    .idioma-juego-select {
+      font-size: 11px;
     }
   }
 </style>

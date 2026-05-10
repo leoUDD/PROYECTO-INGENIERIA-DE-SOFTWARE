@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,8 +15,10 @@
 <div class="root" id="root">
   <div class="topbar">
     <div class="tb-left">
-      <div class="tb-badge">CLASIFICADO</div>
-      <div class="tb-title">HABILIDADES DE MISIÓN</div>
+      <div class="tb-badge" data-i18n="mapa_clasificado">CLASIFICADO</div>
+      <div class="tb-title" data-i18n="mapa_topbar">
+  {{ estado_mapa.titulo_mapa|default:"HABILIDADES DE MISIÓN" }}
+</div>
     </div>
     <div class="tb-pips" id="pips"></div>
   </div>
@@ -24,7 +27,9 @@
     <div class="panel">
       <div class="panel-empty" id="pempty">
         <div class="pe-icon">📍</div>
-        <div class="pe-text">SELECCIONA<br>EL PUNTO<br>EN EL MAPA</div>
+        <div class="pe-text" data-i18n="mapa_selecciona_punto">
+  SELECCIONA<br>EL PUNTO<br>EN EL MAPA
+</div>
       </div>
 
       <div class="panel-card" id="pcard">
@@ -51,10 +56,14 @@
     </div>
   </div>
 
-  <div class="bottom">
-    <div class="bt-hint" id="bt-hint">// VISITA TODOS LOS PUNTOS PARA ACTIVAR LA MISIÓN</div>
-    <a href="{% url 'bienvenida' %}" class="bt-btn" id="bt-btn">▶ INICIAR MISIÓN</a>
-  </div>
+<div class="bottom">
+  <div class="bt-hint" id="bt-hint" data-i18n="mapa_hint">
+  // SELECCIONA LA HABILIDAD ACTIVA Y CONTINÚA LA MISIÓN
+</div>
+  <a href="{{ estado_mapa.ruta_continuar }}" class="bt-btn" id="bt-btn" style="display:none;">
+    ▶ {{ estado_mapa.texto_boton|default:"CONTINUAR" }}
+  </a>
+</div>
 </div>
 
 <div class="habilidad-overlay" id="habilidadOverlay">
@@ -80,6 +89,15 @@
   };
 </script>
 
+<script>
+  window.MAPA_HABILIDADES_CONFIG = {
+    habilidadActiva: "{{ estado_mapa.habilidad_activa|escapejs }}",
+    habilidadesCompletadas: JSON.parse("{{ habilidades_completadas_json|escapejs }}"),
+    rutaContinuar: "{{ estado_mapa.ruta_continuar|escapejs }}",
+    textoBoton: "{{ estado_mapa.texto_boton|escapejs }}"
+  };
+</script>
+
 <script src="{% static 'js/mapa_agente.js' %}"></script>
 
 <script>
@@ -88,7 +106,11 @@ const videosHabilidades = {
   "empatia":           "{% static 'videos/Empatia.mp4' %}",
   "creatividad":       "{% static 'videos/Creatividad.mp4' %}",
   "comunicacion":      "{% static 'videos/Comunicacion.mp4' %}",
-  "negociacion":       "{% static 'videos/Negociacion.mp4' %}"
+  "negociacion":       "{% static 'videos/Negociacion.mp4' %}",
+  "mision final": [
+    "{% static 'videos/Comunicacion.mp4' %}",
+    "{% static 'videos/Negociacion.mp4' %}"
+  ]
 };
 
   function normalizarTexto(texto) {
@@ -98,35 +120,66 @@ const videosHabilidades = {
       .replace(/[\u0300-\u036f]/g, "")
       .trim();
   }
+function mostrarAnimacionHabilidad(nombre) {
+  const overlay = document.getElementById("habilidadOverlay");
+  const titulo  = document.getElementById("habilidadTitulo");
+  const video   = document.getElementById("habilidadVideo");
 
-  function mostrarAnimacionHabilidad(nombre) {
-    const overlay = document.getElementById("habilidadOverlay");
-    const titulo  = document.getElementById("habilidadTitulo");
-    const video   = document.getElementById("habilidadVideo");
+  const clave = normalizarTexto(nombre);
+  const src = videosHabilidades[clave];
 
-    const clave = normalizarTexto(nombre);
-    const src   = videosHabilidades[clave];
+  if (!src) return;
 
-    if (!src) return;
+  overlay.classList.add("show");
 
-    titulo.textContent = nombre.toUpperCase();
-    video.pause();
-    video.currentTime = 0;
-    video.src = src;
+  const music = document.getElementById("bg-music");
+  if (music) music.pause();
 
-    overlay.classList.add("show");
+  video.pause();
+  video.currentTime = 0;
+  video.volume = 1.0;
 
-    // Pausar música de fondo mientras suena el video
-    const music = document.getElementById("bg-music");
-    if (music) music.pause();
+  // Caso especial: MISIÓN FINAL reproduce Comunicación y luego Negociación
+  if (Array.isArray(src)) {
+    let indiceVideo = 0;
 
-    video.volume = 1.0;
-    video.play().catch(() => {
-      setTimeout(cerrarAnimacionHabilidad, 2600);
-    });
+    function reproducirSiguienteVideo() {
+      if (indiceVideo >= src.length) {
+        cerrarAnimacionHabilidad();
+        return;
+      }
 
-    video.onended = cerrarAnimacionHabilidad;
+      if (indiceVideo === 0) {
+        titulo.textContent = "COMUNICACIÓN";
+      } else {
+        titulo.textContent = "NEGOCIACIÓN";
+      }
+
+      video.pause();
+      video.currentTime = 0;
+      video.src = src[indiceVideo];
+
+      indiceVideo++;
+
+      video.play().catch(() => {
+        setTimeout(reproducirSiguienteVideo, 1800);
+      });
+    }
+
+    video.onended = reproducirSiguienteVideo;
+    reproducirSiguienteVideo();
+    return;
   }
+
+  titulo.textContent = nombre.toUpperCase();
+  video.src = src;
+
+  video.play().catch(() => {
+    setTimeout(cerrarAnimacionHabilidad, 2600);
+  });
+
+  video.onended = cerrarAnimacionHabilidad;
+}
 
   function cerrarAnimacionHabilidad() {
     const overlay = document.getElementById("habilidadOverlay");

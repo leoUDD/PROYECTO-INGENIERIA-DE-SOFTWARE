@@ -738,3 +738,264 @@ svg.msvg {
   .nd-icon  { font-size: 22px; }
   .nd-lbl   { font-size: 8px; margin-top: 14px; }
 }
+/* ============================================================
+   MISIÓN FINAL — DOBLE HABILIDAD MÁS GRANDE SIN SCROLL
+   ============================================================ */
+
+/* Contenedor doble para Comunicación + Negociación */
+.img-dual-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 1.5vw, 20px);
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ============================================================
+   PANEL IZQUIERDO
+   ============================================================ */
+
+/* Evita que el panel izquierdo genere scroll solo por la misión final */
+.pc-header {
+  overflow: hidden;
+}
+
+.pc-em {
+  max-width: 100%;
+  overflow: visible;
+}
+
+/* Hacer más grandes las dos imágenes superiores del panel */
+.pc-em .img-dual-wrap {
+  width: min(100%, 320px);
+  max-width: 320px;
+  margin: 0 auto;
+  gap: 14px;
+}
+
+/* Mini octágonos dentro del panel */
+.pc-em .img-dual-wrap .img-oct-wrap,
+.pc-em .img-dual-wrap .img-oct-mini {
+  width: clamp(95px, 10.5vw, 138px);
+  height: clamp(95px, 10.5vw, 138px);
+  flex: 0 0 auto;
+}
+
+/* ============================================================
+   NODO EN EL MAPA
+   ============================================================ */
+
+/* Hacer más grande el conjunto visual dentro del nodo */
+.nd-icon .img-dual-wrap {
+  width: clamp(112px, 17vw, 180px);
+  height: clamp(112px, 17vw, 180px);
+  gap: 8px;
+}
+
+/* Mini octágonos dentro del nodo del mapa */
+.nd-icon .img-dual-wrap .img-oct-wrap,
+.nd-icon .img-dual-wrap .img-oct-mini {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 auto;
+}
+
+/* Mantener bien las imágenes */
+.pc-em .img-dual-wrap img,
+.nd-icon .img-dual-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================================
+   RESPONSIVE — MÓVIL
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .pc-em .img-dual-wrap {
+    max-width: 220px;
+    gap: 10px;
+  }
+
+  .pc-em .img-dual-wrap .img-oct-wrap,
+  .pc-em .img-dual-wrap .img-oct-mini {
+    width: 86px;
+    height: 86px;
+  }
+
+  .nd-icon .img-dual-wrap {
+    width: 86px;
+    height: 86px;
+    gap: 6px;
+  }
+
+  .nd-icon .img-dual-wrap .img-oct-wrap,
+  .nd-icon .img-dual-wrap .img-oct-mini {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — LANDSCAPE MÓVIL
+   ============================================================ */
+
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+  .pc-em .img-dual-wrap {
+    max-width: 160px;
+    gap: 8px;
+  }
+
+  .pc-em .img-dual-wrap .img-oct-wrap,
+  .pc-em .img-dual-wrap .img-oct-mini {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* ============================================================
+   FIX MISIÓN FINAL — IMÁGENES DOBLES MÁS GRANDES FORZADAS
+   Pegar al FINAL del archivo estilo_habilidades_intro.css
+   ============================================================ */
+
+/* =========================
+   PANEL IZQUIERDO
+   ========================= */
+
+.pc-em .img-dual-wrap {
+  width: min(100%, 360px) !important;
+  max-width: 360px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 18px !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+}
+
+.pc-em .img-dual-wrap .img-oct-wrap,
+.pc-em .img-dual-wrap .img-oct-mini {
+  width: clamp(120px, 12vw, 155px) !important;
+  height: clamp(120px, 12vw, 155px) !important;
+  min-width: 120px !important;
+  min-height: 120px !important;
+  max-width: 155px !important;
+  max-height: 155px !important;
+  flex: 0 0 auto !important;
+}
+
+/* =========================
+   NODO MISIÓN FINAL EN MAPA
+   ========================= */
+
+/* Agranda solo el nodo de misión final */
+.nd[data-skill-key="mision final"] {
+  z-index: 8 !important;
+}
+
+/* Permite que las imágenes crezcan sin cortarse */
+.nd[data-skill-key="mision final"] .nd-outer {
+  width: clamp(190px, 19vw, 270px) !important;
+  height: clamp(140px, 14vw, 200px) !important;
+  overflow: visible !important;
+}
+
+/* Contenedor de las dos imágenes en el mapa */
+.nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap {
+  width: clamp(190px, 19vw, 260px) !important;
+  height: clamp(110px, 12vw, 165px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(10px, 1vw, 18px) !important;
+  overflow: visible !important;
+}
+
+/* Cada mini imagen dentro del nodo del mapa */
+.nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap .img-oct-wrap,
+.nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap .img-oct-mini {
+  width: clamp(86px, 8.8vw, 118px) !important;
+  height: clamp(86px, 8.8vw, 118px) !important;
+  min-width: 86px !important;
+  min-height: 86px !important;
+  max-width: 118px !important;
+  max-height: 118px !important;
+  flex: 0 0 auto !important;
+}
+
+/* Mantener imagen bien recortada */
+.pc-em .img-dual-wrap img,
+.nd[data-skill-key="mision final"] .img-dual-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Que el check no tape demasiado las imágenes */
+.nd[data-skill-key="mision final"] .nd-check {
+  right: -8px !important;
+  bottom: -8px !important;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 640px) {
+  .pc-em .img-dual-wrap {
+    max-width: 250px !important;
+    gap: 12px !important;
+  }
+
+  .pc-em .img-dual-wrap .img-oct-wrap,
+  .pc-em .img-dual-wrap .img-oct-mini {
+    width: 100px !important;
+    height: 100px !important;
+    min-width: 100px !important;
+    min-height: 100px !important;
+  }
+
+  .nd[data-skill-key="mision final"] .nd-outer {
+    width: 110px !important;
+    height: 78px !important;
+  }
+
+  .nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap {
+    width: clamp(190px, 19vw, 260px) !important;
+    height: clamp(110px, 12vw, 165px) !important;
+    gap: 6px !important;
+  }
+
+  .nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap .img-oct-wrap,
+  .nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap .img-oct-mini {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+    min-height: 50px !important;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+  .pc-em .img-dual-wrap {
+    max-width: 190px !important;
+    gap: 8px !important;
+  }
+
+  .pc-em .img-dual-wrap .img-oct-wrap,
+  .pc-em .img-dual-wrap .img-oct-mini {
+    width: 78px !important;
+    height: 78px !important;
+    min-width: 78px !important;
+    min-height: 78px !important;
+  }
+
+  .nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap .img-oct-wrap,
+  .nd[data-skill-key="mision final"] .nd-icon .img-dual-wrap .img-oct-mini {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+}

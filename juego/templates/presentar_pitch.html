@@ -8,50 +8,154 @@
   <title>Misión Emprende UDD — Presentar Pitch</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_presentar_pitch.css' %}">
+
   <style>
-    .pitch-media-wrap{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      margin-bottom:16px;
-      min-height:240px;
+    /* ============================================================
+       PRESENTAR PITCH — AJUSTE DE ESTRUCTURA
+       Arriba: foto + temporizador
+       Abajo: pitch + orden
+       ============================================================ */
+
+    .presentacion-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 18px;
     }
 
-    .pitch-media-fallback{
-      width:100%;
-      max-width:320px;
-      min-height:180px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:18px;
-      border-radius:16px;
-      border:1px dashed rgba(255,255,255,.22);
-      background:rgba(255,255,255,.06);
-      color:#d9e6f2;
-      font-weight:600;
-      line-height:1.4;
+    /* ================== BLOQUE SUPERIOR ================== */
+
+    .presentacion-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 18px;
+      align-items: stretch;
     }
 
-    .pitch-start-wrap{
-      margin-top: 14px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
+    .media-panel,
+    .timer-panel {
+      min-height: 360px;
+    }
+
+    .media-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .grupo-actual-nombre {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 900;
+      color: #ffffff;
+      margin: 4px 0 4px;
+      text-shadow: 0 0 14px rgba(0, 200, 255, 0.35);
+    }
+
+    .grupo-actual-orden {
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .pitch-media-wrap {
+      flex: 1;
+      width: 100%;
+      min-height: 260px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 8px;
+      padding: 14px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(0,200,255,.10), transparent 42%),
+        rgba(255,255,255,.035);
+      border: 1px solid rgba(0, 200, 255, 0.14);
+    }
+
+    .pitch-lego-img {
+      width: 100%;
+      max-width: 520px;
+      max-height: 330px;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow:
+        0 0 22px rgba(0, 200, 255, 0.22),
+        0 14px 32px rgba(0,0,0,.45);
+    }
+
+    .pitch-media-fallback {
+      width: 100%;
+      max-width: 430px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 22px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,.24);
+      background: rgba(255,255,255,.06);
+      color: #d9e6f2;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    /* ================== TEMPORIZADOR SUPERIOR ================== */
+
+    .timer-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .timer-display-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .timer-label-pitch {
+      color: #16c5ff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: .04em;
+    }
+
+    .pitch-start-wrap {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pitch-start-help {
+      color: #d9e6f2;
+      opacity: .95;
+      text-align: center;
+      font-size: .95rem;
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .pitch-start-help strong {
+      color: #ffffff;
     }
 
     .btn-chip {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       padding: 10px 18px;
       border-radius: 999px;
       border: 1px solid rgba(0, 200, 255, 0.4);
       background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
       color: #E6F7FF;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.25s ease;
@@ -75,50 +179,132 @@
       box-shadow: none;
     }
 
-    .pitch-start-help{
-      color:#d9e6f2;
-      opacity:.95;
-      text-align:center;
-      font-size:.95rem;
-      line-height:1.35;
-      margin:0;
+    /* ================== BLOQUE INFERIOR ================== */
+
+    .presentacion-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+      gap: 18px;
+      align-items: stretch;
     }
 
-    .pitch-start-help strong{
-      color:#fff;
+    .pitch-panel,
+    .orden-panel {
+      min-height: 260px;
     }
 
-    .timer-label-pitch{
-      margin-bottom:10px;
-      color:#16c5ff;
-      font-weight:700;
-      font-size:1.05rem;
+    .pitch-text {
+      min-height: 210px;
+      max-height: 340px;
+      overflow-y: auto;
+      padding-right: 6px;
     }
 
-    .timer-display-wrap{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
+    .pitch-text::-webkit-scrollbar,
+    .orden-panel::-webkit-scrollbar,
+    .orden-pitch-lista::-webkit-scrollbar {
+      width: 8px;
     }
 
-    @media (max-width: 720px){
-      .pitch-media-wrap{
-        min-height: 180px;
+    .pitch-text::-webkit-scrollbar-thumb,
+    .orden-pitch-lista::-webkit-scrollbar-thumb {
+      background: rgba(0, 200, 255, .28);
+      border-radius: 999px;
+    }
+
+    .orden-panel {
+      overflow: hidden;
+    }
+
+    .orden-pitch-lista {
+      margin: 8px 0 0;
+      padding-left: 22px;
+      max-height: 300px;
+      overflow-y: auto;
+      line-height: 1.7;
+    }
+
+    .orden-pitch-lista li {
+      margin-bottom: 6px;
+      color: #E6EEF8;
+    }
+
+    /* ================== FOOTER ================== */
+
+    .footer-actions {
+      margin-top: 18px;
+    }
+
+    /* ================== RESPONSIVE ================== */
+
+    @media (max-width: 980px) {
+      .presentacion-top,
+      .presentacion-bottom {
+        grid-template-columns: 1fr;
       }
 
-      .pitch-media-fallback{
+      .media-panel,
+      .timer-panel,
+      .pitch-panel,
+      .orden-panel {
+        min-height: auto;
+      }
+
+      .pitch-media-wrap {
+        min-height: 220px;
+      }
+
+      .pitch-lego-img {
+        max-height: 280px;
+      }
+
+      .timer-panel {
+        justify-content: flex-start;
+      }
+
+      .pitch-text {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .presentacion-layout {
+        gap: 14px;
+      }
+
+      .pitch-media-wrap {
+        min-height: 180px;
+        padding: 10px;
+      }
+
+      .pitch-media-fallback {
         min-height: 140px;
         font-size: .92rem;
       }
 
-      .btn-chip{
-        width:100%;
-        justify-content:center;
+      .pitch-lego-img {
+        max-height: 220px;
+      }
+
+      .grupo-actual-nombre {
+        font-size: clamp(22px, 7vw, 30px);
+      }
+
+      .btn-chip {
+        width: 100%;
+      }
+
+      .timer-display {
+        font-size: clamp(34px, 11vw, 48px);
+      }
+
+      .pitch-text {
+        min-height: 170px;
       }
     }
   </style>
 </head>
+
 <body data-sesion-id="{{ grupo.sesion.idsesion }}" data-grupo-id="{{ grupo.idgrupo }}">
   <main class="pitch-container" role="main" aria-labelledby="page-title">
     <header class="header">
@@ -128,64 +314,79 @@
       </div>
     </header>
 
-    <section class="content-grid">
-      <article class="panel">
-        <h3>Pitch de mi equipo</h3>
-        <div id="textoGuardado" class="pitch-text" aria-live="polite">
-          {% if miPitch %}
-            <div style="white-space: pre-wrap;">{{ miPitch }}</div>
-          {% else %}
-            <em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>
-          {% endif %}
-        </div>
-      </article>
+    <section class="presentacion-layout">
 
-      <article class="panel">
-        <h3>Orden del pitch</h3>
-        <ol id="ordenPitchAlumno">
-          <li>Esperando sorteo...</li>
-        </ol>
-      </article>
+      <!-- BLOQUE SUPERIOR: FOTO + TEMPORIZADOR -->
+      <section class="presentacion-top">
+        <article class="panel media-panel">
+          <h3>Presentación actual</h3>
 
-      <aside class="timer-card" aria-label="Temporizador de Pitch">
-        <h3>Presentación actual</h3>
-
-        <div id="grupoActualAlumnoNombre" style="font-size:28px; font-weight:700; margin-bottom:8px;">
-          Esperando sorteo...
-        </div>
-
-        <div id="grupoActualAlumnoOrden" style="opacity:.8; margin-bottom:12px;">
-          -
-        </div>
-
-        <div class="pitch-media-wrap">
-          <img
-            id="grupoActualAlumnoFoto"
-            src=""
-            alt="Foto del lego del grupo que está presentando"
-            style="max-width:320px; width:100%; max-height:240px; object-fit:contain; border-radius:16px; display:none;"
-          >
-          <div id="grupoActualAlumnoSinFoto" class="pitch-media-fallback" style="display:none;">
-            Este equipo no subió foto de su solución LEGO.
+          <div id="grupoActualAlumnoNombre" class="grupo-actual-nombre">
+            Esperando sorteo...
           </div>
-        </div>
 
-        <div class="timer-display-wrap">
-          <div class="timer-label-pitch">Temporizador</div>
-          <div id="timer" class="timer-display" data-seconds="90">01:30</div>
-        </div>
+          <div id="grupoActualAlumnoOrden" class="grupo-actual-orden">
+            -
+          </div>
 
-        <div id="pitchStartWrap" class="pitch-start-wrap" style="display:none;">
-          <button id="btnIniciarPresentacion" type="button" class="btn-chip">
-            ⚡ Iniciar presentación
-          </button>
-          <p id="pitchStartHelp" class="pitch-start-help">
-            Solo el equipo que está presentando puede iniciar el temporizador.
-          </p>
-        </div>
+          <div class="pitch-media-wrap">
+            <img
+              id="grupoActualAlumnoFoto"
+              src=""
+              alt="Foto del lego del grupo que está presentando"
+              class="pitch-lego-img"
+              style="display:none;"
+            >
 
-        <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
-      </aside>
+            <div id="grupoActualAlumnoSinFoto" class="pitch-media-fallback" style="display:none;">
+              Este equipo no subió foto de su solución LEGO.
+            </div>
+          </div>
+        </article>
+
+        <aside class="timer-card timer-panel" aria-label="Temporizador de Pitch">
+          <div class="timer-display-wrap">
+            <div class="timer-label-pitch">Temporizador</div>
+            <div id="timer" class="timer-display" data-seconds="90">01:30</div>
+          </div>
+
+          <div id="pitchStartWrap" class="pitch-start-wrap" style="display:none;">
+            <button id="btnIniciarPresentacion" type="button" class="btn-chip">
+              ⚡ Iniciar presentación
+            </button>
+
+            <p id="pitchStartHelp" class="pitch-start-help">
+              Solo el equipo que está presentando puede iniciar el temporizador.
+            </p>
+          </div>
+
+          <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+        </aside>
+      </section>
+
+      <!-- BLOQUE INFERIOR: TEXTO + ORDEN -->
+      <section class="presentacion-bottom">
+        <article class="panel pitch-panel">
+          <h3>Pitch de mi equipo</h3>
+
+          <div id="textoGuardado" class="pitch-text" aria-live="polite">
+            {% if miPitch %}
+              <div style="white-space: pre-wrap;">{{ miPitch }}</div>
+            {% else %}
+              <em>No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>
+            {% endif %}
+          </div>
+        </article>
+
+        <article class="panel orden-panel">
+          <h3>Orden del pitch</h3>
+
+          <ol id="ordenPitchAlumno" class="orden-pitch-lista">
+            <li>Esperando sorteo...</li>
+          </ol>
+        </article>
+      </section>
+
     </section>
 
     <footer class="footer-actions">
@@ -221,7 +422,9 @@
 
       lista.innerHTML = ordenPitch.map(item => {
         const esActual = grupoActual && String(grupoActual.id) === String(item.id);
-        return `<li ${esActual ? 'style="font-weight:700;"' : ""}>${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}</li>`;
+        return `<li ${esActual ? 'style="font-weight:700;color:#00C8FF;"' : ""}>
+          ${item.orden}. ${item.nombre}${esActual ? " ← presentando" : ""}
+        </li>`;
       }).join("");
     }
 
@@ -316,6 +519,7 @@
 
       if (textoGuardado) {
         const miPitch = (data.miPitch || "").trim();
+
         textoGuardado.innerHTML = miPitch
           ? `<div style="white-space: pre-wrap;">${miPitch
               .replace(/&/g, "&amp;")
@@ -338,6 +542,7 @@
         });
 
         const contentType = res.headers.get("content-type") || "";
+
         if (!contentType.includes("application/json")) {
           return;
         }
@@ -383,8 +588,10 @@
         renderEstadoPresentacion(data);
       } catch (error) {
         console.error("Error iniciando presentación:", error);
+
         btn.disabled = false;
         btn.textContent = "⚡ Iniciar presentación";
+
         if (help) {
           help.textContent = error.message || "No se pudo iniciar el temporizador.";
         }
@@ -393,6 +600,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const btn = document.getElementById("btnIniciarPresentacion");
+
       if (btn) {
         btn.addEventListener("click", iniciarPresentacion);
       }

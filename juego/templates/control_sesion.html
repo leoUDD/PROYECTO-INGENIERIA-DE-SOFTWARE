@@ -229,6 +229,16 @@
   background: #d97706;
 }
 
+.btn-back {
+  background: #6366f1;
+  color: white;
+  margin-top: 10px;
+}
+
+.btn-back:hover {
+  background: #4f46e5;
+}
+
 .btn-stop {
   background: #ef4444;
   color: white;
@@ -309,6 +319,10 @@
 
   <button type="button" class="btn-dev" onclick="avanzarFaseDev()">
     Avanzar fase
+  </button>
+
+  <button type="button" class="btn-dev btn-back" onclick="retrocederFaseDev()">
+    Retroceder fase
   </button>
 
   <button type="button" class="btn-dev btn-start" onclick="iniciarTimerDev()">
@@ -641,6 +655,46 @@ async function avanzarFaseDev() {
   } catch (error) {
     console.error("Error DEV avanzando fase:", error);
     alert("Error al avanzar fase.");
+  }
+}
+async function retrocederFaseDev() {
+  if (!confirm("DEV: ¿Retroceder a la fase anterior?")) return;
+
+  try {
+    const res = await fetch(`/sesion/${sesionId}/fase-anterior/`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": obtenerCSRFToken()
+      },
+      body: JSON.stringify({})
+    });
+
+    const texto = await res.text();
+    let data = null;
+
+    try {
+      data = JSON.parse(texto);
+    } catch (parseError) {
+      console.error("Respuesta no JSON al retroceder fase:", texto);
+      alert(
+        "Django no devolvió JSON. Revisa la terminal: puede ser 404, 403 CSRF o error 500."
+      );
+      return;
+    }
+
+    if (!res.ok || data.ok === false) {
+      alert(data.error || "No se pudo retroceder la fase.");
+      return;
+    }
+
+    actualizarUI(data);
+    cargarEstado();
+
+  } catch (error) {
+    console.error("Error DEV retrocediendo fase:", error);
+    alert("Error al retroceder fase. Revisa la consola del navegador y la terminal de Django.");
   }
 }
 async function iniciarTimerDev() {

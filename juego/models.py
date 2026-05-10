@@ -111,6 +111,8 @@ class Grupo(models.Model):
         null=True
     )
     sopa_ganada = models.BooleanField(default=False)
+    sopa_tiempo_segundos = models.PositiveIntegerField(null=True, blank=True)
+    sopa_completada_en = models.DateTimeField(null=True, blank=True)
     orden_presentacion = models.PositiveIntegerField(null=True, blank=True)
     recompensa_peer_otorgada = models.BooleanField(default=False)
 

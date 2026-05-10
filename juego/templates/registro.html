@@ -78,27 +78,48 @@
         </div>
         {% endif %}
 
-        <form method="post" action="{% url 'registro' %}">
-          <label for="id_grupo">▸ CÓDIGO DE ESCUADRÓN</label>
-          <div class="input-wrap">
-            <input
-              type="text"
-              id="id_grupo"
-              name="id_grupo"
-              placeholder="_ _ _ _ _ _"
-              autocomplete="off"
-              autocapitalize="characters"
-              maxlength="8"
-              required
-            >
-            <div class="input-corner tl"></div>
-            <div class="input-corner br"></div>
-          </div>
-          {% csrf_token %}
-          <button type="submit" class="btn-submit">
-            UNIRSE A LA MISIÓN <span class="btn-arrow">▶▶</span>
-          </button>
-        </form>
+       <form method="post" action="{% url 'registro' %}">
+  {% csrf_token %}
+
+  <label for="id_grupo">▸ CÓDIGO DE ESCUADRÓN</label>
+  <div class="input-wrap">
+    <input
+      type="text"
+      id="id_grupo"
+      name="id_grupo"
+      placeholder="_ _ _ _ _ _"
+      autocomplete="off"
+      autocapitalize="characters"
+      maxlength="8"
+      required
+    >
+    <div class="input-corner tl"></div>
+    <div class="input-corner br"></div>
+  </div>
+
+  <label for="nombre_grupo">▸ NOMBRE DEL ESCUADRÓN</label>
+  <div class="input-wrap">
+    <input
+      type="text"
+      id="nombre_grupo"
+      name="nombre_grupo"
+      placeholder="ESCRIBE EL NOMBRE DE TU EQUIPO"
+      autocomplete="off"
+      maxlength="100"
+    >
+    <div class="input-corner tl"></div>
+    <div class="input-corner br"></div>
+  </div>
+
+  <button type="button" class="btn-random-name" id="btnNombreAleatorio">
+  <span class="btn-random-icon">✦</span>
+  <span>  🎲 NOMBRE ALEATORIO</span>
+</button>
+
+  <button type="submit" class="btn-submit">
+    CONTINUAR <span class="btn-arrow">▶▶</span>
+  </button>
+</form>
 
       </div>
 
@@ -281,13 +302,46 @@
       } catch(e) {}
     }
 
-    document.getElementById('id_grupo')
-      ?.addEventListener('keydown', (e) => {
-        if (e.key.length === 1 || e.key === 'Backspace') playKeyClick();
-      });
+    const nombresEscuadron = [
+  "Equipo Cóndor",
+  "Misión Alfa",
+  "Agentes UDD",
+  "Mentes Creativas",
+  "Los Innovadores",
+  "Escuadrón Delta",
+  "Visionarios UDD",
+  "Código Naranja",
+  "Equipo Fénix",
+  "StartUp Squad",
+  "Los Estrategas",
+  "Comando Emprende"
+];
 
-    document.querySelector('.btn-submit')
-      ?.addEventListener('click', playAgentSound);
+function generarNombreEscuadron() {
+  const inputNombre = document.getElementById("nombre_grupo");
+  if (!inputNombre) return;
+
+  const elegido = nombresEscuadron[Math.floor(Math.random() * nombresEscuadron.length)];
+  inputNombre.value = elegido;
+
+  playKeyClick();
+}
+
+document.getElementById("btnNombreAleatorio")
+  ?.addEventListener("click", generarNombreEscuadron);
+
+document.getElementById('id_grupo')
+  ?.addEventListener('keydown', (e) => {
+    if (e.key.length === 1 || e.key === 'Backspace') playKeyClick();
+  });
+
+document.getElementById('nombre_grupo')
+  ?.addEventListener('keydown', (e) => {
+    if (e.key.length === 1 || e.key === 'Backspace') playKeyClick();
+  });
+
+document.querySelector('.btn-submit')
+  ?.addEventListener('click', playAgentSound);
   </script>
 
   <script src="{% static 'js/atajos.js' %}"></script>

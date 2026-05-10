@@ -433,7 +433,13 @@ function showTimeUpModal() {
 
   modal.style.display = "flex";
   modal.setAttribute("aria-hidden", "false");
-  btn.onclick = goNext;
+
+  btn.onclick = () => {
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+    mostrarEsperandoProfesor();
+    revisarEstadoProfesor();
+  };
 }
 
 function renderTimer() {

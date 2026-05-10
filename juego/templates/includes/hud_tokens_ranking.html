@@ -10,6 +10,7 @@
     font-family: Poppins, Arial, sans-serif;
   }
 
+  .hud-team-box,
   .hud-token-box,
   .hud-ranking-btn {
     border: 1px solid rgba(0, 200, 255, .45);
@@ -22,8 +23,49 @@
     backdrop-filter: blur(6px);
   }
 
+  .hud-team-box {
+    max-width: 260px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #E6EEF8;
+    border-color: rgba(255, 122, 26, .5);
+    background:
+      linear-gradient(90deg, rgba(255,122,26,.16), rgba(7,21,43,.9));
+  }
+
+  .hud-team-label {
+    color: #FF7A1A;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .hud-team-name {
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #ffffff;
+    font-size: 13px;
+  }
+
+  .hud-token-box {
+    color: #ffffff;
+  }
+
   .hud-ranking-btn {
     cursor: pointer;
+    font-family: inherit;
+  }
+
+  .hud-ranking-btn:hover,
+  .hud-team-box:hover,
+  .hud-token-box:hover {
+    box-shadow:
+      0 8px 20px rgba(0,0,0,.25),
+      0 0 16px rgba(0,200,255,.25);
   }
 
   .hud-ranking-panel {
@@ -39,6 +81,7 @@
     padding: 14px;
     box-shadow: 0 12px 28px rgba(0,0,0,.35);
     display: none;
+    font-family: Poppins, Arial, sans-serif;
   }
 
   .hud-ranking-panel.visible {
@@ -64,7 +107,16 @@
     border-bottom: none;
   }
 
-  @media (max-width: 640px) {
+  .hud-ranking-row.mi-grupo {
+    color: #FFDC9C;
+  }
+
+  .hud-ranking-empty {
+    color: rgba(255,255,255,.72);
+    font-size: .9rem;
+  }
+
+  @media (max-width: 760px) {
     .hud-tokens-ranking {
       top: 8px;
       right: 8px;
@@ -72,9 +124,61 @@
       transform-origin: top right;
     }
 
+    .hud-team-box {
+      max-width: 190px;
+    }
+
+    .hud-team-name {
+      max-width: 92px;
+    }
+
     .hud-ranking-panel {
       top: 56px;
       right: 8px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hud-tokens-ranking {
+      left: 8px;
+      right: 8px;
+      width: calc(100vw - 16px);
+      justify-content: flex-end;
+      gap: 6px;
+      transform: none;
+    }
+
+    .hud-team-box,
+    .hud-token-box,
+    .hud-ranking-btn {
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .hud-team-box {
+      max-width: 150px;
+    }
+
+    .hud-team-label {
+      display: none;
+    }
+
+    .hud-team-name {
+      max-width: 95px;
+      font-size: 12px;
+    }
+
+    .hud-ranking-btn {
+      max-width: 96px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .hud-ranking-panel {
+      top: 50px;
+      left: 8px;
+      right: 8px;
+      width: auto;
     }
   }
 </style>
@@ -84,6 +188,13 @@
   data-sesion-id="{{ grupo.sesion.idsesion|default:'' }}"
   data-grupo-id="{{ grupo.idgrupo|default:'' }}"
 >
+  <div class="hud-team-box" title="{{ grupo.nombregrupo|default:'Escuadrón sin nombre' }}">
+    <span class="hud-team-label">Escuadrón</span>
+    <span class="hud-team-name" id="hudTeamName">
+      {{ grupo.nombregrupo|default:"Sin nombre" }}
+    </span>
+  </div>
+
   <div class="hud-token-box">
     🪙 <span id="hudTokens">--</span>
   </div>
@@ -106,6 +217,7 @@
     const sesionId = hud?.dataset?.sesionId;
     const grupoId = hud?.dataset?.grupoId;
 
+    const teamNameEl = document.getElementById("hudTeamName");
     const tokensEl = document.getElementById("hudTokens");
     const btn = document.getElementById("hudRankingBtn");
     const panel = document.getElementById("hudRankingPanel");
@@ -116,6 +228,26 @@
     btn?.addEventListener("click", () => {
       panel?.classList.toggle("visible");
     });
+
+    document.addEventListener("click", (event) => {
+      if (!panel || !btn || !hud) return;
+
+      const clickDentroHud = hud.contains(event.target);
+      const clickDentroPanel = panel.contains(event.target);
+
+      if (!clickDentroHud && !clickDentroPanel) {
+        panel.classList.remove("visible");
+      }
+    });
+
+    function escaparHtml(texto) {
+      return String(texto ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
     async function actualizarHud() {
       try {
@@ -130,19 +262,38 @@
         const grupos = data.grupos || [];
 
         const miGrupo = grupos.find(g => Number(g.id) === Number(grupoId));
-        if (miGrupo && tokensEl) {
-          tokensEl.textContent = miGrupo.tokens ?? 0;
+
+        if (miGrupo) {
+          if (tokensEl) {
+            tokensEl.textContent = miGrupo.tokens ?? 0;
+          }
+
+          if (teamNameEl) {
+            teamNameEl.textContent = miGrupo.nombre || "Sin nombre";
+            teamNameEl.parentElement?.setAttribute("title", miGrupo.nombre || "Escuadrón sin nombre");
+          }
         }
 
         const ordenados = [...grupos].sort((a, b) => Number(b.tokens || 0) - Number(a.tokens || 0));
 
         if (lista) {
-          lista.innerHTML = ordenados.map((g, index) => `
-            <div class="hud-ranking-row">
-              <span>${index + 1}. ${g.nombre}</span>
-              <strong>${g.tokens || 0} 🪙</strong>
-            </div>
-          `).join("");
+          if (!ordenados.length) {
+            lista.innerHTML = `<div class="hud-ranking-empty">Aún no hay grupos en ranking.</div>`;
+            return;
+          }
+
+          lista.innerHTML = ordenados.map((g, index) => {
+            const esMiGrupo = Number(g.id) === Number(grupoId);
+            const nombreSeguro = escaparHtml(g.nombre || "Sin nombre");
+            const tokens = Number(g.tokens || 0);
+
+            return `
+              <div class="hud-ranking-row ${esMiGrupo ? "mi-grupo" : ""}">
+                <span>${index + 1}. ${nombreSeguro}</span>
+                <strong>${tokens} 🪙</strong>
+              </div>
+            `;
+          }).join("");
         }
       } catch (error) {
         console.error("Error actualizando HUD:", error);

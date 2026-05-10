@@ -1,6 +1,6 @@
 /* ============================================================
    Misión Emprende UDD — estilo_login.css
-   Dispositivo sci-fi — FULL RESPONSIVE + MÁS GRANDE
+   Dispositivo sci-fi — FULL RESPONSIVE + BOTÓN GENERAR NOMBRE
    ============================================================ */
 
 :root {
@@ -14,6 +14,11 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 img { max-width: 100%; display: block; }
+
+button,
+input {
+  font: inherit;
+}
 
 body {
   background: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
@@ -61,11 +66,10 @@ body {
 }
 
 /* ============================================================
-   DISPOSITIVO — más grande, escala con la pantalla
+   DISPOSITIVO
    ============================================================ */
 .terminal-device {
   position: relative;
-  /* Más grande: sube el máximo y usa más del viewport */
   width: min(520px, 96vw);
   height: min(880px, 96dvh);
   z-index: 1;
@@ -136,11 +140,14 @@ body {
 }
 
 .screen-dots { display: flex; gap: 4px; }
+
 .screen-dots span {
-  width: 5px; height: 5px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: rgba(0,200,255,0.3);
 }
+
 .screen-dots span:nth-child(2) { background: rgba(0,200,255,0.5); }
 .screen-dots span:nth-child(3) { background: var(--primary); box-shadow: 0 0 6px var(--primary); }
 
@@ -153,7 +160,7 @@ body {
 }
 
 /* ============================================================
-   CONTENIDO — crece para llenar el espacio disponible
+   CONTENIDO
    ============================================================ */
 .screen-content {
   flex: 1;
@@ -166,7 +173,10 @@ body {
   overflow-y: auto;
   scrollbar-width: none;
 }
-.screen-content::-webkit-scrollbar { display: none; }
+
+.screen-content::-webkit-scrollbar {
+  display: none;
+}
 
 /* ============================================================
    LOGO
@@ -177,7 +187,11 @@ body {
   animation: float 3.5s ease-in-out infinite;
 }
 
-.logo-top img { width: 100%; height: auto; mix-blend-mode: screen; }
+.logo-top img {
+  width: 100%;
+  height: auto;
+  mix-blend-mode: screen;
+}
 
 @keyframes float {
   0%,100% { transform: translateY(0) rotate(-1deg); }
@@ -214,7 +228,8 @@ h1 {
 }
 
 .status-dot {
-  width: 7px; height: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #22c55e;
   box-shadow: 0 0 8px rgba(34,197,94,1);
@@ -240,8 +255,20 @@ h1 {
   justify-content: space-between;
   gap: 8px;
 }
-.popup p { margin: 0; font-size: clamp(10px, 1.4vw, 13px); color: #fca5a5; }
-.close-btn { background: transparent; border: none; color: #fca5a5; font-size: 12px; cursor: pointer; }
+
+.popup p {
+  margin: 0;
+  font-size: clamp(10px, 1.4vw, 13px);
+  color: #fca5a5;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #fca5a5;
+  font-size: 12px;
+  cursor: pointer;
+}
 
 /* ============================================================
    FORMULARIO
@@ -261,7 +288,9 @@ label {
   opacity: 0.85;
 }
 
-.input-wrap { position: relative; }
+.input-wrap {
+  position: relative;
+}
 
 .input-wrap input {
   width: 100%;
@@ -297,16 +326,139 @@ label {
 
 .input-corner {
   position: absolute;
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-color: var(--primary);
   border-style: solid;
   opacity: 0.8;
 }
-.input-corner.tl { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
-.input-corner.br { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
+
+.input-corner.tl {
+  top: 0;
+  left: 0;
+  border-width: 1.5px 0 0 1.5px;
+}
+
+.input-corner.br {
+  bottom: 0;
+  right: 0;
+  border-width: 0 1.5px 1.5px 0;
+}
 
 /* ============================================================
-   BOTÓN
+   BOTÓN GENERAR NOMBRE — CORREGIDO, NO GRIS
+   ============================================================ */
+.btn-random-name {
+  all: unset;
+
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  width: auto;
+  min-width: 210px;
+  max-width: 100%;
+  align-self: center;
+
+  margin: -2px auto 2px;
+  padding: 10px 16px;
+
+  background:
+    linear-gradient(90deg, rgba(0,200,255,0.16) 0%, rgba(0,200,255,0.07) 100%) !important;
+
+  border: 1px solid rgba(0,200,255,0.58) !important;
+  border-radius: 0 !important;
+
+  clip-path: polygon(
+    0% 0%, calc(100% - 12px) 0%, 100% 12px,
+    100% 100%, 12px 100%, 0% calc(100% - 12px)
+  );
+
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: clamp(10px, 1.8vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--primary) !important;
+  text-transform: uppercase;
+  line-height: 1;
+
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 12px rgba(0,200,255,0.22),
+    inset 0 0 12px rgba(0,200,255,0.06) !important;
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease;
+}
+
+.btn-random-name::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0,200,255,0.18) 50%,
+      transparent 100%
+    );
+  transform: translateX(-110%);
+  animation: randomNameShine 2.8s linear infinite;
+  pointer-events: none;
+}
+
+.btn-random-name::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1px solid rgba(255,122,26,0.16);
+  clip-path: polygon(
+    0% 0%, calc(100% - 10px) 0%, 100% 10px,
+    100% 100%, 10px 100%, 0% calc(100% - 10px)
+  );
+  pointer-events: none;
+}
+
+.btn-random-name:hover {
+  transform: translateY(-2px);
+  background:
+    linear-gradient(90deg, rgba(0,200,255,0.24) 0%, rgba(0,200,255,0.12) 100%) !important;
+  border-color: rgba(0,200,255,0.9) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 22px rgba(0,200,255,0.42),
+    inset 0 0 16px rgba(0,200,255,0.12) !important;
+}
+
+.btn-random-name:active {
+  transform: translateY(0);
+  box-shadow:
+    0 0 12px rgba(0,200,255,0.25),
+    inset 0 0 14px rgba(0,200,255,0.16) !important;
+}
+
+.btn-random-icon {
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(255,122,26,0.75);
+}
+
+@keyframes randomNameShine {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(110%); }
+}
+
+/* ============================================================
+   BOTÓN PRINCIPAL
    ============================================================ */
 .btn-submit {
   width: 100%;
@@ -362,6 +514,7 @@ label {
   0%,100% { box-shadow: 0 0 12px rgba(0,200,255,0.2); }
   50%     { box-shadow: 0 0 24px rgba(0,200,255,0.5); }
 }
+
 @keyframes arrowPulse {
   0%,100% { transform: translateX(0); opacity: 0.7; }
   50%     { transform: translateX(3px); opacity: 1; }
@@ -385,10 +538,15 @@ label {
   opacity: 0.85;
 }
 
-.footer-logo img { width: 100%; height: auto; mix-blend-mode: screen; }
+.footer-logo img {
+  width: 100%;
+  height: auto;
+  mix-blend-mode: screen;
+}
 
 .footer-bar {
-  width: 60px; height: 3px;
+  width: 60px;
+  height: 3px;
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, rgba(0,200,255,0.4), transparent);
 }
@@ -402,10 +560,10 @@ label {
 }
 
 /* ============================================================
-   RESPONSIVE — pantallas pequeñas
+   RESPONSIVE — PANTALLAS PEQUEÑAS
    ============================================================ */
 
-/* Móvil vertical — caso principal */
+/* Móvil vertical */
 @media (max-width: 480px) {
   .terminal-device {
     width: 96vw;
@@ -426,14 +584,6 @@ label {
   }
 
   .status-row {
-    font-size: clamp(12px, 3.5vw, 16px);
-  }
-
-  label {
-    font-size: clamp(12px, 3.2vw, 15px);
-  }
-
-  .status-row {
     font-size: clamp(11px, 3.2vw, 14px);
   }
 
@@ -444,6 +594,14 @@ label {
   .input-wrap input {
     font-size: clamp(16px, 4.5vw, 20px);
     padding: 14px;
+  }
+
+  .btn-random-name {
+    min-width: 0;
+    width: 100%;
+    padding: 13px 14px;
+    font-size: clamp(10px, 3vw, 12px);
+    letter-spacing: 0.14em;
   }
 
   .btn-submit {
@@ -463,14 +621,28 @@ label {
 
 /* Móvil vertical pequeño altura */
 @media (max-height: 700px) and (max-width: 480px) {
-  .logo-top { width: clamp(80px, 22vw, 110px); }
-  .screen-content { padding: 10px 18px; }
-  h1 { font-size: clamp(22px, 6.5vw, 30px); }
+  .logo-top {
+    width: clamp(80px, 22vw, 110px);
+  }
+
+  .screen-content {
+    padding: 10px 18px;
+  }
+
+  h1 {
+    font-size: clamp(22px, 6.5vw, 30px);
+  }
+
+  .btn-random-name {
+    padding: 10px 12px;
+  }
 }
 
 /* Móvil landscape */
 @media (max-height: 500px) and (orientation: landscape) {
-  body { align-items: center; }
+  body {
+    align-items: center;
+  }
 
   .terminal-device {
     width: min(680px, 98vw);
@@ -478,7 +650,10 @@ label {
   }
 
   .device-screen {
-    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
   }
 
   .screen-content {
@@ -489,9 +664,22 @@ label {
     gap: 12px;
   }
 
-  .logo-top { width: clamp(60px, 10vw, 90px); }
-  h1 { font-size: clamp(16px, 3.5vw, 22px); }
-  form { max-width: 320px; }
+  .logo-top {
+    width: clamp(60px, 10vw, 90px);
+  }
+
+  h1 {
+    font-size: clamp(16px, 3.5vw, 22px);
+  }
+
+  form {
+    max-width: 320px;
+  }
+
+  .btn-random-name {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 /* Tablet/desktop pequeño */
@@ -510,8 +698,16 @@ label {
   }
 }
 
+/* Accesibilidad: reduce animaciones */
 @media (prefers-reduced-motion: reduce) {
-  .btn-submit, .btn-submit::before,
-  .logo-top, .status-dot,
-  .particle, .btn-arrow { animation: none; opacity: 1; }
+  .btn-submit,
+  .btn-submit::before,
+  .logo-top,
+  .status-dot,
+  .particle,
+  .btn-arrow,
+  .btn-random-name::before {
+    animation: none;
+    opacity: 1;
+  }
 }

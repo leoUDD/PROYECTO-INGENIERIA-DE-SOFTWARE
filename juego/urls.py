@@ -5,6 +5,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     #NUEVO
+    path("continuar-desde-mapa/", views.continuar_desde_mapa, name="continuar_desde_mapa"),
+    path("sesion/<int:sesion_id>/fase-anterior/", views.profesor_fase_anterior, name="profesor_fase_anterior"),
     path("dashboardadmin/tiempos/", views.admin_tiempos, name="admin_tiempos"),
     path("dashboardadmin/ruleta/", views.admin_ruleta, name="admin_ruleta"),
     path("ver-grupo/<int:grupo_id>/", views.ver_como_grupo, name="ver_como_grupo"),
