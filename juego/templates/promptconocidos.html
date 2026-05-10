@@ -6,14 +6,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — Modo de juego</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Orbitron:wght@700;900&family=Exo+2:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_promptconocidos.css' %}" />
 </head>
 
 <body>
   <main class="mode-container" role="region" aria-label="Elegir modo de juego">
     <header class="mode-header">
-      <h1 class="mode-title">Para continuar, elijan el modo de juego:</h1>
+      <h1 class="mode-title">Reclutas, seleccionen un modo de juego:</h1>
       <p class="mode-subtitle">
         ¿Ya se conocen o es su primera misión juntos?
       </p>
@@ -25,7 +25,7 @@
         <div class="mode-content">
           <h2 class="mode-name">"Primera vez juntos"</h2>
           <p class="mode-desc">
-            Rompe el hielo, preséntense y activen la energía del equipo.
+            Rompe el hielo, preséntense y activen la energía del escuadrón.
           </p>
         </div>
       </a>
@@ -35,12 +35,65 @@
         <div class="mode-content">
           <h2 class="mode-name">"Viejos conocidos"</h2>
           <p class="mode-desc">
-            Este modo está pensado para equipos con experiencia previa.
+            Este modo está pensado para escuadrones con experiencia previa.
           </p>
         </div>
       </a>
     </section>
   </main>
-{% include "includes/sincronizacion_fase.html" %}
+
+  <audio id="musica-fondo" src="{% static 'sounds/musica_promptconocidos.mp3' %}" loop preload="auto"></audio>
+
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <script>
+  const musicaFondo = document.getElementById("musica-fondo");
+  musicaFondo.volume = 0.4;
+
+  function intentarReproducir() {
+    musicaFondo.play().catch(() => {
+      const reanudar = () => {
+        musicaFondo.play().catch(() => {});
+        document.removeEventListener("click", reanudar);
+        document.removeEventListener("touchstart", reanudar);
+      };
+      document.addEventListener("click", reanudar, { once: true });
+      document.addEventListener("touchstart", reanudar, { once: true });
+    });
+  }
+
+  intentarReproducir();
+
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx || audioCtx.state === 'closed') {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+  }
+
+  function playHoverSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.linearRampToValueAtTime(520, now + 0.1);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch(e) {}
+  }
+
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('mouseenter', playHoverSound);
+  });
+  </script>
+
 </body>
 </html>

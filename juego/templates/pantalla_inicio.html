@@ -35,9 +35,30 @@
     </section>
   </main>
 
+  <!-- Música de fondo -->
+  <audio id="musica-fondo" src="{% static 'sounds/musica_reclutamiento.mp3' %}" loop preload="auto"></audio>
+
   {% include "includes/sincronizacion_fase.html" %}
 
   <script>
+  // ── Música de fondo ──
+  const musicaFondo = document.getElementById("musica-fondo");
+  musicaFondo.volume = 1;
+
+  function intentarReproducir() {
+    musicaFondo.play().catch(() => {
+      const reanudar = () => {
+        musicaFondo.play().catch(() => {});
+        document.removeEventListener("click", reanudar);
+        document.removeEventListener("touchstart", reanudar);
+      };
+      document.addEventListener("click", reanudar, { once: true });
+      document.addEventListener("touchstart", reanudar, { once: true });
+    });
+  }
+
+  intentarReproducir();
+
   // ── Typewriter ──
   let sharedCtx = null;
   function getCtx() {

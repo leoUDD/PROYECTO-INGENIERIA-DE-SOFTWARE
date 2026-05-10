@@ -203,7 +203,7 @@
         if (!audio) {
           audio        = new Audio("{% static 'sounds/musica_inicio.mp3' %}");
           audio.loop   = true;
-          audio.volume = 0.35;
+          audio.volume = 1;
         }
         audio.play().catch(() => {});
         iconMute.style.display  = 'none';
