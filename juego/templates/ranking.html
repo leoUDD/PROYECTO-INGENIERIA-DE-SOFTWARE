@@ -37,13 +37,8 @@
       padding: 34px 28px 28px;
     }
 
-    .ranking-parcial-card .titulo{
-      margin-bottom: 10px;
-    }
-
-    .ranking-parcial-card .subtitulo{
-      margin-bottom: 26px;
-    }
+    .ranking-parcial-card .titulo{ margin-bottom: 10px; }
+    .ranking-parcial-card .subtitulo{ margin-bottom: 26px; }
 
     .ranking-barras{
       display: flex;
@@ -126,20 +121,9 @@
       border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .tabla-final.parcial h3{
-      margin-bottom: 14px;
-    }
-
-    .tabla-final.parcial ol{
-      margin: 0;
-      padding-left: 20px;
-    }
-
-    .tabla-final.parcial li{
-      color: #eaf6ff;
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
+    .tabla-final.parcial h3{ margin-bottom: 14px; }
+    .tabla-final.parcial ol{ margin: 0; padding-left: 20px; }
+    .tabla-final.parcial li{ color: #eaf6ff; margin-bottom: 10px; line-height: 1.5; }
 
     .ranking-actions{
       margin-top: 18px;
@@ -173,30 +157,38 @@
       transform: none;
     }
 
-    .ranking-estado{
-      color: #cde9ff;
-      font-weight: 700;
-      opacity: .92;
-    }
+    .ranking-estado{ color: #cde9ff; font-weight: 700; opacity: .92; }
+    .hidden{ display: none !important; }
 
-    .hidden{
-      display: none !important;
+    /* Botón mute */
+    #btn-musica-ranking {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 500;
+      background: rgba(0, 20, 40, 0.85);
+      border: 1.5px solid rgba(0, 200, 255, 0.6);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px rgba(0, 200, 255, 0.25);
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+    }
+    #btn-musica-ranking:hover {
+      border-color: rgba(0, 200, 255, 0.9);
+      box-shadow: 0 0 22px rgba(0, 200, 255, 0.45);
+      transform: scale(1.08);
     }
 
     @media (max-width: 768px){
-      .ranking-parcial-card{
-        padding: 24px 16px 18px;
-        border-radius: 22px;
-      }
-
-      .ranking-fila-top{
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .ranking-fila-tokens{
-        white-space: normal;
-      }
+      .ranking-parcial-card{ padding: 24px 16px 18px; border-radius: 22px; }
+      .ranking-fila-top{ flex-direction: column; align-items: flex-start; }
+      .ranking-fila-tokens{ white-space: normal; }
     }
 
     .ranking-fila.ranking-primero{
@@ -204,16 +196,10 @@
         radial-gradient(circle at top left, rgba(255, 214, 102, .35), transparent 38%),
         linear-gradient(135deg, rgba(105, 75, 10, .92), rgba(35, 22, 4, .92));
       border: 2px solid rgba(255, 214, 102, .85);
-      box-shadow:
-        0 0 24px rgba(255, 190, 40, .38),
-        inset 0 0 0 1px rgba(255,255,255,.12);
+      box-shadow: 0 0 24px rgba(255, 190, 40, .38), inset 0 0 0 1px rgba(255,255,255,.12);
     }
 
-    .ranking-fila.ranking-primero .ranking-fila-nombre::before{
-      content: "👑 🪙";
-      font-size: 1.2rem;
-    }
-
+    .ranking-fila.ranking-primero .ranking-fila-nombre::before{ content: "👑 🪙"; font-size: 1.2rem; }
     .ranking-fila.ranking-primero .ranking-barra-fill{
       background: linear-gradient(90deg, #ffb703, #ffe066, #fff3b0);
       box-shadow: 0 0 18px rgba(255, 214, 102, .65);
@@ -224,16 +210,10 @@
         radial-gradient(circle at top right, rgba(255, 70, 70, .24), transparent 42%),
         linear-gradient(135deg, rgba(70, 10, 18, .88), rgba(22, 5, 10, .92));
       border: 2px solid rgba(255, 82, 82, .70);
-      box-shadow:
-        0 0 20px rgba(255, 60, 60, .24),
-        inset 0 0 0 1px rgba(255,255,255,.08);
+      box-shadow: 0 0 20px rgba(255, 60, 60, .24), inset 0 0 0 1px rgba(255,255,255,.08);
     }
 
-    .ranking-fila.ranking-ultimo .ranking-fila-nombre::before{
-      content: "⚠️";
-      font-size: 1.1rem;
-    }
-
+    .ranking-fila.ranking-ultimo .ranking-fila-nombre::before{ content: "⚠️"; font-size: 1.1rem; }
     .ranking-fila.ranking-ultimo .ranking-barra-fill{
       background: linear-gradient(90deg, #7f1d1d, #ef4444, #fb7185);
       box-shadow: 0 0 16px rgba(239, 68, 68, .45);
@@ -243,6 +223,10 @@
 
 <body>
   {% include "includes/selector_idioma.html" %}
+
+  <!-- Música de fondo -->
+  <audio id="musica-ranking" src="{% static 'sounds/musica_ranking.mp3' %}" loop preload="auto"></audio>
+  <button id="btn-musica-ranking" title="Silenciar música" aria-label="Silenciar música" onclick="toggleMusicaRanking()">🔊</button>
 
   <main class="ranking-scene">
 
@@ -315,9 +299,7 @@
                   {{ equipo.rank }}. {{ equipo.team_name }} —
                   {{ equipo.tokens }} <span data-i18n="ranking_tokens">tokens</span>
                   {% if equipo.is_me %}
-                    <strong>
-                      (<span data-i18n="ranking_tu_equipo">tu equipo</span>)
-                    </strong>
+                    <strong>(<span data-i18n="ranking_tu_equipo">tu equipo</span>)</strong>
                   {% endif %}
                 </li>
               {% endfor %}
@@ -341,22 +323,16 @@
                 <div class="ranking-fila-top">
                   <div class="ranking-fila-nombre">
                     <span>{{ equipo.rank }}. {{ equipo.team_name }}</span>
-
                     {% if equipo.is_me %}
                       <span class="tag-mi-equipo" data-i18n="ranking_tu_equipo">tu equipo</span>
                     {% endif %}
                   </div>
-
                   <div class="ranking-fila-tokens">
                     {{ equipo.tokens }} <span data-i18n="ranking_tokens">tokens</span>
                   </div>
                 </div>
-
                 <div class="ranking-barra-wrap">
-                  <div
-                    class="ranking-barra-fill"
-                    data-tokens="{{ equipo.tokens|default:0 }}">
-                  </div>
+                  <div class="ranking-barra-fill" data-tokens="{{ equipo.tokens|default:0 }}"></div>
                 </div>
               </div>
             {% endfor %}
@@ -370,7 +346,6 @@
       <button id="btnRankingListo" class="btn-ranking-listo" type="button" data-i18n="ranking_continuar">
         Continuar
       </button>
-
       <p id="rankingEstado" class="ranking-estado">
         0/0 <span data-i18n="ranking_grupos_listos">grupos listos</span>
       </p>
@@ -382,6 +357,40 @@
   </main>
 
   <script>
+    /* ══ MÚSICA DE FONDO ══ */
+    (function () {
+      const audio = document.getElementById("musica-ranking");
+      const btn   = document.getElementById("btn-musica-ranking");
+      if (!audio) return;
+
+      audio.volume = 0.4;
+
+      function arrancar() {
+        audio.play().catch(() => {});
+        document.removeEventListener("click",      arrancar);
+        document.removeEventListener("touchstart", arrancar);
+      }
+      document.addEventListener("click",      arrancar);
+      document.addEventListener("touchstart", arrancar);
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          audio.pause();
+        } else if (!audio.muted) {
+          audio.play().catch(() => {});
+        }
+      });
+
+      window.toggleMusicaRanking = function () {
+        audio.muted = !audio.muted;
+        btn.textContent = audio.muted ? "🔇" : "🔊";
+        btn.title = audio.muted ? "Activar música" : "Silenciar música";
+      };
+
+      window.addEventListener("beforeunload", () => audio.pause());
+    })();
+
+    /* ══ LÓGICA ORIGINAL ══ */
     document.addEventListener("DOMContentLoaded", () => {
       const esRankingFinal = "{{ grupo.sesion.fase_actual }}" === "f6_ranking";
       const faseActualEsperada = "{{ grupo.sesion.fase_actual }}";
@@ -391,10 +400,10 @@
 
       const carrera = document.getElementById("carreraWrap");
       const overlay = document.getElementById("ganadorOverlay");
-      const podio = document.getElementById("podioWrap");
-      const audio = document.getElementById("audioCelebracion");
+      const podio   = document.getElementById("podioWrap");
+      const audio   = document.getElementById("audioCelebracion");
       const btnRankingListo = document.getElementById("btnRankingListo");
-      const rankingEstado = document.getElementById("rankingEstado");
+      const rankingEstado   = document.getElementById("rankingEstado");
 
       const racers = [
         { barra: document.getElementById("barra1") },
@@ -404,12 +413,12 @@
 
       const TOTAL_FRAMES = 260;
       const START = 8;
-      const END = 92;
+      const END   = 92;
       let frame = 0;
       let terminoCarrera = false;
-      let redirigiendo = false;
-      let ultimoListos = 0;
-      let ultimoTotal = 0;
+      let redirigiendo   = false;
+      let ultimoListos   = 0;
+      let ultimoTotal    = 0;
 
       function tJuego(clave, fallback = "") {
         const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
@@ -431,28 +440,19 @@
       }
 
       function aplicarTraduccionRankingDinamica() {
-        if (rankingEstado) {
-          rankingEstado.textContent = textoGruposListos(ultimoListos, ultimoTotal);
-        }
-
+        if (rankingEstado) rankingEstado.textContent = textoGruposListos(ultimoListos, ultimoTotal);
         if (btnRankingListo) {
-          if (btnRankingListo.disabled) {
-            setTextoBotonEsperando();
-          } else {
-            setTextoBotonContinuar();
-          }
+          if (btnRankingListo.disabled) setTextoBotonEsperando();
+          else setTextoBotonContinuar();
         }
       }
 
       function aplicarBarrasParciales() {
         if (esRankingFinal) return;
-
         const fills = Array.from(document.querySelectorAll(".ranking-barra-fill"));
         if (!fills.length) return;
-
         const valores = fills.map(el => Number(el.dataset.tokens || 0));
         const max = Math.max(...valores, 1);
-
         fills.forEach(el => {
           const valor = Number(el.dataset.tokens || 0);
           const porcentaje = Math.max(8, Math.round((valor / max) * 100));
@@ -461,53 +461,39 @@
       }
 
       function easeInOutCubic(t) {
-        return t < 0.5
-          ? 4 * t * t * t
-          : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       }
 
-     function actualizarEstadoRanking(data) {
-  if (!rankingEstado) return;
-
-  const listos = Number(
-    esRankingFinal
-      ? (data.gruposListosF6 || 0)
-      : (data.gruposListosRanking || data.gruposListosF6 || 0)
-  );
-
-  const total = Number(data.totalGrupos || 0);
-
-  ultimoListos = listos;
-  ultimoTotal = total;
-
-  rankingEstado.textContent = textoGruposListos(listos, total);
-
-  const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
-
-  const miGrupoListo = esRankingFinal
-    ? miGrupo?.listoF6
-    : (miGrupo?.listoRanking || miGrupo?.listoF6);
-
-  if (miGrupoListo && btnRankingListo) {
-    btnRankingListo.disabled = true;
-    setTextoBotonEsperando();
-  }
-}
+      function actualizarEstadoRanking(data) {
+        if (!rankingEstado) return;
+        const listos = Number(
+          esRankingFinal
+            ? (data.gruposListosF6 || 0)
+            : (data.gruposListosRanking || data.gruposListosF6 || 0)
+        );
+        const total = Number(data.totalGrupos || 0);
+        ultimoListos = listos;
+        ultimoTotal  = total;
+        rankingEstado.textContent = textoGruposListos(listos, total);
+        const miGrupo = (data.grupos || []).find(g => String(g.id) === String(grupoId));
+        const miGrupoListo = esRankingFinal
+          ? miGrupo?.listoF6
+          : (miGrupo?.listoRanking || miGrupo?.listoF6);
+        if (miGrupoListo && btnRankingListo) {
+          btnRankingListo.disabled = true;
+          setTextoBotonEsperando();
+        }
+      }
 
       async function refrescarEstadoRanking() {
         if (redirigiendo || !sesionId) return;
-
         try {
           const res = await fetch(`/sesion/${sesionId}/estado/`, {
-            cache: "no-store",
-            credentials: "same-origin"
+            cache: "no-store", credentials: "same-origin"
           });
-
           if (!res.ok) return;
-
           const data = await res.json();
           actualizarEstadoRanking(data);
-
           if (data.faseActual && data.faseActual !== faseActualEsperada && data.rutaAlumno) {
             redirigiendo = true;
             window.location.href = data.rutaAlumno;
@@ -521,7 +507,6 @@
         btnRankingListo.addEventListener("click", async () => {
           btnRankingListo.disabled = true;
           setTextoBotonEsperando();
-
           try {
             const res = await fetch(`/grupo/${grupoId}/listo/`, {
               method: "POST",
@@ -532,22 +517,11 @@
               },
               body: JSON.stringify({ fase: faseClaveRanking })
             });
-
             const data = await res.json();
-
-            if (!res.ok || !data.ok) {
-              throw new Error(data.error || "No se pudo marcar listo en ranking.");
-            }
-
-            const listos = Number(data.listos || 0);
-            const total = Number(data.total || 0);
-
-            ultimoListos = listos;
-            ultimoTotal = total;
-
-            if (rankingEstado) {
-              rankingEstado.textContent = textoGruposListos(listos, total);
-            }
+            if (!res.ok || !data.ok) throw new Error(data.error || "No se pudo marcar listo en ranking.");
+            ultimoListos = Number(data.listos || 0);
+            ultimoTotal  = Number(data.total  || 0);
+            if (rankingEstado) rankingEstado.textContent = textoGruposListos(ultimoListos, ultimoTotal);
           } catch (e) {
             console.error("Error marcando listo ranking:", e);
             btnRankingListo.disabled = false;
@@ -571,42 +545,27 @@
 
       function animarCarrera() {
         if (terminoCarrera) return;
-
         frame++;
-        const t = Math.min(frame / TOTAL_FRAMES, 1);
+        const t   = Math.min(frame / TOTAL_FRAMES, 1);
         const pos = START + (END - START) * easeInOutCubic(t);
-
-        racers.forEach((r) => {
-          if (r.barra) {
-            r.barra.style.width = `${pos}%`;
-          }
-        });
+        racers.forEach(r => { if (r.barra) r.barra.style.width = `${pos}%`; });
 
         if (frame >= TOTAL_FRAMES) {
           terminoCarrera = true;
-
           setTimeout(() => {
             if (carrera) carrera.classList.add("fade-out");
             if (overlay) overlay.classList.add("visible");
           }, 300);
-
           setTimeout(() => {
             if (carrera) carrera.classList.add("hidden");
             if (overlay) overlay.classList.remove("visible");
-            if (podio) podio.classList.add("visible");
-
+            if (podio)   podio.classList.add("visible");
             try {
-              if (audio) {
-                audio.currentTime = 0;
-                audio.volume = 1;
-                audio.play().catch(() => {});
-              }
+              if (audio) { audio.currentTime = 0; audio.volume = 1; audio.play().catch(() => {}); }
             } catch (e) {}
           }, 2600);
-
           return;
         }
-
         requestAnimationFrame(animarCarrera);
       }
 

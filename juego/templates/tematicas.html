@@ -5,800 +5,157 @@
 <head>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Misión Emprende UDD — Elige la temática</title>
   <link rel="stylesheet" href="{% static 'css/estilo_tematicas.css' %}">
 
   <style>
-    .selector-container {
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* ============================================================
-       OVERLAY INICIO — MISMO ESTILO QUE SOPA DE LETRAS
-       ============================================================ */
-    .inicio-fase-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 26px 18px 18px;
-      z-index: 85;
-      pointer-events: none;
-      background: rgba(0, 0, 0, 0.18);
-    }
-
-    .inicio-fase-card {
-      width: min(92%, 860px);
-      background: rgba(8, 24, 48, 0.88);
-      border: 1px solid rgba(0, 200, 255, 0.30);
-      box-shadow: 0 12px 30px rgba(0,0,0,.24);
-      border-radius: 22px;
-      padding: 18px 22px;
-      color: #fff;
-      backdrop-filter: blur(6px);
-      pointer-events: auto;
-      text-align: left;
-    }
-
-    .inicio-fase-badge {
-      display: inline-block;
-      margin-bottom: 12px;
-      padding: 7px 14px;
-      border-radius: 999px;
-      background: rgba(0, 200, 255, 0.12);
-      border: 1px solid rgba(0, 200, 255, 0.28);
-      font-weight: 700;
-      font-size: 0.88rem;
-      color: #dff7ff;
-    }
-
-    .inicio-fase-card h3 {
-      margin: 0 0 10px 0;
-      font-size: 1.15rem;
-      font-weight: 800;
-    }
-
-    .inicio-fase-card p {
-      margin: 0 0 10px 0;
-      line-height: 1.5;
-      font-size: 1rem;
-    }
-
-    .btn-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-      padding: 10px 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(0, 200, 255, 0.4);
-      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
-      color: #E6F7FF;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
-      backdrop-filter: blur(4px);
-    }
-
-    .btn-chip:hover {
-      transform: translateY(-1px) scale(1.03);
-      background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
-      box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
-    }
-
-    .btn-chip:active {
-      transform: scale(0.97);
-    }
-
-    .btn-chip:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .contador-fase {
-      margin-top: 10px;
-      font-size: 0.95rem;
-      opacity: 0.95;
-    }
-
-    .overlay-hidden {
-      display: none !important;
-    }
-
-    .blur-tematicas {
-      filter: blur(6px);
-      pointer-events: none;
-      user-select: none;
-      opacity: .62;
-      transition: all .3s ease;
-    }
-
-    .contenido-tematicas {
-      transition: all .3s ease;
-    }
-
-    @media (max-width: 900px) {
-      .inicio-fase-card {
-        width: min(94%, 760px);
-        padding: 16px 18px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .inicio-fase-overlay {
-        padding: 14px 12px 12px;
-      }
-
-      .inicio-fase-card {
-        width: 100%;
-        border-radius: 18px;
-        padding: 14px 14px 16px;
-      }
-
-      .inicio-fase-card h3 {
-        font-size: 1rem;
-      }
-
-      .inicio-fase-card p {
-        font-size: 0.92rem;
-        line-height: 1.4;
-      }
-
-      .btn-chip {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .contador-fase {
-        font-size: 0.9rem;
-      }
-    }
-
-    /* ===============================
-       BOTÓN VOLVER / CAMBIAR
-       =============================== */
-    .tematica-actions-extra {
-      display: flex;
-      justify-content: center;
-      margin: 18px 0 0;
-    }
-
-    .btn-volver-tematica {
-      border: 1px solid rgba(0, 200, 255, .36);
-      border-radius: 999px;
-      padding: 10px 16px;
-      background: rgba(7, 21, 43, .82);
-      color: #ffffff;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(0,0,0,.22);
-    }
-
-    .btn-volver-tematica:hover {
-      transform: translateY(-1px);
-      background: rgba(0, 200, 255, .16);
-    }
-
-    /* ===============================
-       OBJETO INTERACTUABLE — CÁMARA
-       =============================== */
-    .objeto-camara-trigger {
-      position: fixed;
-      right: clamp(18px, 4vw, 54px);
-      bottom: clamp(90px, 14vh, 150px);
-      width: 90px;
-      height: 90px;
-      border: none;
-      border-radius: 24px;
-      background: rgba(7, 21, 43, 0.86);
-      border: 1px solid rgba(0, 200, 255, 0.32);
-      box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 18px rgba(0,200,255,.18);
-      cursor: pointer;
-      z-index: 60;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: camaraFloat 4.2s ease-in-out infinite alternate;
-    }
-
-    .objeto-camara-trigger:hover {
-      transform: scale(1.06);
-      box-shadow: 0 14px 30px rgba(0,0,0,.34), 0 0 24px rgba(0,200,255,.30);
-    }
-
-    .objeto-camara-img {
-      width: 72px;
-      height: auto;
-      pointer-events: none;
-    }
-
-    @keyframes camaraFloat {
-      from { translate: 0 0; }
-      to { translate: -34px -26px; }
-    }
-
-    .objeto-camara-trigger.oculto {
-      display: none;
-    }
-
-    .astro-object-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 90;
-      background: rgba(0, 0, 0, 0.54);
-      backdrop-filter: blur(5px);
-    }
-
-    .astro-object-overlay.activo {
-      display: flex;
-    }
-
-    .astro-img {
-      width: 140px;
-      height: auto;
-      flex-shrink: 0;
-    }
-
-    .astro-flex {
-      width: min(92vw, 560px);
-      border-radius: 24px;
-      padding: 22px;
-      background:
-        radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%),
-        rgba(7, 21, 43, 0.96);
-      border: 1px solid rgba(0, 200, 255, 0.34);
-      box-shadow: 0 18px 44px rgba(0,0,0,.42);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      text-align: left;
-      animation: objectCardIn .28s ease both;
-    }
-
-    .astro-text {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    @keyframes objectCardIn {
-      from { opacity: 0; transform: translateY(14px) scale(.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .astro-text h3 {
-      margin: 0 0 10px;
-      font-size: 1.35rem;
-      color: #00c8ff;
-    }
-
-    .astro-text p {
-      margin: 0 0 10px;
-      line-height: 1.5;
-      color: #d9e6f2;
-      font-weight: 600;
-    }
-
-    .astro-text strong {
-      color: #ffe29a;
-    }
-
-    .astro-object-close {
-      margin-top: 10px;
-      border: 1px solid rgba(0, 200, 255, 0.42);
-      border-radius: 999px;
-      padding: 11px 18px;
-      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
-      color: #ffffff;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 10px 22px rgba(0,200,255,.20);
-    }
-
-    .astro-object-close:hover {
-      transform: translateY(-1px);
-    }
-
-    @media (max-width: 640px) {
-      .objeto-camara-trigger {
-        width: 64px;
-        height: 64px;
-        border-radius: 20px;
-        bottom: 82px;
-      }
-
-      .objeto-camara-img {
-        width: 52px;
-      }
-
-      .astro-flex {
-        flex-direction: column;
-        text-align: center;
-        gap: 14px;
-      }
-
-      .astro-img {
-        width: 110px;
-      }
-    }
+    .selector-container { position: relative; overflow: hidden; }
+    .inicio-fase-overlay { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding: 26px 18px 18px; z-index: 85; pointer-events: none; background: rgba(0, 0, 0, 0.18); }
+    .inicio-fase-card { width: min(92%, 860px); background: rgba(8, 24, 48, 0.88); border: 1px solid rgba(0, 200, 255, 0.30); box-shadow: 0 12px 30px rgba(0,0,0,.24); border-radius: 22px; padding: 18px 22px; color: #fff; backdrop-filter: blur(6px); pointer-events: auto; text-align: left; }
+    .inicio-fase-badge { display: inline-block; margin-bottom: 12px; padding: 7px 14px; border-radius: 999px; background: rgba(0, 200, 255, 0.12); border: 1px solid rgba(0, 200, 255, 0.28); font-weight: 700; font-size: 0.88rem; color: #dff7ff; }
+    .inicio-fase-card h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 800; }
+    .inicio-fase-card p { margin: 0 0 10px 0; line-height: 1.5; font-size: 1rem; }
+    .btn-chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(0, 200, 255, 0.4); background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25)); color: #E6F7FF; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 0 10px rgba(0, 200, 255, 0.25); backdrop-filter: blur(4px); }
+    .btn-chip:hover { transform: translateY(-1px) scale(1.03); }
+    .btn-chip:disabled { opacity: 0.65; cursor: not-allowed; }
+    .contador-fase { margin-top: 10px; font-size: 0.95rem; opacity: 0.95; }
+    .overlay-hidden { display: none !important; }
+    .blur-tematicas { filter: blur(6px); pointer-events: none; user-select: none; opacity: .62; transition: all .3s ease; }
+    .contenido-tematicas { transition: all .3s ease; }
+    .tematica-actions-extra { display: flex; justify-content: center; margin: 18px 0 0; }
+    .btn-volver-tematica { border: 1px solid rgba(0, 200, 255, .36); border-radius: 999px; padding: 10px 16px; background: rgba(7, 21, 43, .82); color: #ffffff; font-weight: 800; cursor: pointer; }
+    .objeto-camara-trigger { position: fixed; right: clamp(18px, 4vw, 54px); bottom: clamp(90px, 14vh, 150px); width: 90px; height: 90px; border: none; border-radius: 24px; background: rgba(7, 21, 43, 0.86); border: 1px solid rgba(0, 200, 255, 0.32); box-shadow: 0 12px 26px rgba(0,0,0,.30); cursor: pointer; z-index: 60; display: flex; align-items: center; justify-content: center; animation: camaraFloat 4.2s ease-in-out infinite alternate; }
+    .objeto-camara-img { width: 72px; height: auto; pointer-events: none; }
+    @keyframes camaraFloat { from { translate: 0 0; } to { translate: -34px -26px; } }
+    .objeto-camara-trigger.oculto { display: none; }
+    .astro-object-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 18px; z-index: 90; background: rgba(0, 0, 0, 0.54); backdrop-filter: blur(5px); }
+    .astro-object-overlay.activo { display: flex; }
+    .astro-img { width: 140px; height: auto; flex-shrink: 0; }
+    .astro-flex { width: min(92vw, 560px); border-radius: 24px; padding: 22px; background: radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%), rgba(7, 21, 43, 0.96); border: 1px solid rgba(0, 200, 255, 0.34); box-shadow: 0 18px 44px rgba(0,0,0,.42); color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 24px; text-align: left; animation: objectCardIn .28s ease both; }
+    .astro-text { display: flex; flex-direction: column; gap: 10px; }
+    @keyframes objectCardIn { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .astro-text h3 { margin: 0 0 10px; font-size: 1.35rem; color: #00c8ff; }
+    .astro-text p { margin: 0 0 10px; line-height: 1.5; color: #d9e6f2; font-weight: 600; }
+    .astro-text strong { color: #ffe29a; }
+    .astro-object-close { margin-top: 10px; border: 1px solid rgba(0, 200, 255, 0.42); border-radius: 999px; padding: 11px 18px; background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90)); color: #ffffff; font-weight: 900; cursor: pointer; }
+    @media (max-width: 640px) { .objeto-camara-trigger { width: 64px; height: 64px; border-radius: 20px; bottom: 82px; } .objeto-camara-img { width: 52px; } .astro-flex { flex-direction: column; text-align: center; gap: 14px; } .astro-img { width: 110px; } }
   </style>
 </head>
 
 <body>
+
+  <!-- Música de fondo -->
+  <audio id="musica-desafios" src="{% static 'sounds/musica_desafios.mp3' %}" loop preload="auto"></audio>
+  <button id="btn-musica-desafios" title="Silenciar música" aria-label="Silenciar música" onclick="toggleMusicaDesafios()" style="position:fixed;bottom:20px;right:20px;z-index:500;background:rgba(0,20,40,0.85);border:1.5px solid rgba(0,200,255,0.6);border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(0,200,255,0.25);">🔊</button>
   <main class="selector-container" role="main" aria-labelledby="page-title">
 
-    <!-- OVERLAY INICIO -->
     <div id="inicio-fase-overlay" class="inicio-fase-overlay">
       <section id="inicio-fase-card" class="inicio-fase-card">
-        <div class="inicio-fase-badge" data-i18n="tematicas_overlay_badge">
-          ASIGNACIÓN DE OBJETIVO
-        </div>
-
-        <h3 data-i18n="tematicas_overlay_titulo">
-          Antes de comenzar
-        </h3>
-
-        <p data-i18n="tematicas_overlay_p1">
-          Agentes, definan el campo de acción de su próxima misión.
-        </p>
-
-        <p data-i18n="tematicas_overlay_p2">
-          Tendrán 2 minutos para elegir temática y desafío. Cuando todos estén listos, el temporizador se activará.
-        </p>
-
-        <button id="btnListoTematica" class="btn-chip" type="button" data-i18n="tematicas_boton_listo">
-          ⚡ Listo para comenzar
-        </button>
-
-        <div id="textoEsperaTematica" class="contador-fase" data-i18n="tematicas_esperando">
-          Esperando a los demás equipos...
-        </div>
-
-        <div id="contadorListosTematica" class="contador-fase">
-          0/0 grupos listos
-        </div>
+        <div class="inicio-fase-badge" data-i18n="tematicas_overlay_badge">ASIGNACIÓN DE OBJETIVO</div>
+        <h3 data-i18n="tematicas_overlay_titulo">Antes de comenzar</h3>
+        <p data-i18n="tematicas_overlay_p1">Agentes, definan el campo de acción de su próxima misión.</p>
+        <p data-i18n="tematicas_overlay_p2">Tendrán 2 minutos para elegir temática y desafío. Cuando todos estén listos, el temporizador se activará.</p>
+        <button id="btnListoTematica" class="btn-chip" type="button" data-i18n="tematicas_boton_listo">⚡ Listo para comenzar</button>
+        <div id="textoEsperaTematica" class="contador-fase" data-i18n="tematicas_esperando">Esperando a los demás equipos...</div>
+        <div id="contadorListosTematica" class="contador-fase">0/0 grupos listos</div>
       </section>
     </div>
 
     <div id="contenidoTematicas" class="contenido-tematicas blur-tematicas">
       <header class="header">
-        <h1 id="page-title" data-i18n="tematicas_titulo">
-          Elige la temática del desafío
-        </h1>
-
-        <p class="subtitle" data-i18n="tematicas_subtitulo">
-          Selecciona una categoría para continuar. Cada bloque explica de qué trata.
-        </p>
-
+        <h1 id="page-title" data-i18n="tematicas_titulo">Elige la temática del desafío</h1>
+        <p class="subtitle" data-i18n="tematicas_subtitulo">Selecciona una categoría para continuar. Cada bloque explica de qué trata.</p>
         <div class="timer-box" style="margin-top:14px; padding:12px 16px; border-radius:14px; background:rgba(255,255,255,.12); color:white; font-weight:700;">
           <span data-i18n="tematicas_timer_label">⏱️ Tiempo para elegir temática y desafío:</span>
-          <strong id="timerTematica">--</strong>
-          <br>
-          <span style="font-weight:500;" data-i18n="tematicas_timer_hint">
-            Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
-          </span>
+          <strong id="timerTematica">--</strong><br>
+          <span style="font-weight:500;" data-i18n="tematicas_timer_hint">Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.</span>
         </div>
       </header>
 
-      <!-- OBJETO INTERACTUABLE — ETAPA TEMÁTICAS -->
-      <button
-        id="objetoCamaraTrigger"
-        class="objeto-camara-trigger"
-        type="button"
-        aria-label="Encontrar cámara perdida"
-        data-i18n="tematicas_camara_aria"
-        data-i18n-attr="aria-label"
-      >
+      <button id="objetoCamaraTrigger" class="objeto-camara-trigger" type="button" aria-label="Encontrar cámara perdida" data-i18n="tematicas_camara_aria" data-i18n-attr="aria-label">
         <img src="{% static 'images/Camara.png' %}" class="objeto-camara-img" alt="" aria-hidden="true">
       </button>
 
       <div id="objetoCamaraOverlay" class="astro-object-overlay" aria-hidden="true">
         <div class="astro-flex">
           <img src="{% static 'images/Parado.png' %}" class="astro-img" alt="" aria-hidden="true">
-
           <div class="astro-text">
             <h3 data-i18n="tematicas_camara_titulo">📷 Objeto encontrado</h3>
-
-            <p data-i18n="tematicas_camara_p1">
-              Agente… gracias por encontrar mi equipo.
-            </p>
-
-            <p data-i18n="tematicas_camara_p2">
-              Pista clave: serán evaluados por cómo conectan su solución con las necesidades reales del usuario.
-            </p>
-
-            <p data-i18n="tematicas_camara_p3">
-              Sigue atento… aún quedan objetos perdidos en la misión.
-            </p>
-
-            <button id="objetoCamaraClose" class="astro-object-close" type="button" data-i18n="tematicas_camara_boton">
-              Entendido
-            </button>
+            <p data-i18n="tematicas_camara_p1">Agente… gracias por encontrar mi equipo.</p>
+            <p data-i18n="tematicas_camara_p2">Pista clave: serán evaluados por cómo conectan su solución con las necesidades reales del usuario.</p>
+            <p data-i18n="tematicas_camara_p3">Sigue atento… aún quedan objetos perdidos en la misión.</p>
+            <button id="objetoCamaraClose" class="astro-object-close" type="button" data-i18n="tematicas_camara_boton">Entendido</button>
           </div>
         </div>
-
         <audio id="objetoCamaraTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
         <audio id="objetoCamaraExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
       </div>
 
       <section class="themes-carousel" aria-label="Temáticas disponibles">
-
-        <button
-          class="carousel-btn prev"
-          type="button"
-          aria-label="Anterior"
-          data-i18n="tematicas_anterior"
-          data-i18n-attr="aria-label"
-        >‹</button>
-
+        <button class="carousel-btn prev" type="button" aria-label="Anterior" data-i18n="tematicas_anterior" data-i18n-attr="aria-label">‹</button>
         <div class="themes-track" id="themesTrack">
-
           {% for tema in tematicas %}
-            <article class="theme-card" tabindex="-1"
-                    data-slug="{{ tema.slug }}"
-                    data-url="{% url 'desafios' %}">
-              <div class="thumb">
-                <img src="{% static tema.image %}" alt="Icono de {{ tema.title }}">
-              </div>
-
+            <article class="theme-card" tabindex="-1" data-slug="{{ tema.slug }}" data-url="{% url 'desafios' %}">
+              <div class="thumb"><img src="{% static tema.image %}" alt="Icono de {{ tema.title }}"></div>
               <div class="content">
                 <h2 class="title">{{ tema.title }}</h2>
-
-                <div class="chips">
-                  {% for chip in tema.chips %}
-                    <span class="chip">{{ chip }}</span>
-                  {% endfor %}
-                </div>
-
+                <div class="chips">{% for chip in tema.chips %}<span class="chip">{{ chip }}</span>{% endfor %}</div>
                 <p class="desc">{{ tema.hero }}</p>
               </div>
-
               <div class="actions">
-                <button class="btn select" type="button" onclick="guardarTema('{{ tema.slug }}', this)">
-                  Elegir
-                </button>
+                <button class="btn select" type="button" onclick="guardarTema('{{ tema.slug }}', this)">Elegir</button>
               </div>
             </article>
           {% empty %}
             <p style="color:white;" data-i18n="tematicas_sin_disponibles">No hay temáticas disponibles.</p>
           {% endfor %}
-
         </div>
-
-        <button
-          class="carousel-btn next"
-          type="button"
-          aria-label="Siguiente"
-          data-i18n="tematicas_siguiente"
-          data-i18n-attr="aria-label"
-        >›</button>
-
+        <button class="carousel-btn next" type="button" aria-label="Siguiente" data-i18n="tematicas_siguiente" data-i18n-attr="aria-label">›</button>
       </section>
     </div>
   </main>
 
-  <div id="routes"
-       data-sesion-id="{{ grupo.sesion.idsesion }}"
-       data-grupo-id="{{ grupo.idgrupo }}">
-  </div>
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}" data-grupo-id="{{ grupo.idgrupo }}"></div>
 
   <script>
     (function () {
-      function tJuego(clave, fallback = "") {
-        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
-        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
-      }
-
-      function textoGruposListos(listos, total) {
-        return `${listos}/${total} ${tJuego("tematicas_grupos_listos", "grupos listos")}`;
-      }
-
-      function textoEsperando() {
-        return tJuego("tematicas_boton_esperando", "Esperando...");
-      }
-
-      function textoListo() {
-        return tJuego("tematicas_boton_listo", "⚡ Listo para comenzar");
-      }
-
-      function textoElegir() {
-        return tJuego("tematicas_elegir", "Elegir");
-      }
-
-      function textoSeleccionado() {
-        return tJuego("tematicas_seleccionado", "Seleccionado ✅");
-      }
-
-      function textoEsperaEquipos() {
-        return tJuego("tematicas_esperando", "Esperando a los demás equipos...");
-      }
-
+      function tJuego(clave, fallback = "") { const idioma = window.i18nJuego?.obtenerIdioma?.() || "es"; return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback; }
+      function textoGruposListos(listos, total) { return `${listos}/${total} ${tJuego("tematicas_grupos_listos", "grupos listos")}`; }
+      function textoEsperando() { return tJuego("tematicas_boton_esperando", "Esperando..."); }
+      function textoListo() { return tJuego("tematicas_boton_listo", "⚡ Listo para comenzar"); }
+      function textoElegir() { return tJuego("tematicas_elegir", "Elegir"); }
+      function textoSeleccionado() { return tJuego("tematicas_seleccionado", "Seleccionado ✅"); }
+      function textoEsperaEquipos() { return tJuego("tematicas_esperando", "Esperando a los demás equipos..."); }
       const cards = Array.from(document.querySelectorAll(".theme-card"));
       let enviando = false;
-
       const routesEl = document.getElementById("routes");
       const sesionId = routesEl?.dataset?.sesionId;
       const grupoId = routesEl?.dataset?.grupoId;
       const timerTematica = document.getElementById("timerTematica");
-
       const overlayInicio = document.getElementById("inicio-fase-overlay");
       const contenidoTematicas = document.getElementById("contenidoTematicas");
       const btnListoTematica = document.getElementById("btnListoTematica");
       const contadorListosTematica = document.getElementById("contadorListosTematica");
       const textoEsperaTematica = document.getElementById("textoEsperaTematica");
-
       let yaListoTematica = false;
       let timerTematicaSolicitado = false;
       let ultimoListos = 0;
       let ultimoTotal = 0;
       let temaSeleccionadoActual = "{{ tema_actual|default:'' }}";
-
-      function formatearTiempo(segundos) {
-        segundos = Math.max(Number(segundos || 0), 0);
-        const min = Math.floor(segundos / 60);
-        const seg = segundos % 60;
-        return `${min}:${String(seg).padStart(2, "0")}`;
-      }
-
-      function habilitarTematicas() {
-        if (overlayInicio) overlayInicio.classList.add("overlay-hidden");
-        if (contenidoTematicas) contenidoTematicas.classList.remove("blur-tematicas");
-      }
-
-      function bloquearTematicas() {
-        if (overlayInicio) overlayInicio.classList.remove("overlay-hidden");
-        if (contenidoTematicas) contenidoTematicas.classList.add("blur-tematicas");
-      }
-
-      function getCSRFToken() {
-        const name = "csrftoken=";
-        const parts = document.cookie.split(";");
-
-        for (let c of parts) {
-          c = c.trim();
-          if (c.startsWith(name)) {
-            return decodeURIComponent(c.substring(name.length));
-          }
-        }
-
-        return "";
-      }
-
-      async function iniciarTimerTematica() {
-        if (!sesionId) return;
-
-        try {
-          const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken()
-            },
-            body: JSON.stringify({})
-          });
-
-          const data = await res.json();
-
-          if (!res.ok || !data.ok) {
-            throw new Error(data.error || "No se pudo iniciar el timer de temáticas.");
-          }
-        } catch (error) {
-          console.error("Error iniciando timer temática:", error);
-          timerTematicaSolicitado = false;
-        }
-      }
-
-      function todosListosSegunData(data) {
-  const total = Number(data.totalGrupos || 0);
-  const listos = Number(data.gruposListosF2Tematicas || 0);
-
-  if (data.todosListosF2Tematicas) {
-    return true;
-  }
-
-  return total > 0 && listos >= total;
-}
-
-      async function actualizarTimerTematica() {
-        if (!sesionId || !timerTematica) return;
-
-        try {
-          const res = await fetch(`/sesion/${sesionId}/estado/`, {
-            cache: "no-store",
-            credentials: "same-origin"
-          });
-
-          if (!res.ok) return;
-
-          const data = await res.json();
-
-          timerTematica.textContent = formatearTiempo(data.segundosRestantes);
-
-          ultimoListos = Number(data.gruposListosF2Tematicas || 0);
-          ultimoTotal = Number(data.totalGrupos || 0);
-
-          if (contadorListosTematica) {
-            contadorListosTematica.textContent = textoGruposListos(ultimoListos, ultimoTotal);
-          }
-
-          const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
-
-          if (miGrupo && miGrupo.listoF2Tematicas) {
-            yaListoTematica = true;
-
-            if (btnListoTematica) {
-              btnListoTematica.disabled = true;
-              btnListoTematica.textContent = textoEsperando();
-            }
-
-            if (textoEsperaTematica) {
-              textoEsperaTematica.textContent = textoEsperaEquipos();
-            }
-          }
-
-          if (todosListosSegunData(data)) {
-            habilitarTematicas();
-
-            if (!data.timerCorriendo && !timerTematicaSolicitado) {
-              timerTematicaSolicitado = true;
-              iniciarTimerTematica();
-            }
-          } else {
-            bloquearTematicas();
-          }
-
-          if (data.faseActual && data.faseActual !== "f2_tematicas" && data.rutaAlumno) {
-            window.location.href = data.rutaAlumno;
-          }
-        } catch (error) {
-          console.error("Error actualizando timer temática:", error);
-        }
-      }
-
-      async function marcarListoTematica() {
-        if (yaListoTematica || !grupoId) return;
-
-        yaListoTematica = true;
-
-        if (btnListoTematica) {
-          btnListoTematica.disabled = true;
-          btnListoTematica.textContent = textoEsperando();
-        }
-
-        if (textoEsperaTematica) {
-          textoEsperaTematica.textContent = textoEsperaEquipos();
-        }
-
-        try {
-          const res = await fetch(`/grupo/${grupoId}/listo/`, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken()
-            },
-            body: JSON.stringify({ fase: "f2_tematicas" })
-          });
-
-          const data = await res.json();
-
-          ultimoListos = Number(data.gruposListosF2Tematicas || data.listos || 0);
-          ultimoTotal = Number(data.totalGrupos || data.total || 0);
-
-          if (contadorListosTematica) {
-            contadorListosTematica.textContent = textoGruposListos(ultimoListos, ultimoTotal);
-          }
-
-          if (data.todos_listos || data.todosListosF2Generico || data.todosListosF2 || (ultimoTotal > 0 && ultimoListos >= ultimoTotal)) {
-            habilitarTematicas();
-
-            if (!timerTematicaSolicitado) {
-              timerTematicaSolicitado = true;
-              iniciarTimerTematica();
-            }
-          }
-        } catch (error) {
-          console.error("Error marcando listo temática:", error);
-
-          yaListoTematica = false;
-
-          if (btnListoTematica) {
-            btnListoTematica.disabled = false;
-            btnListoTematica.textContent = textoListo();
-          }
-        }
-      }
-
-      function marcarTema(slug) {
-        temaSeleccionadoActual = (slug || "").trim().toLowerCase();
-
-        cards.forEach(card => {
-          const activo = (card.dataset.slug || "").trim().toLowerCase() === temaSeleccionadoActual;
-          card.classList.toggle("selected", activo);
-
-          const btn = card.querySelector(".btn.select");
-
-          if (btn) {
-            btn.textContent = activo ? textoSeleccionado() : textoElegir();
-          }
-        });
-      }
-
-      window.guardarTema = async function (slug, boton) {
-        if (enviando) return;
-
-        enviando = true;
-        marcarTema(slug);
-
-        const botones = document.querySelectorAll(".btn.select");
-        botones.forEach(b => b.disabled = true);
-
-        try {
-          const res = await fetch("{% url 'guardar_tematica' %}", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken()
-            },
-            credentials: "same-origin",
-            body: JSON.stringify({ tema: slug })
-          });
-
-          const data = await res.json();
-
-          if (!res.ok || !data.ok) {
-            throw new Error(data.error || tJuego("tematicas_error_guardar", "No se pudo guardar la temática."));
-          }
-
-          window.location.href = data.redirect_url || "{% url 'desafios' %}";
-        } catch (error) {
-          alert(error.message || tJuego("tematicas_error_guardar", "No se pudo guardar la temática."));
-          botones.forEach(b => b.disabled = false);
-          marcarTema("");
-          enviando = false;
-        }
-      };
-
-      if (temaSeleccionadoActual) {
-        marcarTema(temaSeleccionadoActual);
-      } else {
-        marcarTema("");
-      }
-
-      if (btnListoTematica) {
-        btnListoTematica.addEventListener("click", marcarListoTematica);
-      }
-
-      window.addEventListener("idiomaJuegoCambiado", () => {
-        if (contadorListosTematica) {
-          contadorListosTematica.textContent = textoGruposListos(ultimoListos, ultimoTotal);
-        }
-
-        if (btnListoTematica) {
-          btnListoTematica.textContent = btnListoTematica.disabled ? textoEsperando() : textoListo();
-        }
-
-        if (textoEsperaTematica) {
-          textoEsperaTematica.textContent = textoEsperaEquipos();
-        }
-
-        marcarTema(temaSeleccionadoActual);
-      });
-
+      function formatearTiempo(segundos) { segundos = Math.max(Number(segundos || 0), 0); const min = Math.floor(segundos / 60); const seg = segundos % 60; return `${min}:${String(seg).padStart(2, "0")}`; }
+      function habilitarTematicas() { if (overlayInicio) overlayInicio.classList.add("overlay-hidden"); if (contenidoTematicas) contenidoTematicas.classList.remove("blur-tematicas"); }
+      function bloquearTematicas() { if (overlayInicio) overlayInicio.classList.remove("overlay-hidden"); if (contenidoTematicas) contenidoTematicas.classList.add("blur-tematicas"); }
+      function getCSRFToken() { const name = "csrftoken="; const parts = document.cookie.split(";"); for (let c of parts) { c = c.trim(); if (c.startsWith(name)) return decodeURIComponent(c.substring(name.length)); } return ""; }
+      async function iniciarTimerTematica() { if (!sesionId) return; try { await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() }, body: JSON.stringify({}) }); } catch (error) { console.error("Error iniciando timer:", error); timerTematicaSolicitado = false; } }
+      function todosListosSegunData(data) { const total = Number(data.totalGrupos || 0); const listos = Number(data.gruposListosF2Tematicas || 0); if (data.todosListosF2Tematicas) return true; return total > 0 && listos >= total; }
+      async function actualizarTimerTematica() { if (!sesionId || !timerTematica) return; try { const res = await fetch(`/sesion/${sesionId}/estado/`, { cache: "no-store", credentials: "same-origin" }); if (!res.ok) return; const data = await res.json(); timerTematica.textContent = formatearTiempo(data.segundosRestantes); ultimoListos = Number(data.gruposListosF2Tematicas || 0); ultimoTotal = Number(data.totalGrupos || 0); if (contadorListosTematica) contadorListosTematica.textContent = textoGruposListos(ultimoListos, ultimoTotal); const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId)); if (miGrupo && miGrupo.listoF2Tematicas) { yaListoTematica = true; if (btnListoTematica) { btnListoTematica.disabled = true; btnListoTematica.textContent = textoEsperando(); } if (textoEsperaTematica) textoEsperaTematica.textContent = textoEsperaEquipos(); } if (todosListosSegunData(data)) { habilitarTematicas(); if (!data.timerCorriendo && !timerTematicaSolicitado) { timerTematicaSolicitado = true; iniciarTimerTematica(); } } else { bloquearTematicas(); } if (data.faseActual && data.faseActual !== "f2_tematicas" && data.rutaAlumno) window.location.href = data.rutaAlumno; } catch (error) { console.error("Error actualizando timer:", error); } }
+      async function marcarListoTematica() { if (yaListoTematica || !grupoId) return; yaListoTematica = true; if (btnListoTematica) { btnListoTematica.disabled = true; btnListoTematica.textContent = textoEsperando(); } if (textoEsperaTematica) textoEsperaTematica.textContent = textoEsperaEquipos(); try { const res = await fetch(`/grupo/${grupoId}/listo/`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() }, body: JSON.stringify({ fase: "f2_tematicas" }) }); const data = await res.json(); ultimoListos = Number(data.gruposListosF2Tematicas || data.listos || 0); ultimoTotal = Number(data.totalGrupos || data.total || 0); if (contadorListosTematica) contadorListosTematica.textContent = textoGruposListos(ultimoListos, ultimoTotal); if (data.todos_listos || (ultimoTotal > 0 && ultimoListos >= ultimoTotal)) { habilitarTematicas(); if (!timerTematicaSolicitado) { timerTematicaSolicitado = true; iniciarTimerTematica(); } } } catch (error) { console.error("Error marcando listo:", error); yaListoTematica = false; if (btnListoTematica) { btnListoTematica.disabled = false; btnListoTematica.textContent = textoListo(); } } }
+      function marcarTema(slug) { temaSeleccionadoActual = (slug || "").trim().toLowerCase(); cards.forEach(card => { const activo = (card.dataset.slug || "").trim().toLowerCase() === temaSeleccionadoActual; card.classList.toggle("selected", activo); const btn = card.querySelector(".btn.select"); if (btn) btn.textContent = activo ? textoSeleccionado() : textoElegir(); }); }
+      window.guardarTema = async function (slug, boton) { if (enviando) return; enviando = true; marcarTema(slug); const botones = document.querySelectorAll(".btn.select"); botones.forEach(b => b.disabled = true); try { const res = await fetch("{% url 'guardar_tematica' %}", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() }, credentials: "same-origin", body: JSON.stringify({ tema: slug }) }); const data = await res.json(); if (!res.ok || !data.ok) throw new Error(data.error || "No se pudo guardar."); window.location.href = data.redirect_url || "{% url 'desafios' %}"; } catch (error) { alert(error.message); botones.forEach(b => b.disabled = false); marcarTema(""); enviando = false; } };
+      if (temaSeleccionadoActual) marcarTema(temaSeleccionadoActual); else marcarTema("");
+      if (btnListoTematica) btnListoTematica.addEventListener("click", marcarListoTematica);
+      window.addEventListener("idiomaJuegoCambiado", () => { if (contadorListosTematica) contadorListosTematica.textContent = textoGruposListos(ultimoListos, ultimoTotal); if (btnListoTematica) btnListoTematica.textContent = btnListoTematica.disabled ? textoEsperando() : textoListo(); if (textoEsperaTematica) textoEsperaTematica.textContent = textoEsperaEquipos(); marcarTema(temaSeleccionadoActual); });
       bloquearTematicas();
       setInterval(actualizarTimerTematica, 1000);
       actualizarTimerTematica();
@@ -812,55 +169,42 @@
       const camaraClose = document.getElementById("objetoCamaraClose");
       const camaraTalk = document.getElementById("objetoCamaraTalk");
       const camaraExit = document.getElementById("objetoCamaraExit");
-
       const STORAGE_CAMARA = "objeto_camara_tematicas_usado_{{ grupo.sesion.idsesion }}_{{ grupo.idgrupo }}";
-
-      if (localStorage.getItem(STORAGE_CAMARA) === "1" && camaraTrigger) {
-        camaraTrigger.classList.add("oculto");
-      }
-
-      function abrirCamara() {
-        if (!camaraOverlay) return;
-
-        camaraOverlay.classList.add("activo");
-        camaraOverlay.setAttribute("aria-hidden", "false");
-
-        if (camaraTalk) {
-          camaraTalk.currentTime = 0;
-          camaraTalk.play().catch(() => {});
-        }
-      }
-
-      function cerrarCamara() {
-        if (!camaraOverlay) return;
-
-        camaraOverlay.classList.remove("activo");
-        camaraOverlay.setAttribute("aria-hidden", "true");
-
-        if (camaraExit) {
-          camaraExit.currentTime = 0;
-          camaraExit.play().catch(() => {});
-        }
-
-        if (camaraTrigger) {
-          camaraTrigger.classList.add("oculto");
-        }
-
-        localStorage.setItem(STORAGE_CAMARA, "1");
-      }
-
+      if (localStorage.getItem(STORAGE_CAMARA) === "1" && camaraTrigger) camaraTrigger.classList.add("oculto");
+      function abrirCamara() { if (!camaraOverlay) return; camaraOverlay.classList.add("activo"); camaraOverlay.setAttribute("aria-hidden", "false"); if (camaraTalk) { camaraTalk.currentTime = 0; camaraTalk.play().catch(() => {}); } }
+      function cerrarCamara() { if (!camaraOverlay) return; camaraOverlay.classList.remove("activo"); camaraOverlay.setAttribute("aria-hidden", "true"); if (camaraExit) { camaraExit.currentTime = 0; camaraExit.play().catch(() => {}); } if (camaraTrigger) camaraTrigger.classList.add("oculto"); localStorage.setItem(STORAGE_CAMARA, "1"); }
       camaraTrigger?.addEventListener("click", abrirCamara);
       camaraClose?.addEventListener("click", cerrarCamara);
-
-      camaraOverlay?.addEventListener("click", (e) => {
-        if (e.target === camaraOverlay) {
-          cerrarCamara();
-        }
-      });
+      camaraOverlay?.addEventListener("click", (e) => { if (e.target === camaraOverlay) cerrarCamara(); });
     });
   </script>
 
   <script src="{% static 'js/tematica.js' %}"></script>
+  <script>
+  (function () {
+    const audio = document.getElementById("musica-desafios");
+    const btn   = document.getElementById("btn-musica-desafios");
+    if (!audio) return;
+    audio.volume = 0.4;
+    function arrancar() {
+      audio.play().catch(() => {});
+      document.removeEventListener("click",      arrancar);
+      document.removeEventListener("touchstart", arrancar);
+    }
+    document.addEventListener("click",      arrancar);
+    document.addEventListener("touchstart", arrancar);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) audio.pause();
+      else if (!audio.muted) audio.play().catch(() => {});
+    });
+    window.toggleMusicaDesafios = function () {
+      audio.muted = !audio.muted;
+      btn.textContent = audio.muted ? "🔇" : "🔊";
+      btn.title = audio.muted ? "Activar música" : "Silenciar música";
+    };
+    window.addEventListener("beforeunload", () => audio.pause());
+  })();
+  </script>
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>
