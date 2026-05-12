@@ -8,44 +8,35 @@
   <title>Misión Emprende UDD — Empatía</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_transicionempatia.css' %}" />
-
-  <style>
-    .tablet-reminder {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(255, 122, 26, 0.16);
-      border: 1.5px solid rgba(255, 122, 26, 0.75);
-      color: #FFD2A8;
-      font-weight: 700;
-      font-size: 0.92em;
-      line-height: 1.35;
-      box-shadow: 0 0 14px rgba(255, 122, 26, 0.25);
-    }
-  </style>
 </head>
 
 <body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a empatía">
     <section class="team-section">
-      <div class="title">
-        <h1 data-i18n="empatia_intro_titulo">Empatía</h1>
+
+      <!-- TÍTULO CON MARCO -->
+      <div class="title-wrapper">
+        <h1 class="title" data-i18n="empatia_intro_titulo">Empatía</h1>
       </div>
 
-      <div class="speech-bubble">
+      <!-- PANEL UNIFICADO -->
+      <div class="mission-panel">
         <p data-i18n="empatia_intro_texto">
           Agentes, antes de crear una solución deben entender a quién están ayudando.
           Completarán un Bubble Map sobre su persona objetivo.
         </p>
 
         <div class="tablet-reminder" data-i18n="empatia_intro_tablet">
-          📱 Protocolo: roten la tablet.
+          📱 Protocolo: recuerden rotar la tablet.
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <div class="next-step">
+          {% include "includes/boton_listo_fase.html" with fase_clave="f2_empatia" fase_actual_esperada="f2_transicion_empatia" campo_listos="gruposListosF2Empatia" campo_mi_grupo="listoF2Empatia" texto_boton="¡Estoy listo!" %}
         </div>
       </div>
 
-      <div class="next-step">
-        {% include "includes/boton_listo_fase.html" with fase_clave="f2_empatia" fase_actual_esperada="f2_transicion_empatia" campo_listos="gruposListosF2Empatia" campo_mi_grupo="listoF2Empatia" texto_boton="¡Estoy listo!" %}
-      </div>
     </section>
   </main>
 
@@ -60,19 +51,10 @@
 
       function traducirBotonListoFase() {
         const botones = document.querySelectorAll(".next-step button, .btn-chip, .oai-btn-chip");
-
         botones.forEach(btn => {
           if (!btn) return;
-
           const textoActual = (btn.textContent || "").trim().toLowerCase();
-
-          if (
-            btn.disabled ||
-            textoActual.includes("esperando") ||
-            textoActual.includes("waiting") ||
-            textoActual.includes("listo") ||
-            textoActual.includes("ready")
-          ) {
+          if (btn.disabled || textoActual.includes("esperando") || textoActual.includes("waiting") || textoActual.includes("listo") || textoActual.includes("ready")) {
             if (btn.disabled) {
               btn.textContent = tJuego("empatia_intro_boton_esperando", "Esperando...");
             } else {
@@ -84,19 +66,13 @@
 
       function traducirContadoresListos() {
         const textos = document.querySelectorAll(".contador-fase, #contador-listos-fase, #texto-espera-fase, .oai-estado-listo");
-
         textos.forEach(el => {
           if (!el) return;
-
           const texto = el.textContent || "";
           const match = texto.match(/(\d+)\/(\d+)/);
-
           if (match) {
             el.textContent = `${match[1]}/${match[2]} ${tJuego("empatia_intro_grupos_listos", "grupos listos")}`;
-          } else if (
-            texto.toLowerCase().includes("esperando") ||
-            texto.toLowerCase().includes("waiting")
-          ) {
+          } else if (texto.toLowerCase().includes("esperando") || texto.toLowerCase().includes("waiting")) {
             el.textContent = tJuego("empatia_intro_esperando", "Esperando a los demás equipos...");
           }
         });

@@ -9,10 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_conocidos.css' %}" />
   <style>
-    .phone {
-      position: relative;
-      overflow: hidden;
-    }
+    .phone { position: relative; overflow: hidden; }
 
     /* ══════════════════════════════════════════
        POPUP DIÁLOGO — estilo RPG
@@ -112,7 +109,6 @@
       opacity: 1;
     }
 
-    /* Esquinas decorativas */
     .dialogo-burbuja::before,
     .dialogo-burbuja::after {
       content: "";
@@ -192,161 +188,49 @@
     .d-dot.activo { background:#00C8FF; transform:scale(1.35); }
     .d-dot.hecho  { background:rgba(0,200,255,.55); }
 
-
-
-    /* ── resto de estilos originales ── */
-    .inicio-fase-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 28px 20px 20px;
-      z-index: 20;
-      pointer-events: none;
-    }
-
-    .inicio-fase-card {
-      width: min(92%, 760px);
-      background: rgba(8, 24, 48, 0.88);
-      border: 1px solid rgba(0, 200, 255, 0.30);
-      box-shadow: 0 12px 30px rgba(0,0,0,.24);
-      border-radius: 22px;
-      padding: 18px 22px;
-      color: #fff;
-      backdrop-filter: blur(6px);
-      pointer-events: auto;
-    }
-
-    .inicio-fase-badge {
-      display: inline-block;
-      margin-bottom: 12px;
-      padding: 7px 14px;
-      border-radius: 999px;
-      background: rgba(0, 200, 255, 0.12);
-      border: 1px solid rgba(0, 200, 255, 0.28);
-      font-weight: 700;
-      font-size: 0.88rem;
-      color: #dff7ff;
-    }
-
+    /* ── Estilos generales ── */
+    .inicio-fase-overlay { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding: 28px 20px 20px; z-index: 20; pointer-events: none; }
+    .inicio-fase-card { width: min(92%, 760px); background: rgba(8, 24, 48, 0.88); border: 1px solid rgba(0, 200, 255, 0.30); box-shadow: 0 12px 30px rgba(0,0,0,.24); border-radius: 22px; padding: 18px 22px; color: #fff; backdrop-filter: blur(6px); pointer-events: auto; }
+    .inicio-fase-badge { display: inline-block; margin-bottom: 12px; padding: 7px 14px; border-radius: 999px; background: rgba(0, 200, 255, 0.12); border: 1px solid rgba(0, 200, 255, 0.28); font-weight: 700; font-size: 0.88rem; color: #dff7ff; }
     .inicio-fase-card h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 800; }
     .inicio-fase-card p  { margin: 0 0 10px 0; line-height: 1.5; font-size: 1rem; }
-
-    .btn-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-      padding: 10px 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(0, 200, 255, 0.4);
-      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
-      color: #E6F7FF;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
-      backdrop-filter: blur(4px);
-    }
+    .btn-chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(0, 200, 255, 0.4); background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25)); color: #E6F7FF; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 0 10px rgba(0, 200, 255, 0.25); backdrop-filter: blur(4px); }
     .btn-chip:hover { transform: translateY(-1px) scale(1.03); }
     .btn-chip:disabled { opacity: 0.65; cursor: not-allowed; }
-
     .contador-fase { margin-top: 10px; font-size: 0.95rem; opacity: 0.95; }
-
-    .blur-target-bloqueado {
-      filter: blur(6px);
-      pointer-events: none;
-      user-select: none;
-      opacity: .70;
-      transition: all .3s ease;
-    }
-    .blur-target-activo {
-      filter: none;
-      pointer-events: auto;
-      user-select: auto;
-      opacity: 1;
-      transition: all .3s ease;
-    }
+    .blur-target-bloqueado { filter: blur(6px); pointer-events: none; user-select: none; opacity: .70; transition: all .3s ease; }
+    .blur-target-activo    { filter: none; pointer-events: auto; user-select: auto; opacity: 1; transition: all .3s ease; }
     .timer-esperando { opacity: .55; }
     .overlay-hidden  { display: none; }
 
-    /* ASTRONAUTA INTERACTIVO */
-    .astro-trigger {
-      position: absolute;
-      top: clamp(92px, 18vh, 190px);
-      left: clamp(18px, 7vw, 86px);
-      width: 118px; height: 118px;
-      border: none; border-radius: 999px;
-      background: transparent; box-shadow: none;
-      cursor: pointer; z-index: 12;
-      display: grid; place-items: center;
-      animation: astroFloat 6s ease-in-out infinite alternate;
-      transition: transform .2s ease;
+    @media (max-width: 900px) {
+      .inicio-fase-overlay { padding-top: 20px; }
+      .inicio-fase-card { width: min(94%, 680px); padding: 16px 18px; }
     }
+    @media (max-width: 640px) {
+      .inicio-fase-overlay { padding: 14px 12px 12px; align-items: flex-start; }
+      .inicio-fase-card { width: 100%; border-radius: 18px; padding: 14px 14px 16px; }
+      .btn-chip { width: 100%; justify-content: center; }
+      .contador-fase { font-size: 0.9rem; }
+    }
+
+    /* ASTRONAUTA */
+    .astro-trigger { position: absolute; top: clamp(92px, 18vh, 190px); left: clamp(18px, 7vw, 86px); width: 118px; height: 118px; border: none; border-radius: 999px; background: transparent; box-shadow: none; cursor: pointer; z-index: 12; display: grid; place-items: center; animation: astroFloat 6s ease-in-out infinite alternate; transition: transform .2s ease; }
     .astro-trigger:hover { transform: scale(1.06); }
     .astro-trigger.oculto { opacity: 0; pointer-events: none; }
-
-    .astro-signal {
-      position: absolute; right: -4px; top: -4px;
-      width: 20px; height: 20px; border-radius: 50%;
-      background: #00c8ff;
-      box-shadow: 0 0 0 0 rgba(0,200,255,.65);
-      animation: astroPing 1.5s infinite;
-    }
-
+    .astro-signal { position: absolute; right: -4px; top: -4px; width: 20px; height: 20px; border-radius: 50%; background: #00c8ff; box-shadow: 0 0 0 0 rgba(0,200,255,.65); animation: astroPing 1.5s infinite; }
     .astro-img-falling { width: 150px; height: auto; display: block; filter: drop-shadow(0 0 18px rgba(0,200,255,.55)); }
-
-    @keyframes astroFloat {
-      0%   { transform: translate(0, 0) rotate(-4deg); }
-      50%  { transform: translate(58px, 34px) rotate(5deg); }
-      100% { transform: translate(122px, 72px) rotate(-3deg); }
-    }
-    @keyframes astroPing {
-      0%   { box-shadow: 0 0 0 0 rgba(0,200,255,.65); }
-      75%  { box-shadow: 0 0 0 13px rgba(0,200,255,0); }
-      100% { box-shadow: 0 0 0 0 rgba(0,200,255,0); }
-    }
-
-    .astro-overlay {
-      position: absolute; inset: 0;
-      display: none; align-items: center; justify-content: center;
-      z-index: 32;
-      background: rgba(1, 12, 28, 0.50);
-      backdrop-filter: blur(4px);
-      padding: 18px;
-    }
+    @keyframes astroFloat { 0% { transform: translate(0,0) rotate(-4deg); } 50% { transform: translate(58px,34px) rotate(5deg); } 100% { transform: translate(122px,72px) rotate(-3deg); } }
+    @keyframes astroPing  { 0% { box-shadow: 0 0 0 0 rgba(0,200,255,.65); } 75% { box-shadow: 0 0 0 13px rgba(0,200,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,200,255,0); } }
+    .astro-overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 32; background: rgba(1,12,28,.50); backdrop-filter: blur(4px); padding: 18px; }
     .astro-overlay.activo { display: flex; }
-
-    .astro-card {
-      width: min(90%, 480px);
-      padding: 22px 22px 18px; padding-left: 155px;
-      min-height: 260px; text-align: left;
-      border-radius: 24px;
-      background: radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%), rgba(8, 24, 48, 0.96);
-      border: 1px solid rgba(0,200,255,.30);
-      box-shadow: 0 18px 42px rgba(0,0,0,.38);
-      color: #fff;
-      animation: astroCardIn .32s ease both;
-      position: relative;
-    }
+    .astro-card { width: min(90%, 480px); padding: 22px 22px 18px; padding-left: 155px; min-height: 260px; text-align: left; border-radius: 24px; background: radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%), rgba(8,24,48,0.96); border: 1px solid rgba(0,200,255,.30); box-shadow: 0 18px 42px rgba(0,0,0,.38); color: #fff; animation: astroCardIn .32s ease both; position: relative; }
     .astro-card h3 { margin: 0 0 12px; color: #FF7A1A; font-size: 1.25rem; position: relative; z-index: 2; }
     .astro-card p  { margin: 0 0 10px; line-height: 1.5; color: #d9e6f2; font-size: .98rem; position: relative; z-index: 2; }
     .astro-card strong { color: #ffe29a; }
     .astro-img-standing { position: absolute; left: -35px; bottom: -8px; width: 185px; height: auto; filter: drop-shadow(0 0 20px rgba(255,122,26,.45)); }
-    .astro-close {
-      margin-top: 12px;
-      border: 1px solid rgba(0,200,255,.35);
-      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
-      color: #fff; border-radius: 999px; padding: 10px 18px;
-      font-weight: 800; cursor: pointer;
-      position: relative; z-index: 2;
-    }
-    @keyframes astroCardIn {
-      from { transform: translateY(12px) scale(.96); opacity: 0; }
-      to   { transform: translateY(0) scale(1); opacity: 1; }
-    }
+    .astro-close { margin-top: 12px; border: 1px solid rgba(0,200,255,.35); background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90)); color: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 800; cursor: pointer; position: relative; z-index: 2; }
+    @keyframes astroCardIn { from { transform: translateY(12px) scale(.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
     @media (max-width: 640px) {
       .astro-img-falling { width: 115px; }
       .astro-card { padding-left: 18px; padding-top: 145px; text-align: center; }
@@ -358,86 +242,31 @@
 <body>
   <main class="phone" role="region" aria-label="Introducciones">
 
-
-
     <div id="inicio-fase-overlay" class="inicio-fase-overlay">
       <section id="inicio-fase-card" class="inicio-fase-card">
-        <div class="inicio-fase-badge" data-i18n="conocidos_badge">
-          Fase de activación
-        </div>
-
+        <div class="inicio-fase-badge" data-i18n="conocidos_badge">Fase de activación</div>
         <h3 data-i18n="conocidos_antes">Antes de comenzar</h3>
-
-        <p
-          {% if modo_rapido %}
-            data-i18n="conocidos_instruccion_rapida"
-          {% else %}
-            data-i18n="conocidos_instruccion_normal"
-          {% endif %}
-        >
-          {% if modo_rapido %}
-            Cada agente comparte un dato curioso o responde una pregunta rápida.
-          {% else %}
-            Cada integrante dice su nombre y comparte un dato curioso.
-          {% endif %}
+        <p {% if modo_rapido %}data-i18n="conocidos_instruccion_rapida"{% else %}data-i18n="conocidos_instruccion_normal"{% endif %}>
+          {% if modo_rapido %}Cada agente comparte un dato curioso o responde una pregunta rápida.{% else %}Cada integrante dice su nombre y comparte un dato curioso.{% endif %}
         </p>
-
-        <p data-i18n="conocidos_presionen">
-          Presionen "Listo para comenzar" cuando estén listos.
-        </p>
-
-        <button class="btn-chip" id="btn-listo-fase" type="button" data-i18n="conocidos_boton_listo">
-          ⚡ Listo para comenzar
-        </button>
-
-        <p id="texto-espera-fase" class="contador-fase" data-i18n="conocidos_esperando">
-          Esperando a los demás equipos...
-        </p>
-
-        <p id="contador-listos-fase" class="contador-fase">
-          0/0 grupos listos
-        </p>
+        <p data-i18n="conocidos_presionen">Presionen "Listo para comenzar" cuando estén listos.</p>
+        <button class="btn-chip" id="btn-listo-fase" type="button" data-i18n="conocidos_boton_listo">⚡ Listo para comenzar</button>
+        <p id="texto-espera-fase" class="contador-fase" data-i18n="conocidos_esperando">Esperando a los demás equipos...</p>
+        <p id="contador-listos-fase" class="contador-fase">0/0 grupos listos</p>
       </section>
     </div>
 
-    <h1 id="tituloConocidos" class="title blur-target-bloqueado" data-i18n="conocidos_titulo">
-      ¡Es momento de conocerse!
-    </h1>
+    <h1 id="tituloConocidos" class="title blur-target-bloqueado" data-i18n="conocidos_titulo">¡Es momento de conocerse!</h1>
 
     <div id="speechBubbleConocidos" class="speech-bubble blur-target-bloqueado">
-      <p
-        class="body"
-        {% if modo_rapido %}
-          data-i18n="conocidos_body_rapido"
-        {% else %}
-          data-i18n="conocidos_body_normal"
-        {% endif %}
-      >
-        {% if modo_rapido %}
-          Compartan algunos datos curiosos o respondan unas preguntas para activar al escuadrón.
-        {% else %}
-          Di tu nombre y comparte un dato curioso sobre ti.
-        {% endif %}
+      <p class="body" {% if modo_rapido %}data-i18n="conocidos_body_rapido"{% else %}data-i18n="conocidos_body_normal"{% endif %}>
+        {% if modo_rapido %}Compartan algunos datos curiosos o respondan unas preguntas para activar al escuadrón.{% else %}Di tu nombre y comparte un dato curioso sobre ti.{% endif %}
       </p>
-
-      <p class="body pregunta-random" id="preguntaTexto" data-i18n="conocidos_cargando_pregunta">
-        👉 Cargando pregunta...
-      </p>
-
-      <button class="btn-random" id="btnPregunta" type="button" data-i18n="conocidos_nueva_pregunta">
-        Nueva pregunta
-      </button>
+      <p class="body pregunta-random" id="preguntaTexto" data-i18n="conocidos_cargando_pregunta">👉 Cargando pregunta...</p>
+      <button class="btn-random" id="btnPregunta" type="button" data-i18n="conocidos_nueva_pregunta">Nueva pregunta</button>
     </div>
 
-    <!-- ASTRONAUTA INTERACTIVO -->
-    <button
-      id="astro-trigger"
-      class="astro-trigger"
-      type="button"
-      aria-label="Abrir mensaje del astronauta"
-      data-i18n="conocidos_astro_aria"
-      data-i18n-attr="aria-label"
-    >
+    <button id="astro-trigger" class="astro-trigger" type="button" aria-label="Abrir mensaje del astronauta" data-i18n="conocidos_astro_aria" data-i18n-attr="aria-label">
       <span class="astro-signal" aria-hidden="true"></span>
       <img class="astro-img-falling" src="{% static 'images/Cayendo.png' %}" alt="" aria-hidden="true">
     </button>
@@ -459,11 +288,7 @@
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
     <audio id="musica-fondo" src="{% static 'sounds/musica_conocidos.mp3' %}" loop preload="auto"></audio>
 
-    <div
-      id="routes"
-      data-sesion-id="{{ grupo.sesion.idsesion }}"
-      data-tiempo="{{ grupo.sesion.segundos_restantes|default:10 }}">
-    </div>
+    <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}" data-tiempo="{{ grupo.sesion.segundos_restantes|default:10 }}"></div>
 
     <script>
     /* ══════════════════════════════════════════
@@ -473,13 +298,11 @@
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
       let ctx = null;
-
       function getCtx() {
         if (!ctx) ctx = new AudioCtx();
         if (ctx.state === "suspended") ctx.resume();
         return ctx;
       }
-
       window.sonarTecla = function () {
         try {
           const c = getCtx();
@@ -493,14 +316,10 @@
           o.start(c.currentTime); o.stop(c.currentTime + 0.06);
         } catch(_) {}
       };
-
       window.sonarBoton = function () {
         try {
           const c = getCtx();
-          [
-            [440, 600, 0, 0.08, 0.18, 0.14],
-            [660, 880, 0.06, 0.18, 0.12, 0.22]
-          ].forEach(([f1, f2, delay, ramp, vol, stop]) => {
+          [[440,600,0,0.08,0.18,0.14],[660,880,0.06,0.18,0.12,0.22]].forEach(([f1,f2,delay,ramp,vol,stop]) => {
             const o = c.createOscillator(), g = c.createGain();
             o.connect(g); g.connect(c.destination);
             o.type = "sine";
@@ -531,13 +350,12 @@
       let timerEscritura = null;
       let teclaCounter = 0;
 
-      const overlay   = document.getElementById("dialogo-inicial-overlay");
-      const burbuja   = document.getElementById("dialogo-burbuja");
-      const textoEl   = document.getElementById("dialogo-texto");
-      const btnLabel  = document.getElementById("btn-rpg-label");
-      const dotsEl    = document.getElementById("dialogo-dots");
+      const overlayDialogo = document.getElementById("dialogo-inicial-overlay");
+      const burbuja        = document.getElementById("dialogo-burbuja");
+      const textoEl        = document.getElementById("dialogo-texto");
+      const btnLabel       = document.getElementById("btn-rpg-label");
+      const dotsEl         = document.getElementById("dialogo-dots");
 
-      /* Construir dots */
       GUION.forEach((_, i) => {
         const d = document.createElement("div");
         d.className = "d-dot";
@@ -557,10 +375,8 @@
         escribiendo = true;
         textoEl.innerHTML = "";
         teclaCounter = 0;
-
         const cursor = document.createElement("span");
         cursor.className = "cursor-rpg";
-
         let i = 0;
         clearInterval(timerEscritura);
         timerEscritura = setInterval(() => {
@@ -568,9 +384,7 @@
             textoEl.textContent = txt.slice(0, i + 1);
             textoEl.appendChild(cursor);
             teclaCounter++;
-            if (teclaCounter % 2 === 0 && txt[i] !== " " && typeof window.sonarTecla === "function") {
-              window.sonarTecla();
-            }
+            if (teclaCounter % 2 === 0 && txt[i] !== " " && typeof window.sonarTecla === "function") window.sonarTecla();
             i++;
           } else {
             clearInterval(timerEscritura);
@@ -588,28 +402,24 @@
 
       window.dialogoSiguiente = function () {
         if (typeof window.sonarBoton === "function") window.sonarBoton();
-
         if (escribiendo) {
           clearInterval(timerEscritura);
           escribiendo = false;
           textoEl.textContent = textoCompleto;
           return;
         }
-
         paso++;
         if (paso >= GUION.length) {
-          /* Cerrar popup */
-          overlay.classList.remove("visible");
-          overlay.classList.add("oculto");
+          overlayDialogo.classList.remove("visible");
+          overlayDialogo.classList.add("oculto");
           return;
         }
         mostrarPaso(paso);
       };
 
-      /* Arrancar */
       window._mostrarDialogoNova = function () {
-        overlay.classList.remove("oculto");
-        overlay.classList.add("visible");
+        overlayDialogo.classList.remove("oculto");
+        overlayDialogo.classList.add("visible");
         setTimeout(() => {
           burbuja.classList.add("visible");
           mostrarPaso(0);
@@ -618,33 +428,23 @@
     });
 
     /* ══════════════════════════════════════════
-       LÓGICA ORIGINAL DE LA VISTA
+       LÓGICA PRINCIPAL — timer idéntico al bubblemap
     ══════════════════════════════════════════ */
     (function () {
       function tJuego(clave, fallback = "") {
         const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
         return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
       }
+      function textoGruposListos(listos, total) { return `${listos}/${total} ${tJuego("conocidos_grupos_listos", "grupos listos")}`; }
+      function textoEsperando()    { return tJuego("conocidos_boton_esperando", "Esperando..."); }
+      function textoListoComenzar(){ return tJuego("conocidos_boton_listo", "⚡ Listo para comenzar"); }
 
-      function textoGruposListos(listos, total) {
-        return `${listos}/${total} ${tJuego("conocidos_grupos_listos", "grupos listos")}`;
-      }
-      function textoEsperando() {
-        return tJuego("conocidos_boton_esperando", "Esperando...");
-      }
-      function textoListoComenzar() {
-        return tJuego("conocidos_boton_listo", "⚡ Listo para comenzar");
-      }
-
+      // ── Música ──
       const musicaFondo = document.getElementById("musica-fondo");
       musicaFondo.volume = 0.4;
       function intentarReproducir() {
         musicaFondo.play().catch(() => {
-          const reanudar = () => {
-            musicaFondo.play().catch(() => {});
-            document.removeEventListener("click", reanudar);
-            document.removeEventListener("touchstart", reanudar);
-          };
+          const reanudar = () => { musicaFondo.play().catch(() => {}); document.removeEventListener("click", reanudar); document.removeEventListener("touchstart", reanudar); };
           document.addEventListener("click", reanudar, { once: true });
           document.addEventListener("touchstart", reanudar, { once: true });
         });
@@ -655,7 +455,6 @@
       const sesionId       = routesEl?.dataset?.sesionId;
       const grupoId        = "{{ grupo.idgrupo }}";
       const csrfToken      = "{{ csrf_token }}";
-
       const timerElement   = document.getElementById("timer");
       const alarmAudio     = document.getElementById("alarm-audio");
       const btnPregunta    = document.getElementById("btnPregunta");
@@ -686,23 +485,26 @@
         "conocidos_pregunta_10"
       ];
 
-      let ultimoIndice      = -1;
-      let timeLeft          = Number(routesEl?.dataset?.tiempo || 10);
-      let timerInterval     = null;
-      let timerIniciado     = false;
-      let tiempoFinalizado  = false;
-      let redirigiendo      = false;
-      let yaListo           = false;
-      let astroActivo       = false;
-      let astroCerrado      = false;
-      let yaDialogoMostrado = false;
+      let ultimoIndice             = -1;
+      let timeLeft                 = Number(routesEl?.dataset?.tiempo || 10);
+      let timerInterval            = null;
+      let timerIniciado            = false;
+      let redirigiendo             = false;
+      let yaListo                  = false;
+      let astroActivo              = false;
+      let astroCerrado             = false;
+      let yaDialogoMostrado        = false;
+      // ── Variables idénticas al bubblemap ──
+      let countdownMostrado        = false;
+      let countdownEnCurso         = false;
+      let timerRealSolicitado      = false;
+      let timerLiberadoTrasCountdown = false;
+      let tiempoFinalizado         = false;
 
       function cambiarPregunta() {
         if (!preguntaTexto) return;
         let random = Math.floor(Math.random() * preguntas.length);
-        if (preguntas.length > 1) {
-          while (random === ultimoIndice) random = Math.floor(Math.random() * preguntas.length);
-        }
+        if (preguntas.length > 1) { while (random === ultimoIndice) random = Math.floor(Math.random() * preguntas.length); }
         ultimoIndice = random;
         preguntaTexto.textContent = "👉 " + tJuego(preguntas[random], preguntas[random]);
       }
@@ -710,8 +512,7 @@
       function pintarTiempo() {
         const minutes = Math.floor(Math.max(0, timeLeft) / 60);
         const seconds = Math.max(0, timeLeft) % 60;
-        timerElement.textContent =
-          `${minutes.toString().padStart(2,"0")}:${seconds.toString().padStart(2,"0")}`;
+        timerElement.textContent = `${minutes.toString().padStart(2,"0")}:${seconds.toString().padStart(2,"0")}`;
       }
 
       function reproducirAlarma() {
@@ -722,6 +523,44 @@
         setTimeout(() => document.body.classList.remove("flash"), 800);
       }
 
+      function pausarTimerLocal() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      }
+
+      function iniciarTimerLocal() {
+        if (timerInterval || redirigiendo) return;
+        timerIniciado = true;
+        pintarTiempo();
+        timerInterval = setInterval(() => {
+          if (redirigiendo) { pausarTimerLocal(); return; }
+          if (timeLeft > 0) { timeLeft--; pintarTiempo(); }
+          if (timeLeft <= 0) {
+            timeLeft = 0; pintarTiempo(); pausarTimerLocal();
+            if (!tiempoFinalizado) { tiempoFinalizado = true; reproducirAlarma(); }
+          }
+        }, 1000);
+      }
+
+      // ── Idéntico al bubblemap ──
+      async function iniciarTimerRealDespuesCountdown() {
+        if (timerRealSolicitado) return;
+        timerRealSolicitado = true;
+        try {
+          const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+            method: "POST", credentials: "same-origin",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+            body: JSON.stringify({ fase: "f1_conocidos" })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || "No se pudo iniciar el timer.");
+          const backendSeconds = Number(data.segundosRestantes);
+          if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+        } catch (err) {
+          console.error("Error iniciando timer conocidos:", err);
+          timerRealSolicitado = false;
+        }
+      }
+
       function activarFase() {
         blurTargets.forEach(el => {
           if (!el) return;
@@ -729,8 +568,7 @@
           el.classList.add("blur-target-activo");
         });
         if (overlay) overlay.classList.add("overlay-hidden");
-
-        /* Mostrar popup diálogo RPG */
+        // Mostrar popup RPG una sola vez
         if (!yaDialogoMostrado && typeof window._mostrarDialogoNova === "function") {
           yaDialogoMostrado = true;
           window._mostrarDialogoNova();
@@ -747,24 +585,6 @@
         if (overlay) overlay.classList.remove("overlay-hidden");
       }
 
-      function pausarTimerLocal() {
-        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-      }
-
-      function iniciarTimerLocal() {
-        if (timerInterval || tiempoFinalizado || redirigiendo) return;
-        timerIniciado = true;
-        pintarTiempo();
-        timerInterval = setInterval(() => {
-          if (redirigiendo) { pausarTimerLocal(); return; }
-          if (timeLeft > 0) { timeLeft--; pintarTiempo(); }
-          if (timeLeft <= 0) {
-            timeLeft = 0; pintarTiempo(); pausarTimerLocal();
-            if (!tiempoFinalizado) { tiempoFinalizado = true; reproducirAlarma(); }
-          }
-        }, 1000);
-      }
-
       function sincronizarBoton(miGrupo) {
         if (!botonListo) return;
         if (miGrupo && miGrupo.listoLobby) {
@@ -775,113 +595,154 @@
         }
       }
 
-      if (btnPregunta) {
-        cambiarPregunta();
-        btnPregunta.addEventListener("click", cambiarPregunta);
+      // ── procesarEstadoSesion idéntico al bubblemap ──
+      function procesarEstadoSesion(data) {
+        if (!data) return;
+
+        if (contadorListos) {
+          contadorListos.textContent = textoGruposListos(data.gruposListosLobby || 0, data.totalGrupos || 0);
+        }
+
+        const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId)) || null;
+        sincronizarBoton(miGrupo);
+
+        if (data.faseActual && data.faseActual !== "f1_conocidos") {
+          if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
+            redirigiendo = true;
+            window.location.href = data.rutaAlumno;
+          }
+          return;
+        }
+
+        if (data.inicioFaseHabilitado) {
+          if (countdownMostrado && !countdownEnCurso) activarFase();
+        } else {
+          countdownMostrado = false;
+          countdownEnCurso = false;
+          timerLiberadoTrasCountdown = false;
+          timerRealSolicitado = false;
+          bloquearFase();
+        }
+
+        const backendSeconds = Number(data.segundosRestantes);
+
+        if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+          if (!countdownEnCurso && !timerLiberadoTrasCountdown && !tiempoFinalizado) {
+            timeLeft = backendSeconds;
+            pintarTiempo();
+          }
+        }
+
+        if (data.inicioFaseHabilitado && backendSeconds <= 0 && !data.timerCorriendo) {
+          if (!tiempoFinalizado) { tiempoFinalizado = true; reproducirAlarma(); }
+          return;
+        }
+
+        if (!timerIniciado && data.inicioFaseHabilitado) {
+          if (!countdownMostrado && !countdownEnCurso) {
+            countdownEnCurso = true;
+            window.oaiCountdown.run(async () => {
+              countdownMostrado = true;
+              countdownEnCurso = false;
+              timerLiberadoTrasCountdown = true;
+              await iniciarTimerRealDespuesCountdown();
+              activarFase();
+            });
+            return;
+          }
+          if (!countdownMostrado || countdownEnCurso || !timerLiberadoTrasCountdown) return;
+          if (!data.timerCorriendo) return;
+          if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+          timerIniciado = true;
+          iniciarTimerLocal();
+          return;
+        }
+
+        if (timerIniciado && !data.timerCorriendo && !tiempoFinalizado) {
+          pausarTimerLocal();
+          if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+          timerIniciado = false;
+        }
       }
+
+      async function consultarEstadoSesion() {
+        if (redirigiendo || !sesionId) return;
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`, { cache: "no-store", credentials: "same-origin" });
+          if (!res.ok) return;
+          const data = await res.json();
+          procesarEstadoSesion(data);
+        } catch (err) { console.error("Error consultando estado:", err); }
+      }
+
+      // ── Astronauta ──
+      function abrirAstro() {
+        if (astroActivo || astroCerrado || !astroTrigger || !astroOverlay) return;
+        astroActivo = true;
+        astroTrigger.classList.add("oculto");
+        astroOverlay.classList.add("activo");
+        astroOverlay.setAttribute("aria-hidden","false");
+        if (astroTalkAudio) { astroTalkAudio.currentTime = 0; astroTalkAudio.play().catch(() => {}); }
+      }
+      function cerrarAstro() {
+        if (!astroActivo || !astroOverlay) return;
+        astroOverlay.classList.remove("activo");
+        astroOverlay.setAttribute("aria-hidden","true");
+        if (astroExitAudio) { astroExitAudio.currentTime = 0; astroExitAudio.play().catch(() => {}); }
+        astroActivo = false; astroCerrado = true;
+      }
+
+      if (btnPregunta) { btnPregunta.addEventListener("click", cambiarPregunta); cambiarPregunta(); }
+      if (astroTrigger) astroTrigger.addEventListener("click", abrirAstro);
+      if (astroClose) astroClose.addEventListener("click", cerrarAstro);
 
       if (botonListo) {
         botonListo.addEventListener("click", async () => {
           if (yaListo) return;
-          yaListo = true;
           botonListo.disabled = true;
           botonListo.textContent = textoEsperando();
-          if (textoEspera) textoEspera.textContent = tJuego("conocidos_esperando", "Esperando a los demás equipos...");
-
           try {
-            await fetch(`/grupo/${grupoId}/listo/`, {
-              method: "POST",
+            const res = await fetch(`/grupo/${grupoId}/listo/`, {
+              method: "POST", credentials: "same-origin",
               headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
-              credentials: "same-origin",
-              body: JSON.stringify({ fase: "lobby" })
+              body: JSON.stringify({ fase: "f1_conocidos" })
             });
-          } catch(e) { console.error(e); }
+            const data = await res.json();
+            yaListo = true;
+            if (contadorListos) contadorListos.textContent = textoGruposListos(data.listos || 0, data.total || 0);
+            if (textoEspera) textoEspera.textContent = tJuego("conocidos_esperando", "Esperando a los demás equipos...");
+            if (data.inicio_fase_habilitado) consultarEstadoSesion();
+          } catch (err) {
+            console.error("Error marcando listo:", err);
+            botonListo.disabled = false;
+            botonListo.textContent = textoListoComenzar();
+            yaListo = false;
+          }
         });
       }
-
-      /* Astronauta */
-      if (astroTrigger) {
-        astroTrigger.addEventListener("click", () => {
-          if (astroActivo || astroCerrado) return;
-          astroActivo = true;
-          astroOverlay.classList.add("activo");
-          astroOverlay.setAttribute("aria-hidden", "false");
-          astroTrigger.classList.add("oculto");
-          if (astroTalkAudio) { astroTalkAudio.currentTime = 0; astroTalkAudio.play().catch(() => {}); }
-        });
-      }
-
-      if (astroClose) {
-        astroClose.addEventListener("click", () => {
-          astroActivo = false;
-          astroCerrado = true;
-          astroOverlay.classList.remove("activo");
-          astroOverlay.setAttribute("aria-hidden", "true");
-          if (astroExitAudio) { astroExitAudio.currentTime = 0; astroExitAudio.play().catch(() => {}); }
-        });
-      }
-
-      /* Sincronización */
-      async function sincronizar() {
-        try {
-          const res = await fetch(`/sesion/${sesionId}/estado/`, { credentials: "same-origin", cache: "no-store" });
-          if (!res.ok) return;
-          const data = await res.json();
-
-          if (data.faseActual && data.faseActual !== "f1_bienvenida" && data.faseActual !== "lobby" && data.faseActual !== "f1_conocidos") {
-            if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
-              redirigiendo = true;
-              window.location.href = data.rutaAlumno;
-            }
-            return;
-          }
-
-          const backendSeconds = Number(data.segundosRestantes);
-          if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-            timeLeft = backendSeconds;
-            pintarTiempo();
-          }
-
-          if (data.inicioFaseHabilitado) {
-            activarFase();
-            if (data.timerCorriendo && !timerInterval) iniciarTimerLocal();
-          } else {
-            bloquearFase();
-          }
-
-          if (Array.isArray(data.grupos) && contadorListos) {
-            const total  = data.grupos.length;
-            const listos = data.grupos.filter(g => g.listoLobby).length;
-            contadorListos.textContent = textoGruposListos(listos, total);
-            const miGrupo = data.grupos.find(g => String(g.id) === String(grupoId));
-            sincronizarBoton(miGrupo);
-          }
-        } catch(e) { console.error(e); }
-      }
-
-      sincronizar();
-      setInterval(sincronizar, 1500);
 
       window.addEventListener("idiomaJuegoCambiado", () => {
-        cambiarPregunta();
-        if (!yaListo && botonListo) botonListo.textContent = textoListoComenzar();
-        else if (botonListo) botonListo.textContent = textoEsperando();
+        if (ultimoIndice >= 0 && preguntaTexto) preguntaTexto.textContent = "👉 " + tJuego(preguntas[ultimoIndice], preguntas[ultimoIndice]);
+        if (contadorListos) { const p = contadorListos.textContent.match(/(\d+)\/(\d+)/); if (p) contadorListos.textContent = textoGruposListos(p[1], p[2]); }
+        if (botonListo) botonListo.textContent = botonListo.disabled ? textoEsperando() : textoListoComenzar();
+        if (textoEspera) textoEspera.textContent = tJuego("conocidos_esperando", "Esperando a los demás equipos...");
       });
+
+      bloquearFase();
+      pintarTiempo();
+      setInterval(consultarEstadoSesion, 1500);
+      consultarEstadoSesion();
     })();
     </script>
-
   </main>
+
   <!-- ══ POPUP DIÁLOGO RPG ══ -->
   <div id="dialogo-inicial-overlay" aria-modal="true" role="dialog" aria-label="Mensaje de la Comandante Nova">
     <div id="dialogo-backdrop"></div>
     <div id="dialogo-box">
-
-      <!-- Personaje izquierda -->
       <div class="dialogo-personaje activo" id="pj-nova">
         <img class="dialogo-img" src="{% static 'images/foto2.png' %}" alt="Comandante Nova">
       </div>
-
-      <!-- Burbuja -->
       <div class="dialogo-burbuja" id="dialogo-burbuja">
         <div class="dialogo-hablante" id="dialogo-hablante">COMANDANTE NOVA</div>
         <p class="dialogo-texto-rpg" id="dialogo-texto"></p>
@@ -893,8 +754,10 @@
           <div id="dialogo-dots"></div>
         </div>
       </div>
-
     </div>
   </div>
+
+  {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
 </body>
 </html>

@@ -122,18 +122,18 @@ console.log("Sopa de Letras — build sincronizada • timeLeft =", timeLeft);
 
 function createFixedBoard() {
   const gridTemplate = [
-    "IDEAVALORXXX",
-    "DXOGZAREDILX",
-    "XAIMPACTOXXX",
-    "XXDCLIENTEXX",
-    "XXXIEQUIPOXX",
-    "XNXXVXXXXXXX",
-    "XEXXXIXXXXXX",
-    "XGXXXXTXXXXX",
-    "XOXXXXXAXXXX",
-    "XCXXXXXXEXXX",
-    "XIXXXXXXXRXX",
-    "XOXXXXXXXXCX"
+    "IDEAUDAXIHHE",
+    "DOGZAREDILXC",
+    "DAVXRCSNBACL",
+    "GHDQTARGWUWI",
+    "RNNIEQUIPOHE",
+    "OESVVIZAYZFN",
+    "WGNKAIIEGYKT",
+    "DOCMDLTLLTIE",
+    "ZCBXOROADMCR",
+    "JIUTLSGREWCB",
+    "VOHYJCHDMRIO",
+    "IMPACTOULFCL"
   ];
   board = gridTemplate.map(row => row.split(""));
 }
@@ -263,7 +263,6 @@ async function checkSelection() {
       s.el.style.pointerEvents = "none";
     });
     markWordAsFound(match);
-    /* ── SONIDO AL ENCONTRAR PALABRA ── */
     if (typeof window.sonarPalabraEncontrada === "function") {
       window.sonarPalabraEncontrada();
     }
@@ -342,7 +341,6 @@ function endGame(won, alarmAudio = null) {
   gameEnded = true;
   bloquearJuego();
 
-  /* Detener música de fondo al terminar */
   if (typeof window.musicaSopa?.detener === "function") {
     window.musicaSopa.detener();
   }
@@ -368,16 +366,22 @@ async function showWinModal() {
 
   const modal = document.getElementById("winModal");
   const title = document.getElementById("winTitle");
-  const btn = document.getElementById("btnRetry");
+  // ── Sin botón OK — solo mostramos el modal con texto de espera ──
+  const esperaEl = document.getElementById("winEspera");
 
   if (!modal || !title) return;
 
   const resultado = await registrarSopaCompletada();
 
   if (resultado?.primer_equipo) {
-    title.textContent = tJuego("sopa_win_primer_titulo", "Felicitaciones, tu equipo recibió 5 tokens!");
+    title.textContent = tJuego("sopa_win_primer_titulo", "¡Ganaste! Fuiste el primer equipo");
   } else {
-    title.textContent = tJuego("sopa_win_otro_titulo", "Felicitaciones, tu equipo recibió 3 tokens!");
+    title.textContent = tJuego("sopa_win_otro_titulo", "¡Buen trabajo!");
+  }
+
+  // Texto de espera
+  if (esperaEl) {
+    esperaEl.textContent = tJuego("sopa_win_espera", "Esperando a los demás escuadrones...");
   }
 
   modal.style.display = "flex";
@@ -390,15 +394,7 @@ async function showWinModal() {
       victoryAudio.play();
     } catch (_) {}
   }
-
-  if (btn) {
-    btn.focus();
-    btn.onclick = () => {
-      modal.style.display = "none";
-      modal.setAttribute("aria-hidden", "true");
-      mostrarEsperandoProfesor();
-    };
-  }
+  // Sin btn.onclick — no hay botón OK
 }
 
 function showTimeUpModal() {

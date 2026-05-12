@@ -1,3 +1,7 @@
+/* ============================================================
+   estilo_lego.css — Misión Emprende UDD
+   Fix Chrome: body align-items: flex-start
+============================================================ */
 
 :root {
   --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
@@ -15,8 +19,7 @@
   --fs-timer: clamp(28px, 6vw, 40px);
 }
 
-
-* {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -28,11 +31,12 @@ body {
   font-family: "Poppins", system-ui, sans-serif;
   display: flex;
   justify-content: center;
+  align-items: flex-start; /* FIX Chrome: evita que .phone colapse al alto del viewport */
   padding: 20px;
   min-height: 100vh;
 }
 
-
+/* ── Contenedor principal ── */
 .phone {
   width: clamp(450px, 90vw, 720px);
   background: var(--card);
@@ -49,13 +53,14 @@ body {
   gap: 14px;
 }
 
+/* ── Logo ── */
 .logo {
   width: 120px;
   display: block;
   margin: 0 auto 18px;
 }
 
-
+/* ── Título ── */
 .title {
   font-size: var(--fs-title);
   font-weight: 800;
@@ -64,6 +69,7 @@ body {
   text-shadow: 0 0 18px rgba(255, 122, 26, 0.4);
 }
 
+/* ── Subtítulo ── */
 .subtitle {
   margin-top: 10px;
   margin-bottom: 6px;
@@ -72,6 +78,7 @@ body {
   color: var(--primary);
 }
 
+/* ── Cuerpo ── */
 .body {
   font-size: var(--fs-body);
   margin-top: 20px;
@@ -83,7 +90,7 @@ body {
   max-width: 640px;
 }
 
-
+/* ── Lista de ideas ── */
 .ideas-list {
   list-style: none;
   margin: 6px 0 18px;
@@ -107,7 +114,7 @@ body {
   overflow-wrap: anywhere;
 }
 
-
+/* ── Timer ── */
 #timer {
   display: flex;
   justify-content: center;
@@ -130,12 +137,12 @@ body {
   animation: neonPulse 1.2s ease-in-out infinite;
 }
 
-@keyframes neonPulse{
-  0%,100%{ box-shadow:0 0 20px #00d4ff, 0 0 40px #0077ff inset; }
-  50%{    box-shadow:0 0 40px #00ffff, 0 0 60px #00aaff inset; }
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset; }
+  50%       { box-shadow: 0 0 40px #00ffff, 0 0 60px #00aaff inset; }
 }
 
-
+/* ── Modal ── */
 .modal {
   display: none;
   position: fixed;
@@ -143,7 +150,6 @@ body {
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-
   justify-content: center;
   align-items: center;
   z-index: 99;
@@ -171,7 +177,6 @@ body {
   margin-bottom: 20px;
 }
 
-
 #buttonContinuar {
   background: var(--accent);
   color: white;
@@ -190,63 +195,7 @@ body {
   transform: translateY(-2px);
 }
 
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pop {
-  from { transform: scale(0.9); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-
-@media (max-width: 480px) {
-  .title { font-size: 22px; }
-  .subtitle { font-size: 16px; }
-  .phone {
-  padding: 28px 18px 40px;
-  gap: 12px;
-}
-  #timer{
-  width: 82%;
-  height: clamp(80px, 16vw, 110px);
-  font-size: clamp(30px, 9vw, 40px);
-}
-  .ideas-list{
-  margin-bottom: 14px;
-}
-}
-
-.recordatorio-desafio{
-  width: 100%;
-  max-width: 640px;
-  margin: 6px auto 14px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 2px solid rgba(0, 200, 255, 0.55);
-  background: rgba(0, 90, 140, 0.16);
-  text-align: left;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-}
-
-.recordatorio-desafio h3{
-  margin: 0 0 8px 0;
-  color: var(--primary);
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.recordatorio-desafio p{
-  margin: 0;
-  color: var(--text);
-  line-height: 1.45;
-  font-size: 0.98rem;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
+/* ── Foto panel ── */
 .foto-panel {
   width: 100%;
   max-width: 640px;
@@ -254,8 +203,8 @@ body {
   padding: 18px;
   border-radius: 16px;
   border: 2px solid rgba(255, 122, 26, 0.70);
-  background: rgba(255,255,255,0.08);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
   text-align: center;
 }
 
@@ -267,40 +216,99 @@ body {
   text-underline-offset: 3px;
 }
 
-.sin-foto-wrap{
+.sin-foto-wrap {
   margin-top: 14px;
   display: flex;
   justify-content: center;
 }
 
-.sin-foto-label{
+.sin-foto-label {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: var(--text);
   font-weight: 600;
   cursor: pointer;
 }
 
-.sin-foto-label input{
+.sin-foto-label input {
   transform: scale(1.15);
   cursor: pointer;
 }
 
-.ayuda-foto{
+.ayuda-foto {
   margin-top: 10px;
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.35;
 }
 
-.error-foto{
+.error-foto {
   margin-top: 10px;
   color: #ffd6d6;
   font-size: 0.92rem;
   font-weight: 600;
+}
+
+/* ── Recordatorio desafío ── */
+.recordatorio-desafio {
+  width: 100%;
+  max-width: 640px;
+  margin: 6px auto 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 2px solid rgba(0, 200, 255, 0.55);
+  background: rgba(0, 90, 140, 0.16);
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.recordatorio-desafio h3 {
+  margin: 0 0 8px 0;
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.recordatorio-desafio p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
+  font-size: 0.98rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ── Animaciones ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .title    { font-size: 22px; }
+  .subtitle { font-size: 16px; }
+
+  .phone {
+    padding: 28px 18px 40px;
+    gap: 12px;
+  }
+
+  #timer {
+    width: 82%;
+    height: clamp(80px, 16vw, 110px);
+    font-size: clamp(30px, 9vw, 40px);
+  }
+
+  .ideas-list { margin-bottom: 14px; }
 }

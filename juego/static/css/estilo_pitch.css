@@ -5,25 +5,17 @@
   --muted: #AAB7C8;
   --primary: #00C8FF;
   --accent: #FF7A1A;
-
   --radius: 24px;
   --shadow: 0 20px 50px rgba(0,0,0,.6);
-
   --fs-title: clamp(28px, 4vw, 40px);
-  --fs-sub: clamp(15px, 2.5vw, 18px);
-  --fs-body: clamp(14px, 2vw, 18px);
+  --fs-sub:   clamp(15px, 2.5vw, 18px);
+  --fs-body:  clamp(14px, 2vw, 18px);
   --fs-timer: clamp(28px, 6vw, 40px);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
-  min-height: 100%;
-}
+html, body { min-height: 100%; }
 
 body {
   background: var(--bg);
@@ -31,14 +23,16 @@ body {
   font-family: "Poppins", system-ui, sans-serif;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   padding: 20px;
   min-height: 100vh;
 }
 
+/* ── Contenedor — más compacto ── */
 .pitch-editor {
   width: clamp(450px, 90vw, 720px);
   background: rgba(0, 15, 35, 0.70);
-  padding: 35px 25px 50px;
+  padding: 28px 25px 30px;      /* menos padding inferior */
   border-radius: 26px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
   backdrop-filter: blur(12px) saturate(140%);
@@ -48,20 +42,18 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;                    /* gap reducido */
 }
 
+/* ── Textos ── */
 .title {
   font-size: var(--fs-title);
   font-weight: 800;
-  margin-bottom: 12px;
   color: var(--accent);
   text-shadow: 0 0 18px rgba(255, 122, 26, 0.4);
 }
 
 .subtitle {
-  margin-top: 10px;
-  margin-bottom: 6px;
   font-size: var(--fs-sub);
   font-weight: 700;
   color: var(--muted);
@@ -70,6 +62,7 @@ body {
   max-width: 640px;
 }
 
+/* ── Timer ── */
 .timer-wrap {
   width: 100%;
   display: flex;
@@ -81,9 +74,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  margin-top: 6px;
-  margin-bottom: 18px;
+  margin-top: 4px;
+  margin-bottom: 10px;
   width: clamp(180px, 36vw, 260px);
   height: clamp(72px, 12vw, 98px);
   background: #0a0a0a;
@@ -100,123 +92,109 @@ body {
 }
 
 @keyframes neonPulse {
-  0%,100% { box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset; }
-  50% { box-shadow: 0 0 40px #00ffff, 0 0 60px #00aaff inset; }
+  0%, 100% { box-shadow: 0 0 20px #00d4ff, 0 0 40px #0077ff inset; }
+  50%       { box-shadow: 0 0 40px #00ffff, 0 0 60px #00aaff inset; }
 }
 
+/* ── Tips ── */
 .tips {
   width: 100%;
   max-width: 640px;
-  padding: 18px 20px;
+  padding: 16px 20px;
   border-radius: 16px;
   background: rgba(0, 140, 255, 0.12);
   border: 1px solid rgba(0, 180, 255, 0.35);
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   box-shadow: 0 0 16px rgba(0,180,255,.25);
   text-align: left;
 }
 
 .tips h2 {
-  margin-bottom: 12px;
-  font-size: clamp(18px, 3vw, 22px);
+  margin-bottom: 10px;
+  font-size: clamp(16px, 2.6vw, 20px);
   color: var(--primary);
 }
 
-.tips ul {
-  list-style: none;
-  margin-left: 0;
-}
+.tips ul { list-style: none; }
 
 .tips li {
   position: relative;
   padding-left: 20px;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   color: var(--text);
-  font-size: clamp(14px, 2.1vw, 16px);
+  font-size: clamp(13px, 1.9vw, 15px);
+  line-height: 1.45;
 }
 
 .tips li::before {
   content: "•";
   position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 20px;
+  left: 0; top: 0;
+  font-size: 18px;
   color: var(--primary);
   text-shadow: 0 0 6px rgba(0,200,255,.6);
 }
 
+/* ── Formulario ── */
 .pitch-form {
   width: 100%;
   max-width: 640px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  margin-top: 10px;
+  gap: 0;
+  margin-top: 4px;
 }
 
 textarea {
   width: 100%;
-  border-radius: 16px;
+  border-radius: 16px 16px 0 0;
   border: 2px solid rgba(0,120,255,.45);
+  border-bottom: none;
   padding: 16px;
   font-size: clamp(14px, 2vw, 17px);
+  font-family: "Poppins", system-ui, sans-serif;
   color: var(--text);
   background: rgba(0,0,0,0.35);
   resize: none;
-  min-height: 260px;
+  min-height: 200px;
   backdrop-filter: blur(6px);
-  transition: 0.25s ease;
+  transition: border-color 0.25s ease;
 }
 
 textarea:focus {
   outline: none;
   border-color: #00c8ff;
-  box-shadow: 0 0 16px rgba(0,200,255,.45);
+  box-shadow: 0 0 16px rgba(0,200,255,.3);
 }
 
-.actions {
+/* ── Footer de autoguardado (reemplaza al botón limpiar) ── */
+.pitch-footer {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 0 0 16px 16px;
+  background: rgba(0, 200, 255, 0.06);
+  border: 2px solid rgba(0,120,255,.45);
+  border-top: 1px solid rgba(0,200,255,.2);
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-}
-
-.btn {
-  padding: 12px 20px;
-  font-size: clamp(14px, 3vw, 16px);
-  font-weight: 700;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: 0.25s ease;
-  width: 100%;
-}
-
-.btn.ghost {
-  background: rgba(255,255,255,0.08);
-  color: var(--muted);
-  border: 1px solid rgba(255,255,255,0.25);
-}
-
-.btn.ghost:hover {
-  background: rgba(255,255,255,0.18);
+  align-items: center;
+  justify-content: center;
 }
 
 .save-hint {
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: -8px;
+  color: rgba(0, 200, 255, 0.65);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
   user-select: none;
 }
 
+/* ── Modal ── */
 .modal-fin {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   justify-content: center;
   align-items: center;
   z-index: 99;
@@ -232,39 +210,28 @@ textarea:focus {
   animation: pop 0.25s ease-out;
 }
 
-.modal-fin-box h2 {
-  color: var(--primary);
-  margin-bottom: 10px;
-  font-weight: 700;
-}
+.modal-fin-box h2 { color: var(--primary); margin-bottom: 10px; font-weight: 700; }
+.modal-fin-box p  { font-size: 16px; color: var(--muted); }
 
-.modal-fin-box p {
-  font-size: 16px;
-  color: var(--muted);
-}
-
+/* ── Animaciones ── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pop {
   from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  to   { transform: scale(1);   opacity: 1; }
 }
 
+/* ── Responsive ── */
 @media (max-width: 480px) {
-  .title {
-    font-size: 22px;
-  }
-
-  .subtitle {
-    font-size: 16px;
-  }
+  .title { font-size: 22px; }
+  .subtitle { font-size: 16px; }
 
   .pitch-editor {
-    padding: 28px 18px 40px;
-    gap: 12px;
+    padding: 22px 18px 24px;
+    gap: 10px;
     width: clamp(340px, 92vw, 720px);
   }
 
@@ -272,9 +239,5 @@ textarea:focus {
     width: 82%;
     height: clamp(80px, 16vw, 110px);
     font-size: clamp(30px, 9vw, 40px);
-  }
-
-  .actions {
-    flex-direction: column;
   }
 }
