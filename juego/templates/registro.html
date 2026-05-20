@@ -78,27 +78,48 @@
         </div>
         {% endif %}
 
-        <form method="post" action="{% url 'registro' %}">
-          <label for="id_grupo">▸ CÓDIGO DE ESCUADRÓN</label>
-          <div class="input-wrap">
-            <input
-              type="text"
-              id="id_grupo"
-              name="id_grupo"
-              placeholder="_ _ _ _ _ _"
-              autocomplete="off"
-              autocapitalize="characters"
-              maxlength="8"
-              required
-            >
-            <div class="input-corner tl"></div>
-            <div class="input-corner br"></div>
-          </div>
-          {% csrf_token %}
-          <button type="submit" class="btn-submit">
-            UNIRSE A LA MISIÓN <span class="btn-arrow">▶▶</span>
-          </button>
-        </form>
+       <form method="post" action="{% url 'registro' %}">
+  {% csrf_token %}
+
+  <label for="id_grupo">▸ CÓDIGO DE ESCUADRÓN</label>
+  <div class="input-wrap">
+    <input
+      type="text"
+      id="id_grupo"
+      name="id_grupo"
+      placeholder="_ _ _ _ _ _"
+      autocomplete="off"
+      autocapitalize="characters"
+      maxlength="8"
+      required
+    >
+    <div class="input-corner tl"></div>
+    <div class="input-corner br"></div>
+  </div>
+
+  <label for="nombre_grupo">▸ NOMBRE DEL ESCUADRÓN</label>
+  <div class="input-wrap">
+    <input
+      type="text"
+      id="nombre_grupo"
+      name="nombre_grupo"
+      placeholder="ESCRIBE EL NOMBRE DE TU EQUIPO"
+      autocomplete="off"
+      maxlength="100"
+    >
+    <div class="input-corner tl"></div>
+    <div class="input-corner br"></div>
+  </div>
+
+  <button type="button" class="btn-random-name" id="btnNombreAleatorio">
+  <span class="btn-random-icon">✦</span>
+  <span>  🎲 NOMBRE ALEATORIO</span>
+</button>
+
+  <button type="submit" class="btn-submit">
+    CONTINUAR <span class="btn-arrow">▶▶</span>
+  </button>
+</form>
 
       </div>
 
@@ -114,6 +135,11 @@
 
   </main>
 
+  <!-- Música de fondo -->
+  <audio id="bg-music" loop>
+    <source src="{% static 'sounds/musica_registro.mp3' %}" type="audio/mpeg">
+  </audio>
+
   <script>
     function closePopUp() {
       const p = document.getElementById('popup_error');
@@ -124,13 +150,27 @@
       if (p) p.style.display = 'none';
     }, 4000);
 
-    // Sonido tenso de misión de agente secreto
+    // ── MÚSICA DE FONDO ─────────────────────────────────────
+    const bgMusic = document.getElementById('bg-music');
+    bgMusic.volume = 0.4;
+
+    bgMusic.play().catch(() => {
+      // Browser bloqueó autoplay — esperar primera interacción
+      function startMusic() {
+        bgMusic.play().catch(() => {});
+        document.removeEventListener('click',   startMusic);
+        document.removeEventListener('keydown', startMusic);
+      }
+      document.addEventListener('click',   startMusic);
+      document.addEventListener('keydown', startMusic);
+    });
+
+    // ── SONIDO BOTÓN SUBMIT ──────────────────────────────────
     function playAgentSound() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const now = ctx.currentTime;
 
-        // Reverb oscuro
         function makeReverb(dur = 1.2) {
           const conv = ctx.createConvolver();
           const len  = ctx.sampleRate * dur;
@@ -144,8 +184,8 @@
           return conv;
         }
 
-        const reverb     = makeReverb(1.2);
-        const revGain    = ctx.createGain();
+        const reverb  = makeReverb(1.2);
+        const revGain = ctx.createGain();
         revGain.gain.value = 0.35;
         reverb.connect(revGain);
         revGain.connect(ctx.destination);
@@ -165,12 +205,10 @@
           osc.stop(now + start + dur + 0.1);
         }
 
-        // 1. Pulso bajo — corazón latiendo antes de la misión
         tone(55,  0.00, 0.12, 'sine', 0.28);
         tone(55,  0.18, 0.10, 'sine', 0.18);
 
-        // 2. Zumbido grave amenazante — tensión creciente
-        const drone = ctx.createOscillator();
+        const drone     = ctx.createOscillator();
         const droneGain = ctx.createGain();
         drone.connect(droneGain);
         droneGain.connect(ctx.destination);
@@ -184,17 +222,13 @@
         drone.start(now + 0.30);
         drone.stop(now + 0.95);
 
-        // 3. Tres pitidos bajos — código siendo transmitido
         tone(220, 0.35, 0.08, 'sine', 0.14);
         tone(220, 0.46, 0.08, 'sine', 0.14);
         tone(277, 0.57, 0.12, 'sine', 0.18);
-
-        // 4. Confirmación grave — "acceso concedido"
         tone(110, 0.72, 0.55, 'sine',     0.22);
         tone(138, 0.74, 0.50, 'triangle', 0.12);
         tone(165, 0.76, 0.45, 'sine',     0.10);
 
-        // 5. Click metálico final — sistema activado
         const clickBuf  = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
         const clickData = clickBuf.getChannelData(0);
         for (let i = 0; i < clickData.length; i++)
@@ -210,33 +244,29 @@
       } catch(e) {}
     }
 
-    // Contador de teclas para variar el tono
+    // ── SONIDO TECLAS ────────────────────────────────────────
     let keyCount = 0;
 
     function playKeyClick() {
       try {
         const ctx  = new (window.AudioContext || window.webkitAudioContext)();
         const now  = ctx.currentTime;
-
-        // Tonos que rotan — como ingresar dígitos de una clave
         const freqs = [220, 246, 261, 293, 329, 349, 392, 440];
         const freq  = freqs[keyCount % freqs.length];
         keyCount++;
 
-        // Delay corto — eco de consola
         const delay     = ctx.createDelay(0.3);
         const delayGain = ctx.createGain();
-        delay.delayTime.value  = 0.12;
-        delayGain.gain.value   = 0.18;
+        delay.delayTime.value = 0.12;
+        delayGain.gain.value  = 0.18;
         delay.connect(delayGain);
         delayGain.connect(ctx.destination);
 
-        // Tono principal electrónico
         const osc  = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
-        gain.connect(delay);          // también al delay
+        gain.connect(delay);
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now);
         osc.frequency.exponentialRampToValueAtTime(freq * 0.85, now + 0.08);
@@ -245,7 +275,6 @@
         osc.start(now);
         osc.stop(now + 0.15);
 
-        // Armónico superior — brillo metálico
         const osc2  = ctx.createOscillator();
         const gain2 = ctx.createGain();
         osc2.connect(gain2);
@@ -257,7 +286,6 @@
         osc2.start(now);
         osc2.stop(now + 0.08);
 
-        // Click físico muy corto
         const bufLen = Math.floor(ctx.sampleRate * 0.025);
         const buf    = ctx.createBuffer(1, bufLen, ctx.sampleRate);
         const data   = buf.getChannelData(0);
@@ -274,16 +302,48 @@
       } catch(e) {}
     }
 
-    document.getElementById('id_grupo')
-      ?.addEventListener('keydown', (e) => {
-        if (e.key.length === 1 || e.key === 'Backspace') {
-          playKeyClick();
-        }
-      });
+    const nombresEscuadron = [
+  "Equipo Cóndor",
+  "Misión Alfa",
+  "Agentes UDD",
+  "Mentes Creativas",
+  "Los Innovadores",
+  "Escuadrón Delta",
+  "Visionarios UDD",
+  "Código Naranja",
+  "Equipo Fénix",
+  "StartUp Squad",
+  "Los Estrategas",
+  "Comando Emprende"
+];
 
-    document.querySelector('.btn-submit')
-      ?.addEventListener('click', playAgentSound);
+function generarNombreEscuadron() {
+  const inputNombre = document.getElementById("nombre_grupo");
+  if (!inputNombre) return;
+
+  const elegido = nombresEscuadron[Math.floor(Math.random() * nombresEscuadron.length)];
+  inputNombre.value = elegido;
+
+  playKeyClick();
+}
+
+document.getElementById("btnNombreAleatorio")
+  ?.addEventListener("click", generarNombreEscuadron);
+
+document.getElementById('id_grupo')
+  ?.addEventListener('keydown', (e) => {
+    if (e.key.length === 1 || e.key === 'Backspace') playKeyClick();
+  });
+
+document.getElementById('nombre_grupo')
+  ?.addEventListener('keydown', (e) => {
+    if (e.key.length === 1 || e.key === 'Backspace') playKeyClick();
+  });
+
+document.querySelector('.btn-submit')
+  ?.addEventListener('click', playAgentSound);
   </script>
+
   <script src="{% static 'js/atajos.js' %}"></script>
 </body>
 </html>

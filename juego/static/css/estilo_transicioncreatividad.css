@@ -1,241 +1,274 @@
-:root{
+:root {
   --bg: #000712 url('/static/images/fondo_bienvenida.png') center/cover no-repeat fixed;
-  --card:#081A2D;
-  --text:#E6EEF8;
-  --muted:#AAB7C8;
-  --primary:#00C8FF;
-  --accent:#FF7A1A;
-  --radius:28px;
-  --shadow:0 18px 40px rgba(0,0,0,.6);
-  --glow:0 0 25px rgba(0,200,255,.35);
+  --card: #081A2D;
+  --text: #E6EEF8;
+  --muted: #AAB7C8;
+  --primary: #00C8FF;
+  --accent: #FF7A1A;
+  --radius: 28px;
+  --shadow: 0 18px 40px rgba(0,0,0,.6);
+  --glow: 0 0 25px rgba(0,200,255,.35);
 }
 
-* { box-sizing:border-box; margin:0; padding:0; }
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100%;
+}
 
 body {
-  font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-  padding:20px;
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  overflow-x: hidden;
 }
 
-/* ================== CARD PRINCIPAL ================== */
+@media (min-width: 1101px) {
+  body { padding-left: 155px; }
+}
+
+/* ── Contenedor principal ── */
 .team-container {
-  width: clamp(600px, 80vw, 1100px);
+  width: clamp(620px, 72vw, 980px);
+  min-height: clamp(620px, 78vh, 820px);
   background: url('/static/images/fondo3.png') center/cover no-repeat;
   border-radius: 28px;
   box-shadow: var(--shadow);
-
-  min-height: clamp(500px, 65vh, 850px);
-  padding: clamp(30px, 4vw, 60px);
-  padding-top: 110px;
-  padding-bottom: 0;
-
-  text-align: center;
   position: relative;
   overflow: hidden;
-  animation: fadeIn 0.6s ease-in-out;
-
+  padding: 34px 42px 42px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: stretch;
+  justify-content: center;
 }
 
-/* Todo el contenido va arriba de las imágenes */
-.team-container > *{
+.team-section {
+  width: 100%;
   position: relative;
-  z-index: 2;
 }
 
+/* ── Personajes a los lados ── */
 .team-container::before,
-.team-container::after{
-  content:"";
-  position:absolute;
-  width: 50%;
-  max-width: 420px;
+.team-container::after {
+  content: "";
+  position: absolute;
+  bottom: -60px;
+  width: 52%;
+  max-width: 460px;
   aspect-ratio: 3/5;
-  background-repeat:no-repeat;
-  background-size:contain;
-  pointer-events:none;
-  z-index:1;
-  opacity:1;
-  bottom:-70px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* Derecha */
-.team-container::after{
-  right:-1%;
-  bottom: -350px;
-  background-image:url('/static/images/foto4.png');
-  width: 60%;            
-  max-width: 520px;          
+.team-container::before {
+  left: -8%;
+  background-image: url('/static/images/foto3.png');
+  background-position: bottom left;
 }
 
-/* Izquierda */
-.team-container::before{
-  right:58%;
-  bottom:-350px;
-  background-image:url('/static/images/foto3.png');
-  width: 60%;            
-  max-width: 520px;
+.team-container::after {
+  right: -8%;
+  background-image: url('/static/images/foto4.png');
+  background-position: bottom right;
 }
 
-/* ================== TEXTOS ================== */
-.title {
-  color: var(--accent);
-  text-shadow: 0 0 18px rgba(0, 200, 255, 0.55);
-  font-size:clamp(48px, 4vw, 46px);
-  font-weight:800;
-  margin-bottom:20px;
-  margin-top:-60px;
+@media (max-width: 700px) {
+  .team-container::before,
+  .team-container::after {
+    width: 45%;
+    bottom: -30px;
+  }
 }
 
-.subtitle {
-  color:var(--muted);
-  font-size:clamp(16px, 2vw, 20px);
-  line-height:1.6;
-  max-width:650px;
-  margin:0 auto 60px;
-}
-
-/* ================== IMAGEN CENTRAL ================== */
-.image-area{
-  margin: 24px auto 36px;
-  display:flex;
-  justify-content:center;
-}
-
-.team-image{
-  width:clamp(220px, 55vw, 420px);
-  height:auto;
-  border-radius:24px;
-  box-shadow:0 8px 20px rgba(0,0,0,.1);
-  object-fit:cover;
-}
-
-/* ================== BLOQUE SIGUIENTE PASO ================== */
-.next-step {
-  background: var(--card);
-  border-radius:20px;
-  padding:20px;
-  box-shadow:inset 0 0 0 2px #e8edf9;
-  margin-top: 400px;     /* BAJADO */
-  margin-bottom: 10px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.next-step p {
-  font-size:clamp(15px, 1.8vw, 18px);
-  color:var(--text);
-}
-
-/* ================== BOTÓN ================== */
-.btn.primary {
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  padding:14px 30px;
-  border-radius:14px;
-  font-size:clamp(15px, 1.8vw, 18px);
-  font-weight:700;
-  cursor:pointer;
-  box-shadow:var(--glow);
-  transition:background .25s ease, transform .2s ease;
-}
-
-.btn.primary:hover {
-  background:var(--primary-pressed);
-  transform:translateY(-2px);
-}
-
-/* ================== SPEECH BUBBLE ================== */
-.speech-bubble{
-  position:absolute;
-  top: 50%;
+/* ── Marco del título ── */
+.title-wrapper {
+  position: absolute;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: clamp(380px, 70vw, 500px);
-  padding: 18px 22px;
-  border-radius: 16px;
-  background: rgba(0, 140, 255, 0.12);
-  border: 1.6px solid rgba(0, 180, 255, 0.8);
+  white-space: nowrap;
+  z-index: 6;
+  padding: 6px 28px 8px;
+  border-radius: 14px;
+  background: rgba(0, 10, 22, 0.48);
+  border: 1.5px solid rgba(255, 122, 26, 0.55);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 0 14px rgba(255, 122, 26, 0.22),
+    0 0 30px rgba(255, 80, 0, 0.10);
+  text-align: center;
+}
+
+.title {
+  color: var(--accent);
+  font-size: clamp(38px, 3.8vw, 56px);
+  font-weight: 800;
+  line-height: 1.05;
+  text-shadow: 0 0 14px rgba(255, 122, 26, 0.50);
+}
+
+/* ── Panel unificado ── */
+.mission-panel {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(56%, 480px);
+  padding: 8px 20px;
+  border-radius: 12px;
+  background: rgba(0, 20, 38, 0.62);
+  border: 1.8px solid rgba(0, 200, 255, 0.78);
   backdrop-filter: blur(10px) saturate(150%);
   -webkit-backdrop-filter: blur(10px) saturate(150%);
   box-shadow:
-    0 0 20px rgba(0, 180, 255, .4),
-    0 0 60px rgba(0, 100, 255, .3);
-  z-index: 3;
-  text-align:left;
+    0 0 18px rgba(0, 200, 255, .42),
+    0 0 45px rgba(0, 120, 255, .22);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  z-index: 7;
+  align-self: end;
 }
 
-.speech-bubble p{
-  margin:0;
-  color:#E8F6FF;
-  font-size:clamp(14px, 1.6vw, 18px);
-  line-height:1.5;
+.mission-panel > p {
+  color: #E8F6FF;
+  font-size: clamp(13px, 1.1vw, 15px);
+  line-height: 1.4;
+  font-weight: 500;
+  text-align: left;
+  width: 100%;
+  margin: 0 0 8px;
 }
 
-.speech-bubble::after{
-  content:"";
-  position:absolute;
-  right:-20px;
-  top: 50%;
-  transform: translateY(-20%);
-  border-style: solid;
-  border-width: 14px 0 14px 20px;
-  border-color: transparent transparent transparent rgba(0, 180, 255, 0.7);
-  filter: drop-shadow(-2px 0 8px rgba(0, 180, 255, 0.8));
+/* ── Recordatorio tablet ── */
+.tablet-reminder {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: rgba(255, 122, 26, 0.16);
+  border: 1.5px solid rgba(255, 122, 26, 0.75);
+  color: #FFD2A8;
+  font-weight: 700;
+  font-size: 0.82em;
+  line-height: 1.3;
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.22);
 }
 
-/* ================== ANIMACIÓN ================== */
-@keyframes fadeIn {
-  from { opacity:0; transform:translateY(10px); }
-  to { opacity:1; transform:translateY(0); }
+/* ── Divisor ── */
+.panel-divider {
+  width: calc(100% + 36px);
+  margin: 12px -18px;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 200, 255, 0.50) 20%,
+    rgba(0, 200, 255, 0.50) 80%,
+    transparent
+  );
 }
 
-/* ================== RESPONSIVE ================== */
-@media (max-width: 768px){
-  .team-container{
-    width:100%;
-    max-width:480px;
-    padding:26px 18px;
-    border-radius:22px;
-    min-height:100vh;
+/* ── Zona del botón dentro del panel ── */
+.next-step {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.next-step::before {
+  content: "PUNTO DE CONTROL";
+  color: #AEEBFF;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  opacity: .9;
+  text-shadow: 0 0 8px rgba(0, 200, 255, .55);
+}
+
+.next-step button,
+.next-step .btn,
+.next-step .btn-chip {
+  min-width: 150px;
+  max-width: 200px;
+  font-size: 14px;
+}
+
+.next-step span,
+.next-step p,
+.next-step strong,
+.oai-estado-listo {
+  font-size: 14px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/* ── Tablet (≤1100px) ── */
+@media (max-width: 1100px) {
+  body { padding-left: 105px; }
+
+  .team-container {
+    width: clamp(560px, 78vw, 860px);
+    min-height: 720px;
+    padding: 30px 34px 34px;
   }
 
-  .team-container::after{
-    width:70%;
-    right:-12%;
-    bottom:-20px;
+  .title { font-size: clamp(36px, 5vw, 54px); }
+
+  .mission-panel { width: min(84%, 640px); }
+}
+
+/* ── Móvil (≤700px) ── */
+@media (max-width: 700px) {
+  body {
+    padding: 14px;
+    padding-bottom: 95px;
+    align-items: flex-start;
   }
 
-  .team-container::before{
-    width:70%;
-    right:35%;
-    bottom:-20px;
+  .team-container {
+    width: 100%;
+    min-height: 760px;
+    padding: 24px 16px 28px;
+    border-radius: 22px;
   }
 
-  .speech-bubble{
-    left: 50%;
-    top: 72%;
-    transform: translateX(-50%);
-    width: 86%;
+  .title-wrapper {
+    padding: 8px 24px 10px;
   }
 
-  .speech-bubble::after{
-    display:none;
+  .title { font-size: clamp(30px, 9vw, 42px); }
+
+  .mission-panel {
+    width: 88%;
+    padding: 16px 16px;
   }
 
-  .next-step{
-    margin-top: 450px;
+  .panel-divider {
+    width: calc(100% + 32px);
+    margin: 14px -16px;
   }
+
+  .mission-panel > p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .next-step::before { font-size: 9px; }
 }

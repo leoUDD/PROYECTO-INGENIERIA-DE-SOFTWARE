@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -428,10 +429,10 @@
 <body>
   <main class="contenedor">
     <section class="card">
-      <h1 class="titulo">Orden de presentación</h1>
-      <p class="subtexto">
-        El profesor realizará el sorteo del orden en que cada equipo presentará su pitch.
-      </p>
+      <h1 class="titulo" data-i18n="orden_presentacion_titulo">Orden de presentación</h1>
+<p class="subtexto" data-i18n="orden_presentacion_subtexto">
+  Se realizará el sorteo del orden en que cada equipo presentará su pitch.
+</p>
 
       <div id="panelOrden" class="lista">
         <div class="flash-sorteo" id="flashSorteo"></div>
@@ -458,9 +459,9 @@
               </div>
             </div>
 
-            <div id="estadoAnimacionSorteo" class="estado-sorteo">
-              Esperando el sorteo
-            </div>
+            <div id="estadoAnimacionSorteo" class="estado-sorteo" data-i18n="orden_presentacion_esperando">
+  Esperando el sorteo
+</div>
 
             <div id="dotsSorteo" class="dots">
               <span class="dot active"></span>
@@ -478,7 +479,7 @@
       <div class="estado-fase" id="estadoFaseTexto"></div>
 
       <div class="acciones-listo" id="accionesListoOrden">
-        <button id="btnOrdenListo" class="btn-listo">¡Estoy listo!</button>
+        <button id="btnOrdenListo" class="btn-listo" data-i18n="orden_presentacion_boton">¡Estoy listo!</button>
         <p id="ordenListoEstado" class="estado-listos">0/0 grupos listos</p>
       </div>
     </section>
@@ -508,7 +509,16 @@
     const audioSorteoAgitar = document.getElementById("audioSorteoAgitar");
     const audioSorteoReveal = document.getElementById("audioSorteoReveal");
 
-    let ordenSorteadoPrevio = false;
+    function tOrden(clave, fallback) {
+  try {
+    const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+    return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+let ordenSorteadoPrevio = false;
     let animacionActiva = false;
     let ultimoOrdenRenderizado = "";
 
@@ -563,7 +573,7 @@
       if (listaOrdenBonita) {
         listaOrdenBonita.innerHTML = "";
       }
-      if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = "Esperando el sorteo";
+      if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = tOrden("orden_presentacion_esperando", "Esperando el sorteo");
       setDots(0);
       ultimoOrdenRenderizado = "";
       mostrarSoloAnimacion();
@@ -588,7 +598,7 @@
           <div class="fila-orden">
             <div class="numero-orden">${item.orden}</div>
             <div class="nombre-orden">${item.nombre}</div>
-            ${esActual ? `<div class="primero-tag">primer turno</div>` : ``}
+            ${esActual ? `<div class="primero-tag">${tOrden("orden_presentacion_primero_tag", "primer turno")}</div>` : ``}
           </div>
         `;
       }).join("");
@@ -610,7 +620,7 @@
         listaOrdenBonita.innerHTML = "";
       }
 
-      if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = "Sorteando...";
+      if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = tOrden("orden_presentacion_sorteando", "Sorteando...");
       setDots(1);
 
       if (varitasEl) {
@@ -621,7 +631,7 @@
       reproducirAudio(audioSorteoAgitar);
 
       setTimeout(() => {
-        if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = "Y el primero es...";
+        if (estadoAnimacionSorteo) estadoAnimacionSorteo.textContent = tOrden("orden_presentacion_primero", "Y el primero es...");
         if (chispasEl) chispasEl.classList.add("visible");
 
         const indiceGanador = elegirVaritaGanadora(ordenPitch);
@@ -656,9 +666,9 @@ setTimeout(() => {
 
       if (data.faseActual === "f4_orden_pitch") {
         if (!data.ordenSorteado) {
-          estado.textContent = "Cuando todos los equipos estén listos, se realizará el sorteo del orden de presentación.";
+          estado.textContent = tOrden("orden_presentacion_info_pre_sorteo", "Cuando todos los equipos estén listos, se realizará el sorteo del orden de presentación.");
         } else {
-          estado.textContent = "El orden ya fue sorteado. Cuando todos los equipos estén listos nuevamente, comenzará la ronda de presentaciones.";
+          estado.textContent = tOrden("orden_presentacion_info_sorteado", "El orden ya fue sorteado. Cuando todos los equipos estén listos nuevamente, comenzará la ronda de presentaciones.");
         }
 
         if (accionesListoOrden) {
@@ -666,7 +676,7 @@ setTimeout(() => {
         }
 
         if (ordenListoEstado) {
-          ordenListoEstado.textContent = `${data.gruposListosF4Orden || 0}/${data.totalGrupos || 0} grupos listos`;
+          ordenListoEstado.textContent = `${data.gruposListosF4Orden || 0}/${data.totalGrupos || 0} ${tOrden("orden_presentacion_grupos_listos", "grupos listos")}`;
         }
 
         const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
@@ -674,10 +684,12 @@ setTimeout(() => {
 
         if (btnOrdenListo) {
           btnOrdenListo.disabled = !!yaListo;
-          btnOrdenListo.textContent = yaListo ? "Listo ✓" : "¡Estoy listo!";
+          btnOrdenListo.textContent = yaListo
+            ? tOrden("orden_presentacion_boton_listo", "Listo ✓")
+            : tOrden("orden_presentacion_boton", "¡Estoy listo!");
         }
       } else if (data.faseActual === "f4_presentacion_pitch") {
-        estado.textContent = "La presentación ha comenzado.";
+        estado.textContent = tOrden("orden_presentacion_info_presentacion", "La presentación ha comenzado.");
 
         if (accionesListoOrden) {
           accionesListoOrden.style.display = "none";

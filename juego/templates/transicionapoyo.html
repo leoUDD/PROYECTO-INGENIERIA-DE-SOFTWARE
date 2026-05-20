@@ -1,4 +1,5 @@
 {% load static %}
+{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_transicionapoyo.css' %}">
 </head>
-<body>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
   <main class="team-container" role="region" aria-label="Introducción a apoyo">
     <section class="team-section">
       <div class="title">
@@ -17,7 +18,8 @@
 
       <div class="speech-bubble">
         <p>
-          En esta misión evaluarán a otros equipos y entregarán un TOKEN al que tenga el mejor desempeño según su rúbrica.
+          Agentes, llegó el momento de observar con criterio.
+          Evaluarán a otros equipos y entregarán un TOKEN al escuadrón que mejor defienda su solución.
         </p>
       </div>
 
@@ -27,6 +29,7 @@
     </section>
   </main>
 
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
   {% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

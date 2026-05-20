@@ -151,7 +151,7 @@
       <section class="perfiles">
 
         <div class="perfil perfil--alumno">
-          <a href="{% url 'habilidades_intro' %}" aria-label="Ingresar como Alumno">
+          <a href="{% url 'registro' %}" aria-label="Ingresar como Alumno">
             <img src="{% static 'images/alumno.png' %}" alt="Alumno">
           </a>
           <p class="perfil-texto">Alumno</p>
@@ -203,7 +203,7 @@
         if (!audio) {
           audio        = new Audio("{% static 'sounds/musica_inicio.mp3' %}");
           audio.loop   = true;
-          audio.volume = 0.35;
+          audio.volume = 1;
         }
         audio.play().catch(() => {});
         iconMute.style.display  = 'none';

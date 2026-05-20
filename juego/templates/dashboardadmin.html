@@ -1,5 +1,4 @@
 {% load static %}
-{% include "atajos.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,7 +7,111 @@
   <title>Misión Emprende UDD — Dashboard Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/estilo_dashboardadmin.css' %}" />
+
+  <style>
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .admin-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.06);
+    }
+
+    .admin-card h3 {
+      margin-bottom: 12px;
+      color: #1f2937;
+      font-size: 17px;
+    }
+
+    .stat-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #edf0f5;
+      font-size: 14px;
+    }
+
+    .stat-line:last-child {
+      border-bottom: none;
+    }
+
+    .stat-line strong {
+      color: #111827;
+    }
+
+    .stat-line span {
+      color: #4b5563;
+      text-align: right;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 10px;
+      border-bottom: 1px solid #edf0f5;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .admin-table th {
+      color: #111827;
+      font-weight: 800;
+    }
+
+    .empty-state {
+      color: #6b7280;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .quick-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: #0f172a;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .quick-btn.secondary {
+      background: #2563eb;
+    }
+
+    .full-card {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 1100px) {
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <div class="dashboard">
 
@@ -21,10 +124,11 @@
       <nav class="sidebar-nav">
         <ul>
           <li><a href="{% url 'dashboardadmin' %}">Inicio</a></li>
-          <li><a href="{% url 'registrarprofesor' %}">Registrar profesor</a></li>
-          <li><a href="{% url 'agregardesafio' %}">Agregar desafío</a></li>
-          <li><a href="{% url 'lista_desafios' %}">Ver desafíos</a></li>
-          <li><a href="{% url 'listar_profesores' %}">Listado de profesores</a></li>
+          <li><a href="{% url 'registrarprofesor' %}">Profesores</a></li>
+          <li><a href="{% url 'admin_tematicas' %}">Temáticas</a></li>
+          <li><a href="{% url 'admin_desafios' %}">Desafíos</a></li>
+          <li><a href="{% url 'admin_ruleta' %}">Ruleta</a></li>
+          <li><a href="{% url 'admin_tiempos' %}">Tiempos</a></li>
 
           <li class="sidebar-separator"></li>
           <li><a href="{% url 'perfiles' %}" class="back-link">⟵ Cambiar de perfil</a></li>
@@ -36,137 +140,142 @@
     <main class="main-content">
       {% if messages %}
         <div class="messages">
-          {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+          {% for m in messages %}
+            <div class="msg {{ m.tags }}">{{ m }}</div>
+          {% endfor %}
         </div>
       {% endif %}
 
       <h1 class="title">Panel General</h1>
-      <p class="subtitle">Resumen general de la plataforma y actividad actual.</p>
+      <p class="subtitle">Resumen real de sesiones, grupos, temáticas y avance de actividades.</p>
 
       <!-- ===== KPIs ===== -->
       <section class="kpis">
         <div class="kpi-card">
-          <div class="kpi-title">👨‍🏫 Profesores</div>
+          <div class="kpi-title">Profesores</div>
           <div class="kpi-value">{{ kpis.profesores|default:0 }}</div>
-          <div class="kpi-desc">Registrados en la plataforma</div>
+          <div class="kpi-desc">Registrados</div>
         </div>
+
         <div class="kpi-card">
-          <div class="kpi-title">🎓 Alumnos</div>
-          <div class="kpi-value">{{ kpis.alumnos|default:0 }}</div>
-          <div class="kpi-desc">Participando en el juego</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">🧩 Grupos</div>
+          <div class="kpi-title">Grupos</div>
           <div class="kpi-value">{{ kpis.grupos|default:0 }}</div>
-          <div class="kpi-desc">Formados en total</div>
+          <div class="kpi-desc">Creados en total</div>
         </div>
+
         <div class="kpi-card">
-          <div class="kpi-title">🎯 Desafíos</div>
-          <div class="kpi-value">{{ kpis.desafios|default:0 }}</div>
-          <div class="kpi-desc">Activos en la base</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">💰 Tokens</div>
-          <div class="kpi-value">{{ kpis.tokens|default:0 }}</div>
-          <div class="kpi-desc">Totales asignados</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">📊 Evaluaciones</div>
-          <div class="kpi-value">{{ kpis.evaluaciones|default:0 }}</div>
+          <div class="kpi-title">Sesiones</div>
+          <div class="kpi-value">{{ kpis.sesiones|default:0 }}</div>
           <div class="kpi-desc">Registradas</div>
         </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Desafíos activos</div>
+          <div class="kpi-value">{{ kpis.desafios_activos|default:0 }}</div>
+          <div class="kpi-desc">Disponibles para jugar</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Palabras sopa</div>
+          <div class="kpi-value">{{ kpis.palabras_sopa|default:0 }}</div>
+          <div class="kpi-desc">Encontradas por grupos</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Burbujas</div>
+          <div class="kpi-value">{{ kpis.burbujas|default:0 }}</div>
+          <div class="kpi-desc">Registradas en bubble map</div>
+        </div>
       </section>
 
-      <!-- ===== CHARTS ===== -->
-      <section class="charts">
-        <div class="chart-card">
-          <h3 class="chart-title">Top desafíos por tokens</h3>
-          <canvas id="chartTopDesafios"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3 class="chart-title">Alumnos por carrera</h3>
-          <canvas id="chartAlumnosCarrera"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3 class="chart-title">Evolución semanal</h3>
-          <canvas id="chartLinea"></canvas>
-        </div>
-      </section>
+      <!-- ===== BLOQUES PRINCIPALES ===== -->
+      <section class="mini-grid">
 
+        <div class="admin-card">
+          <h3>Temáticas más elegidas</h3>
+
+          {% if tematicas_stats %}
+            {% for item in tematicas_stats %}
+              <div class="stat-line">
+                <strong>{{ item.nombre }}</strong>
+                <span>{{ item.total }} elecciones</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="empty-state">Aún no hay temáticas elegidas.</p>
+          {% endif %}
+        </div>
+
+        <div class="admin-card">
+          <h3>Desafíos más elegidos</h3>
+
+          {% if desafios_stats %}
+            {% for item in desafios_stats %}
+              <div class="stat-line">
+                <strong>{{ item.nombre }}</strong>
+                <span>{{ item.total }} elecciones</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="empty-state">Aún no hay desafíos elegidos.</p>
+          {% endif %}
+        </div>
+
+        <div class="admin-card">
+          <h3>Actividad real del juego</h3>
+
+          <div class="stat-line">
+            <strong>Palabras sopa</strong>
+            <span>{{ kpis.palabras_sopa|default:0 }}</span>
+          </div>
+
+          <div class="stat-line">
+            <strong>Burbujas creadas</strong>
+            <span>{{ kpis.burbujas|default:0 }}</span>
+          </div>
+
+          <div class="stat-line">
+            <strong>Grupos con sopa completa</strong>
+            <span>{{ kpis.pct_sopa|default:0 }}%</span>
+          </div>
+        </div>
+
+        <div class="admin-card full-card">
+          <h3>Últimas sesiones</h3>
+
+          {% if sesiones_recientes %}
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Sesión</th>
+                  <th>Fase actual</th>
+                  <th>Grupos</th>
+                  <th>Palabras sopa</th>
+                  <th>Burbujas</th>
+                  <th>Sopa completada</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for s in sesiones_recientes %}
+                  <tr>
+                    <td>{{ s.nombre }}</td>
+                    <td>{{ s.fase_actual }}</td>
+                    <td>{{ s.total_grupos }}</td>
+                    <td>{{ s.palabras_sopa }}</td>
+                    <td>{{ s.burbujas }}</td>
+                    <td>{{ s.sopa }}%</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="empty-state">Aún no hay sesiones registradas.</p>
+          {% endif %}
+        </div>
+
+      </section>
     </main>
   </div>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-  <script>
-    const KPI = {
-      profesores: Number("{{ kpis.profesores|default:0 }}") || 0,
-      alumnos: Number("{{ kpis.alumnos|default:0 }}") || 0,
-      grupos: Number("{{ kpis.grupos|default:0 }}") || 0,
-      desafios: Number("{{ kpis.desafios|default:0 }}") || 0,
-      tokens: Number("{{ kpis.tokens|default:0 }}") || 0,
-      evaluaciones: Number("{{ kpis.evaluaciones|default:0 }}") || 0,
-    };
-
-    const DATA = {
-      topDesafios: {
-        labels: ['Desafío 1','Desafío 2','Desafío 3','Desafío 4','Desafío 5'],
-        values: [0,0,0,0,0]
-      },
-      alumnosCarrera: {
-        labels: ['Carrera 1','Carrera 2','Carrera 3','Carrera 4'],
-        values: [0,0,0,0]
-      },
-      weekly: [0,0,0,0,0,0,0]
-    };
-
-    // Top desafíos (barra horizontal)
-    new Chart(document.getElementById('chartTopDesafios').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: DATA.topDesafios.labels,
-        datasets: [{ label: 'Tokens', data: DATA.topDesafios.values }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
-      }
-    });
-
-    new Chart(document.getElementById('chartAlumnosCarrera').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: DATA.alumnosCarrera.labels,
-        datasets: [{ label: 'Alumnos', data: DATA.alumnosCarrera.values }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
-      }
-    });
-
-    new Chart(document.getElementById('chartLinea').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
-        datasets: [{
-          label: 'Nuevos alumnos',
-          data: DATA.weekly,
-          tension: 0.3,
-          fill: false
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom' } },
-        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-      }
-    });
-  </script>
 </body>
 </html>

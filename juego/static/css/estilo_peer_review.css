@@ -13,16 +13,8 @@
   --shadow: 0 18px 40px rgba(0,0,0,.7);
 }
 
-/* ============================
-   RESET BÁSICO
-============================ */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-/* ============================
-   BODY / FONDO
-============================ */
 body {
   min-height: 100vh;
   margin: 0;
@@ -31,9 +23,6 @@ body {
   color: var(--text);
 }
 
-/* ============================
-   CENTRADO PERFECTO
-============================ */
 .container.py-4 {
   min-height: 100vh;
   display: flex;
@@ -43,26 +32,17 @@ body {
   padding-bottom: 40px;
 }
 
-/* ============================
-   CARD PRINCIPAL
-============================ */
 .card.shadow-sm {
   border-radius: var(--radius);
   border: 1px solid rgba(0, 200, 255, 0.28) !important;
   background: var(--card) !important;
   box-shadow: var(--shadow) !important;
-
   backdrop-filter: blur(14px) saturate(150%);
   -webkit-backdrop-filter: blur(14px) saturate(150%);
 }
 
-.card-body {
-  padding: clamp(20px, 3vw, 32px);
-}
+.card-body { padding: clamp(20px, 3vw, 32px); }
 
-/* ============================
-   TITULOS
-============================ */
 .h4.mb-2 {
   font-size: clamp(22px, 3.2vw, 28px);
   font-weight: 800;
@@ -71,14 +51,8 @@ body {
 }
 
 .text-muted.mb-3,
-.small.text-muted {
-  color: var(--muted) !important;
-  font-size: 0.95rem;
-}
+.small.text-muted { color: var(--muted) !important; font-size: 0.95rem; }
 
-/* ============================
-   ALERTAS
-============================ */
 .alert-success {
   border-radius: 16px;
   border: 1px solid rgba(34,197,94,0.6);
@@ -86,18 +60,9 @@ body {
   color: #bbf7d0;
 }
 
-/* ============================
-   FORMULARIO
-============================ */
-.form-label {
-  color: var(--text);
-}
+.form-label { color: var(--text); }
+.form-text  { color: var(--muted) !important; }
 
-.form-text {
-  color: var(--muted) !important;
-}
-
-/* Campos de texto / select */
 .form-control,
 .form-select,
 textarea.form-control {
@@ -108,7 +73,6 @@ textarea.form-control {
   padding: 0.75rem !important;
 }
 
-/* Foco */
 .form-control:focus,
 .form-select:focus,
 textarea.form-control:focus {
@@ -118,64 +82,31 @@ textarea.form-control:focus {
   color: var(--text) !important;
 }
 
-/* ============================
-   PLACEHOLDER (color interior)
-============================ */
 .form-control::placeholder,
-textarea.form-control::placeholder {
-  color: var(--muted) !important;
-  opacity: 1 !important;
-}
-
-/* Soporte Safari/iPhone */
+textarea.form-control::placeholder { color: var(--muted) !important; opacity: 1 !important; }
 .form-control::-webkit-input-placeholder,
-textarea.form-control::-webkit-input-placeholder {
-  color: var(--muted) !important;
-}
+textarea.form-control::-webkit-input-placeholder { color: var(--muted) !important; }
 .form-control::-moz-placeholder,
-textarea.form-control::-moz-placeholder {
-  color: var(--muted) !important;
-}
-.form-control:-ms-input-placeholder,
-textarea.form-control:-ms-input-placeholder {
-  color: var(--muted) !important;
-}
+textarea.form-control::-moz-placeholder { color: var(--muted) !important; }
 
-/* ============================
-   RADIO BUTTONS
-============================ */
 .form-check-input {
   background-color: transparent !important;
   border: 1px solid rgba(148,163,184,.8) !important;
 }
-
 .form-check-input:checked {
   background-color: var(--primary) !important;
   border-color: var(--primary) !important;
   box-shadow: 0 0 0 .15rem rgba(0,200,255,.35) !important;
 }
+.form-check-label { color: var(--text); }
 
-.form-check-label {
-  color: var(--text);
-}
-
-/* ============================
-   CONTENEDOR DE CRITERIOS
-============================ */
 .border.rounded.p-3.mb-3 {
   border-radius: 18px !important;
   border: 1px solid rgba(148,163,184,.55) !important;
   background: rgba(3, 14, 30, 0.96);
 }
+.border.rounded.p-3.mb-3 h2.h6 { color: var(--primary); font-weight: 700; }
 
-.border.rounded.p-3.mb-3 h2.h6 {
-  color: var(--primary);
-  font-weight: 700;
-}
-
-/* ============================
-   BOTONES
-============================ */
 .btn {
   font-family: "Poppins", system-ui, sans-serif;
   font-weight: 700;
@@ -183,127 +114,40 @@ textarea.form-control:-ms-input-placeholder {
   padding: 0.55rem 1.3rem;
 }
 
-/* Primario */
 .btn-primary {
   background: var(--primary) !important;
   border-color: transparent !important;
   color: #001824 !important;
   box-shadow: 0 0 18px rgba(0,200,255,.55);
 }
-
 .btn-primary:hover {
   background: var(--primary-pressed) !important;
   box-shadow: 0 0 26px rgba(0,200,255,.75);
 }
 
-/* Secundario */
 .btn-outline-secondary {
   border-color: rgba(148,163,184,.7) !important;
   color: var(--muted) !important;
   background: transparent !important;
 }
-
 .btn-outline-secondary:hover {
   background: rgba(148,163,184,.12) !important;
   border-color: rgba(148,163,184,.9) !important;
   color: var(--text) !important;
 }
 
-/* ============================
-   HR
-============================ */
-hr.my-4 {
-  border-color: rgba(148,163,184,.35);
-}
+hr.my-4 { border-color: rgba(148,163,184,.35); }
 
-/* ============================
-   RESPONSIVE
-============================ */
 @media (max-width: 576px) {
-  .card-body {
-    padding: 1.15rem;
-  }
-
-  .h4.mb-2,
-  .text-muted.mb-3 {
-    text-align: center;
-  }
-
-  .d-flex.gap-2 {
-    flex-wrap: wrap;
-  }
+  .card-body { padding: 1.15rem; }
+  .h4.mb-2, .text-muted.mb-3 { text-align: center; }
+  .d-flex.gap-2 { flex-wrap: wrap; }
 }
 
-.criterio-box,
-.bloque-reglas,
-.card,
-.peer-card {
-  color: #1f2937;
-}
-
-.criterio-box h2,
-.criterio-box label,
-.criterio-box .form-label,
-.bloque-reglas,
-.bloque-reglas strong {
-  color: #1f2937 !important;
-}
-
-.form-check-label,
-.form-label,
-.form-text,
-.small,
-.text-muted {
-  color: #334155 !important;
-}
-
-.criterio-box .form-check-input {
-  border-color: #64748b;
-}
-
-.criterio-box {
-  background: #ffffff;
-}
-
-.bloque-reglas {
-  background: #f8fafc;
-}
-
-textarea.form-control,
-select.form-select,
-input.form-control {
-  background: #ffffff;
-  color: #111827;
-  border: 1px solid #cbd5e1;
-}
-
-textarea.form-control::placeholder {
-  color: #6b7280;
-}
-
-.peer-card,
-.card {
+/* ── Overrides heredados (mantenidos por compatibilidad) ── */
+.peer-card, .card {
   background: rgba(3, 18, 38, 0.92) !important;
   color: #e5eef8 !important;
-}
-
-.criterio-box {
-  background: #f8fafc !important;
-  color: #111827 !important;
-  border: 1px solid #cbd5e1 !important;
-}
-
-.criterio-box h2,
-.criterio-box .form-label,
-.criterio-box label {
-  color: #111827 !important;
-}
-
-.form-label,
-.form-check-label,
-.form-text,
-.small {
-  color: #dbe7f5 !important;
 }
 
 textarea.form-control,
@@ -314,19 +158,11 @@ input.form-control {
   border: 1px solid #3b82f6 !important;
 }
 
-textarea.form-control::placeholder {
-  color: #94a3b8 !important;
-}
+textarea.form-control::placeholder { color: #94a3b8 !important; }
 
 .form-check-input {
   background-color: transparent !important;
   border: 1px solid #94a3b8 !important;
-}
-
-.bloque-reglas {
-  background: #f8fafc !important;
-  color: #334155 !important;
-  border: 1px solid #cbd5e1 !important;
 }
 
 .btn-primary {
@@ -334,4 +170,22 @@ textarea.form-control::placeholder {
   border-color: #22d3ee !important;
   color: #082032 !important;
   font-weight: 700;
+}
+
+/* ── FIX: nombres de habilidades (criterio-label) en naranja/blanco ── */
+/* El CSS anterior pisaba estos colores con #111827. Estos son los overrides finales. */
+
+.criterio-label {
+  color: #FF7A1A !important;
+}
+
+.criterio-box {
+  background: #07182b !important;
+  color: #f8fbff !important;
+  border: 1px solid rgba(0, 200, 255, 0.45) !important;
+}
+
+.criterio-box h2,
+.criterio-box label {
+  color: #E6EEF8 !important;
 }

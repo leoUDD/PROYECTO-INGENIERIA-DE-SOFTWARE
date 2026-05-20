@@ -5,6 +5,20 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     #NUEVO
+    path(
+    "sesion/<int:sesion_id>/dev/timer-10/",
+    views.dev_timer_10_segundos,
+    name="dev_timer_10_segundos"
+    ),
+    path("continuar-desde-mapa/", views.continuar_desde_mapa, name="continuar_desde_mapa"),
+    path("sesion/<int:sesion_id>/fase-anterior/", views.profesor_fase_anterior, name="profesor_fase_anterior"),
+    path("dashboardadmin/tiempos/", views.admin_tiempos, name="admin_tiempos"),
+    path("dashboardadmin/ruleta/", views.admin_ruleta, name="admin_ruleta"),
+    path("ver-grupo/<int:grupo_id>/", views.ver_como_grupo, name="ver_como_grupo"),
+    path("dashboardadmin/desafios/<int:desafio_id>/info/", views.admin_desafio_info, name="admin_desafio_info"),
+    path("profesores/", views.registrarprofesor, name="listar_profesores"),
+    path("profesor/<int:profesor_id>/eliminar/", views.eliminar_profesor, name="eliminar_profesor"),
+    path("profesor/<int:profesor_id>/eliminar-forzado/", views.eliminar_profesor_forzado, name="eliminar_profesor_forzado"),
     path("sesion/<int:sesion_id>/iniciar-timer-inicio-fase/", views.iniciar_timer_inicio_fase, name="iniciar_timer_inicio_fase"),
     path("bubblemap/otorgar-tokens/", views.otorgar_tokens_bubblemap, name="otorgar_tokens_bubblemap"),
     path("presentar-pitch/", views.presentar_pitch, name="presentar_pitch"),
@@ -15,6 +29,8 @@ urlpatterns = [
     path("conocidos-rapido/", views.conocidos_rapido, name="conocidos_rapido"),
     path("ruleta-lego-token/", views.aplicar_resultado_ruleta_lego, name="aplicar_resultado_ruleta_lego"),
     path("habilidades-intro/", views.habilidades_intro, name="habilidades_intro"),
+    path('dashboardadmin/tematicas/', views.admin_tematicas, name='admin_tematicas'),
+    path('dashboardadmin/desafios/', views.admin_desafios, name='admin_desafios'),
     path("sopa/registrar-palabra/", views.registrar_palabra_sopa, name="registrar_palabra_sopa"),
     path("grupo/<int:grupo_id>/listo-ranking/", views.marcar_listo_ranking, name="marcar_listo_ranking"),
     path("espera/", views.pantalla_espera, name="pantalla_espera"),
@@ -74,8 +90,6 @@ path(
     path('cargar-alumnos/', views.cargar_alumnos, name='cargar_alumnos'),
     path('agregar-alumnos/', views.agregar_alumno_manual, name='agregar_alumno_manual'),
     path('alumnos/eliminar/<int:idalumno>/', views.eliminar_alumno, name='eliminar_alumno'),
-    path('profesores/', views.listar_profesores, name='listar_profesores'),
-    path('profesores/eliminar/<int:idprofesor>/', views.eliminar_profesor, name='eliminar_profesor'),
     path('dashboardadmin/', views.dashboardadmin, name='dashboardadmin'),
     path('registrarprofesor/', views.registrarprofesor, name='registrarprofesor'),
     path('agregardesafio/', views.agregardesafio, name='agregardesafio'),

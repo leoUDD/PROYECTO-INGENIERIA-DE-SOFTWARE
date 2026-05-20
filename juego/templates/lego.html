@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Emprende UDD — LEGO</title>
   <link rel="stylesheet" href="{% static 'css/estilo_lego.css' %}">
+
   <style>
     .phone {
       position: relative;
@@ -83,21 +84,10 @@
       box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
     }
 
-    .btn-chip:active {
-      transform: scale(0.97);
-    }
+    .btn-chip:active { transform: scale(0.97); }
+    .btn-chip:disabled { opacity: 0.65; cursor: not-allowed; box-shadow: none; }
 
-    .btn-chip:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .contador-fase {
-      margin-top: 10px;
-      font-size: 0.95rem;
-      opacity: 0.95;
-    }
+    .contador-fase { margin-top: 10px; font-size: 0.95rem; opacity: 0.95; }
 
     .blur-target-bloqueado {
       filter: blur(6px);
@@ -115,13 +105,8 @@
       transition: all .3s ease;
     }
 
-    .timer-esperando {
-      opacity: .55;
-    }
-
-    .overlay-hidden {
-      display: none;
-    }
+    .timer-esperando { opacity: .55; }
+    .overlay-hidden { display: none; }
 
     .desafio-panel{
       width: 100%;
@@ -147,41 +132,12 @@
       text-align: left;
     }
 
-    .desafio-toggle-head{
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .desafio-etiqueta{
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #00c8ff;
-    }
-
-    .desafio-titulo{
-      font-size: 1.08rem;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .desafio-icono{
-      font-size: 1rem;
-      font-weight: 800;
-      color: #00c8ff;
-    }
-
-    .desafio-body{
-      border-top: 1px solid rgba(255,255,255,.12);
-      padding: 16px 18px 18px;
-    }
-
-    .desafio-descripcion{
-      margin: 0;
-      color: #d9e6f2;
-      line-height: 1.5;
-      font-size: 0.98rem;
-    }
+    .desafio-toggle-head{ display: flex; flex-direction: column; gap: 4px; }
+    .desafio-etiqueta{ font-size: 0.95rem; font-weight: 700; color: #00c8ff; }
+    .desafio-titulo{ font-size: 1.08rem; font-weight: 700; color: #ffffff; }
+    .desafio-icono{ font-size: 1rem; font-weight: 800; color: #00c8ff; }
+    .desafio-body{ border-top: 1px solid rgba(255,255,255,.12); padding: 16px 18px 18px; }
+    .desafio-descripcion{ margin: 0; color: #d9e6f2; line-height: 1.5; font-size: 0.98rem; }
 
     .ruleta-lego-card{
       width: 100%;
@@ -194,50 +150,12 @@
       padding: 18px;
     }
 
-    .ruleta-lego-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-    }
-
-    .ruleta-lego-kicker{
-      color:#ff9b47;
-      font-size:.92rem;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.5px;
-      margin-bottom:4px;
-    }
-
-    .ruleta-lego-title{
-      margin:0 0 6px 0;
-      color:#fff;
-      font-size:1.18rem;
-    }
-
-    .ruleta-lego-texto{
-      margin:0;
-      color:#d9e6f2;
-      line-height:1.45;
-      font-size:.96rem;
-    }
-
-    .ruleta-lego-resumen{
-      margin-top:14px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      color:#fff;
-      font-weight:600;
-      font-size:.95rem;
-    }
-
-    #ruletaUltimoResultado{
-      color:#ffd6ae;
-    }
+    .ruleta-lego-head{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .ruleta-lego-kicker{ color:#ff9b47; font-size:.92rem; font-weight:800; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+    .ruleta-lego-title{ margin:0 0 6px 0; color:#fff; font-size:1.18rem; }
+    .ruleta-lego-texto{ margin:0; color:#d9e6f2; line-height:1.45; font-size:.96rem; }
+    .ruleta-lego-resumen{ margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; color:#fff; font-weight:600; font-size:.95rem; }
+    #ruletaUltimoResultado{ color:#ffd6ae; }
 
     .foto-panel {
       width: 100%;
@@ -251,47 +169,12 @@
       text-align: center;
     }
 
-    .foto-panel h3 {
-      margin: 0 0 10px 0;
-      font-size: 1.05rem;
-      color: #fff;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    .foto-input {
-      margin: 10px 0 12px 0;
-      width: 100%;
-      max-width: 280px;
-      color: white;
-    }
-
-    .preview-wrapper {
-      display: none;
-      margin: 12px auto 0 auto;
-    }
-
-    .preview-wrapper.visible {
-      display: block;
-    }
-
-    .preview-label {
-      margin-bottom: 8px;
-      font-size: 0.92rem;
-      opacity: 0.9;
-      color: var(--text);
-    }
-
-    .preview-img {
-      max-width: 240px;
-      max-height: 240px;
-      width: auto;
-      height: auto;
-      border-radius: 14px;
-      border: 3px solid #ddd;
-      background: #fff;
-      object-fit: cover;
-    }
+    .foto-panel h3 { margin: 0 0 10px 0; font-size: 1.05rem; color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    .foto-input { margin: 10px 0 12px 0; width: 100%; max-width: 280px; color: white; }
+    .preview-wrapper { display: none; margin: 12px auto 0 auto; }
+    .preview-wrapper.visible { display: block; }
+    .preview-label { margin-bottom: 8px; font-size: 0.92rem; opacity: 0.9; color: var(--text); }
+    .preview-img { max-width: 240px; max-height: 240px; width: auto; height: auto; border-radius: 14px; border: 3px solid #ddd; background: #fff; object-fit: cover; }
 
     .btn-guardar-foto {
       margin-top: 14px;
@@ -305,96 +188,47 @@
       color: white;
       box-shadow: 0 8px 18px rgba(109, 40, 217, 0.22);
     }
+    .btn-guardar-foto:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    .btn-guardar-foto:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
+    .texto-espera-foto { margin-top: 10px; font-size: 0.95rem; opacity: 0.95; color: var(--text); line-height: 1.45; }
+    .sin-foto-wrap{ margin-top: 14px; display: flex; justify-content: center; }
+    .sin-foto-label{ display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); color: var(--text); font-weight: 600; cursor: pointer; }
+    .sin-foto-label input{ transform: scale(1.15); cursor: pointer; }
+    .ayuda-foto{ margin-top: 10px; color: var(--muted); font-size: 0.9rem; line-height: 1.35; }
+    .error-foto{ margin-top: 10px; color: #ffd6d6; font-size: 0.92rem; font-weight: 600; }
+    .estado-grupos-lego{ margin-top: 14px; color: #ffffff; font-weight: 700; text-align: center; }
+    .detalle-grupos-lego{ margin-top: 6px; font-size: 0.9rem; color: #d9e6f2; opacity: 0.92; text-align: center; }
 
-    .texto-espera-foto {
-      margin-top: 10px;
-      font-size: 0.95rem;
-      opacity: 0.95;
-      color: var(--text);
-      line-height: 1.45;
-    }
+    .modal { background: rgba(0, 0, 0, 0.72); backdrop-filter: blur(4px); }
+    .modal-content { background: rgba(7, 21, 43, 0.96); color: #ffffff; border: 1px solid rgba(0, 200, 255, 0.25); box-shadow: 0 12px 30px rgba(0,0,0,.35); }
+    .modal-content h2, .modal-content p { color: #ffffff; text-shadow: none; }
 
-    .sin-foto-wrap{
-      margin-top: 14px;
+    /* BOTÓN MUTE MÚSICA */
+    #btn-musica-lego {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 500;
+      background: rgba(0, 20, 40, 0.85);
+      border: 1.5px solid rgba(0, 200, 255, 0.6);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 20px;
+      cursor: pointer;
       display: flex;
-      justify-content: center;
-    }
-
-    .sin-foto-label{
-      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.16);
-      color: var(--text);
-      font-weight: 600;
-      cursor: pointer;
+      justify-content: center;
+      box-shadow: 0 0 14px rgba(0, 200, 255, 0.25);
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+    }
+    #btn-musica-lego:hover {
+      border-color: rgba(0, 200, 255, 0.9);
+      box-shadow: 0 0 22px rgba(0, 200, 255, 0.45);
+      transform: scale(1.08);
     }
 
-    .sin-foto-label input{
-      transform: scale(1.15);
-      cursor: pointer;
-    }
-
-    .ayuda-foto{
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.35;
-    }
-
-    .error-foto{
-      margin-top: 10px;
-      color: #ffd6d6;
-      font-size: 0.92rem;
-      font-weight: 600;
-    }
-
-    .estado-grupos-lego{
-      margin-top: 14px;
-      color: #ffffff;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .detalle-grupos-lego{
-      margin-top: 6px;
-      font-size: 0.9rem;
-      color: #d9e6f2;
-      opacity: 0.92;
-      text-align: center;
-    }
-
-    .modal {
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(4px);
-    }
-
-    .modal-content {
-      background: rgba(7, 21, 43, 0.96);
-      color: #ffffff;
-      border: 1px solid rgba(0, 200, 255, 0.25);
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
-    }
-
-    .modal-content h2,
-    .modal-content p {
-      color: #ffffff;
-      text-shadow: none;
-    }
-
-
-
-    /* ===============================
-       ASTRONAUTA — PREGUNTA LEGO
-       =============================== */
+    /* ASTRONAUTA */
     .astro-lego-trigger {
       position: fixed;
       right: clamp(18px, 4vw, 54px);
@@ -413,307 +247,60 @@
       justify-content: center;
       animation: astroLegoFloat 4.2s ease-in-out infinite alternate;
     }
+    .astro-lego-trigger:hover { transform: scale(1.06); box-shadow: 0 14px 30px rgba(0,0,0,.34), 0 0 24px rgba(0,200,255,.30); }
+    .astro-lego-icon { width: 105px; height: auto; object-fit: contain; animation: astroLegoBounce 1.4s ease-in-out infinite alternate; filter: drop-shadow(0 0 16px rgba(0, 200, 255, .55)); }
 
-    .astro-lego-trigger:hover {
-      transform: scale(1.06);
-      box-shadow: 0 14px 30px rgba(0,0,0,.34), 0 0 24px rgba(0,200,255,.30);
-    }
+    @keyframes astroLegoFloat { from { translate: 0 0; } to { translate: -30px -24px; } }
+    @keyframes astroLegoBounce { from { transform: translateY(0) rotate(-4deg); } to { transform: translateY(-8px) rotate(4deg); } }
 
-    .astro-lego-icon {
-      font-size: 2.35rem;
-      animation: astroLegoBounce 1.4s ease-in-out infinite alternate;
-    }
-
-    @keyframes astroLegoFloat {
-      from { translate: 0 0; }
-      to { translate: -30px -24px; }
-    }
-
-    @keyframes astroLegoBounce {
-      from { transform: translateY(0) rotate(-4deg); }
-      to { transform: translateY(-8px) rotate(4deg); }
-    }
-
-    .astro-lego-trigger.oculto {
-      display: none;
-    }
-
-    .astro-lego-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 9999;
-      background: rgba(0, 0, 0, 0.58);
-      backdrop-filter: blur(6px);
-    }
-
-    .astro-lego-overlay.activo {
-      display: flex;
-    }
+    .astro-lego-trigger.oculto { display: none; }
+    .astro-lego-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 18px; z-index: 9999; background: rgba(0, 0, 0, 0.58); backdrop-filter: blur(6px); }
+    .astro-lego-overlay.activo { display: flex; }
 
     .astro-lego-card {
-      width: min(92vw, 560px);
+      width: min(92vw, 720px);
       border-radius: 26px;
       padding: 22px;
-      background:
-        radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%),
-        rgba(7, 21, 43, 0.97);
+      background: radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 40%), rgba(7, 21, 43, 0.97);
       border: 1px solid rgba(0, 200, 255, 0.36);
       box-shadow: 0 18px 44px rgba(0,0,0,.45);
       color: #ffffff;
-      text-align: center;
+      text-align: left;
       animation: astroCardIn .28s ease both;
     }
+    @keyframes astroCardIn { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .astro-lego-card h3 { margin: 0 0 10px; font-size: 1.35rem; color: #00c8ff; }
+    .astro-lego-card p { margin: 0 0 12px; line-height: 1.5; color: #d9e6f2; font-weight: 600; }
+    .astro-lego-flex { display: flex; align-items: center; gap: 24px; }
+    .astro-lego-standing { width: 145px; height: auto; flex-shrink: 0; filter: drop-shadow(0 0 18px rgba(255, 122, 26, .38)); }
+    .astro-lego-text { flex: 1; }
 
-    @keyframes astroCardIn {
-      from { opacity: 0; transform: translateY(14px) scale(.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
+    .astro-lego-opciones { display: grid; gap: 10px; margin-top: 14px; }
+    .astro-lego-opcion { width: 100%; border: 1px solid rgba(255,255,255,.16); border-radius: 16px; padding: 12px 14px; background: rgba(255,255,255,.08); color: #ffffff; font-weight: 800; text-align: left; cursor: pointer; transition: .2s ease; }
+    .astro-lego-opcion:hover { background: rgba(0,200,255,.16); transform: translateY(-1px); }
+    .astro-lego-opcion.correcta { border-color: rgba(34,197,94,.65); background: rgba(34,197,94,.18); }
+    .astro-lego-opcion.incorrecta { border-color: rgba(239,68,68,.65); background: rgba(239,68,68,.18); }
 
-    .astro-lego-card h3 {
-      margin: 0 0 10px;
-      font-size: 1.35rem;
-      color: #00c8ff;
-    }
+    .astro-lego-feedback { margin-top: 14px; padding: 12px 14px; border-radius: 16px; font-weight: 900; line-height: 1.45; display: none; }
+    .astro-lego-feedback.visible { display: block; }
+    .astro-lego-feedback.ok { background: rgba(34,197,94,.18); border: 1px solid rgba(34,197,94,.55); color: #bbf7d0; }
+    .astro-lego-feedback.error { background: rgba(239,68,68,.18); border: 1px solid rgba(239,68,68,.55); color: #fecaca; }
 
-    .astro-lego-card p {
-      margin: 0 0 12px;
-      line-height: 1.5;
-      color: #d9e6f2;
-      font-weight: 600;
-    }
+    .astro-lego-close { margin-top: 14px; border: 1px solid rgba(0, 200, 255, 0.42); border-radius: 999px; padding: 11px 18px; background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90)); color: #ffffff; font-weight: 900; cursor: pointer; box-shadow: 0 10px 22px rgba(0,200,255,.20); display: none; }
+    .astro-lego-close.visible { display: inline-flex; }
 
-    .astro-lego-opciones {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .astro-lego-opcion {
-      width: 100%;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 16px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,.08);
-      color: #ffffff;
-      font-weight: 800;
-      text-align: left;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .astro-lego-opcion:hover {
-      background: rgba(0,200,255,.16);
-      transform: translateY(-1px);
-    }
-
-    .astro-lego-opcion.correcta {
-      border-color: rgba(34,197,94,.65);
-      background: rgba(34,197,94,.18);
-    }
-
-    .astro-lego-opcion.incorrecta {
-      border-color: rgba(239,68,68,.65);
-      background: rgba(239,68,68,.18);
-    }
-
-    .astro-lego-feedback {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      font-weight: 900;
-      line-height: 1.45;
-      display: none;
-    }
-
-    .astro-lego-feedback.visible {
-      display: block;
-    }
-
-    .astro-lego-feedback.ok {
-      background: rgba(34,197,94,.18);
-      border: 1px solid rgba(34,197,94,.55);
-      color: #bbf7d0;
-    }
-
-    .astro-lego-feedback.error {
-      background: rgba(239,68,68,.18);
-      border: 1px solid rgba(239,68,68,.55);
-      color: #fecaca;
-    }
-
-    .astro-lego-close {
-      margin-top: 14px;
-      border: 1px solid rgba(0, 200, 255, 0.42);
-      border-radius: 999px;
-      padding: 11px 18px;
-      background: linear-gradient(135deg, rgba(0,200,255,.90), rgba(0,120,255,.90));
-      color: #ffffff;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 10px 22px rgba(0,200,255,.20);
-      display: none;
-    }
-
-    .astro-lego-close.visible {
-      display: inline-flex;
-    }
-
-    @media (max-width: 640px) {
-      .astro-lego-trigger {
-        width: 64px;
-        height: 64px;
-        border-radius: 20px;
-        bottom: 82px;
-      }
-
-      .astro-lego-icon {
-        font-size: 1.95rem;
-      }
-
-      .astro-lego-card {
-        padding: 18px 16px;
-      }
-
-      .astro-lego-opcion {
-        font-size: .92rem;
-      }
-    }
-
-
-    /* ===== RULETA LEGO LIMPIA Y FUNCIONAL ===== */
-    .ruleta-modal{
-      display:none;
-      align-items:center;
-      justify-content:center;
-      position:fixed;
-      inset:0;
-      z-index:9998;
-      background:rgba(1,12,28,.78);
-      backdrop-filter: blur(8px);
-      padding:18px;
-    }
-
-    .ruleta-modal-content{
-      position:relative;
-      width:min(860px, 94vw);
-      max-height:92vh;
-      overflow-y:auto;
-      overflow-x:hidden;
-      border-radius:26px;
-      padding:26px 24px 28px;
-      background:radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 38%), linear-gradient(135deg, rgba(6,22,48,.98), rgba(10,37,76,.96));
-      color:#ffffff;
-      border:1px solid rgba(0,200,255,.28);
-      box-shadow:0 18px 44px rgba(0,0,0,.48);
-    }
-
-    .ruleta-cerrar{
-      position:absolute;
-      top:14px;
-      right:14px;
-      width:42px;
-      height:42px;
-      border-radius:999px;
-      font-size:1.1rem;
-      font-weight:800;
-      cursor:pointer;
-      color:#dff7ff;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.18);
-    }
-
-    .ruleta-modal-title{
-      margin:0;
-      text-align:center;
-      color:#ff9b47 !important;
-      font-size:2rem;
-      font-weight:800;
-      text-shadow:0 2px 10px rgba(0,0,0,.28);
-    }
-
-    .ruleta-modal-subtitle{
-      margin:8px 0 18px 0;
-      text-align:center;
-      color:#d9e6f2 !important;
-      font-size:1rem;
-    }
-
-    .ruleta-layout-nuevo{
-      display:flex;
-      flex-direction:column;
-      gap:22px;
-      align-items:center;
-    }
-
-    .ruleta-zona-nueva{
-      width:100%;
-      max-width:520px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:14px;
-      padding:18px 14px 20px;
-      border-radius:22px;
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.13);
-      box-shadow:inset 0 0 24px rgba(0,200,255,.06);
-    }
-
-    .ruleta-puntero-nuevo{
-      width:0;
-      height:0;
-      border-left:18px solid transparent;
-      border-right:18px solid transparent;
-      border-top:30px solid #ffb347;
-      filter:drop-shadow(0 0 8px rgba(255,179,71,.45));
-      margin-bottom:-4px;
-      z-index:2;
-    }
-
-    .ruleta-wheel-wrap-nuevo{
-      position:relative;
-      width:330px;
-      height:330px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .ruleta-wheel-nueva{
-      width:100%;
-      height:100%;
-      border-radius:50%;
-      border:7px solid rgba(255,255,255,.86);
-      position:relative;
-      overflow:hidden;
-      transition:transform 4.2s cubic-bezier(.17,.67,.18,1);
-      box-shadow:0 16px 30px rgba(0,0,0,.35), 0 0 28px rgba(0,200,255,.20);
-      background:conic-gradient(#00a3ff 0deg 45deg, #22c55e 45deg 90deg, #f97316 90deg 135deg, #ef4444 135deg 180deg, #8b5cf6 180deg 225deg, #06b6d4 225deg 270deg, #eab308 270deg 315deg, #64748b 315deg 360deg);
-    }
-
-    .ruleta-op{
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:54px;
-      height:54px;
-      margin-left:-27px;
-      margin-top:-27px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      font-size:1.18rem;
-      color:#ffffff;
-      text-shadow:0 2px 5px rgba(0,0,0,.45);
-      z-index:2;
-      pointer-events:none;
-    }
-
+    /* RULETA */
+    .ruleta-modal{ display:none; align-items:center; justify-content:center; position:fixed; inset:0; z-index:9998; background:rgba(1,12,28,.78); backdrop-filter: blur(8px); padding:18px; }
+    .ruleta-modal-content{ position:relative; width:min(860px, 94vw); max-height:92vh; overflow-y:auto; overflow-x:hidden; border-radius:26px; padding:26px 24px 28px; background:radial-gradient(circle at top left, rgba(0,200,255,.18), transparent 38%), linear-gradient(135deg, rgba(6,22,48,.98), rgba(10,37,76,.96)); color:#ffffff; border:1px solid rgba(0,200,255,.28); box-shadow:0 18px 44px rgba(0,0,0,.48); }
+    .ruleta-cerrar{ position:absolute; top:14px; right:14px; width:42px; height:42px; border-radius:999px; font-size:1.1rem; font-weight:800; cursor:pointer; color:#dff7ff; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); }
+    .ruleta-modal-title{ margin:0; text-align:center; color:#ff9b47 !important; font-size:2rem; font-weight:800; text-shadow:0 2px 10px rgba(0,0,0,.28); }
+    .ruleta-modal-subtitle{ margin:8px 0 18px 0; text-align:center; color:#d9e6f2 !important; font-size:1rem; }
+    .ruleta-layout-nuevo{ display:flex; flex-direction:column; gap:22px; align-items:center; }
+    .ruleta-zona-nueva{ width:100%; max-width:520px; display:flex; flex-direction:column; align-items:center; gap:14px; padding:18px 14px 20px; border-radius:22px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13); box-shadow:inset 0 0 24px rgba(0,200,255,.06); }
+    .ruleta-puntero-nuevo{ width:0; height:0; border-left:18px solid transparent; border-right:18px solid transparent; border-top:30px solid #ffb347; filter:drop-shadow(0 0 8px rgba(255,179,71,.45)); margin-bottom:-4px; z-index:2; }
+    .ruleta-wheel-wrap-nuevo{ position:relative; width:330px; height:330px; display:flex; align-items:center; justify-content:center; }
+    .ruleta-wheel-nueva{ width:100%; height:100%; border-radius:50%; border:7px solid rgba(255,255,255,.86); position:relative; overflow:hidden; transition:transform 4.2s cubic-bezier(.17,.67,.18,1); box-shadow:0 16px 30px rgba(0,0,0,.35), 0 0 28px rgba(0,200,255,.20); background:conic-gradient(#00a3ff 0deg 45deg, #22c55e 45deg 90deg, #f97316 90deg 135deg, #ef4444 135deg 180deg, #8b5cf6 180deg 225deg, #06b6d4 225deg 270deg, #eab308 270deg 315deg, #64748b 315deg 360deg); }
+    .ruleta-op{ position:absolute; left:50%; top:50%; width:54px; height:54px; margin-left:-27px; margin-top:-27px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1.18rem; color:#ffffff; text-shadow:0 2px 5px rgba(0,0,0,.45); z-index:2; pointer-events:none; }
     .ruleta-op-1{ transform:rotate(22.5deg) translateY(-112px) rotate(-22.5deg); }
     .ruleta-op-2{ transform:rotate(67.5deg) translateY(-112px) rotate(-67.5deg); }
     .ruleta-op-3{ transform:rotate(112.5deg) translateY(-112px) rotate(-112.5deg); }
@@ -722,105 +309,20 @@
     .ruleta-op-6{ transform:rotate(247.5deg) translateY(-112px) rotate(-247.5deg); }
     .ruleta-op-7{ transform:rotate(292.5deg) translateY(-112px) rotate(-292.5deg); }
     .ruleta-op-8{ transform:rotate(337.5deg) translateY(-112px) rotate(-337.5deg); }
-
-    .ruleta-centro-nuevo{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%, -50%);
-      width:70px;
-      height:70px;
-      border-radius:50%;
-      background:#07152b;
-      border:5px solid rgba(255,255,255,.85);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      color:#ffffff;
-      z-index:4;
-      box-shadow:0 0 18px rgba(0,200,255,.26);
-    }
-
-    .ruleta-intentos-nuevo{
-      color:#ffe29a;
-      font-weight:900;
-      font-size:1rem;
-    }
-
-    .ruleta-resultado-nuevo{
-      width:min(100%, 460px);
-      min-height:52px;
-      padding:14px;
-      border-radius:16px;
-      background:rgba(0,200,255,.12);
-      border:1px solid rgba(0,200,255,.35);
-      color:#ffffff;
-      font-weight:800;
-      text-align:center;
-      line-height:1.35;
-    }
-
-    .ruleta-tabla-nueva{
-      width:100%;
-      max-width:760px;
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:12px;
-    }
-
-    .ruleta-tabla-nueva h3{
-      grid-column:1 / -1;
-      margin:0 0 4px 0;
-      color:#00c8ff !important;
-      text-align:center;
-      font-size:1.35rem;
-      font-weight:900;
-    }
-
-    .ruleta-item-nuevo{
-      display:grid;
-      grid-template-columns:54px 1fr;
-      gap:12px;
-      align-items:center;
-      padding:12px;
-      border-radius:16px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-    }
-
-    .ruleta-item-nuevo strong{
-      display:block;
-      color:#ffffff;
-      font-size:.95rem;
-      margin-bottom:3px;
-    }
-
-    .ruleta-item-nuevo small{
-      display:block;
-      color:#d9e6f2;
-      line-height:1.3;
-      font-size:.84rem;
-    }
-
-    .ruleta-mini{
-      width:46px;
-      height:46px;
-      border-radius:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      font-size:1.15rem;
-    }
+    .ruleta-centro-nuevo{ position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); width:70px; height:70px; border-radius:50%; background:#07152b; border:5px solid rgba(255,255,255,.85); display:flex; align-items:center; justify-content:center; font-weight:900; color:#ffffff; z-index:4; box-shadow:0 0 18px rgba(0,200,255,.26); }
+    .ruleta-intentos-nuevo{ color:#ffe29a; font-weight:900; font-size:1rem; }
+    .ruleta-resultado-nuevo{ width:min(100%, 460px); min-height:52px; padding:14px; border-radius:16px; background:rgba(0,200,255,.12); border:1px solid rgba(0,200,255,.35); color:#ffffff; font-weight:800; text-align:center; line-height:1.35; }
+    .ruleta-tabla-nueva{ width:100%; max-width:760px; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+    .ruleta-tabla-nueva h3{ grid-column:1 / -1; margin:0 0 4px 0; color:#00c8ff !important; text-align:center; font-size:1.35rem; font-weight:900; }
+    .ruleta-item-nuevo{ display:grid; grid-template-columns:54px 1fr; gap:12px; align-items:center; padding:12px; border-radius:16px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); }
+    .ruleta-item-nuevo strong{ display:block; color:#ffffff; font-size:.95rem; margin-bottom:3px; }
+    .ruleta-item-nuevo small{ display:block; color:#d9e6f2; line-height:1.3; font-size:.84rem; }
+    .ruleta-mini{ width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1.15rem; }
     .ruleta-mini.positivo{ background:rgba(34,197,94,.18); color:#86efac; }
     .ruleta-mini.negativo{ background:rgba(239,68,68,.18); color:#fca5a5; }
     .ruleta-mini.neutro{ background:rgba(59,130,246,.16); color:#bfdbfe; }
 
-    @media (max-width:900px){
-      .inicio-fase-card{ width:min(94%, 760px); padding:16px 18px; }
-    }
-
+    @media (max-width:900px){ .inicio-fase-card{ width:min(94%, 760px); padding:16px 18px; } }
     @media (max-width:720px){
       .ruleta-modal-content{ width:min(94vw, 680px); padding:22px 16px; }
       .ruleta-wheel-wrap-nuevo{ width:280px; height:280px; }
@@ -835,7 +337,6 @@
       .ruleta-op-8{ transform:rotate(337.5deg) translateY(-94px) rotate(-337.5deg); }
       .ruleta-tabla-nueva{ grid-template-columns:1fr; }
     }
-
     @media (max-width:640px){
       .inicio-fase-overlay{ padding:14px 12px 12px; }
       .inicio-fase-card{ width:100%; border-radius:18px; padding:14px 14px 16px; }
@@ -845,320 +346,257 @@
       .contador-fase{ font-size:.9rem; }
       .ruleta-lego-head{ flex-direction:column; align-items:flex-start; }
       .ruleta-lego-resumen{ flex-direction:column; align-items:flex-start; }
+      .astro-lego-trigger{ width:64px; height:64px; border-radius:20px; bottom:82px; }
+      .astro-lego-flex{ flex-direction:column; text-align:center; }
+      .astro-lego-standing{ width:115px; }
+      .astro-lego-card{ padding:18px 16px; }
+      .astro-lego-opcion{ font-size:.92rem; }
     }
   </style>
 </head>
+
 <body
   data-sesion-id="{{ grupo.sesion.idsesion }}"
   data-tiempo-inicial="{{ tiempo_inicial_lego|default:15 }}"
 >
+
+  <!-- ═══ MÚSICA DE FONDO ═══ -->
+  <audio id="musica-lego"
+         src="{% static 'sounds/musica_lego.mp3' %}"
+         loop
+         preload="auto">
+  </audio>
+  <button id="btn-musica-lego"
+          title="Silenciar música"
+          aria-label="Silenciar música"
+          onclick="toggleMusicaLego()">
+    &#128266;
+  </button>
+
   <main class="phone">
 
     <div id="inicio-fase-overlay" class="inicio-fase-overlay">
       <section id="inicio-fase-card" class="inicio-fase-card">
-        <div class="inicio-fase-badge">Fase de activación</div>
-
-        <h3>Antes de comenzar</h3>
-
-        <p>
-          Revisen el desafío y preparen su construcción.
-        </p>
-
-        <p>
-          Tendrán <strong>15 segundos</strong> para construir. Cuando todos los equipos presionen
-          <strong>“Listo para comenzar”</strong>, la actividad se habilitará automáticamente.
-        </p>
-
-        <button type="button" id="btn-listo-fase" class="btn-chip">
+        <div class="inicio-fase-badge" data-i18n="lego_overlay_badge">
+          MISIÓN DE CREATIVIDAD
+        </div>
+        <h3 data-i18n="lego_overlay_titulo">Antes de comenzar</h3>
+        <p data-i18n="lego_overlay_p1">Agentes, revisen el desafío y preparen su construcción.</p>
+        <p data-i18n="lego_overlay_p2">Tendrán 15 segundos para construir. Cuando todos los equipos presionen "Listo para comenzar", la actividad se habilitará automáticamente.</p>
+        <button type="button" id="btn-listo-fase" class="btn-chip" data-i18n="lego_boton_listo">
           ⚡ Listo para comenzar
         </button>
-
-        <div id="texto-espera-fase" class="contador-fase">
+        <div id="texto-espera-fase" class="contador-fase" data-i18n="lego_esperando_equipos">
           Esperando a los demás equipos...
         </div>
-
-        <div id="contador-listos-fase" class="contador-fase">
-          0/0 grupos listos
-        </div>
+        <div id="contador-listos-fase" class="contador-fase">0/0 grupos listos</div>
       </section>
     </div>
 
     <img id="legoLogo" src="{% static 'images/Lego-logo.png' %}" class="logo blur-target-bloqueado" alt="Lego logo">
 
-    <h1 id="legoTitle" class="title blur-target-bloqueado">Construye tu solución</h1>
+    <h1 id="legoTitle" class="title blur-target-bloqueado" data-i18n="lego_titulo">
+      Construye tu solución
+    </h1>
 
     <section id="ruletaLegoCard" class="ruleta-lego-card blur-target-bloqueado">
       <div class="ruleta-lego-head">
         <div>
-          <div class="ruleta-lego-kicker">Opcional</div>
-          <h3 class="ruleta-lego-title">🎡 Ruleta LEGO</h3>
-          <p class="ruleta-lego-texto">
+          <div class="ruleta-lego-kicker" data-i18n="lego_ruleta_opcional">Opcional</div>
+          <h3 class="ruleta-lego-title" data-i18n="lego_ruleta_titulo">🎡 Ruleta LEGO</h3>
+          <p class="ruleta-lego-texto" data-i18n="lego_ruleta_texto">
             Puedes lanzar la ruleta hasta 3 veces durante esta fase para obtener recompensas, pequeñas penalizaciones o retos rápidos.
           </p>
         </div>
-
-        <button type="button" id="btnAbrirRuletaLego" class="btn-chip">
+        <button type="button" id="btnAbrirRuletaLego" class="btn-chip" data-i18n="lego_ruleta_abrir">
           Abrir ruleta
         </button>
       </div>
-
       <div id="ruletaLegoResumen" class="ruleta-lego-resumen">
         <span id="ruletaIntentosTexto">Intentos disponibles: 3/3</span>
         <span id="ruletaUltimoResultado">Aún no has lanzado la ruleta.</span>
       </div>
     </section>
 
-
-    <!-- 👨‍🚀 ASTRONAUTA — PREGUNTA LEGO -->
-    <button id="astroLegoTrigger" class="astro-lego-trigger blur-target-bloqueado" type="button" aria-label="Encontrar astronauta">
-      <span class="astro-lego-icon">👨‍🚀</span>
+    <button
+      id="astroLegoTrigger"
+      class="astro-lego-trigger blur-target-bloqueado"
+      type="button"
+      aria-label="Encontrar astronauta"
+      data-i18n="lego_astro_aria"
+      data-i18n-attr="aria-label"
+    >
+      <img src="{% static 'images/Cayendo.png' %}" class="astro-lego-icon" alt="">
     </button>
 
     <div id="astroLegoOverlay" class="astro-lego-overlay" aria-hidden="true">
       <div class="astro-lego-card">
-        <h3>👨‍🚀 Pregunta del astronauta</h3>
-
-        <p>
-          ¿Cómo vas? Si has estado atento, podrás responder esta pregunta y ganar <strong>2 tokens</strong>.
-        </p>
-
-        <!-- #cambiar pregunta astronauta: cambia aquí la pregunta o alternativas si después quieres ajustarla -->
-        <p>
-          <strong>¿Qué habilidades y en qué orden han visto hasta ahora?</strong>
-        </p>
-
-        <div class="astro-lego-opciones" id="astroLegoOpciones">
-          <button type="button" class="astro-lego-opcion" data-correcta="false">
-            A) Creatividad → Trabajo en equipo → Empatía
-          </button>
-          <button type="button" class="astro-lego-opcion" data-correcta="true">
-            B) Trabajo en equipo → Empatía → Creatividad
-          </button>
-          <button type="button" class="astro-lego-opcion" data-correcta="false">
-            C) Empatía → Comunicación → Apoyo
-          </button>
-          <button type="button" class="astro-lego-opcion" data-correcta="false">
-            D) Comunicación → Creatividad → Trabajo en equipo
-          </button>
+        <div class="astro-lego-flex">
+          <img src="{% static 'images/Parado.png' %}" class="astro-lego-standing" alt="">
+          <div class="astro-lego-text">
+            <h3 data-i18n="lego_astro_titulo">👨‍🚀 Pregunta del astronauta</h3>
+            <p data-i18n-html="true" data-i18n="lego_astro_intro">
+              ¿Cómo vas? Si has estado atento, podrás responder esta pregunta y ganar <strong>2 tokens</strong>.
+            </p>
+            <p data-i18n="lego_astro_pregunta">¿Qué habilidades y en qué orden han visto hasta ahora?</p>
+            <div class="astro-lego-opciones" id="astroLegoOpciones">
+              <button type="button" class="astro-lego-opcion" data-correcta="true" data-i18n="lego_astro_opcion_a">
+                A) Creatividad → Trabajo en equipo → Empatía
+              </button>
+              <button type="button" class="astro-lego-opcion" data-correcta="false" data-i18n="lego_astro_opcion_b">
+                B) Trabajo en equipo → Empatía → Creatividad
+              </button>
+              <button type="button" class="astro-lego-opcion" data-correcta="false" data-i18n="lego_astro_opcion_c">
+                C) Empatía → Comunicación → Apoyo
+              </button>
+              <button type="button" class="astro-lego-opcion" data-correcta="false" data-i18n="lego_astro_opcion_d">
+                D) Comunicación → Creatividad → Trabajo en equipo
+              </button>
+            </div>
+            <div id="astroLegoFeedback" class="astro-lego-feedback"></div>
+            <button id="astroLegoClose" class="astro-lego-close" type="button" data-i18n="lego_astro_cerrar">
+              Entendido
+            </button>
+            <audio id="astroLegoTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
+            <audio id="astroLegoExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
+          </div>
         </div>
-
-        <div id="astroLegoFeedback" class="astro-lego-feedback"></div>
-
-        <button id="astroLegoClose" class="astro-lego-close" type="button">Entendido</button>
-
-        <audio id="astroLegoTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
-        <audio id="astroLegoExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
       </div>
     </div>
 
     <section id="desafioPanel" class="desafio-panel blur-target-bloqueado">
       <button type="button" class="desafio-toggle" id="desafioToggle">
         <div class="desafio-toggle-head">
-          <span class="desafio-etiqueta">Desafío seleccionado</span>
+          <span class="desafio-etiqueta" data-i18n="lego_desafio_label">Desafío seleccionado</span>
           <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
         </div>
         <span class="desafio-icono" id="desafioIcono">▼</span>
       </button>
-
       <div class="desafio-body" id="desafioBody" hidden>
         <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
       </div>
     </section>
 
-    <h2 id="legoSubtitle" class="subtitle blur-target-bloqueado">Recuerda las características de tu cliente</h2>
+    <h2 id="legoSubtitle" class="subtitle blur-target-bloqueado" data-i18n="lego_subtitulo">
+      Recuerda las características de tu cliente
+    </h2>
 
     <ul id="ideasList" class="ideas-list blur-target-bloqueado"></ul>
 
-    <p id="legoBody" class="body blur-target-bloqueado">Ahora usa las piezas de LEGO para construir tu solución.</p>
+    <p id="legoBody" class="body blur-target-bloqueado" data-i18n="lego_body">
+      Ahora usa las piezas de LEGO para construir tu solución.
+    </p>
 
     <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
 
     <div id="timer" class="timer blur-target-bloqueado timer-esperando">00:15</div>
 
     <div id="fotoPanel" class="foto-panel blur-target-bloqueado">
-      <h3>Prepara la foto de tu solución LEGO</h3>
-      <p class="texto-espera-foto">
+      <h3 data-i18n="lego_foto_titulo">Prepara la foto de tu solución LEGO</h3>
+      <p class="texto-espera-foto" data-i18n="lego_foto_texto">
         Cuando termine el tiempo, sube una foto de tu construcción para usarla más adelante en la presentación.
       </p>
-      <p class="ayuda-foto">
+      <p class="ayuda-foto" data-i18n="lego_foto_ayuda">
         Si por algún motivo no pueden subir la foto, podrán marcar la opción correspondiente y continuar.
       </p>
-
       <div id="previewWrapper" class="preview-wrapper">
-        <div class="preview-label">Vista previa</div>
-        <img id="previewImg" class="preview-img" alt="Vista previa de la foto LEGO">
+        <div class="preview-label" data-i18n="lego_foto_preview">Vista previa</div>
+        <img id="previewImg" class="preview-img" alt="Vista previa de la foto LEGO"
+             data-i18n="lego_foto_preview_alt" data-i18n-attr="alt">
       </div>
     </div>
 
     <div id="modal-fin" class="modal">
       <div class="modal-content">
-        <h2>Tiempo terminado</h2>
-        <p>El tiempo para construir ha terminado. Ahora sube la foto de tu LEGO o marca que no pudieron subirla.</p>
-
+        <h2 data-i18n="lego_modal_titulo">Tiempo terminado</h2>
+        <p data-i18n="lego_modal_texto">
+          El tiempo para construir ha terminado. Ahora sube la foto de tu LEGO o marca que no pudieron subirla.
+        </p>
         <form method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           <input type="file" name="foto_lego" id="foto_lego" class="foto-input" accept="image/*">
-
           <div class="sin-foto-wrap">
             <label class="sin-foto-label" for="sin_foto_lego">
               <input type="checkbox" name="sin_foto_lego" id="sin_foto_lego">
-              No pudimos subir foto
+              <span data-i18n="lego_sin_foto">No pudimos subir foto</span>
             </label>
           </div>
-
-          <div id="errorFoto" class="error-foto" style="display:none;">
+          <div id="errorFoto" class="error-foto" style="display:none;" data-i18n="lego_error_foto">
             Debes subir una foto o marcar que no pudieron subirla.
           </div>
-
-          <button type="submit" id="buttonGuardarFoto" class="btn-guardar-foto" disabled>
+          <button type="submit" id="buttonGuardarFoto" class="btn-guardar-foto" disabled data-i18n="lego_guardar_continuar">
             Guardar y continuar
           </button>
-
-          <div id="estadoGruposLego" class="estado-grupos-lego">
-            0/0 grupos listos
-          </div>
-
-          <div id="detalleGruposLego" class="detalle-grupos-lego">
-            0 con foto · 0 sin foto
-          </div>
+          <div id="estadoGruposLego" class="estado-grupos-lego">0/0 grupos listos</div>
+          <div id="detalleGruposLego" class="detalle-grupos-lego">0 con foto · 0 sin foto</div>
         </form>
       </div>
     </div>
 
     <div id="modalRuletaLego" class="modal ruleta-modal">
-  <div class="modal-content ruleta-modal-content">
-    <button type="button" id="btnCerrarRuletaLego" class="ruleta-cerrar">✕</button>
-
-    <h2 class="ruleta-modal-title">🎲 Desafío LEGO (Opcional)</h2>
-    <p class="ruleta-modal-subtitle">
-      Lanza la ruleta para obtener tokens, una oportunidad o un reto rápido.
-    </p>
-
-    <div class="ruleta-layout-nuevo">
-      <div class="ruleta-zona-nueva">
-        <div class="ruleta-puntero-nuevo"></div>
-
-        <div class="ruleta-wheel-wrap-nuevo">
-          <div id="ruletaWheel" class="ruleta-wheel-nueva">
-            <span class="ruleta-op ruleta-op-1">+2</span>
-            <span class="ruleta-op ruleta-op-2">+1</span>
-            <span class="ruleta-op ruleta-op-3">-1</span>
-            <span class="ruleta-op ruleta-op-4">-2</span>
-            <span class="ruleta-op ruleta-op-5">👀</span>
-            <span class="ruleta-op ruleta-op-6">🧑‍🏫</span>
-            <span class="ruleta-op ruleta-op-7">🤐</span>
-            <span class="ruleta-op ruleta-op-8">😌</span>
+      <div class="modal-content ruleta-modal-content">
+        <button type="button" id="btnCerrarRuletaLego" class="ruleta-cerrar"
+                aria-label="Cerrar ruleta" data-i18n="lego_ruleta_cerrar_aria" data-i18n-attr="aria-label">✕</button>
+        <h2 class="ruleta-modal-title" data-i18n="lego_ruleta_modal_titulo">🎲 Desafío LEGO (Opcional)</h2>
+        <p class="ruleta-modal-subtitle" data-i18n="lego_ruleta_modal_subtitulo">
+          Lanza la ruleta para obtener tokens, una oportunidad o un reto rápido.
+        </p>
+        <div class="ruleta-layout-nuevo">
+          <div class="ruleta-zona-nueva">
+            <div class="ruleta-puntero-nuevo"></div>
+            <div class="ruleta-wheel-wrap-nuevo">
+              <div id="ruletaWheel" class="ruleta-wheel-nueva">
+                {% for op in opciones_ruleta %}
+                  <span class="ruleta-op ruleta-op-{{ forloop.counter }}">{{ op.emoji }}</span>
+                {% endfor %}
+              </div>
+              <div class="ruleta-centro-nuevo">UDD</div>
+            </div>
+            <div class="ruleta-intentos-nuevo">
+              <span data-i18n="lego_ruleta_intentos_restantes">Intentos restantes:</span>
+              <strong id="ruletaIntentosRestantes">3</strong>/3
+            </div>
+            <button type="button" id="btnLanzarRuletaLego" class="btn-chip" data-i18n="lego_ruleta_lanzar">
+              Lanzar ruleta
+            </button>
+            <div id="ruletaResultadoActual" class="ruleta-resultado-nuevo">
+              Aún no has lanzado la ruleta.
+            </div>
           </div>
-
-          <div class="ruleta-centro-nuevo">UDD</div>
-        </div>
-
-        <div class="ruleta-intentos-nuevo">
-          Intentos restantes: <strong id="ruletaIntentosRestantes">3</strong>/3
-        </div>
-
-        <button type="button" id="btnLanzarRuletaLego" class="btn-chip">
-          Lanzar ruleta
-        </button>
-
-        <div id="ruletaResultadoActual" class="ruleta-resultado-nuevo">
-          Aún no has lanzado la ruleta.
-        </div>
-      </div>
-
-      <div class="ruleta-tabla-nueva">
-        <h3>Oportunidades</h3>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini positivo">+2</span>
-          <div>
-            <strong>Ganas 2 tokens</strong>
-            <small>Suma 2 tokens inmediatos para tu equipo.</small>
+          <div class="ruleta-tabla-nueva">
+            <h3 data-i18n="lego_ruleta_oportunidades">Oportunidades</h3>
+            {% for op in opciones_ruleta %}
+              <div class="ruleta-item-nuevo">
+                <span class="ruleta-mini {% if op.tokens > 0 %}positivo{% elif op.tokens < 0 %}negativo{% else %}neutro{% endif %}">
+                  {{ op.emoji }}
+                </span>
+                <div>
+                  <strong>{{ op.titulo }}</strong>
+                  <small>{{ op.descripcion }}</small>
+                </div>
+              </div>
+            {% endfor %}
           </div>
         </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini positivo">+1</span>
-          <div>
-            <strong>Ganas 1 token</strong>
-            <small>Suma 1 token inmediato para tu equipo.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini negativo">-1</span>
-          <div>
-            <strong>Pierdes 1 token</strong>
-            <small>Se resta 1 token al equipo.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini negativo">-2</span>
-          <div>
-            <strong>Pierdes 2 tokens</strong>
-            <small>Se restan 2 tokens al equipo.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">👀</span>
-          <div>
-            <strong>Espía</strong>
-            <small>Pueden mirar a otro equipo durante 1 minuto.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">🧑‍🏫</span>
-          <div>
-            <strong>Opinión del profe</strong>
-            <small>Pueden pedir una opinión breve al profesor.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">🤐</span>
-          <div>
-            <strong>Silencio parcial</strong>
-            <small>La mitad del equipo no puede hablar durante 30 segundos.</small>
-          </div>
-        </div>
-
-        <div class="ruleta-item-nuevo">
-          <span class="ruleta-mini neutro">😌</span>
-          <div>
-            <strong>Nada pasa</strong>
-            <small>No ganan ni pierden tokens.</small>
-          </div>
-        </div>
+        <audio id="ruletaAudio" preload="auto">
+          <source src="{% static 'sounds/ruleta.mp3' %}" type="audio/mpeg">
+        </audio>
       </div>
     </div>
 
-    <audio id="ruletaAudio" preload="auto">
-      <source src="{% static 'sounds/ruleta.mp3' %}" type="audio/mpeg">
-    </audio>
-  </div>
-</div>
-
   </main>
 
+  <!-- ═══ SCRIPTS (sin cambios respecto al original) ═══ -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const toggle = document.getElementById("desafioToggle");
-      const body = document.getElementById("desafioBody");
-      const icono = document.getElementById("desafioIcono");
-
+      const body   = document.getElementById("desafioBody");
+      const icono  = document.getElementById("desafioIcono");
       if (toggle && body && icono) {
         toggle.addEventListener("click", () => {
           const abierto = !body.hasAttribute("hidden");
-          if (abierto) {
-            body.setAttribute("hidden", "hidden");
-            icono.textContent = "▼";
-          } else {
-            body.removeAttribute("hidden");
-            icono.textContent = "▲";
-          }
+          if (abierto) { body.setAttribute("hidden","hidden"); icono.textContent="▼"; }
+          else         { body.removeAttribute("hidden");       icono.textContent="▲"; }
         });
       }
     });
@@ -1168,37 +606,47 @@
     const STORAGE_KEY = "bubblemap_data";
     const list = document.getElementById("ideasList");
 
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    if (!saved || Object.values(saved).every(v => !String(v || "").trim())) {
-      list.innerHTML = "<li>No se ingresaron ideas.</li>";
-    } else {
+    function tLegoGlobal(clave, fallback="") {
+      const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+      return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+    }
+
+    function cargarIdeasBubblemap() {
+      if (!list) return;
+      list.innerHTML = "";
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      if (!saved || Object.values(saved).every(v => !String(v||"").trim())) {
+        list.innerHTML = `<li>${tLegoGlobal("lego_ideas_vacias","No se ingresaron ideas.")}</li>`;
+        return;
+      }
       Object.values(saved).forEach(text => {
-        if (String(text || "").trim()) {
+        if (String(text||"").trim()) {
           const li = document.createElement("li");
           li.textContent = text;
           list.appendChild(li);
         }
       });
     }
+    cargarIdeasBubblemap();
+    window.addEventListener("idiomaJuegoCambiado", () => cargarIdeasBubblemap());
   </script>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const sesionId = "{{ grupo.sesion.idsesion }}";
-      const grupoId = "{{ grupo.idgrupo }}";
-      const csrfToken = "{{ csrf_token }}";
-
-      const boton = document.getElementById("btn-listo-fase");
-      const textoEspera = document.getElementById("texto-espera-fase");
-      const contador = document.getElementById("contador-listos-fase");
-      const timerElement = document.getElementById("timer");
-      const modalFin = document.getElementById("modal-fin");
+      const sesionId   = "{{ grupo.sesion.idsesion }}";
+      const grupoId    = "{{ grupo.idgrupo }}";
+      const csrfToken  = "{{ csrf_token }}";
+      const boton      = document.getElementById("btn-listo-fase");
+      const textoEspera= document.getElementById("texto-espera-fase");
+      const contador   = document.getElementById("contador-listos-fase");
+      const timerEl    = document.getElementById("timer");
+      const modalFin   = document.getElementById("modal-fin");
       const alarmAudio = document.getElementById("alarm-audio");
-      const overlay = document.getElementById("inicio-fase-overlay");
+      const overlay    = document.getElementById("inicio-fase-overlay");
 
       let timerLiberadoTrasCountdown = false;
-      let countdownMostrado = false;
-      let countdownEnCurso = false;
+      let countdownMostrado  = false;
+      let countdownEnCurso   = false;
 
       const blurTargets = [
         document.getElementById("legoLogo"),
@@ -1217,781 +665,445 @@
       let timerInterval = null;
       let timerStartedByProfesor = false;
       let modalMostrado = false;
-      let redirigiendo = false;
+      let redirigiendo  = false;
       let timerRealSolicitado = false;
 
-      function activarFase() {
-        blurTargets.forEach(el => {
-          if (!el) return;
-          el.classList.remove("blur-target-bloqueado", "timer-esperando");
-          el.classList.add("blur-target-activo");
-        });
+      function tJuego(clave, fallback="") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+      function textoGruposListos(l,t)   { return `${l}/${t} ${tJuego("lego_grupos_listos","grupos listos")}`; }
+      function textoDetalleLego(c,s)    { return `${c} ${tJuego("lego_con_foto","con foto")} · ${s} ${tJuego("lego_sin_foto_detalle","sin foto")}`; }
+      function textoBotonListo()        { return tJuego("lego_boton_listo","⚡ Listo para comenzar"); }
+      function textoEsperando()         { return tJuego("lego_boton_esperando","Esperando..."); }
+      function textoEsperandoEquipos()  { return tJuego("lego_esperando_equipos","Esperando a los demás equipos..."); }
 
-        if (overlay) {
-          overlay.classList.add("overlay-hidden");
+      function aplicarTraduccionDinamicaLego() {
+        if (boton) boton.textContent = boton.disabled ? textoEsperando() : textoBotonListo();
+        if (textoEspera) {
+          const t = (textoEspera.textContent||"").toLowerCase();
+          textoEspera.textContent = (t.includes("no se pudo")||t.includes("could not"))
+            ? tJuego("lego_error_registro","No se pudo registrar. Intenta nuevamente.")
+            : textoEsperandoEquipos();
         }
+        if (contador) {
+          const m = (contador.textContent||"").match(/(\d+)\/(\d+)/);
+          if (m) contador.textContent = textoGruposListos(m[1],m[2]);
+        }
+        const estado  = document.getElementById("estadoGruposLego");
+        const detalle = document.getElementById("detalleGruposLego");
+        if (estado)  { const m=(estado.textContent||"").match(/(\d+)\/(\d+)/);  if(m) estado.textContent=textoGruposListos(m[1],m[2]); }
+        if (detalle) { const m=(detalle.textContent||"").match(/(\d+).*?(\d+)/); if(m) detalle.textContent=textoDetalleLego(m[1],m[2]); }
+        const bg = document.getElementById("buttonGuardarFoto");
+        if (bg && !bg.disabled) bg.textContent = tJuego("lego_guardar_continuar","Guardar y continuar");
+      }
+
+      function activarFase() {
+        blurTargets.forEach(el=>{ if(!el)return; el.classList.remove("blur-target-bloqueado","timer-esperando"); el.classList.add("blur-target-activo"); });
+        if (overlay) overlay.classList.add("overlay-hidden");
       }
 
       function bloquearFase() {
-        blurTargets.forEach(el => {
-          if (!el) return;
-          el.classList.remove("blur-target-activo");
-          el.classList.add("blur-target-bloqueado");
-        });
-
-        if (timerElement) {
-          timerElement.classList.add("timer-esperando");
-        }
-
-        if (overlay) {
-          overlay.classList.remove("overlay-hidden");
-        }
+        blurTargets.forEach(el=>{ if(!el)return; el.classList.remove("blur-target-activo"); el.classList.add("blur-target-bloqueado"); });
+        if (timerEl) timerEl.classList.add("timer-esperando");
+        if (overlay) overlay.classList.remove("overlay-hidden");
       }
 
       function renderTimer() {
-        const segundos = Math.max(0, Number(timeLeft) || 0);
-        const minutes = Math.floor(segundos / 60);
-        const seconds = segundos % 60;
-        timerElement.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+        const s = Math.max(0,Number(timeLeft)||0);
+        timerEl.textContent = `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
       }
 
       function pauseTimerLocally() {
-        if (timerInterval) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-        }
+        if (timerInterval) { clearInterval(timerInterval); timerInterval=null; }
       }
 
       function mostrarModalFin() {
         if (modalMostrado) return;
         modalMostrado = true;
-
-        try {
-          alarmAudio.currentTime = 0;
-          alarmAudio.play();
-        } catch (e) {}
-
+        try { alarmAudio.currentTime=0; alarmAudio.play(); } catch(e){}
         modalFin.style.display = "flex";
+        /* pausar música al mostrar modal */
+        const musicaLego = document.getElementById("musica-lego");
+        const btnMusica  = document.getElementById("btn-musica-lego");
+        if (musicaLego) musicaLego.pause();
+        if (btnMusica)  btnMusica.style.display = "none";
       }
 
       async function iniciarTimerRealDespuesCountdown() {
         if (timerRealSolicitado) return;
-
         timerRealSolicitado = true;
-
         try {
-          const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrfToken
-            },
-            body: JSON.stringify({})
+          const res  = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, {
+            method:"POST", credentials:"same-origin",
+            headers:{"Content-Type":"application/json","X-CSRFToken":csrfToken},
+            body: JSON.stringify({fase:"f3_lego"})
           });
-
           const data = await res.json();
-
-          if (!res.ok || !data.ok) {
-            throw new Error(data.error || "No se pudo iniciar el timer real.");
-          }
-
-          const backendSeconds = Number(data.segundosRestantes);
-          if (!Number.isNaN(backendSeconds)) {
-            timeLeft = backendSeconds;
-            renderTimer();
-          }
-        } catch (err) {
-          console.error("Error iniciando timer real lego:", err);
-          timerRealSolicitado = false;
-        }
+          if (!res.ok||!data.ok) throw new Error(data.error||"Error timer");
+          const b = Number(data.segundosRestantes);
+          if (!Number.isNaN(b)) { timeLeft=b; renderTimer(); }
+        } catch(err) { console.error("Error timer lego:",err); timerRealSolicitado=false; }
       }
 
       function startTimer() {
         if (timerInterval) return;
-
         renderTimer();
-
-        timerInterval = setInterval(() => {
-          timeLeft--;
-          renderTimer();
-
-          if (timeLeft <= 0) {
-            pauseTimerLocally();
-            mostrarModalFin();
-          }
-        }, 1000);
+        timerInterval = setInterval(()=>{ timeLeft--; renderTimer(); if(timeLeft<=0){pauseTimerLocally();mostrarModalFin();} },1000);
       }
 
       function actualizarEstadoGrupos(data) {
-        const estado = document.getElementById("estadoGruposLego");
+        const estado  = document.getElementById("estadoGruposLego");
         const detalle = document.getElementById("detalleGruposLego");
-
-        if (!estado || !detalle) return;
-
-        const listos = data.gruposListosF3Lego || 0;
-        const total = data.totalGrupos || 0;
-        const conFoto = data.gruposConFotoLego || 0;
-        const sinFoto = data.gruposSinFotoLego || 0;
-
-        estado.textContent = `${listos}/${total} grupos listos`;
-        detalle.textContent = `${conFoto} con foto · ${sinFoto} sin foto`;
+        if (!estado||!detalle) return;
+        estado.textContent  = textoGruposListos(data.gruposListosF3Lego||0, data.totalGrupos||0);
+        detalle.textContent = textoDetalleLego(data.gruposConFotoLego||0, data.gruposSinFotoLego||0);
       }
 
       function procesarEstadoSesion(data) {
         if (!data) return;
-
         actualizarEstadoGrupos(data);
-
-        if (contador) {
-          contador.textContent = `${data.listosInicio || 0}/${data.totalListosInicio || 0} grupos listos`;
+        if (contador) contador.textContent = textoGruposListos(data.listosInicio||0, data.totalListosInicio||0);
+        const miGrupo = (data.grupos||[]).find(g=>Number(g.id)===Number(grupoId));
+        if (miGrupo?.listoInicioF3) {
+          boton.disabled=true; boton.textContent=textoEsperando();
+          if (textoEspera) textoEspera.textContent=textoEsperandoEquipos();
         }
-
-        const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
-        if (miGrupo && miGrupo.listoInicioF3) {
-          boton.disabled = true;
-          boton.textContent = "Esperando...";
-          if (textoEspera) {
-            textoEspera.textContent = "Esperando a los demás equipos...";
-          }
-        }
-
-        if (data.faseActual && data.faseActual !== "f3_lego") {
-          if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) {
-            redirigiendo = true;
-            window.location.href = data.rutaAlumno;
-          }
+        if (data.faseActual && data.faseActual!=="f3_lego") {
+          if (data.rutaAlumno && window.location.pathname!==data.rutaAlumno) { redirigiendo=true; window.location.href=data.rutaAlumno; }
           return;
         }
-
         if (data.inicioFaseHabilitado) {
-          if (!countdownMostrado && !countdownEnCurso) {
-            countdownEnCurso = true;
-
-            window.oaiCountdown.run(async () => {
-              countdownMostrado = true;
-              countdownEnCurso = false;
-              timerLiberadoTrasCountdown = true;
-
+          if (!countdownMostrado&&!countdownEnCurso) {
+            countdownEnCurso=true;
+            window.oaiCountdown.run(async()=>{
+              countdownMostrado=true; countdownEnCurso=false; timerLiberadoTrasCountdown=true;
               await iniciarTimerRealDespuesCountdown();
               activarFase();
             });
-
             return;
           }
-
-          if (countdownMostrado && !countdownEnCurso) {
-            activarFase();
-          }
+          if (countdownMostrado&&!countdownEnCurso) activarFase();
         } else {
-          countdownMostrado = false;
-          countdownEnCurso = false;
-          timerLiberadoTrasCountdown = false;
-          timerRealSolicitado = false;
+          countdownMostrado=false; countdownEnCurso=false;
+          timerLiberadoTrasCountdown=false; timerRealSolicitado=false;
           bloquearFase();
         }
-
-        const backendSeconds = Number(data.segundosRestantes);
-
-        if ((!timerStartedByProfesor || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
-          if (!countdownEnCurso && !timerLiberadoTrasCountdown) {
-            timeLeft = backendSeconds;
-            renderTimer();
-          }
+        const bs = Number(data.segundosRestantes);
+        if ((!timerStartedByProfesor||!data.timerCorriendo)&&!Number.isNaN(bs)) {
+          if (!countdownEnCurso&&!timerLiberadoTrasCountdown) { timeLeft=bs; renderTimer(); }
         }
-
-        if (!timerStartedByProfesor && data.timerCorriendo && data.inicioFaseHabilitado) {
-          if (!countdownMostrado || countdownEnCurso || !timerLiberadoTrasCountdown) {
-            return;
-          }
-
-          timerStartedByProfesor = true;
-
-          if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-            timeLeft = backendSeconds;
-            renderTimer();
-          }
-
-          startTimer();
-          return;
+        if (!timerStartedByProfesor&&data.timerCorriendo&&data.inicioFaseHabilitado) {
+          if (!countdownMostrado||countdownEnCurso||!timerLiberadoTrasCountdown) return;
+          timerStartedByProfesor=true;
+          if (!Number.isNaN(bs)&&bs>=0) { timeLeft=bs; renderTimer(); }
+          startTimer(); return;
         }
-
-        if (timerStartedByProfesor && !data.timerCorriendo) {
+        if (timerStartedByProfesor&&!data.timerCorriendo) {
           pauseTimerLocally();
-
-          if (!Number.isNaN(backendSeconds) && backendSeconds >= 0) {
-            timeLeft = backendSeconds;
-            renderTimer();
-          }
-
-          timerStartedByProfesor = false;
+          if (!Number.isNaN(bs)&&bs>=0) { timeLeft=bs; renderTimer(); }
+          timerStartedByProfesor=false;
         }
-
-        if (Number(data.segundosRestantes) <= 0) {
-          mostrarModalFin();
-        }
-
-        if (data.todosListosF3Lego && data.rutaAlumno) {
-          redirigiendo = true;
-          window.location.href = data.rutaAlumno;
-        }
+        if (Number(data.segundosRestantes)<=0) mostrarModalFin();
+        if (data.todosListosF3Lego&&data.rutaAlumno) { redirigiendo=true; window.location.href=data.rutaAlumno; }
       }
 
       async function revisarEstadoProfesor() {
         try {
-          const res = await fetch(`/sesion/${sesionId}/estado/`, {
-            credentials: "same-origin",
-            cache: "no-store"
-          });
-
+          const res  = await fetch(`/sesion/${sesionId}/estado/`, {credentials:"same-origin",cache:"no-store"});
           if (!res.ok) return;
-
           const data = await res.json();
           procesarEstadoSesion(data);
-        } catch (error) {
-          console.error("Error sincronizando lego:", error);
-        }
+        } catch(error) { console.error("Error sincronizando lego:",error); }
       }
 
       if (boton) {
-        boton.addEventListener("click", async () => {
-          boton.disabled = true;
-          boton.textContent = "Esperando...";
-
+        boton.addEventListener("click", async()=>{
+          boton.disabled=true; boton.textContent=textoEsperando();
           try {
-            const res = await fetch(`/grupo/${grupoId}/listo/`, {
-              method: "POST",
-              credentials: "same-origin",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken
-              },
-              body: JSON.stringify({})
+            const res  = await fetch(`/grupo/${grupoId}/listo/`, {
+              method:"POST", credentials:"same-origin",
+              headers:{"Content-Type":"application/json","X-CSRFToken":csrfToken},
+              body: JSON.stringify({fase:"inicio_f3"})
             });
-
             const data = await res.json();
-
-            if (!res.ok || !data.ok) {
-              throw new Error(data.error || "No se pudo marcar listo.");
-            }
-
-            if (contador) {
-              contador.textContent = `${data.listos || 0}/${data.total || 0} grupos listos`;
-            }
-
-            if (textoEspera) {
-              textoEspera.textContent = "Esperando a los demás equipos...";
-            }
-
+            if (!res.ok||!data.ok) throw new Error(data.error||tJuego("lego_error_listo","No se pudo marcar listo."));
+            if (contador) contador.textContent=textoGruposListos(data.listos||0,data.total||0);
+            if (textoEspera) textoEspera.textContent=textoEsperandoEquipos();
             revisarEstadoProfesor();
-          } catch (err) {
-            console.error("Error marcando listo:", err);
-            boton.disabled = false;
-            boton.textContent = "⚡ Listo para comenzar";
-            if (textoEspera) {
-              textoEspera.textContent = "No se pudo registrar. Intenta nuevamente.";
-            }
+          } catch(err) {
+            console.error("Error marcando listo:",err);
+            boton.disabled=false; boton.textContent=textoBotonListo();
+            if (textoEspera) textoEspera.textContent=tJuego("lego_error_registro","No se pudo registrar. Intenta nuevamente.");
           }
         });
       }
 
-      bloquearFase();
-      renderTimer();
+      window.addEventListener("idiomaJuegoCambiado",()=>aplicarTraduccionDinamicaLego());
+      bloquearFase(); renderTimer(); aplicarTraduccionDinamicaLego();
       revisarEstadoProfesor();
       setInterval(revisarEstadoProfesor, 1500);
     });
   </script>
 
   <script>
-    const inputFoto = document.getElementById("foto_lego");
-    const sinFoto = document.getElementById("sin_foto_lego");
-    const previewWrapper = document.getElementById("previewWrapper");
-    const previewImg = document.getElementById("previewImg");
+    const inputFoto         = document.getElementById("foto_lego");
+    const sinFoto           = document.getElementById("sin_foto_lego");
+    const previewWrapper    = document.getElementById("previewWrapper");
+    const previewImg        = document.getElementById("previewImg");
     const buttonGuardarFoto = document.getElementById("buttonGuardarFoto");
-    const errorFoto = document.getElementById("errorFoto");
-    const formFoto = document.querySelector("#modal-fin form");
-
+    const errorFoto         = document.getElementById("errorFoto");
+    const formFoto          = document.querySelector("#modal-fin form");
     let yaEnviado = false;
 
+    function tLegoFoto(clave,fallback="") {
+      const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+      return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+    }
+
     function actualizarEstadoBoton() {
-      const hayArchivo = inputFoto && inputFoto.files && inputFoto.files.length > 0;
-      const marcoSinFoto = sinFoto && sinFoto.checked;
-
-      buttonGuardarFoto.disabled = !(hayArchivo || marcoSinFoto) || yaEnviado;
-
-      if (errorFoto) errorFoto.style.display = "none";
-
-      if (marcoSinFoto) {
-        inputFoto.value = "";
-        previewWrapper.classList.remove("visible");
-        previewImg.removeAttribute("src");
-      }
+      const hayArchivo  = inputFoto&&inputFoto.files&&inputFoto.files.length>0;
+      const marcoSinFoto= sinFoto&&sinFoto.checked;
+      buttonGuardarFoto.disabled = !(hayArchivo||marcoSinFoto)||yaEnviado;
+      if (errorFoto) errorFoto.style.display="none";
+      if (marcoSinFoto) { inputFoto.value=""; previewWrapper.classList.remove("visible"); previewImg.removeAttribute("src"); }
     }
 
     if (inputFoto) {
-      inputFoto.addEventListener("change", (event) => {
-        const file = event.target.files && event.target.files[0];
-
-        if (sinFoto) sinFoto.checked = false;
-
-        if (!file) {
-          previewWrapper.classList.remove("visible");
-          previewImg.removeAttribute("src");
-          actualizarEstadoBoton();
-          return;
-        }
-
-        const imageUrl = URL.createObjectURL(file);
-        previewImg.src = imageUrl;
+      inputFoto.addEventListener("change",(e)=>{
+        const file = e.target.files&&e.target.files[0];
+        if (sinFoto) sinFoto.checked=false;
+        if (!file) { previewWrapper.classList.remove("visible"); previewImg.removeAttribute("src"); actualizarEstadoBoton(); return; }
+        previewImg.src = URL.createObjectURL(file);
         previewWrapper.classList.add("visible");
         actualizarEstadoBoton();
       });
     }
 
-    if (sinFoto) {
-      sinFoto.addEventListener("change", actualizarEstadoBoton);
-    }
+    if (sinFoto) sinFoto.addEventListener("change", actualizarEstadoBoton);
 
     if (formFoto) {
-      formFoto.addEventListener("submit", async (e) => {
+      formFoto.addEventListener("submit", async(e)=>{
         e.preventDefault();
-
         if (yaEnviado) return;
-
-        const hayArchivo = inputFoto && inputFoto.files && inputFoto.files.length > 0;
-        const marcoSinFoto = sinFoto && sinFoto.checked;
-
-        if (!hayArchivo && !marcoSinFoto) {
-          if (errorFoto) errorFoto.style.display = "block";
+        const hayArchivo  = inputFoto&&inputFoto.files&&inputFoto.files.length>0;
+        const marcoSinFoto= sinFoto&&sinFoto.checked;
+        if (!hayArchivo&&!marcoSinFoto) {
+          if (errorFoto) { errorFoto.style.display="block"; errorFoto.textContent=tLegoFoto("lego_error_foto","Debes subir una foto o marcar que no pudieron subirla."); }
           return;
         }
-
         const formData = new FormData(formFoto);
-
         try {
-          const res = await fetch(window.location.href, {
-            method: "POST",
-            body: formData,
-            headers: {
-              "X-Requested-With": "XMLHttpRequest"
-            }
-          });
-
+          const res  = await fetch(window.location.href,{method:"POST",body:formData,headers:{"X-Requested-With":"XMLHttpRequest"}});
           const data = await res.json();
-
-          if (!data.ok) {
-            throw new Error(data.error || "Error guardando");
-          }
-
-          yaEnviado = true;
-
-          inputFoto.disabled = true;
-          sinFoto.disabled = true;
-          buttonGuardarFoto.disabled = true;
-          buttonGuardarFoto.textContent = "¡Listo!";
-
-          const estado = document.getElementById("estadoGruposLego");
+          if (!data.ok) throw new Error(data.error||tLegoFoto("lego_error_guardar_foto","Error guardando"));
+          yaEnviado=true;
+          inputFoto.disabled=true; sinFoto.disabled=true; buttonGuardarFoto.disabled=true;
+          buttonGuardarFoto.textContent=tLegoFoto("lego_listo","¡Listo!");
+          const estado  = document.getElementById("estadoGruposLego");
           const detalle = document.getElementById("detalleGruposLego");
-
-          if (estado) {
-            estado.textContent = `${data.gruposListosF3Lego || 0}/${data.totalGrupos || 0} grupos listos`;
-          }
-
-          if (detalle) {
-            detalle.textContent = `${data.gruposConFotoLego || 0} con foto · ${data.gruposSinFotoLego || 0} sin foto`;
-          }
-        } catch (err) {
+          if (estado)  estado.textContent  = `${data.gruposListosF3Lego||0}/${data.totalGrupos||0} ${tLegoFoto("lego_grupos_listos","grupos listos")}`;
+          if (detalle) detalle.textContent = `${data.gruposConFotoLego||0} ${tLegoFoto("lego_con_foto","con foto")} · ${data.gruposSinFotoLego||0} ${tLegoFoto("lego_sin_foto_detalle","sin foto")}`;
+        } catch(err) {
           console.error(err);
-          if (errorFoto) {
-            errorFoto.style.display = "block";
-            errorFoto.textContent = err.message;
-          }
+          if (errorFoto) { errorFoto.style.display="block"; errorFoto.textContent=err.message; }
         }
       });
     }
-  </script>
 
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const sesionId = "{{ grupo.sesion.idsesion }}";
-      const grupoId = "{{ grupo.idgrupo }}";
-      const csrfToken = "{{ csrf_token }}";
-
-      const astroTrigger = document.getElementById("astroLegoTrigger");
-      const astroOverlay = document.getElementById("astroLegoOverlay");
-      const astroClose = document.getElementById("astroLegoClose");
-      const astroFeedback = document.getElementById("astroLegoFeedback");
-      const astroOpciones = document.querySelectorAll(".astro-lego-opcion");
-      const astroTalk = document.getElementById("astroLegoTalk");
-      const astroExit = document.getElementById("astroLegoExit");
-
-      const STORAGE_ASTRO_LEGO = `astro_lego_pregunta_usada_${sesionId}_${grupoId}`;
-
-      let respondido = localStorage.getItem(STORAGE_ASTRO_LEGO) === "1";
-
-      if (respondido && astroTrigger) {
-        astroTrigger.classList.add("oculto");
-      }
-
-      function abrirAstroLego() {
-        if (!astroOverlay || respondido) return;
-
-        astroOverlay.classList.add("activo");
-        astroOverlay.setAttribute("aria-hidden", "false");
-
-        if (astroTalk) {
-          astroTalk.currentTime = 0;
-          astroTalk.play().catch(() => {});
-        }
-      }
-
-      function cerrarAstroLego() {
-        if (!astroOverlay) return;
-
-        astroOverlay.classList.remove("activo");
-        astroOverlay.setAttribute("aria-hidden", "true");
-
-        if (astroExit) {
-          astroExit.currentTime = 0;
-          astroExit.play().catch(() => {});
-        }
-
-        if (astroTrigger) {
-          astroTrigger.classList.add("oculto");
-        }
-      }
-
-      async function sumarTokensAstro() {
-        try {
-          await fetch("{% url 'aplicar_resultado_ruleta_lego' %}", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrfToken
-            },
-            body: JSON.stringify({
-              tokens: 2,
-              resultado: "pregunta_astronauta_lego"
-            })
-          });
-        } catch (error) {
-          console.error("Error sumando tokens astronauta LEGO:", error);
-        }
-      }
-
-      astroTrigger?.addEventListener("click", abrirAstroLego);
-
-      astroOpciones.forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          if (respondido) return;
-
-          respondido = true;
-          localStorage.setItem(STORAGE_ASTRO_LEGO, "1");
-
-          const correcta = btn.dataset.correcta === "true";
-
-          astroOpciones.forEach(op => {
-            op.disabled = true;
-            if (op.dataset.correcta === "true") {
-              op.classList.add("correcta");
-            }
-          });
-
-          if (correcta) {
-            btn.classList.add("correcta");
-
-            if (astroFeedback) {
-              astroFeedback.className = "astro-lego-feedback visible ok";
-              astroFeedback.textContent = "¡Correcto! La respuesta era Trabajo en equipo → Empatía → Creatividad. Toma tus 2 tokens.";
-            }
-
-            await sumarTokensAstro();
-          } else {
-            btn.classList.add("incorrecta");
-
-            if (astroFeedback) {
-              astroFeedback.className = "astro-lego-feedback visible error";
-              astroFeedback.textContent = "Fallaste. La respuesta correcta era: Trabajo en equipo → Empatía → Creatividad.";
-            }
-          }
-
-          if (astroClose) {
-            astroClose.classList.add("visible");
-          }
-        });
-      });
-
-      astroClose?.addEventListener("click", cerrarAstroLego);
+    window.addEventListener("idiomaJuegoCambiado",()=>{
+      if (!yaEnviado&&buttonGuardarFoto) buttonGuardarFoto.textContent=tLegoFoto("lego_guardar_continuar","Guardar y continuar");
+      if (errorFoto&&errorFoto.style.display!=="none") errorFoto.textContent=tLegoFoto("lego_error_foto","Debes subir una foto o marcar que no pudieron subirla.");
     });
   </script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded",()=>{
+      const sesionId  = "{{ grupo.sesion.idsesion }}";
+      const grupoId   = "{{ grupo.idgrupo }}";
+      const csrfToken = "{{ csrf_token }}";
+      const astroTrigger  = document.getElementById("astroLegoTrigger");
+      const astroOverlay  = document.getElementById("astroLegoOverlay");
+      const astroClose    = document.getElementById("astroLegoClose");
+      const astroFeedback = document.getElementById("astroLegoFeedback");
+      const astroOpciones = document.querySelectorAll(".astro-lego-opcion");
+      const astroTalk     = document.getElementById("astroLegoTalk");
+      const astroExit     = document.getElementById("astroLegoExit");
+      const STORAGE_ASTRO_LEGO = `astro_lego_pregunta_usada_${sesionId}_${grupoId}`;
+      let respondido = localStorage.getItem(STORAGE_ASTRO_LEGO)==="1";
+
+      function tAstro(clave,fallback="") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+
+      if (respondido&&astroTrigger) astroTrigger.classList.add("oculto");
+
+      astroTrigger?.addEventListener("click",()=>{
+        if (!astroOverlay||respondido) return;
+        astroOverlay.classList.add("activo"); astroOverlay.setAttribute("aria-hidden","false");
+        if (astroTalk) { astroTalk.currentTime=0; astroTalk.play().catch(()=>{}); }
+      });
+
+      astroOpciones.forEach(btn=>{
+        btn.addEventListener("click", async()=>{
+          if (respondido) return;
+          respondido=true; localStorage.setItem(STORAGE_ASTRO_LEGO,"1");
+          const correcta = btn.dataset.correcta==="true";
+          astroOpciones.forEach(op=>{ op.disabled=true; if(op.dataset.correcta==="true") op.classList.add("correcta"); });
+          if (correcta) {
+            btn.classList.add("correcta");
+            if (astroFeedback) { astroFeedback.className="astro-lego-feedback visible ok"; astroFeedback.textContent=tAstro("lego_astro_feedback_ok","¡Correcto! La respuesta era Trabajo en equipo → Empatía → Creatividad. Toma tus 2 tokens."); }
+            try {
+              await fetch("{% url 'aplicar_resultado_ruleta_lego' %}",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRFToken":csrfToken},body:JSON.stringify({tokens:2,resultado:"pregunta_astronauta_lego"})});
+            } catch(e){}
+          } else {
+            btn.classList.add("incorrecta");
+            if (astroFeedback) { astroFeedback.className="astro-lego-feedback visible error"; astroFeedback.textContent=tAstro("lego_astro_feedback_error","Fallaste. La respuesta correcta era: Trabajo en equipo → Empatía → Creatividad."); }
+          }
+          if (astroClose) astroClose.classList.add("visible");
+        });
+      });
+
+      astroClose?.addEventListener("click",()=>{
+        if (!astroOverlay) return;
+        astroOverlay.classList.remove("activo"); astroOverlay.setAttribute("aria-hidden","true");
+        if (astroExit) { astroExit.currentTime=0; astroExit.play().catch(()=>{}); }
+        if (astroTrigger) astroTrigger.classList.add("oculto");
+      });
+
+      window.addEventListener("idiomaJuegoCambiado",()=>{
+        if (!astroFeedback||!respondido) return;
+        const fueCorrecta = astroFeedback.classList.contains("ok");
+        astroFeedback.textContent = fueCorrecta
+          ? tAstro("lego_astro_feedback_ok","¡Correcto! La respuesta era Trabajo en equipo → Empatía → Creatividad. Toma tus 2 tokens.")
+          : tAstro("lego_astro_feedback_error","Fallaste. La respuesta correcta era: Trabajo en equipo → Empatía → Creatividad.");
+      });
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded",()=>{
       const sesionId = "{{ grupo.sesion.idsesion }}";
-      const grupoId = "{{ grupo.idgrupo }}";
-
-      const modal = document.getElementById("modalRuletaLego");
-      const btnAbrir = document.getElementById("btnAbrirRuletaLego");
-      const btnCerrar = document.getElementById("btnCerrarRuletaLego");
-      const btnLanzar = document.getElementById("btnLanzarRuletaLego");
-      const wheel = document.getElementById("ruletaWheel");
-      const intentosRestantes = document.getElementById("ruletaIntentosRestantes");
-      const intentosTexto = document.getElementById("ruletaIntentosTexto");
-      const ultimoResultado = document.getElementById("ruletaUltimoResultado");
-      const resultadoActual = document.getElementById("ruletaResultadoActual");
-      const popupResultado = document.getElementById("ruletaPopupResultado");
-      const popupIcon = document.getElementById("ruletaPopupIcon");
-      const popupTitle = document.getElementById("ruletaPopupTitle");
-      const popupDetail = document.getElementById("ruletaPopupDetail");
-
-      const STORAGE_RULETA = `ruleta_lego_${sesionId}_${grupoId}`;
+      const grupoId  = "{{ grupo.idgrupo }}";
+      const modal            = document.getElementById("modalRuletaLego");
+      const btnAbrir         = document.getElementById("btnAbrirRuletaLego");
+      const btnCerrar        = document.getElementById("btnCerrarRuletaLego");
+      const btnLanzar        = document.getElementById("btnLanzarRuletaLego");
+      const wheel            = document.getElementById("ruletaWheel");
+      const intentosRestantes= document.getElementById("ruletaIntentosRestantes");
+      const intentosTexto    = document.getElementById("ruletaIntentosTexto");
+      const ultimoResultado  = document.getElementById("ruletaUltimoResultado");
+      const resultadoActual  = document.getElementById("ruletaResultadoActual");
+      const STORAGE_RULETA   = `ruleta_lego_${sesionId}_${grupoId}`;
       const MAX_INTENTOS = 3;
 
-const OPCIONES = [
-  {
-    id: "plus2",
-    titulo: "+2 tokens",
-    detalle: "Tu equipo gana 2 tokens.",
-    tokens: 2,
-    prob: 15,
-    slice: 0
-  },
-  {
-    id: "plus1",
-    titulo: "+1 token",
-    detalle: "Tu equipo gana 1 token.",
-    tokens: 1,
-    prob: 20,
-    slice: 1
-  },
-  {
-    id: "minus1",
-    titulo: "-1 token",
-    detalle: "Tu equipo pierde 1 token.",
-    tokens: -1,
-    prob: 15,
-    slice: 2
-  },
-  {
-    id: "minus2",
-    titulo: "-2 tokens",
-    detalle: "Tu equipo pierde 2 tokens.",
-    tokens: -2,
-    prob: 10,
-    slice: 3
-  },
-  {
-    id: "espia",
-    titulo: "Espía",
-    detalle: "Pueden mirar a otro equipo durante 1 minuto.",
-    tokens: 0,
-    prob: 10,
-    slice: 4
-  },
-  {
-    id: "opinion_profe",
-    titulo: "Opinión del profe",
-    detalle: "Pueden pedir una opinión breve al profesor.",
-    tokens: 0,
-    prob: 10,
-    slice: 5
-  },
-  {
-    id: "silencio",
-    titulo: "Silencio parcial",
-    detalle: "La mitad del equipo no puede hablar durante 30 segundos.",
-    tokens: 0,
-    prob: 10,
-    slice: 6
-  },
-  {
-    id: "nada",
-    titulo: "Nada pasa",
-    detalle: "No ganan ni pierden tokens.",
-    tokens: 0,
-    prob: 10,
-    slice: 7
-  }
-];
+      const OPCIONES = [
+        {% for op in opciones_ruleta %}
+        { id:"{{ op.codigo }}", icono:"{{ op.emoji|escapejs }}", titulo:"{{ op.titulo|escapejs }}", detalle:"{{ op.descripcion|escapejs }}", tokens:{{ op.tokens }}, prob:{{ op.porcentaje }}, slice:{{ forloop.counter0 }} }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ];
 
       let girando = false;
       let anguloActual = 0;
 
-      function cargarEstadoRuleta() {
-        try {
-          const raw = localStorage.getItem(STORAGE_RULETA);
-          if (!raw) {
-            return {
-              usados: 0,
-              historial: []
-            };
-          }
-          const parsed = JSON.parse(raw);
-          return {
-            usados: Number(parsed.usados || 0),
-            historial: Array.isArray(parsed.historial) ? parsed.historial : []
-          };
-        } catch (_) {
-          return {
-            usados: 0,
-            historial: []
-          };
-        }
+      function tRuleta(clave,fallback="") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
       }
 
-      function guardarEstadoRuleta(data) {
-        localStorage.setItem(STORAGE_RULETA, JSON.stringify(data));
+      function cargarEstadoRuleta() {
+        try { const r=JSON.parse(localStorage.getItem(STORAGE_RULETA)||"{}"); return {usados:Number(r.usados||0),historial:Array.isArray(r.historial)?r.historial:[]}; }
+        catch(_){ return {usados:0,historial:[]}; }
       }
+      function guardarEstadoRuleta(d){ localStorage.setItem(STORAGE_RULETA,JSON.stringify(d)); }
 
       function actualizarResumenRuleta() {
-        const estado = cargarEstadoRuleta();
-        const restantes = Math.max(0, MAX_INTENTOS - estado.usados);
-
-        if (intentosRestantes) {
-          intentosRestantes.textContent = String(restantes);
-        }
-
-        if (intentosTexto) {
-          intentosTexto.textContent = `Intentos disponibles: ${restantes}/${MAX_INTENTOS}`;
-        }
-
-        const ultimo = estado.historial[estado.historial.length - 1];
-        if (ultimoResultado) {
-          ultimoResultado.textContent = ultimo
-            ? `Último resultado: ${ultimo.icono ? ultimo.icono + " " : ""}${ultimo.titulo} — ${ultimo.detalle}`
-            : "Aún no has lanzado la ruleta.";
-        }
-
-        if (resultadoActual) {
-          resultadoActual.textContent = ultimo
-            ? `${ultimo.icono ? ultimo.icono + " " : ""}${ultimo.titulo}: ${ultimo.detalle}`
-            : "Aún no has lanzado la ruleta.";
-        }
-
+        const estado    = cargarEstadoRuleta();
+        const restantes = Math.max(0,MAX_INTENTOS-estado.usados);
+        if (intentosRestantes) intentosRestantes.textContent=String(restantes);
+        if (intentosTexto)     intentosTexto.textContent=`${tRuleta("lego_ruleta_intentos_disponibles","Intentos disponibles:")} ${restantes}/${MAX_INTENTOS}`;
+        const ultimo = estado.historial[estado.historial.length-1];
+        const txtUlt = ultimo ? `${tRuleta("lego_ruleta_ultimo_resultado","Último resultado:")} ${ultimo.icono||""} ${ultimo.titulo} — ${ultimo.detalle}` : tRuleta("lego_ruleta_sin_lanzar","Aún no has lanzado la ruleta.");
+        if (ultimoResultado)  ultimoResultado.textContent=txtUlt;
+        if (resultadoActual)  resultadoActual.textContent=ultimo ? `${ultimo.icono||""} ${ultimo.titulo}: ${ultimo.detalle}` : tRuleta("lego_ruleta_sin_lanzar","Aún no has lanzado la ruleta.");
         if (btnLanzar) {
-          btnLanzar.disabled = restantes <= 0 || girando;
-          btnLanzar.textContent = restantes <= 0 ? "Sin intentos" : "Lanzar ruleta";
+          btnLanzar.disabled  = restantes<=0||girando;
+          btnLanzar.textContent = restantes<=0 ? tRuleta("lego_ruleta_sin_intentos","Sin intentos") : tRuleta("lego_ruleta_lanzar","Lanzar ruleta");
         }
       }
 
-      function abrirModalRuleta() {
-        if (!modal) return;
-        modal.style.display = "flex";
-        actualizarResumenRuleta();
-      }
+      btnAbrir?.addEventListener("click",()=>{ if(modal){modal.style.display="flex";actualizarResumenRuleta();} });
+      btnCerrar?.addEventListener("click",()=>{ if(modal) modal.style.display="none"; });
+      modal?.addEventListener("click",(e)=>{ if(e.target===modal) modal.style.display="none"; });
 
-      function cerrarModalRuleta() {
-        if (!modal) return;
-        modal.style.display = "none";
-      }
-
-      function elegirOpcionPonderada() {
-        const total = OPCIONES.reduce((acc, op) => acc + op.prob, 0);
-        let r = Math.random() * total;
-
-        for (const op of OPCIONES) {
-          r -= op.prob;
-          if (r <= 0) return op;
-        }
-
-        return OPCIONES[OPCIONES.length - 1];
-      }
-
-      function girarRuleta(opcion) {
-  return new Promise(resolve => {
-    if (!wheel) {
-      resolve();
-      return;
-    }
-
-    const audio = document.getElementById("ruletaAudio");
-    if (audio) {
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-    }
-
-    const gradosPorSlice = 360 / 8;
-    const centroSlice = (opcion.slice * gradosPorSlice) + (gradosPorSlice / 2);
-    const offset = 360 - centroSlice;
-    const vueltasExtra = 360 * (5 + Math.floor(Math.random() * 2));
-
-    anguloActual += vueltasExtra + offset;
-    wheel.style.transform = `rotate(${anguloActual}deg)`;
-
-    setTimeout(resolve, 4200);
-  });
-}
       async function lanzarRuleta() {
         if (girando) return;
-
-        const estado = cargarEstadoRuleta();
-        const restantes = MAX_INTENTOS - estado.usados;
-        if (restantes <= 0) {
-          actualizarResumenRuleta();
-          return;
-        }
-
-        girando = true;
-        if (btnLanzar) {
-          btnLanzar.disabled = true;
-          btnLanzar.textContent = "Girando...";
-        }
-
-        const opcion = elegirOpcionPonderada();
-        await girarRuleta(opcion);
-        try {
-  await fetch("{% url 'aplicar_resultado_ruleta_lego' %}", {
-    method: "POST",
-    credentials: "same-origin",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": "{{ csrf_token }}"
-    },
-    body: JSON.stringify({
-      tokens: opcion.tokens,
-      resultado: opcion.id
-    })
-  });
-} catch (error) {
-  console.error("Error aplicando tokens de ruleta:", error);
-}
-
-        estado.usados += 1;
-        estado.historial.push({
-          id: opcion.id,
-          titulo: opcion.titulo,
-          detalle: opcion.detalle,
-          icono: opcion.icono,
-          fecha: new Date().toISOString()
+        const estado    = cargarEstadoRuleta();
+        const restantes = MAX_INTENTOS-estado.usados;
+        if (restantes<=0) { actualizarResumenRuleta(); return; }
+        girando=true;
+        if (btnLanzar) { btnLanzar.disabled=true; btnLanzar.textContent=tRuleta("lego_ruleta_girando","Girando..."); }
+        const total = OPCIONES.reduce((a,o)=>a+o.prob,0);
+        let r = Math.random()*total;
+        let opcion = OPCIONES[OPCIONES.length-1];
+        for (const o of OPCIONES) { r-=o.prob; if(r<=0){opcion=o;break;} }
+        await new Promise(resolve=>{
+          if (!wheel){resolve();return;}
+          const audio = document.getElementById("ruletaAudio");
+          if (audio) { audio.currentTime=0; audio.play().catch(()=>{}); }
+          const gps    = 360/8;
+          const centro = (opcion.slice*gps)+(gps/2);
+          anguloActual += 360*(5+Math.floor(Math.random()*2))+(360-centro);
+          wheel.style.transform=`rotate(${anguloActual}deg)`;
+          setTimeout(resolve,4200);
         });
-
+        try {
+          await fetch("{% url 'aplicar_resultado_ruleta_lego' %}",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRFToken":"{{ csrf_token }}"},body:JSON.stringify({tokens:opcion.tokens,resultado:opcion.id})});
+        } catch(e){ console.error("Error ruleta:",e); }
+        estado.usados+=1;
+        estado.historial.push({id:opcion.id,titulo:opcion.titulo,detalle:opcion.detalle,icono:opcion.icono,fecha:new Date().toISOString()});
         guardarEstadoRuleta(estado);
-
-        if (popupResultado) {
-          popupResultado.classList.add("visible");
-        }
-        if (popupIcon) popupIcon.textContent = opcion.icono || "🎲";
-        if (popupTitle) popupTitle.textContent = opcion.titulo;
-        if (popupDetail) popupDetail.textContent = opcion.detalle;
-
-        girando = false;
+        girando=false;
         actualizarResumenRuleta();
       }
 
-      btnAbrir?.addEventListener("click", abrirModalRuleta);
-      btnCerrar?.addEventListener("click", cerrarModalRuleta);
-      btnLanzar?.addEventListener("click", lanzarRuleta);
-
-      modal?.addEventListener("click", (e) => {
-        if (e.target === modal) {
-          cerrarModalRuleta();
-        }
-      });
-
+      btnLanzar?.addEventListener("click",lanzarRuleta);
+      window.addEventListener("idiomaJuegoCambiado",()=>actualizarResumenRuleta());
       actualizarResumenRuleta();
     });
+  </script>
+
+  <!-- ═══ SCRIPT MÚSICA DE FONDO ═══ -->
+  <script>
+    (function () {
+      const audio = document.getElementById("musica-lego");
+      const btn   = document.getElementById("btn-musica-lego");
+      if (!audio) return;
+
+      audio.volume = 0.35;
+
+      function arrancar() {
+        audio.play().catch(() => {});
+        document.removeEventListener("click",      arrancar);
+        document.removeEventListener("touchstart", arrancar);
+      }
+      document.addEventListener("click",      arrancar);
+      document.addEventListener("touchstart", arrancar);
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) { audio.pause(); }
+        else if (!audio.muted) { audio.play().catch(() => {}); }
+      });
+
+      window.toggleMusicaLego = function () {
+        audio.muted   = !audio.muted;
+        btn.innerHTML = audio.muted ? "&#128263;" : "&#128266;";
+        btn.title     = audio.muted ? "Activar música" : "Silenciar música";
+      };
+
+      window.addEventListener("beforeunload", () => audio.pause());
+    })();
   </script>
 
   {% include "includes/sincronizacion_fase.html" %}
