@@ -603,7 +603,7 @@
   </script>
 
   <script>
-    const STORAGE_KEY = "bubblemap_data";
+    const STORAGE_KEY = "bubblemap_data_v3_sesion_{{ grupo.sesion.idsesion }}_grupo_{{ grupo.idgrupo }}";
     const list = document.getElementById("ideasList");
 
     function tLegoGlobal(clave, fallback="") {
@@ -615,16 +615,17 @@
       if (!list) return;
       list.innerHTML = "";
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      if (!saved || Object.values(saved).every(v => !String(v||"").trim())) {
+      const ideas = [];
+      Object.values(saved.burbujas || {}).forEach(v => { if (String(v||"").trim()) ideas.push(String(v).trim()); });
+      (saved.otros || []).forEach(v => { if (String(v||"").trim()) ideas.push(String(v).trim()); });
+      if (ideas.length === 0) {
         list.innerHTML = `<li>${tLegoGlobal("lego_ideas_vacias","No se ingresaron ideas.")}</li>`;
         return;
       }
-      Object.values(saved).forEach(text => {
-        if (String(text||"").trim()) {
-          const li = document.createElement("li");
-          li.textContent = text;
-          list.appendChild(li);
-        }
+      ideas.forEach(text => {
+        const li = document.createElement("li");
+        li.textContent = text;
+        list.appendChild(li);
       });
     }
     cargarIdeasBubblemap();
