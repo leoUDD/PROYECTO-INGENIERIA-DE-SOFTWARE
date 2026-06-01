@@ -293,9 +293,34 @@ body {
       {% csrf_token %}
 
       <div class="field">
-        <label>Nombre de la sesión *</label>
-        <input type="text" name="nombre" required>
-      </div>
+  <label>Nombre de la sesión *</label>
+  <input type="text" name="nombre" required>
+</div>
+
+<div class="field">
+  <label>Correo del profesor *</label>
+  <input type="email" name="email_profesor" required>
+</div>
+
+<div class="field">
+  <label>Facultad *</label>
+  <select name="facultad" required>
+  <option value="">Seleccione una facultad</option>
+  <option value="Arquitectura y Arte">Arquitectura y Arte</option>
+  <option value="Ciencias de la Salud">Ciencias de la Salud</option>
+  <option value="Comunicaciones">Comunicaciones</option>
+  <option value="Derecho">Derecho</option>
+  <option value="Diseño">Diseño</option>
+  <option value="Economía y Negocios">Economía y Negocios</option>
+  <option value="Educación">Educación</option>
+  <option value="Gobierno">Gobierno</option>
+  <option value="Ingeniería">Ingeniería</option>
+  <option value="Medicina Clínica Alemana Universidad del Desarrollo">
+    Medicina Clínica Alemana Universidad del Desarrollo
+  </option>
+  <option value="Psicología">Psicología</option>
+</select>
+</div>
 
       <div class="field">
         <label>Archivo Excel *</label>
@@ -376,16 +401,28 @@ body {
             <tr>
               <th>Grupo</th>
               <th>Código de acceso</th>
+              <th>Integrantes</th>
             </tr>
           </thead>
-          <tbody>
-            {% for grupo in bloque.grupos %}
-            <tr>
-              <td>{{ grupo.nombregrupo }}</td>
-              <td class="codigo">{{ grupo.codigoacceso }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
+<tbody>
+  {% for grupo in bloque.grupos %}
+  <tr>
+    <td>{{ grupo.nombregrupo }}</td>
+    <td class="codigo">{{ grupo.codigoacceso }}</td>
+    <td>
+      {% for alumno in grupo.alumno_set.all %}
+        <div>
+          {{ alumno.nombrealumno }}
+          {{ alumno.apellidopaternoalumno }}
+          {{ alumno.apellidomaternoalumno }}
+        </div>
+      {% empty %}
+        <span>Sin alumnos asignados</span>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
         </table>
       {% endfor %}
     </section>
