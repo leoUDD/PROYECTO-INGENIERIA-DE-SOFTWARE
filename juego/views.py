@@ -3776,6 +3776,7 @@ def crear_grupos_para_alumnos(sesion, alumnos, max_por_grupo=8, cantidad_grupos_
         alumno.save(update_fields=["grupo"])
 
     return len(grupos)
+
 def crear_sesion(request):
     profesor = Profesor.objects.first()
 
@@ -3785,6 +3786,9 @@ def crear_sesion(request):
 
     if request.method == "POST":
         nombre = (request.POST.get("nombre") or "").strip()
+        email_profesor = (request.POST.get("email_profesor") or "").strip()
+        facultad = (request.POST.get("facultad") or "").strip()
+
         modo_creacion = request.POST.get("modo_creacion", "recomendado")
         archivo = request.FILES.get("archivo_excel")
 
@@ -3793,6 +3797,14 @@ def crear_sesion(request):
 
         if not nombre:
             messages.error(request, "Debes darle un nombre a la sesión.")
+            return render(request, "crear_sesion.html")
+
+        if not email_profesor:
+            messages.error(request, "Debes ingresar el correo del profesor.")
+            return render(request, "crear_sesion.html")
+
+        if not facultad:
+            messages.error(request, "Debes seleccionar una facultad.")
             return render(request, "crear_sesion.html")
 
         if not archivo:
@@ -3809,6 +3821,10 @@ def crear_sesion(request):
             sesiones_creadas = []
 
             with transaction.atomic():
+
+                profesor.emailprofesor = email_profesor
+                profesor.facultad = facultad
+                profesor.save()
 
                 if modo_creacion == "dividir_dos":
                     cantidad_sesiones = 2
@@ -3858,7 +3874,9 @@ def crear_sesion(request):
 
                     sesiones_creadas.append({
                         "sesion": sesion,
-                        "grupos": Grupo.objects.filter(sesion=sesion).order_by("idgrupo"),
+                        "grupos": Grupo.objects.filter(sesion=sesion)
+                        .prefetch_related("alumno_set")
+                        .order_by("idgrupo"),
                     })
 
                 messages.success(request, "Sesión creada correctamente.")
