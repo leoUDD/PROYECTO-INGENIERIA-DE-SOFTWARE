@@ -1,6 +1,6 @@
 #NUEVO
 from django.shortcuts import render, redirect
-from .forms import FotoLegoForm
+
 from django.utils.text import slugify
 from .models import TiempoFase
 from django.core.files.storage import FileSystemStorage
@@ -277,6 +277,8 @@ def fase_anterior_automatica(fase_actual):
     except ValueError:
         pass
 
+    return fase_actual
+
 @require_POST
 def profesor_fase_anterior(request, sesion_id):
     sesion = get_object_or_404(Sesion, pk=sesion_id)
@@ -532,9 +534,7 @@ def calcular_segundos_restantes(sesion):
             completar_evaluaciones_faltantes(sesion)
 
             # 2️⃣ Recompensar al/los grupo(s) mejor evaluado(s) según los puntajes recibidos
-            from juego.models import EvaluacionPeer, Grupo
-
-            evaluaciones = EvaluacionPeer.objects.filter(sesion=sesion)
+            evaluaciones = Evaluacion.objects.filter(sesion=sesion)
             puntaje_recibido = {}  # {grupo_id: total_puntaje}
 
             for e in evaluaciones:
@@ -1191,35 +1191,39 @@ def evaluacion_actual_completa(sesion):
 
 
 def asignar_tematica_y_desafio_aleatorio(sesion):
-    temas = ["salud", "sustentabilidad", "educacion"]
+    tematicas_activas = list(Tematica.objects.filter(activa=True))
 
     for grupo in Grupo.objects.filter(sesion=sesion):
         if grupo.listo_f2_desafio:
             continue
 
-        tema = (grupo.tema_elegido or "").strip().lower()
+        slug = (grupo.tema_elegido or "").strip().lower()
+        tematica = Tematica.objects.filter(slug=slug, activa=True).first()
 
-        if not tema or not get_theme(tema):
-            tema = random.choice(temas)
+        if not tematica:
+            if not tematicas_activas:
+                continue
+            tematica = random.choice(tematicas_activas)
 
-        theme = get_theme(tema)
-        desafios = theme.get("challenges", []) if theme else []
+        desafios = list(Desafio.objects.filter(tematica=tematica, activo=True))
 
         if not desafios:
             continue
 
         desafio = random.choice(desafios)
 
-        grupo.tema_elegido = tema
+        grupo.tema_elegido = tematica.slug
         grupo.listo_f2_tematica = True
-        grupo.desafio_id_externo = str(desafio.get("id"))
-        grupo.desafio_nombre = desafio.get("name", "")
-        grupo.desafio_descripcion = desafio.get("desc", "")
+        grupo.desafio_elegido = desafio
+        grupo.desafio_id_externo = str(desafio.iddesafio)
+        grupo.desafio_nombre = desafio.nombredesafio or ""
+        grupo.desafio_descripcion = desafio.descripciondesafio or ""
         grupo.listo_f2_desafio = True
 
         grupo.save(update_fields=[
             "tema_elegido",
             "listo_f2_tematica",
+            "desafio_elegido",
             "desafio_id_externo",
             "desafio_nombre",
             "desafio_descripcion",
@@ -1614,13 +1618,9 @@ def profesor_siguiente_fase(request, sesion_id):
         sesion.timer_fin_at = ahora + timedelta(seconds=sesion.segundos_restantes) if sesion.timer_corriendo else None
 
     if nueva_fase == "f4_orden_pitch":
-        Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False)
-        Grupo.objects.filter(sesion=sesion).update(orden_presentacion=None)
+        Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False, orden_presentacion=None)
         sesion.orden_sorteado = False
         sesion.grupo_presentando = None
-
-    if nueva_fase == "f4_orden_pitch":
-        Grupo.objects.filter(sesion=sesion).update(listo_f4_orden=False)
 
     if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
         sesion.inicio_fase_habilitado = False
@@ -3636,6 +3636,8 @@ def peer_review_view(request):
             reflexion=reflexion or None,
         )
 
+        otorgar_tokens_peer_review(grupo_evaluador)
+
         grupo_evaluador.listo_f5 = True
         grupo_evaluador.save(update_fields=["listo_f5"])
 
@@ -3654,9 +3656,6 @@ def peer_review_view(request):
     })
 
 
-
-def ranking(request):
-    return render(request, 'ranking.html')
 
 def registrarprofesor(request):
     if request.method == "POST":
@@ -3682,61 +3681,11 @@ def registrarprofesor(request):
     })
 
 
-@require_POST
-def eliminar_profesor(request, profesor_id):
-    profesor = get_object_or_404(Profesor, idprofesor=profesor_id)
-
-    alumnos_asociados = Alumno.objects.filter(profesor_idprofesor=profesor).count()
-    sesiones_asociadas = Sesion.objects.filter(profesor=profesor).count()
-
-    if alumnos_asociados > 0 or sesiones_asociadas > 0:
-        messages.warning(
-            request,
-            f"No se puede eliminar directamente. Tiene {alumnos_asociados} alumnos y {sesiones_asociadas} sesiones asociadas. Usa eliminación forzada si quieres borrar todo lo relacionado."
-        )
-        return redirect("registrarprofesor")
-
-    profesor.delete()
-    messages.success(request, "Profesor eliminado correctamente.")
-    return redirect("registrarprofesor")
-
-
-@require_POST
-def eliminar_profesor_forzado(request, profesor_id):
-    profesor = get_object_or_404(Profesor, idprofesor=profesor_id)
-
-    Alumno.objects.filter(profesor_idprofesor=profesor).delete()
-    Sesion.objects.filter(profesor=profesor).delete()
-
-    profesor.delete()
-
-    messages.success(request, "Profesor y datos asociados eliminados correctamente.")
-    return redirect("registrarprofesor")
-
 def listar_profesores(request):
     profesores = Profesor.objects.all().order_by('-idprofesor')
     return render(request, 'listar_profesores.html', {'profesores': profesores})
 
-@require_http_methods(["POST"])
-def eliminar_profesor(request, idprofesor):
-    profesor = get_object_or_404(Profesor, idprofesor=idprofesor)
 
-    if Alumno.objects.filter(profesor_idprofesor=profesor).exists():
-        messages.error(request, "No se puede eliminar: el profesor tiene alumnos asociados.")
-        return redirect('listar_profesores')
-
-    try:
-        with transaction.atomic():
-            usuario = profesor.usuario_idusuario
-            profesor.delete()
-            if not Profesor.objects.filter(usuario_idusuario=usuario).exists():
-                usuario.delete()
-
-        messages.success(request, "Profesor eliminado correctamente.")
-    except Exception as e:
-        messages.error(request, f"Error al eliminar: {e}")
-
-    return redirect('listar_profesores')
 
 @require_http_methods(["POST"])
 def eliminar_alumno(request, idalumno):
@@ -3762,10 +3711,6 @@ def reflexion(request):
         return redirect("pantalla_espera")
 
     return render(request, "reflexion.html", {"grupo": grupo})
-def obtener_tiempo(codigo, defecto):
-    tiempo = TiempoFase.objects.filter(codigo=codigo, activo=True).first()
-    return tiempo.segundos if tiempo else defecto
-
 def leer_alumnos_desde_archivo(archivo):
     nombre = archivo.name.lower()
 
@@ -4117,38 +4062,6 @@ def preview_pantalla_profesor(request, sesion_id):
 
     return render(request, template_name, context)
 
-def admin_tematicas(request):
-    tematicas = []
-
-    for tematica in Tematica.objects.all().order_by("orden", "title"):
-        grupos_tematica = Grupo.objects.filter(tema_elegido=tematica.slug)
-
-        desafio_mas_usado = (
-            grupos_tematica
-            .exclude(desafio_nombre__isnull=True)
-            .exclude(desafio_nombre__exact="")
-            .values("desafio_nombre")
-            .annotate(total=Count("idgrupo"))
-            .order_by("-total")
-            .first()
-        )
-
-        tematicas.append({
-            "id": tematica.idtematica,
-            "slug": tematica.slug,
-            "title": tematica.title,
-            "hero": tematica.hero,
-            "activa": tematica.activa,
-            "total_usos": grupos_tematica.count(),
-            "total_desafios": tematica.desafios.count(),
-            "desafio_mas_usado": desafio_mas_usado["desafio_nombre"] if desafio_mas_usado else "Sin datos",
-            "desafio_mas_usado_total": desafio_mas_usado["total"] if desafio_mas_usado else 0,
-        })
-
-    return render(request, "admin_tematicas.html", {
-        "tematicas": tematicas,
-    })
-
 def admin_desafios(request):
     if request.method == "POST":
         accion = request.POST.get("accion")
@@ -4255,8 +4168,16 @@ def eliminar_profesor(request, profesor_id):
         )
         return redirect("registrarprofesor")
 
-    profesor.delete()
-    messages.success(request, "Profesor eliminado correctamente.")
+    try:
+        with transaction.atomic():
+            usuario = profesor.usuario_idusuario
+            profesor.delete()
+            if not Profesor.objects.filter(usuario_idusuario=usuario).exists():
+                usuario.delete()
+        messages.success(request, "Profesor eliminado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Error al eliminar: {e}")
+
     return redirect("registrarprofesor")
 
 
@@ -4562,7 +4483,7 @@ def admin_tiempos(request):
     })
 
 def ver_como_grupo(request, grupo_id):
-    grupo = Grupo.objects.get(idgrupo=grupo_id)
+    grupo = get_object_or_404(Grupo, idgrupo=grupo_id)
 
     request.session["grupo_id"] = grupo.idgrupo
     request.session["sesion_id"] = grupo.sesion.idsesion
