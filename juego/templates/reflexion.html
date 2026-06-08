@@ -527,7 +527,6 @@
           if (!yaVisible) {
             boc.textContent = tJuego(clave, fallback);
             boc.classList.add("visible");
-            try { const a = new Audio("{% static 'sounds/hablando.mp3' %}"); a.volume = 0.3; a.play().catch(()=>{}); } catch(e) {}
             clearTimeout(timer);
             timer = setTimeout(() => boc.classList.remove("visible"), 4000);
           }
@@ -566,11 +565,6 @@
         if (!yaVisible) {
           bocadillo.classList.add("visible");
           visible = true;
-          try {
-            const audio = new Audio("{% static 'sounds/hablando.mp3' %}");
-            audio.volume = 0.35;
-            audio.play().catch(() => {});
-          } catch(e) {}
         }
 
         clearTimeout(timer);

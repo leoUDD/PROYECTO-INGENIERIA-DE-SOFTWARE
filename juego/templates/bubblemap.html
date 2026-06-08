@@ -345,8 +345,6 @@
           </div>
         </div>
       </div>
-      <audio id="objetoCelularTalk" src="{% static 'sounds/hablando.mp3' %}" preload="auto"></audio>
-      <audio id="objetoCelularExit" src="{% static 'sounds/salida.mp3' %}" preload="auto"></audio>
     </div>
 
     <details id="reglasBubble" class="reglas-bubble blur-target-bloqueado">
@@ -523,8 +521,6 @@
       const celularTrigger = document.getElementById("objetoCelularTrigger");
       const celularOverlay = document.getElementById("objetoCelularOverlay");
       const celularClose = document.getElementById("objetoCelularClose");
-      const celularTalk = document.getElementById("objetoCelularTalk");
-      const celularExit = document.getElementById("objetoCelularExit");
       const STORAGE_CELULAR = `objeto_celular_bubblemap_usado_${sesionId}_${grupoId}`;
 
       if (localStorage.getItem(STORAGE_CELULAR) === "1" && celularTrigger) {
@@ -535,14 +531,12 @@
         if (!celularOverlay) return;
         celularOverlay.classList.add("activo");
         celularOverlay.setAttribute("aria-hidden", "false");
-        if (celularTalk) { celularTalk.currentTime = 0; celularTalk.play().catch(() => {}); }
       }
 
       function cerrarCelular() {
         if (!celularOverlay) return;
         celularOverlay.classList.remove("activo");
         celularOverlay.setAttribute("aria-hidden", "true");
-        if (celularExit) { celularExit.currentTime = 0; celularExit.play().catch(() => {}); }
         if (celularTrigger) celularTrigger.classList.add("oculto");
         localStorage.setItem(STORAGE_CELULAR, "1");
       }
