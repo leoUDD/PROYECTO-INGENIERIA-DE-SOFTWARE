@@ -95,7 +95,13 @@
         <div class="themes-track" id="themesTrack">
           {% for tema in tematicas %}
             <article class="theme-card" tabindex="-1" data-slug="{{ tema.slug }}" data-url="{% url 'desafios' %}">
-              <div class="thumb"><img src="{% static tema.image %}" alt="Icono de {{ tema.title }}"></div>
+              <div class="thumb">
+                {% if tema.image|slice:":7" == "/media/" %}
+                  <img src="{{ tema.image }}" alt="Icono de {{ tema.title }}">
+                {% else %}
+                  <img src="{% static tema.image %}" alt="Icono de {{ tema.title }}">
+                {% endif %}
+              </div>
               <div class="content">
                 <h2 class="title">{{ tema.title }}</h2>
                 <div class="chips">{% for chip in tema.chips %}<span class="chip">{{ chip }}</span>{% endfor %}</div>
