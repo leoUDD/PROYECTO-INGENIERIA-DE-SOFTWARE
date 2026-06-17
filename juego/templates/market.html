@@ -1,0 +1,102 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Mercado de Retos</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_market.css' %}" />
+</head>
+<body>
+
+  <main class="phone" role="region" aria-label="Mercado de Retos">
+    <h1 class="title">Mercado de Retos</h1>
+
+    <!-- Saldo -->
+    <span class="badge bg-warning text-dark fs-6">
+      💰 Tus tokens: <strong id="balance">{{ user_tokens }}</strong>
+    </span>
+
+    <p class="subtitle">
+      Usa tus tokens para comprar retos y desafiar a otros equipos de tu sesión.
+    </p>
+
+    <!-- Mensajes -->
+    {% if messages %}
+      <div class="mb-3">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Catálogo -->
+    <div class="row mt-4">
+      {% for c in challenges %}
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <h2 class="h6 mb-1">{{ c.nombrereto }}</h2>
+              <p class="small text-muted mb-2">{{ c.descripcionreto }}</p>
+
+              <div class="d-flex align-items-center justify-content-between mt-auto">
+
+                <span class="badge bg-warning text-dark">
+                  {{ c.costoreto|default:0 }} tokens
+                </span>
+
+                <form method="post" action="{% url 'issue_challenge' c.idreto %}" 
+                      class="d-flex gap-2 align-items-center">
+                  {% csrf_token %}
+                  
+                  <select class="form-select form-select-sm" name="target_team_id" required style="width:auto;">
+                    <option value="" disabled selected>Equipo objetivo</option>
+                    {% for t in other_teams %}
+                      <option value="{{ t.idgrupo }}">{{ t.nombregrupo }}</option>
+                    {% endfor %}
+                  </select>
+
+                  <button class="btn btn-primary btn-sm buy-btn"
+                          data-cost="{{ c.costoreto|default:0 }}"
+                          type="submit">
+                    Retar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      {% empty %}
+        <div class="col-12 text-center">
+          <p class="text-muted">No hay retos disponibles por ahora.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <hr class="my-4">
+    <div class="volver-comunicacion">
+      <a href="{% url 'transicioncomunicacion' %}" class="btn-volver">
+        Volver atrás
+      </a>
+    </div>
+
+  </main>
+
+  <script>
+    const balance = parseInt(document.getElementById("balance").textContent || "0", 10);
+    document.querySelectorAll(".buy-btn").forEach(btn => {
+      const cost = parseInt(btn.dataset.cost || "0", 10);
+      if (balance < cost) {
+        btn.classList.add("disabled-buy");
+        btn.textContent = "Sin saldo";
+        btn.disabled = true;
+      }
+    });
+  </script>
+
+</body>
+</html>

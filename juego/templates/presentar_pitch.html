@@ -1,0 +1,646 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Presentar Pitch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_presentar_pitch.css' %}">
+
+  <style>
+    /* ============================================================
+       PRESENTAR PITCH — AJUSTE DE ESTRUCTURA
+       Arriba: foto + temporizador
+       Abajo: pitch + orden
+       ============================================================ */
+
+    .presentacion-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    /* ================== BLOQUE SUPERIOR ================== */
+
+    .presentacion-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .media-panel,
+    .timer-panel {
+      min-height: 360px;
+    }
+
+    .media-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .grupo-actual-nombre {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 900;
+      color: #ffffff;
+      margin: 4px 0 4px;
+      text-shadow: 0 0 14px rgba(0, 200, 255, 0.35);
+    }
+
+    .grupo-actual-orden {
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .pitch-media-wrap {
+      flex: 1;
+      width: 100%;
+      min-height: 260px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 8px;
+      padding: 14px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(0,200,255,.10), transparent 42%),
+        rgba(255,255,255,.035);
+      border: 1px solid rgba(0, 200, 255, 0.14);
+    }
+
+    .pitch-lego-img {
+      width: 100%;
+      max-width: 520px;
+      max-height: 330px;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow:
+        0 0 22px rgba(0, 200, 255, 0.22),
+        0 14px 32px rgba(0,0,0,.45);
+    }
+
+    .pitch-media-fallback {
+      width: 100%;
+      max-width: 430px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 22px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,.24);
+      background: rgba(255,255,255,.06);
+      color: #d9e6f2;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    /* ================== TEMPORIZADOR SUPERIOR ================== */
+
+    .timer-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .timer-display-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .timer-label-pitch {
+      color: #16c5ff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: .04em;
+    }
+
+    .pitch-start-wrap {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pitch-start-help {
+      color: #d9e6f2;
+      opacity: .95;
+      text-align: center;
+      font-size: .95rem;
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .pitch-start-help strong {
+      color: #ffffff;
+    }
+
+    .btn-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 255, 0.4);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
+      color: #E6F7FF;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-chip:hover {
+      transform: translateY(-1px) scale(1.03);
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
+    }
+
+    .btn-chip:active {
+      transform: scale(0.97);
+    }
+
+    .btn-chip:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* ================== BLOQUE INFERIOR ================== */
+
+    .presentacion-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .pitch-panel,
+    .orden-panel {
+      min-height: 260px;
+    }
+
+    .pitch-text {
+      min-height: 210px;
+      max-height: 340px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .pitch-text::-webkit-scrollbar,
+    .orden-panel::-webkit-scrollbar,
+    .orden-pitch-lista::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .pitch-text::-webkit-scrollbar-thumb,
+    .orden-pitch-lista::-webkit-scrollbar-thumb {
+      background: rgba(0, 200, 255, .28);
+      border-radius: 999px;
+    }
+
+    .orden-panel {
+      overflow: hidden;
+    }
+
+    .orden-pitch-lista {
+      margin: 8px 0 0;
+      padding-left: 22px;
+      max-height: 300px;
+      overflow-y: auto;
+      line-height: 1.7;
+    }
+
+    .orden-pitch-lista li {
+      margin-bottom: 6px;
+      color: #E6EEF8;
+    }
+
+    /* ================== FOOTER ================== */
+
+    .footer-actions {
+      margin-top: 18px;
+    }
+
+    /* ================== RESPONSIVE ================== */
+
+    @media (max-width: 980px) {
+      .presentacion-top,
+      .presentacion-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .media-panel,
+      .timer-panel,
+      .pitch-panel,
+      .orden-panel {
+        min-height: auto;
+      }
+
+      .pitch-media-wrap {
+        min-height: 220px;
+      }
+
+      .pitch-lego-img {
+        max-height: 280px;
+      }
+
+      .timer-panel {
+        justify-content: flex-start;
+      }
+
+      .pitch-text {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .presentacion-layout {
+        gap: 14px;
+      }
+
+      .pitch-media-wrap {
+        min-height: 180px;
+        padding: 10px;
+      }
+
+      .pitch-media-fallback {
+        min-height: 140px;
+        font-size: .92rem;
+      }
+
+      .pitch-lego-img {
+        max-height: 220px;
+      }
+
+      .grupo-actual-nombre {
+        font-size: clamp(22px, 7vw, 30px);
+      }
+
+      .btn-chip {
+        width: 100%;
+      }
+
+      .timer-display {
+        font-size: clamp(34px, 11vw, 48px);
+      }
+
+      .pitch-text {
+        min-height: 170px;
+      }
+    }
+  </style>
+</head>
+
+<body data-sesion-id="{{ grupo.sesion.idsesion }}" data-grupo-id="{{ grupo.idgrupo }}">
+  <main class="pitch-container" role="main" aria-labelledby="page-title">
+    <header class="header">
+      <div>
+        <h1 id="page-title" class="title" data-i18n="presentar_pitch_titulo">Pitch del equipo</h1>
+        <p class="subtitle" data-i18n="presentar_pitch_subtitulo">Presenten su solución usando el texto que prepararon.</p>
+      </div>
+    </header>
+
+    <section class="presentacion-layout">
+
+      <!-- BLOQUE SUPERIOR: FOTO + TEMPORIZADOR -->
+      <section class="presentacion-top">
+        <article class="panel media-panel">
+          <h3 data-i18n="presentar_pitch_presentacion_actual">Presentación actual</h3>
+
+          <div id="grupoActualAlumnoNombre" class="grupo-actual-nombre">
+            Esperando sorteo...
+          </div>
+
+          <div id="grupoActualAlumnoOrden" class="grupo-actual-orden">
+            -
+          </div>
+
+          <div class="pitch-media-wrap">
+            <img
+              id="grupoActualAlumnoFoto"
+              src=""
+              alt="Foto del lego del grupo que está presentando"
+              class="pitch-lego-img"
+              style="display:none;"
+            >
+
+            <div id="grupoActualAlumnoSinFoto" class="pitch-media-fallback" style="display:none;" data-i18n="presentar_pitch_sin_foto">
+              Este equipo no subió foto de su solución LEGO.
+            </div>
+          </div>
+        </article>
+
+        <aside class="timer-card timer-panel" aria-label="Temporizador de Pitch">
+          <div class="timer-display-wrap">
+            <div class="timer-label-pitch" data-i18n="presentar_pitch_temporizador">Temporizador</div>
+            <div id="timer" class="timer-display" data-seconds="90">01:30</div>
+          </div>
+
+          <div id="pitchStartWrap" class="pitch-start-wrap" style="display:none;">
+            <button id="btnIniciarPresentacion" type="button" class="btn-chip" data-i18n="presentar_pitch_boton_iniciar">
+              ⚡ Iniciar presentación
+            </button>
+
+            <p id="pitchStartHelp" class="pitch-start-help" data-i18n="presentar_pitch_help_solo_equipo">
+              Solo el equipo que está presentando puede iniciar el temporizador.
+            </p>
+          </div>
+
+          <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+        </aside>
+      </section>
+
+      <!-- BLOQUE INFERIOR: TEXTO + ORDEN -->
+      <section class="presentacion-bottom">
+        <article class="panel pitch-panel">
+          <h3 data-i18n="presentar_pitch_mi_pitch">Pitch de mi equipo</h3>
+
+          <div id="textoGuardado" class="pitch-text" aria-live="polite">
+            {% if miPitch %}
+              <div style="white-space: pre-wrap;">{{ miPitch }}</div>
+            {% else %}
+              <em data-i18n="presentar_pitch_sin_texto">No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.</em>
+            {% endif %}
+          </div>
+        </article>
+
+        <article class="panel orden-panel">
+          <h3 data-i18n="presentar_pitch_orden_titulo">Orden del pitch</h3>
+
+          <ol id="ordenPitchAlumno" class="orden-pitch-lista">
+            <li data-i18n="presentar_pitch_esperando_sorteo">Esperando sorteo...</li>
+          </ol>
+        </article>
+      </section>
+
+    </section>
+
+    <footer class="footer-actions">
+      <div class="left-actions">
+        <span class="subtitle" data-i18n="presentar_pitch_consejo">Consejo: enfoquen problema, solución, impacto y próximos pasos.</span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="{% static 'js/presentar_pitch.js' %}"></script>
+
+  <script>
+    const sesionId = "{{ grupo.sesion.idsesion }}";
+    const grupoId = "{{ grupo.idgrupo }}";
+    let redirigiendoPitch = false;
+    let pollingEstadoPresentacion = null;
+
+    function tPitch(clave, fallback) {
+      try {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function actualizarTextosEstaticosPitch() {
+      document.title = tPitch("presentar_pitch_document_title", "Misión Emprende UDD — Presentar Pitch");
+
+      const img = document.getElementById("grupoActualAlumnoFoto");
+      if (img) {
+        img.alt = tPitch("presentar_pitch_foto_alt", "Foto del lego del grupo que está presentando");
+      }
+
+      const aside = document.querySelector(".timer-panel");
+      if (aside) {
+        aside.setAttribute("aria-label", tPitch("presentar_pitch_aria_temporizador", "Temporizador de Pitch"));
+      }
+    }
+
+    function formatearTiempo(totalSegundos) {
+      const segundos = Math.max(0, Number(totalSegundos || 0));
+      const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+      const sec = String(segundos % 60).padStart(2, "0");
+      return `${min}:${sec}`;
+    }
+
+    function renderOrdenAlumno(ordenPitch, grupoActual) {
+      const lista = document.getElementById("ordenPitchAlumno");
+      if (!lista) return;
+
+      if (!ordenPitch || !ordenPitch.length) {
+        lista.innerHTML = `<li>${tPitch("presentar_pitch_esperando_sorteo", "Esperando sorteo...")}</li>`;
+        return;
+      }
+
+      lista.innerHTML = ordenPitch.map(item => {
+        const esActual = grupoActual && String(grupoActual.id) === String(item.id);
+        return `<li ${esActual ? 'style="font-weight:700;color:#00C8FF;"' : ""}>
+          ${item.orden}. ${item.nombre}${esActual ? ` ${tPitch("presentar_pitch_presentando_flecha", "← presentando")}` : ""}
+        </li>`;
+      }).join("");
+    }
+
+    function renderFotoOTexto(grupoActual) {
+      const foto = document.getElementById("grupoActualAlumnoFoto");
+      const sinFoto = document.getElementById("grupoActualAlumnoSinFoto");
+
+      if (!foto || !sinFoto) return;
+
+      if (grupoActual && grupoActual.fotoLego) {
+        foto.src = grupoActual.fotoLego;
+        foto.style.display = "block";
+        sinFoto.style.display = "none";
+        return;
+      }
+
+      foto.removeAttribute("src");
+      foto.style.display = "none";
+      sinFoto.style.display = "flex";
+      sinFoto.textContent = tPitch("presentar_pitch_sin_foto", "Este equipo no subió foto de su solución LEGO.");
+    }
+
+    function renderBotonInicio(data) {
+      const wrap = document.getElementById("pitchStartWrap");
+      const btn = document.getElementById("btnIniciarPresentacion");
+      const help = document.getElementById("pitchStartHelp");
+
+      if (!wrap || !btn || !help) return;
+
+      const grupoActual = data.grupoActual;
+      const soyGrupoActual = grupoActual && String(grupoActual.id) === String(grupoId);
+      const timerCorriendo = Boolean(data.timerCorriendo);
+      const tiempo = Number(data.segundosRestantes || 0);
+
+      if (!soyGrupoActual) {
+        wrap.style.display = "none";
+        return;
+      }
+
+      wrap.style.display = "flex";
+
+      if (timerCorriendo) {
+        btn.disabled = true;
+        btn.textContent = tPitch("presentar_pitch_boton_presentando", "Presentando...");
+        help.textContent = tPitch("presentar_pitch_help_en_curso", "Tu presentación está en curso.");
+        return;
+      }
+
+      if (tiempo <= 0) {
+        btn.disabled = true;
+        btn.textContent = tPitch("presentar_pitch_boton_tiempo_finalizado", "Tiempo finalizado");
+        help.textContent = tPitch("presentar_pitch_help_esperando_evaluacion", "Esperando cambio a evaluación.");
+        return;
+      }
+
+      btn.disabled = false;
+      btn.textContent = tPitch("presentar_pitch_boton_iniciar", "⚡ Iniciar presentación");
+      help.innerHTML = tPitch(
+        "presentar_pitch_help_iniciar_html",
+        "Tu equipo está presentando ahora. Presionen <strong>“Iniciar presentación”</strong> para comenzar el temporizador."
+      );
+    }
+
+    function renderEstadoPresentacion(data) {
+      actualizarTextosEstaticosPitch();
+
+      if (data.faseActual && data.faseActual !== "f4_presentacion_pitch") {
+        if (!redirigiendoPitch) {
+          redirigiendoPitch = true;
+          window.location.replace(data.rutaAlumno || "{% url 'pantalla_espera' %}");
+        }
+        return;
+      }
+
+      const grupoActual = data.grupoActual;
+
+      const nombre = document.getElementById("grupoActualAlumnoNombre");
+      const orden = document.getElementById("grupoActualAlumnoOrden");
+      const timer = document.getElementById("timer");
+      const textoGuardado = document.getElementById("textoGuardado");
+
+      if (nombre) {
+        nombre.textContent = grupoActual ? grupoActual.nombre : tPitch("presentar_pitch_esperando_sorteo", "Esperando sorteo...");
+      }
+
+      if (orden) {
+        orden.textContent = grupoActual ? `${tPitch("presentar_pitch_orden_label", "Orden")} ${grupoActual.orden}` : "-";
+      }
+
+      renderFotoOTexto(grupoActual);
+
+      if (window.presentarPitchUI && typeof window.presentarPitchUI.actualizarTimer === "function") {
+        window.presentarPitchUI.actualizarTimer(data.segundosRestantes);
+      } else if (timer) {
+        timer.textContent = formatearTiempo(data.segundosRestantes);
+        timer.dataset.seconds = Number(data.segundosRestantes || 0);
+      }
+
+      if (textoGuardado) {
+        const miPitch = (data.miPitch || "").trim();
+
+        textoGuardado.innerHTML = miPitch
+          ? `<div style="white-space: pre-wrap;">${miPitch
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")}</div>`
+          : `<em>${tPitch("presentar_pitch_sin_texto", "No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.")}</em>`;
+      }
+
+      renderOrdenAlumno(data.ordenPitch, grupoActual);
+      renderBotonInicio(data);
+    }
+
+    async function cargarEstadoPresentacion() {
+      if (redirigiendoPitch) return;
+
+      try {
+        const res = await fetch(`/sesion/${sesionId}/estado-presentacion/`, {
+          credentials: "same-origin",
+          cache: "no-store"
+        });
+
+        const contentType = res.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          return;
+        }
+
+        renderEstadoPresentacion(data);
+      } catch (error) {
+        console.error("Error cargando estado de presentación:", error);
+      }
+    }
+
+    async function iniciarPresentacion() {
+      const btn = document.getElementById("btnIniciarPresentacion");
+      const help = document.getElementById("pitchStartHelp");
+
+      if (!btn) return;
+
+      btn.disabled = true;
+      btn.textContent = tPitch("presentar_pitch_boton_iniciando", "Iniciando...");
+
+      try {
+        const res = await fetch(`/sesion/${sesionId}/iniciar-presentacion/`, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: JSON.stringify({})
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || tPitch("presentar_pitch_error_no_iniciar", "No se pudo iniciar la presentación."));
+        }
+
+        renderEstadoPresentacion(data);
+      } catch (error) {
+        console.error("Error iniciando presentación:", error);
+
+        btn.disabled = false;
+        btn.textContent = tPitch("presentar_pitch_boton_iniciar", "⚡ Iniciar presentación");
+
+        if (help) {
+          help.textContent = error.message || tPitch("presentar_pitch_error_temporizador", "No se pudo iniciar el temporizador.");
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      actualizarTextosEstaticosPitch();
+
+      const btn = document.getElementById("btnIniciarPresentacion");
+
+      if (btn) {
+        btn.addEventListener("click", iniciarPresentacion);
+      }
+
+      cargarEstadoPresentacion();
+      pollingEstadoPresentacion = setInterval(cargarEstadoPresentacion, 1000);
+    });
+  </script>
+
+  {% include "includes/sincronizacion_fase.html" %}
+</body>
+</html>

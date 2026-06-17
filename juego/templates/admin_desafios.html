@@ -1,0 +1,264 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Desafíos — Dashboard Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_dashboardadmin.css' %}">
+
+  <style>
+    .top-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .btn-main,.btn-small{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn-main{background:#2563eb;color:#fff}
+    .btn-small{background:#0f172a;color:#fff;font-size:13px}
+    .btn-danger{background:#dc2626;color:#fff}
+    .btn-muted{background:#64748b;color:#fff}
+
+    .desafios-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .desafio-card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .desafio-card h2{font-size:18px;margin-bottom:8px}
+    .desafio-card p{margin:7px 0;line-height:1.4}
+
+    .preview-circle{
+      width:150px;height:150px;border-radius:50%;overflow:hidden;
+      border:4px solid rgba(0,200,255,.35);background:#0f172a;
+      display:flex;align-items:center;justify-content:center;
+      color:white;font-weight:800;margin:0 auto 14px;
+    }
+    .preview-circle img{width:100%;height:100%;object-fit:cover}
+    .preview-circle.empty{font-size:13px;text-align:center;padding:12px}
+
+    .detalle-desafio{display:none;margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
+    .detalle-desafio.activo{display:block}
+
+    .form-box{background:#f8fafc;border-radius:14px;padding:16px;border:1px solid #e5e7eb;margin-top:14px}
+    .form-box input,.form-box textarea,.form-box select{
+      width:100%;padding:10px;border-radius:10px;border:1px solid #cbd5e1;margin:6px 0 12px;
+    }
+    .form-box textarea{min-height:90px;resize:vertical}
+
+    .grupo-box{margin-top:12px;padding:12px;border:1px solid #ddd;border-radius:10px;background:#fff}
+    .lego-img{max-width:220px;border-radius:10px;margin-top:8px}
+
+    .help-bubble{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:22px;height:22px;border-radius:50%;background:#0f172a;
+      color:white;font-weight:900;cursor:help;position:relative;
+    }
+    .help-bubble:hover::after{
+      content:attr(data-help);position:absolute;left:28px;top:-8px;width:390px;
+      background:#111827;color:white;padding:12px;border-radius:12px;
+      font-size:12px;line-height:1.4;z-index:20;
+    }
+
+    dialog{border:0;border-radius:18px;padding:0;width:min(760px,92vw)}
+    dialog::backdrop{background:rgba(0,0,0,.45)}
+    .modal-content{padding:22px}
+    .modal-content input,.modal-content textarea,.modal-content select{
+      width:100%;padding:10px;border-radius:10px;border:1px solid #cbd5e1;margin:6px 0 12px;
+    }
+    .modal-content textarea{min-height:90px;resize:vertical}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+
+    @media(max-width:1100px){.desafios-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+
+<body>
+<div class="dashboard">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h2 class="sidebar-title">Dashboard Admin</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="{% url 'dashboardadmin' %}">Inicio</a></li>
+        <li><a href="{% url 'registrarprofesor' %}">Profesores</a></li>
+        <li><a href="{% url 'admin_tematicas' %}">Temáticas</a></li>
+        <li><a href="{% url 'admin_desafios' %}" class="active">Desafíos</a></li>
+        <li><a href="{% url 'admin_ruleta' %}">Ruleta</a></li>
+        <li><a href="{% url 'admin_tiempos' %}">Tiempos</a></li>
+        <li class="sidebar-separator"></li>
+        <li><a href="{% url 'perfiles' %}" class="back-link">⟵ Cambiar de perfil</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    {% if messages %}
+      <div class="messages">
+        {% for m in messages %}
+          <div class="msg {{ m.tags }}">{{ m }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="top-actions">
+      <div>
+        <h1 class="title">Desafíos</h1>
+        <p class="subtitle">Gestiona desafíos, respuestas asociadas e imagen de persona objetivo.</p>
+      </div>
+
+      <button class="btn-main" type="button" onclick="document.getElementById('modalCrearDesafio').showModal()">
+        + Crear desafío
+      </button>
+    </div>
+
+    <section class="desafios-grid">
+      {% for d in desafios %}
+        <article class="desafio-card">
+
+          {% if d.imagen %}
+            <div class="preview-circle">
+              <img src="{{ d.imagen }}" alt="{{ d.nombre }}">
+            </div>
+          {% else %}
+            <div class="preview-circle empty">Sin imagen de persona objetivo</div>
+          {% endif %}
+
+          <h2>{{ d.nombre }}</h2>
+          <p><strong>Temática:</strong> {{ d.tematica }}</p>
+          <p><strong>Usos:</strong> {{ d.total_usos }}</p>
+          <p><strong>Resumen:</strong> {{ d.summary }}</p>
+          <p><strong>Estado:</strong> {% if d.activo %}Activo{% else %}Inactivo{% endif %}</p>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+  <button class="btn-small" type="button" onclick="toggleDetalle('detalle-desafio-{{ d.id }}')">
+    Personalizar
+  </button>
+
+  <a class="btn-small" href="{% url 'admin_desafio_info' d.id %}">
+    Ver info
+  </a>
+</div>
+
+          <div id="detalle-desafio-{{ d.id }}" class="detalle-desafio">
+
+            <form method="POST" enctype="multipart/form-data" class="form-box">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="editar_desafio">
+              <input type="hidden" name="desafio_id" value="{{ d.id }}">
+
+              <h3>Personalizar desafío</h3>
+
+              <label>Temática asociada</label>
+              <select name="tematica_id" required>
+                {% for t in tematicas %}
+                  <option value="{{ t.idtematica }}" {% if d.tematica_id == t.idtematica %}selected{% endif %}>
+                    {{ t.title }}
+                  </option>
+                {% endfor %}
+              </select>
+
+              <label>Nombre del desafío</label>
+              <input type="text" name="nombre" value="{{ d.nombre }}" required>
+
+              <label>Resumen corto</label>
+              <textarea name="summary">{{ d.summary }}</textarea>
+
+              <label>Descripción completa</label>
+              <textarea name="descripcion">{{ d.descripcion }}</textarea>
+
+              <label>
+                Imagen de persona objetivo
+                <span class="help-bubble"
+                  data-help='Puedes subir un diseño propio. Si no tienes uno, entra a tu inteligencia artificial favorita y pega este prompt: "Crea una imagen tipo retrato/personaje para un desafío educativo llamado [NOMBRE DEL DESAFÍO], estilo videojuego futurista, fondo oscuro, personaje centrado, sin texto, pensada para verse dentro de un círculo". Descarga la imagen que más te guste y súbela aquí.'>?</span>
+              </label>
+              <input type="file" name="imagen_desafio" accept="image/*">
+
+              <label>
+                <input type="checkbox" name="activo" {% if d.activo %}checked{% endif %}>
+                Desafío activo
+              </label>
+
+              <button class="btn-small" type="submit">Guardar cambios</button>
+            </form>
+
+            <form method="POST" class="form-box" onsubmit="return confirm('¿Seguro que quieres eliminar este desafío? Solo se eliminará si no fue elegido por grupos.');">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="eliminar_desafio">
+              <input type="hidden" name="desafio_id" value="{{ d.id }}">
+              <button class="btn-small btn-danger" type="submit">Eliminar desafío</button>
+            </form>
+
+            <div class="form-box">
+              <h3>Grupos y respuestas</h3>
+
+              {% for g in d.grupos %}
+                <div class="grupo-box">
+                  <p><strong>Grupo:</strong> {{ g.nombregrupo }}</p>
+                  <p><strong>Sesión:</strong> {{ g.sesion.idsesion }}</p>
+                  <p><strong>Pitch:</strong> {{ g.pitch_texto|default:"Sin pitch registrado" }}</p>
+
+                  {% if g.foto_lego %}
+                    <p><strong>LEGO:</strong></p>
+                    <img src="{{ g.foto_lego.url }}" class="lego-img">
+                  {% else %}
+                    <p><strong>LEGO:</strong> Sin imagen registrada</p>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p>No hay grupos asociados a este desafío.</p>
+              {% endfor %}
+            </div>
+
+          </div>
+        </article>
+      {% empty %}
+        <p>No hay desafíos registrados.</p>
+      {% endfor %}
+    </section>
+  </main>
+</div>
+
+<dialog id="modalCrearDesafio">
+  <form method="POST" enctype="multipart/form-data" class="modal-content">
+    {% csrf_token %}
+    <input type="hidden" name="accion" value="crear_desafio">
+
+    <h2>Crear nuevo desafío</h2>
+
+    <label>Temática asociada</label>
+    <select name="tematica_id" required>
+      <option value="">Selecciona una temática</option>
+      {% for t in tematicas %}
+        <option value="{{ t.idtematica }}">{{ t.title }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Nombre del desafío</label>
+    <input type="text" name="nombre" required placeholder="Ej: Brecha digital">
+
+    <label>Resumen corto</label>
+    <textarea name="summary" placeholder="Texto corto para la tarjeta del desafío."></textarea>
+
+    <label>Descripción completa</label>
+    <textarea name="descripcion" placeholder="Historia completa o caso que verá el equipo."></textarea>
+
+    <label>
+      Imagen de persona objetivo
+      <span class="help-bubble"
+        data-help='Puedes subir un diseño propio. Si no tienes uno, entra a tu inteligencia artificial favorita y pega este prompt: "Crea una imagen tipo retrato/personaje para un desafío educativo llamado [NOMBRE DEL DESAFÍO], estilo videojuego futurista, fondo oscuro, personaje centrado, sin texto, pensada para verse dentro de un círculo". Descarga la imagen que más te guste y súbela aquí.'>?</span>
+    </label>
+    <input type="file" name="imagen_desafio" accept="image/*">
+
+    <div class="modal-actions">
+      <button type="button" class="btn-small btn-muted" onclick="document.getElementById('modalCrearDesafio').close()">Cancelar</button>
+      <button type="submit" class="btn-main">Crear desafío</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  function toggleDetalle(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle("activo");
+  }
+</script>
+
+</body>
+</html>

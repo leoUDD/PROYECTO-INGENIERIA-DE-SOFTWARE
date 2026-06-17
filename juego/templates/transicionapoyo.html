@@ -1,0 +1,35 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Apoyo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilo_transicionapoyo.css' %}">
+</head>
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
+  <main class="team-container" role="region" aria-label="Introducción a apoyo">
+    <section class="team-section">
+      <div class="title">
+        <h1>Apoyo</h1>
+      </div>
+
+      <div class="speech-bubble">
+        <p>
+          Agentes, llegó el momento de observar con criterio.
+          Evaluarán a otros equipos y entregarán un TOKEN al escuadrón que mejor defienda su solución.
+        </p>
+      </div>
+
+      <div class="next-step">
+        {% include "includes/boton_listo_fase.html" with fase_clave="f5" fase_actual_esperada="f5_transicion_apoyo" campo_listos="gruposListosF5" campo_mi_grupo="listoF5" texto_boton="¡Estoy listo!" %}
+      </div>
+    </section>
+  </main>
+
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+  {% include "includes/sincronizacion_fase.html" %}
+</body>
+</html>
