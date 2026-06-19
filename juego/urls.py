@@ -1,9 +1,13 @@
 # juego/urls.py
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
+    #ORDENAMIENTO
+    path("", include("juego.backend.core_global.urls")),
+    path("", include("juego.backend.fase1.urls")),
+    #FIN ORDENAMIENTO
     #NUEVO
     path(
     "sesion/<int:sesion_id>/dev/timer-10/",
@@ -71,7 +75,6 @@ path(
     path('registro/', views.registro, name='registro'),
     path('lego/', views.lego, name='lego'),
     path('introducciones/', views.introducciones, name='introducciones'),
-    path('pantalla_inicio/', views.pantalla_inicio, name='pantalla_inicio'),
     path('promptconocidos/', views.promptconocidos, name='promptconocidos'),
     path('conocidos/', views.conocidos, name='conocidos'),
     path('trabajoenequipo/', views.trabajoenequipo, name='trabajoenequipo'),
