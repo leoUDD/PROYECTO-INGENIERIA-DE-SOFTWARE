@@ -1513,21 +1513,6 @@ def introducciones(request):
         return redirect("pantalla_espera")
     return render(request, "introducciones.html", {"grupo": grupo})
 
-def promptconocidos(request):
-    grupo = obtener_grupo_desde_session(request)
-    if not grupo:
-        return redirect("registro")
-    if not acceso_permitido(grupo, "promptconocidos"):
-        return redirect("pantalla_espera")
-    return render(request, "promptconocidos.html", {"grupo": grupo})
-
-def conocidos(request):
-    grupo = obtener_grupo_desde_session(request)
-    if not grupo:
-        return redirect("registro")
-    if not acceso_permitido(grupo, "conocidos"):
-        return redirect("pantalla_espera")
-    return render(request, "conocidos.html", {"grupo": grupo})
 
 def minijuego1(request):
     grupo = obtener_grupo_desde_session(request)
@@ -2081,35 +2066,6 @@ def cambiar_tematica(request):
 
     return redirect("tematicas")
 
-def elegir_modo_conocidos(request, modo):
-    grupo = obtener_grupo_desde_session(request)
-    if not grupo:
-        return redirect("registro")
-
-    if not acceso_permitido(grupo, "promptconocidos"):
-        return redirect("pantalla_espera")
-
-    request.session["modo_conocidos"] = modo
-    request.session.modified = True
-
-    if modo == "rapido":
-        return redirect("conocidos_rapido")
-
-    return redirect("conocidos")
-
-
-def conocidos_rapido(request):
-    grupo = obtener_grupo_desde_session(request)
-    if not grupo:
-        return redirect("registro")
-
-    if not acceso_permitido(grupo, "conocidos_rapido"):
-        return redirect("pantalla_espera")
-
-    return render(request, "conocidos.html", {
-        "grupo": grupo,
-        "modo_rapido": True,
-    })
 
 @require_http_methods(["POST"])
 def agregar_alumno_manual(request):
