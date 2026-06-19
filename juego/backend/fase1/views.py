@@ -12,4 +12,4 @@ def pantalla_inicio(request):
     if not acceso_permitido(grupo, "pantalla_inicio"):
         return redirect("pantalla_espera")
 
-    return render(request, "pantalla_inicio.html", {"grupo": grupo})
+    return render(request, "fase1/pantalla_inicio.html", {"grupo": grupo})
