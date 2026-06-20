@@ -9,7 +9,4 @@ urlpatterns = [
     path('presentar_pitch/', views.presentar_pitch, name='presentar_pitch'),
     path("sesion/<int:sesion_id>/iniciar-presentacion/", views.iniciar_presentacion_pitch, name="iniciar_presentacion_pitch"),
     path("sesion/<int:sesion_id>/siguiente-grupo-pitch/", views.siguiente_grupo_pitch, name="siguiente_grupo_pitch"),
-    path('peer-review/', views.peer_review_view, name='peer_review'),
-
-
 ]

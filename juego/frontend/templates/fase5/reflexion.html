@@ -1,0 +1,124 @@
+{% load static %}
+{% include "atajos.html" with ocultar_mapa_habilidades=True ocultar_hud_ranking=True %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Reflexión Final</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase5/estilo_reflexion.css' %}">
+</head>
+
+<body>
+
+  <!-- CONFETI -->
+  <canvas id="confeti-canvas"></canvas>
+
+  <!-- MÚSICA -->
+  <audio id="musica-reflexion"
+         src="{% static 'sounds/musica_lego.mp3' %}"
+         loop preload="auto">
+  </audio>
+  <button id="btn-musica-reflexion"
+          title="Silenciar música"
+          aria-label="Silenciar música"
+         >
+    &#128266;
+  </button>
+
+  <!-- ASTRONAUTA FLOTANTE -->
+  <button class="astro-reflexion" id="astroReflexion" aria-label="Astronauta">
+    <img src="{% static 'images/Cayendo.webp' %}" alt="Astronauta">
+  </button>
+  <div class="astro-bocadillo" id="astroBocadillo">
+    Gracias por jugar, agente. ¡Hasta la próxima misión!
+  </div>
+
+  <!-- PERSONAJES DESPIDIÉNDOSE -->
+  <button class="personaje-izq"   id="per3" aria-label="Personaje 1"><img src="{% static 'images/foto3.webp' %}" alt=""></button>
+  <button class="personaje-der"   id="per4" aria-label="Personaje 2"><img src="{% static 'images/foto4.webp' %}" alt=""></button>
+  <button class="personaje-c-izq" id="per5" aria-label="Personaje 3"><img src="{% static 'images/foto5.webp' %}" alt=""></button>
+  <button class="personaje-c-der" id="per6" aria-label="Personaje 4"><img src="{% static 'images/foto6.webp' %}" alt=""></button>
+
+  <div class="astro-bocadillo" id="bocPer3" style="bottom:clamp(120px,22vw,210px);left:clamp(130px,17vw,230px);right:auto;">¡Fue un honor misionar con ustedes, agentes!</div>
+  <div class="astro-bocadillo flecha-izq" id="bocPer4" style="bottom:clamp(120px,22vw,210px);right:clamp(130px,17vw,230px);left:auto;">¡El trabajo en equipo los llevó hasta aquí. ¡Bien hecho!</div>
+  <div class="astro-bocadillo" id="bocPer5" style="bottom:clamp(90px,14vw,155px);left:clamp(220px,28vw,380px);right:auto;">La próxima misión nos espera. ¡Prepárense!</div>
+  <div class="astro-bocadillo flecha-izq" id="bocPer6" style="bottom:clamp(90px,14vw,155px);right:clamp(220px,28vw,380px);left:auto;">Recuerden: creatividad, empatía y comunicación.</div>
+
+  <main class="results-wrap" role="main" aria-labelledby="page-title">
+
+    <!-- HERO -->
+    <section class="results-hero">
+      <header class="page-header">
+        <div class="head-text">
+          <h1 id="page-title" data-i18n="reflexion_titulo">Reflexión final del juego</h1>
+          <p class="subtitle" data-i18n="reflexion_subtitulo">
+            Cierra la misión compartiendo qué se llevan como equipo.
+          </p>
+        </div>
+      </header>
+    </section>
+
+    <!-- CARD REFLEXIÓN -->
+    <section class="card card-reflexion" id="cardReflexion" aria-label="Reflexión final">
+      <h2 class="h2" data-i18n="reflexion_h2">Reflexión:</h2>
+
+      <p
+        id="textoReflexionFinal"
+        class="reflection"
+        {% if not reflexion_final %}data-i18n="reflexion_texto_default"{% endif %}
+      >
+        {% if reflexion_final %}
+          {{ reflexion_final }}
+        {% else %}
+          Cada equipo avanzó enfrentando desafíos distintos. Hoy demostraron que cuando hay coordinación, estrategia y compromiso, ninguna misión es imposible.
+        {% endif %}
+      </p>
+
+      <ul class="reflection-prompts">
+        <li data-i18n="reflexion_pregunta_1">¿Qué fue lo más valioso que aprendimos como equipo?</li>
+        <li data-i18n="reflexion_pregunta_2">¿Qué haríamos distinto en nuestra próxima misión?</li>
+        <li data-i18n="reflexion_pregunta_3">¿Qué habilidad nueva descubrimos?</li>
+      </ul>
+    </section>
+
+    <!-- QR GRID -->
+    <section class="qr-grid" id="qrGrid" aria-label="Códigos QR finales">
+      <article class="card-instagram">
+        <h3 class="h3" data-i18n="reflexion_instagram_titulo">Instagram</h3>
+        <div class="qr-box">
+          <img id="qrInstagramImg"
+               src="{% static 'images/qr_insta.webp' %}"
+               alt="Código QR Instagram Misión Emprende" />
+        </div>
+        <p class="qr-hint" data-i18n="reflexion_instagram_hint">Síguenos para nuevas misiones.</p>
+      </article>
+
+      <article class="card-evaluacion">
+        <h3 class="h3" data-i18n="reflexion_evaluacion_titulo">Evaluación de la Actividad</h3>
+        <div class="qr-box">
+          <img id="qrEvaluacionImg"
+               src="{% static 'images/qr_evaluacion.webp' %}"
+               alt="Código QR Evaluación de la actividad" />
+        </div>
+        <p class="qr-hint" data-i18n="reflexion_evaluacion_hint">Tu opinión nos ayuda a mejorar.</p>
+      </article>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="final-cta">
+      <a href="{% url 'finalizar_mision' %}" class="btn-primary" data-i18n="reflexion_boton_finalizar">
+        Finalizar misión
+      </a>
+    </section>
+
+  </main>
+
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <!-- i18n original sin cambios -->
+<!-- CONFETI + MÚSICA + ASTRONAUTA -->
+  <script src="{% static 'js/fase5/reflexion.js' %}"></script>
+</body>
+</html>

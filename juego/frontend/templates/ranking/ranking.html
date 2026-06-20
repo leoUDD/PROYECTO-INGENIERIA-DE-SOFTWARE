@@ -111,7 +111,7 @@
 
       <!-- VIDEO CINEMÁTICO — mismo ancho que podio, dentro del flujo -->
       <div id="videoOverlay">
-        <video id="videoMisionCumplida" src="{% static 'videos/ranking.webm' %}" preload="auto" playsinline></video>
+        <video id="videoMisionCumplida" src="{% static 'videos/ranking.webm' %}" preload="auto" playsinline muted></video>
         <button id="btnSaltarVideo" data-i18n="ranking_saltar">Saltar &rsaquo;</button>
       </div>
 
@@ -255,9 +255,7 @@
       <audio id="audioCelebracion" src="{% static 'sounds/sonido_victoria.mp3' %}" preload="auto"></audio>
     {% endif %}
   </main>
-
   <script src="{% static 'js/ranking/ranking.js' %}"></script>
-
-  {% include "includes/sincronizacion_fase.html" %}
+{% include "includes/sincronizacion_fase.html" %}
 </body>
 </html>

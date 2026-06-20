@@ -7,7 +7,7 @@ from juego.backend.core_global.constants import (
     FASES_ORDEN,
 )
 from juego.backend.fase4 import views as fase4_views
-
+from juego.backend.fase4.services import serializar_estado_pitch
 from juego.backend.core_global.services import (
     obtener_grupo_desde_session,
     acceso_permitido,
@@ -1350,18 +1350,6 @@ def finalizar_mision(request):
     request.session.pop("grupo_id", None)
     return redirect("perfiles")
 
-def reflexion(request):
-    grupo = obtener_grupo_desde_session(request)
-    if not grupo:
-        return redirect("registro")
-
-    if grupo and grupo.sesion:
-        borrar_fotos_lego_sesion(grupo.sesion)    
-
-    if not acceso_permitido(grupo, "reflexion"):
-        return redirect("pantalla_espera")
-
-    return render(request, "reflexion.html", {"grupo": grupo})
 def leer_filas_archivo(archivo):
     """Lee un .xlsx (openpyxl) o .csv (csv nativo) y devuelve una lista de
     diccionarios {encabezado: valor}, usando '' para celdas vacias.

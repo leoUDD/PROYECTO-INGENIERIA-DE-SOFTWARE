@@ -73,7 +73,6 @@ path(
     path('registrargrupos/', views.registrargrupos, name='registrargrupos'),
     path('market/', views.market_view, name='market'),
     path('market/issue/<int:challenge_id>/', views.issue_challenge_view, name='issue_challenge'),
-    path('reflexion/', views.reflexion, name='reflexion'),
     path("mision-cumplida/", views.mision_cumplida_view, name="mision_cumplida"),
 
 ]

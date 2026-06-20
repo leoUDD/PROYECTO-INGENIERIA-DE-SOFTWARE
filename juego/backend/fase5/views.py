@@ -8,6 +8,7 @@ from juego.backend.core_global.services import (
     acceso_permitido,
     obtener_grupo_desde_session,
     avanzar_al_siguiente_pitch_o_ranking,
+    borrar_fotos_lego_sesion,
 )
 
 @never_cache
@@ -180,3 +181,16 @@ def evaluacion_actual_completa(sesion):
     )
 
     return total_evaluadores > 0 and realizadas >= total_evaluadores
+
+def reflexion(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    if grupo and grupo.sesion:
+        borrar_fotos_lego_sesion(grupo.sesion)    
+
+    if not acceso_permitido(grupo, "reflexion"):
+        return redirect("pantalla_espera")
+
+    return render(request, "fase5/reflexion.html", {"grupo": grupo})
