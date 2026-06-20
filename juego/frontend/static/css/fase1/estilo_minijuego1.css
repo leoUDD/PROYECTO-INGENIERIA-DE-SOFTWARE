@@ -1,0 +1,571 @@
+/* ========== VARIABLES ========== */
+:root{
+  --bg: #000712 url('/static/images/fondo_bienvenida.webp') center/cover no-repeat fixed;
+  --card:#081A2D;
+  --text:#E6EEF8;
+  --muted:#AAB7C8;
+  --primary:#00C8FF;
+  --accent:#FF7A1A;
+  --radius:28px;
+  --shadow:0 18px 40px rgba(0,0,0,.6);
+  --glow:0 0 25px rgba(0,200,255,.35);
+
+  --cols:12;
+  --rows:12;
+  --gap:4px;
+
+  /* 🔥 sopa de letras más grande */
+  --cell-size:48px;
+
+  --fs-title:clamp(28px, 4vw, 44px);
+  --fs-body:clamp(15px, 1.8vw, 18px);
+}
+
+/* ========== RESET ========== */
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+
+* { -webkit-tap-highlight-color: transparent; }
+::selection { background: transparent; }
+
+/* ========== BASE ========== */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  min-height:100vh;
+  padding:60px 20px 20px;
+
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.game-container{
+  width: min(100%, 860px);
+  background:url('/static/images/fondoo.webp') center/cover no-repeat;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:clamp(24px, 4vw, 32px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  transition:width 0.3s ease;
+
+  touch-action: pan-y;
+}
+
+/* ========== TITULOS ========== */
+h1{
+  font-size:var(--fs-title);
+  font-weight:800;
+  color:var(--primary);
+  margin-bottom:8px;
+}
+
+p{
+  font-size:var(--fs-body);
+  color:var(--text);
+  margin-bottom:16px;
+}
+
+/* ========== TEMPORIZADOR ========== */
+#timer-container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  margin:10px 0 20px;
+  font-weight:600;
+  font-size:clamp(16px,2vw,20px);
+}
+
+#timer{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:clamp(100px,20vw,140px);
+  height:clamp(40px,10vw,60px);
+  background:#0a0a0a;
+  color:#fff;
+  font-weight:800;
+  font-size:clamp(20px,4vw,30px);
+  border-radius:12px;
+  border:3px solid #00d4ff;
+  box-shadow:0 0 20px #00d4ff, 0 0 40px #0077ff inset;
+  text-shadow:0 0 8px #00d4ff;
+}
+.low-time{
+  box-shadow:0 0 25px #ff2d55, 0 0 40px #ff0000 inset;
+  text-shadow:0 0 10px #ff2d55;
+}
+
+/* ========== GRILLA RESPONSIVA ========== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(var(--cols), var(--cell-size));
+  gap:var(--gap);
+  justify-content:center;
+  align-content:center;
+
+  background:#081A2D;
+  border-radius:14px;
+  padding:var(--gap);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.05);
+  margin:0 auto 28px;
+
+  width:calc(var(--cols) * var(--cell-size) + (var(--cols) - 1) * var(--gap) + 2 * var(--gap));
+  height:calc(var(--rows) * var(--cell-size) + (var(--rows) - 1) * var(--gap) + 2 * var(--gap));
+
+  max-width:100%;
+  max-height:70vh;
+  overflow:hidden;
+}
+
+/* 🔥 celdas y letras más grandes */
+.grid div{
+  width:var(--cell-size);
+  height:var(--cell-size);
+  background:#fff;
+  color:#000;
+  border-radius:8px;
+  font-weight:600;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  font-size:calc(var(--cell-size) * 0.55);
+
+  cursor:pointer;
+  transition:0.15s;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+.grid div:hover{ background:#e0f2fe; transform:scale(1.06); }
+.grid div.selected{ background:#c7e7ff; }
+.grid div.found{ background:#e6ffe9; color:var(--primary); }
+
+/* ========== LISTA DE PALABRAS ========== */
+.words{
+  width:100%;
+  max-width:500px;
+  text-align:left;
+  background:#081A2D;
+  border-radius:16px;
+  padding:18px 24px;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.05);
+}
+.words h3{
+  font-size:clamp(18px,3vw,22px);
+  color:var(--primary);
+  margin-bottom:10px;
+}
+.words ul{
+  list-style:none;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 20px;
+  margin-bottom:12px;
+}
+.words li{
+  font-weight:600;
+  font-size:clamp(14px,2vw,18px);
+  color:var(--text);
+  transition:0.2s;
+}
+.words li.found{
+  color:var(--accent);
+  text-decoration:line-through;
+}
+.status{
+  text-align:right;
+  font-size:clamp(14px,2vw,18px);
+  color:var(--muted);
+}
+
+/* ========== MODALES ========== */
+.modal{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(3px);
+  z-index:1000;
+  padding:16px;
+}
+.modal-content{
+  background:#FFF;
+  border-radius:20px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.25);
+  padding:clamp(22px,4vw,40px);
+  text-align:center;
+  width:min(90%,400px);
+  animation:pop-in 0.4s ease;
+}
+.modal-content h2{
+  font-size:clamp(22px,4vw,28px);
+  color:var(--primary);
+  margin-bottom:10px;
+}
+.modal-content p{
+  color:var(--muted);
+  margin-bottom:25px;
+}
+.modal-content button{
+  background:var(--primary);
+  color:#048ef7;
+  border:none;
+  padding:12px 24px;
+  border-radius:12px;
+  font-size:clamp(14px,3vw,16px);
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+.modal-content button:hover{
+  background:#00C8FF;
+  transform:scale(1.05);
+}
+@keyframes pop-in{
+  from{ transform:scale(0.85); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+
+/* ========== RESPONSIVIDAD ========== */
+@media (max-width:600px){
+  body{
+    align-items:center;
+    padding:24px 12px;
+  }
+
+  .game-container{ padding:24px 16px; border-radius:22px; }
+  .words{ padding:16px; }
+
+  /* celdas un pelín más chicas para caber en móviles */
+  :root{
+    --cell-size:40px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none!important; transition:none!important; }
+}
+
+.token-animado {
+  width: 200px;
+  height: 200px;
+  display: block;
+  margin: 0 auto 1rem auto;
+}
+.tablero-bloqueado {
+  opacity: 0.95;
+}
+
+.celda.bloqueada {
+  cursor: default !important;
+}
+
+.celda.encontrada {
+  background: rgba(0, 200, 255, 0.35);
+  border-color: rgba(0, 200, 255, 0.8);
+}
+
+/* ============================================================
+   EXTRA MINIJUEGO 1 - OVERLAY, MODALES Y MÚSICA
+   ============================================================ */
+
+/* Necesario para que el overlay se posicione dentro del contenedor */
+.game-container {
+  position: relative;
+}
+
+/* ==================
+   Overlay inicio de fase
+   ================== */
+
+.inicio-fase-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 26px 18px 18px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.inicio-fase-card {
+  width: min(92%, 860px);
+  background: rgba(8, 24, 48, 0.88);
+  border: 1px solid rgba(0, 200, 255, 0.30);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .24);
+  border-radius: 22px;
+  padding: 18px 22px;
+  color: #fff;
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+}
+
+.inicio-fase-badge {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(0, 200, 255, 0.12);
+  border: 1px solid rgba(0, 200, 255, 0.28);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #dff7ff;
+}
+
+.inicio-fase-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.inicio-fase-card p {
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+/* ==================
+   Botón listo
+   ================== */
+
+.btn-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 200, 255, 0.4);
+  background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 120, 255, 0.25));
+  color: #E6F7FF;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.btn-chip:hover {
+  transform: translateY(-1px) scale(1.03);
+  background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(0, 120, 255, 0.45));
+  box-shadow: 0 0 18px rgba(0, 200, 255, 0.45);
+}
+
+.btn-chip:active {
+  transform: scale(0.97);
+}
+
+.btn-chip:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.contador-fase {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+/* ==================
+   Bloqueo / desbloqueo de fase
+   ================== */
+
+.blur-target-bloqueado {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  opacity: .70;
+  transition: all .3s ease;
+}
+
+.blur-target-activo {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+  opacity: 1;
+  transition: all .3s ease;
+}
+
+.timer-esperando {
+  opacity: .55;
+}
+
+.overlay-hidden {
+  display: none;
+}
+
+/* ==================
+   Modales estilo oscuro
+   ================== */
+
+.modal {
+  background: rgba(0, 0, 0, .72);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: rgba(7, 21, 43, 0.96);
+  color: #fff;
+  border: 1px solid rgba(0, 200, 255, .25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+}
+
+.modal-content h2,
+.modal-content p {
+  color: #fff;
+  text-shadow: none;
+}
+
+.modal-content button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 200, 255, .4);
+  background: linear-gradient(135deg, rgba(0, 200, 255, .15), rgba(0, 120, 255, .25));
+  color: #E6F7FF;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 10px rgba(0, 200, 255, .25);
+}
+
+.modal-content button:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(0, 200, 255, .35), rgba(0, 120, 255, .45));
+}
+
+.win-espera {
+  margin-top: 12px;
+  font-weight: 700;
+  opacity: 0.8;
+  color: #AEEBFF;
+}
+
+/* ==================
+   Mejora visual selección / encontradas
+   ================== */
+
+.cell.found,
+.grid div.found {
+  background: linear-gradient(135deg, #22c55e, #86efac) !important;
+  color: #052e16 !important;
+  font-weight: 900 !important;
+  border: 2px solid #bbf7d0 !important;
+  box-shadow:
+    0 0 10px rgba(34, 197, 94, .85),
+    inset 0 0 0 2px rgba(255, 255, 255, .35) !important;
+  transform: scale(1.04);
+  z-index: 3;
+}
+
+.cell.selected,
+.grid div.selected {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  border: 2px solid #bae6fd !important;
+  box-shadow:
+    0 0 12px rgba(14, 165, 233, .85),
+    inset 0 0 0 2px rgba(255, 255, 255, .28) !important;
+  transform: scale(1.03);
+  z-index: 4;
+}
+
+#word-list li.found {
+  text-decoration: line-through;
+  color: #22c55e !important;
+  font-weight: 900;
+  opacity: 1 !important;
+}
+
+/* ==================
+   Botón música
+   ================== */
+
+#btn-musica {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 500;
+  background: rgba(0, 20, 40, .85);
+  border: 1.5px solid rgba(0, 200, 255, .6);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 14px rgba(0, 200, 255, .25);
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+}
+
+#btn-musica:hover {
+  border-color: rgba(0, 200, 255, .9);
+  box-shadow: 0 0 22px rgba(0, 200, 255, .45);
+  transform: scale(1.08);
+}
+
+/* ==================
+   Responsive extra
+   ================== */
+
+@media (max-width: 900px) {
+  .inicio-fase-card {
+    width: min(94%, 760px);
+    padding: 16px 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .inicio-fase-overlay {
+    padding: 14px 12px 12px;
+  }
+
+  .inicio-fase-card {
+    width: 100%;
+    border-radius: 18px;
+    padding: 14px 14px 16px;
+  }
+
+  .inicio-fase-card h3 {
+    font-size: 1rem;
+  }
+
+  .inicio-fase-card p {
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
+  .btn-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .contador-fase {
+    font-size: 0.9rem;
+  }
+}

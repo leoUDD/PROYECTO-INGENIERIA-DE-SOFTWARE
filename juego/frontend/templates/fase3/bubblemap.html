@@ -1,0 +1,158 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Bubble Map</title>
+  <link rel="stylesheet" href="{% static 'css/fase2/estilo_bubblemap.css' %}">
+</head>
+
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
+
+  <!-- Música de fondo -->
+  <audio id="musicaBubble" src="{% static 'sounds/musica_bubble.mp3' %}" loop preload="auto"></audio>
+  <button id="btnMuteBubble" title="Silenciar música">🔊</button>
+
+  <main class="bubblemap-container">
+
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge" data-i18n="bubble_badge">MISIÓN DE EMPATÍA</div>
+        <h3 data-i18n="bubble_antes">Antes de comenzar</h3>
+        <p data-i18n="bubble_intro_1">Agentes, analicen a la persona objetivo del desafío.</p>
+        <p data-i18n="bubble_intro_2">Tendrán 3 minutos para completar el Bubble Map. Cuando todos estén listos, el análisis comenzará automáticamente.</p>
+        <button type="button" id="btn-listo-fase" class="btn-chip" data-i18n="bubble_boton_listo">⚡ Listo para comenzar</button>
+        <div id="texto-espera-fase" class="contador-fase" data-i18n="bubble_esperando">Esperando a los demás equipos...</div>
+        <div id="contador-listos-fase" class="contador-fase">0/0 grupos listos</div>
+      </section>
+    </div>
+
+    <h1 id="tituloBubble" class="blur-target-bloqueado" data-i18n="bubble_titulo">
+      💭 Bubble Map — Misión de empatía
+    </h1>
+
+    <p id="subtituloBubble" class="subtitle blur-target-bloqueado" data-i18n="bubble_subtitulo">
+      Presiona una burbuja para analizar a la persona objetivo.
+    </p>
+
+    <section id="desafioPanel" class="desafio-panel blur-target-bloqueado">
+      <button type="button" class="desafio-toggle" id="desafioToggle">
+        <div class="desafio-toggle-head">
+          <span class="desafio-etiqueta" data-i18n="bubble_desafio_label">Desafío seleccionado</span>
+          <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
+        </div>
+        <span class="desafio-icono" id="desafioIcono">▼</span>
+      </button>
+      <div class="desafio-body" id="desafioBody" hidden>
+        <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
+      </div>
+    </section>
+
+    <button id="objetoCelularTrigger" class="objeto-celular-trigger blur-target-bloqueado" type="button" aria-label="Encontrar tablet perdida" data-i18n="bubble_objeto_aria" data-i18n-attr="aria-label">
+      <img src="{% static 'images/Tablet.webp' %}" class="objeto-celular-icon" alt="" aria-hidden="true">
+    </button>
+
+    <div id="objetoCelularOverlay" class="astro-object-overlay" aria-hidden="true">
+      <div class="astro-object-card">
+        <div class="astro-flex">
+          <img src="{% static 'images/Parado.webp' %}" class="astro-img" alt="" aria-hidden="true">
+          <div class="astro-text">
+            <h3 data-i18n="bubble_objeto_titulo">📱 Objeto encontrado</h3>
+            <p data-i18n="bubble_objeto_p1">Agente… encontraste otro fragmento del equipo.</p>
+            <p data-i18n-html="true" data-i18n="bubble_objeto_p2">Esta pista es clave: serán evaluados por <strong>la claridad de su propuesta y cómo la comunican</strong>.</p>
+            <p data-i18n="bubble_objeto_p3">Sigan avanzando… la misión aún no termina.</p>
+            <button id="objetoCelularClose" class="astro-object-close" type="button" data-i18n="bubble_objeto_boton">Entendido</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details id="reglasBubble" class="reglas-bubble blur-target-bloqueado">
+      <summary data-i18n="bubble_reglas_titulo">📌 ¿Cómo ganar más tokens?</summary>
+      <ul>
+        <li data-i18n-html="true" data-i18n="bubble_regla_1">Mientras más <strong>burbujas completas</strong>, más tokens ganan.</li>
+        <li data-i18n-html="true" data-i18n="bubble_regla_2">Las respuestas más <strong>claras y desarrolladas</strong> otorgan más tokens.</li>
+        <li data-i18n-html="true" data-i18n="bubble_regla_3">La burbuja <strong>"Otros"</strong> permite agregar varias ideas extra.</li>
+        <li data-i18n-html="true" data-i18n="bubble_regla_4">Agregar un <strong>relato breve</strong> ayuda a entender mejor a la persona.</li>
+        <li data-i18n-html="true" data-i18n="bubble_regla_5">Agregar un <strong>link o noticia</strong> le da más valor a su análisis.</li>
+      </ul>
+    </details>
+
+    <div id="bubblemap-desafio-data"
+      data-nombre="{{ desafio_nombre_actual|default:'Desafío no seleccionado'|escape }}"
+      data-descripcion="{{ desafio_descripcion_actual|default:'Aún no hay descripción disponible para este desafío.'|escape }}"
+      data-foto="{{ desafio_foto_actual|default:'' }}"
+      hidden></div>
+
+    <div class="timer-wrap blur-target-bloqueado timer-esperando" id="timerWrap">
+      <div class="timer-bubblemap" id="timer">03:00</div>
+    </div>
+
+    <section id="bubblesSection" class="bubble-stage blur-target-bloqueado">
+      <div class="bubble central" id="bubbleCentral">
+        <img id="personaObjetivoImg" alt="Persona objetivo" />
+      </div>
+    </section>
+
+    <div id="bubbleActions" class="bubble-actions blur-target-bloqueado">
+      <button type="button" id="btnAgregarOtro" class="bubble-action-btn" data-i18n="bubble_boton_otro">➕ Agregar idea en Otros</button>
+      <button type="button" id="btnAbrirRelato" class="bubble-action-btn" data-i18n="bubble_boton_relato">📖 Relato breve</button>
+      <button type="button" id="btnAbrirLink" class="bubble-action-btn" data-i18n="bubble_boton_link">🔗 Link o noticia</button>
+    </div>
+
+    <footer id="footerBubble" class="footer-actions blur-target-bloqueado"></footer>
+
+    <div id="editorModal" class="editor-modal" aria-hidden="true">
+      <div class="editor-card">
+        <div class="editor-head">
+          <h3 id="editorTitulo">Burbuja</h3>
+          <button type="button" id="btnCerrarEditor" class="btn-close-editor">×</button>
+        </div>
+        <div id="otrosTabs" class="otros-tabs"></div>
+        <div id="editorPregunta" class="editor-question"></div>
+        <textarea id="editorTexto" maxlength="700" placeholder="Escribe aquí..." data-i18n="bubble_editor_placeholder" data-i18n-attr="placeholder"></textarea>
+        <div class="editor-actions">
+          <button type="button" id="btnCancelarEditor" class="btn-secondary-local" data-i18n="bubble_editor_cancelar">Cancelar</button>
+          <button type="button" id="btnGuardarEditor" class="btn-primary-local" data-i18n="bubble_editor_guardar">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultadoModal" class="resultado-modal" aria-hidden="true">
+      <div class="resultado-card">
+        <div class="resultado-badge" data-i18n="bubble_resultado_badge">MISIÓN CUMPLIDA</div>
+        <div class="resultado-icono">🎯</div>
+        <audio id="audioResultado" preload="auto">
+          <source src="{% static 'audio/success.mp3' %}" type="audio/mpeg">
+        </audio>
+        <h2 data-i18n="bubble_resultado_titulo">¡Tiempo terminado!</h2>
+        <div id="resultadoNivel" class="resultado-nivel">Resultado</div>
+        <p id="resultadoResumen"></p>
+        <div id="resultadoDetalle" class="resultado-detalle"></div>
+        <p id="resultadoEspera" style="margin-top:14px; font-weight:800; color:#fdfdfd;" data-i18n="bubble_resultado_espera">
+          Esperando confirmación de los demás equipos...
+        </p>
+        <div class="resultado-actions">
+          <button type="button" id="btnConfirmarResultado" class="btn-primary-local" data-i18n="bubble_resultado_confirmar">
+            Confirmar y continuar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="routes"
+      data-sesion-id="{{ grupo.sesion.idsesion }}"
+      data-grupo-id="{{ grupo.idgrupo }}"
+      data-csrf-token="{{ csrf_token }}"
+      data-tiempo="{{ segundos_restantes|default:180 }}"
+      data-otorgar-tokens-url="{% url 'otorgar_tokens_bubblemap' %}">
+    </div>
+  </main>
+
+  <script src="{% static 'js/fase2/bubblemap.js' %}"></script>
+{% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
+</body>
+</html>

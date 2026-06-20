@@ -1,0 +1,161 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Misión Emprende UDD — Sopa de Letras</title>
+  
+  <link rel="stylesheet" href="{% static 'css/fase1/estilo_minijuego1.css' %}">
+</head>
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-grupo-id="{{ grupo.idgrupo }}"
+  data-csrf-token="{{ csrf_token }}"
+  data-tiempo-inicial="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias|default:300 }}"
+  data-sopa-ganada="{{ sopa_ganada|yesno:'true,false' }}"
+>
+  <main class="game-container">
+
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge" data-i18n="sopa_badge">
+          MISIÓN DE RASTREO
+        </div>
+
+        <h3 data-i18n="sopa_antes">
+          Antes de comenzar
+        </h3>
+
+        <p data-i18n="sopa_intro_1">
+          El sistema ha ocultado conceptos clave del emprendimiento dentro de la sopa de letras.
+        </p>
+
+        <p data-i18n="sopa_intro_2">
+          Tendrán 1 minuto para encontrarlos. Cuando todos los escuadrones estén listos, el rastreo comenzará automáticamente.
+        </p>
+
+        <button type="button" id="btn-listo-fase" class="btn-chip" data-i18n="sopa_boton_listo">
+          ⚡ Listo para comenzar
+        </button>
+
+        <div id="texto-espera-fase" class="contador-fase" data-i18n="sopa_esperando">
+          Esperando a los demás equipos...
+        </div>
+
+        <div id="contador-listos-fase" class="contador-fase">
+          0/0 grupos listos
+        </div>
+      </section>
+    </div>
+
+    <h1 id="tituloSopa" class="blur-target-bloqueado" data-i18n="sopa_titulo">
+      Sopa de Letras
+    </h1>
+
+    <p id="subtituloSopa" class="blur-target-bloqueado" data-i18n="sopa_subtitulo">
+      Encuentra las palabras ocultas relacionadas con el emprendimiento
+    </p>
+
+    <div id="timer-container" class="blur-target-bloqueado timer-esperando">
+      <span data-i18n="sopa_tiempo_restante">Tiempo restante:</span>
+      <span> </span>
+      <span id="timer" class="timer">00:00</span>
+    </div>
+
+    <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+    <audio id="victory-sound" src="{% static 'sounds/victory.mp3' %}" preload="auto"></audio>
+    <audio id="musica-fondo" src="{% static 'sounds/musica_sopa.mp3' %}" loop preload="auto"></audio>
+
+    <div id="timeModal" class="modal" aria-hidden="true" role="dialog">
+      <div class="modal-content">
+        <h2 data-i18n="sopa_tiempo_terminado_titulo">
+          ⏰ ¡Tiempo terminado!
+        </h2>
+
+        <p data-i18n="sopa_tiempo_terminado_texto">
+          Se acabó el tiempo para completar la sopa de letras.
+        </p>
+
+        <button id="btnRetry" type="button" data-i18n="sopa_ok">
+          Continuar
+        </button>
+      </div>
+    </div>
+
+    <div id="grid" class="grid blur-target-bloqueado" aria-label="Tablero de sopa de letras"></div>
+
+    <div id="winModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="winTitle">
+      <div class="modal-content">
+        <img
+          src="{% static 'gifs/token_dorado_clean_grande.gif' %}"
+          alt="Token de recompensa"
+          class="token-animado"
+        >
+
+        <h2 id="winTitle" data-i18n="sopa_win_titulo">
+          ¡Buen trabajo!
+        </h2>
+
+        <p id="winText" data-i18n="sopa_win_texto">
+          Se han encontrado todas las palabras. ¡Impresionante!
+        </p>
+
+        <p id="winEspera" class="win-espera">
+          Esperando a los demás escuadrones...
+        </p>
+      </div>
+    </div>
+
+    <div id="wordsBox" class="words blur-target-bloqueado">
+      <h3 data-i18n="sopa_palabras_encontrar">
+        Palabras a encontrar:
+      </h3>
+
+      <ul id="word-list">
+        <li data-word="IDEA">IDEA</li>
+        <li data-word="EQUIPO">EQUIPO</li>
+        <li data-word="NEGOCIO">NEGOCIO</li>
+        <li data-word="CREATIVIDAD">CREATIVIDAD</li>
+        <li data-word="LIDERAZGO">LIDERAZGO</li>
+        <li data-word="VALOR">VALOR</li>
+        <li data-word="IMPACTO">IMPACTO</li>
+        <li data-word="CLIENTE">CLIENTE</li>
+      </ul>
+
+      <div id="status" class="status">
+        0/8 encontradas
+      </div>
+    </div>
+
+    <button
+      id="btn-musica"
+      type="button"
+      title="Silenciar música"
+      aria-label="Silenciar música">
+      🔊
+    </button>
+
+    <div
+      id="routes"
+      data-registrar-palabra-url="{% url 'registrar_palabra_sopa' %}"
+      data-sopa-completada-api-url="{% url 'sopa_completada' %}"
+      data-sesion-id="{{ grupo.sesion.idsesion }}"
+      data-grupo-id="{{ grupo.idgrupo }}"
+      data-csrf-token="{{ csrf_token }}"
+      data-tiempo="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias|default:300 }}"
+      data-tiempo-inicial="{{ grupo.sesion.segundos_restantes|default:grupo.sesion.t_diferencias|default:300 }}"
+      data-sopa-ganada="{{ sopa_ganada|yesno:'true,false' }}">
+    </div>
+  </main>
+
+  {% include "includes/countdown_inicio_fase.html" %}
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <script src="{% static 'js/fase1/minijuego1.js' %}"></script>
+</body>
+</html>

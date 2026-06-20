@@ -1,0 +1,163 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Misión Emprende UDD — Conocerse</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase1/estilo_conocidos.css' %}">
+</head>
+
+<body>
+  <main class="phone" role="region" aria-label="Introducciones">
+
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge" data-i18n="conocidos_badge">
+          Fase de activación
+        </div>
+
+        <h3 data-i18n="conocidos_antes">
+          Antes de comenzar
+        </h3>
+
+        <p {% if modo_rapido %}data-i18n="conocidos_instruccion_rapida"{% else %}data-i18n="conocidos_instruccion_normal"{% endif %}>
+          {% if modo_rapido %}
+            Cada agente comparte un dato curioso o responde una pregunta rápida.
+          {% else %}
+            Cada integrante dice su nombre y comparte un dato curioso.
+          {% endif %}
+        </p>
+
+        <p data-i18n="conocidos_presionen">
+          Presionen "Listo para comenzar" cuando estén listos.
+        </p>
+
+        <button class="btn-chip" id="btn-listo-fase" type="button" data-i18n="conocidos_boton_listo">
+          ⚡ Listo para comenzar
+        </button>
+
+        <p id="texto-espera-fase" class="contador-fase" data-i18n="conocidos_esperando">
+          Esperando a los demás equipos...
+        </p>
+
+        <p id="contador-listos-fase" class="contador-fase">
+          0/0 grupos listos
+        </p>
+      </section>
+    </div>
+
+    <h1 id="tituloConocidos" class="title blur-target-bloqueado" data-i18n="conocidos_titulo">
+      ¡Es momento de conocerse!
+    </h1>
+
+    <div id="speechBubbleConocidos" class="speech-bubble blur-target-bloqueado">
+      <p class="body" {% if modo_rapido %}data-i18n="conocidos_body_rapido"{% else %}data-i18n="conocidos_body_normal"{% endif %}>
+        {% if modo_rapido %}
+          Compartan algunos datos curiosos o respondan unas preguntas para activar al escuadrón.
+        {% else %}
+          Di tu nombre y comparte un dato curioso sobre ti.
+        {% endif %}
+      </p>
+
+      <p class="body pregunta-random" id="preguntaTexto" data-i18n="conocidos_cargando_pregunta">
+        👉 Cargando pregunta...
+      </p>
+
+      <button class="btn-random" id="btnPregunta" type="button" data-i18n="conocidos_nueva_pregunta">
+        Nueva pregunta
+      </button>
+    </div>
+
+    <button
+      id="astro-trigger"
+      class="astro-trigger"
+      type="button"
+      aria-label="Abrir mensaje del astronauta"
+      data-i18n="conocidos_astro_aria"
+      data-i18n-attr="aria-label">
+      <span class="astro-signal" aria-hidden="true"></span>
+      <img class="astro-img-falling" src="{% static 'images/Cayendo.webp' %}" alt="" aria-hidden="true">
+    </button>
+
+    <div id="astro-overlay" class="astro-overlay" aria-hidden="true">
+      <div id="astro-card" class="astro-card">
+        <img class="astro-img-standing" src="{% static 'images/Parado.webp' %}" alt="" aria-hidden="true">
+
+        <h3 data-i18n="conocidos_astro_titulo">
+          Mensaje del astronauta
+        </h3>
+
+        <p data-i18n="conocidos_astro_p1">
+          ¡Gracias por ayudarme! En compensación, les aviso algo importante:
+        </p>
+
+        <p data-i18n="conocidos_astro_p2">
+          Más adelante serán evaluados por Creatividad.
+        </p>
+
+        <p data-i18n="conocidos_astro_p3">
+          Si encuentran mis objetos perdidos durante la misión, les daré más consejos.
+        </p>
+
+        <button id="astro-close" class="astro-close" type="button" data-i18n="conocidos_astro_boton">
+          Entendido
+        </button>
+      </div>
+    </div>
+
+    <h2 id="timer" class="blur-target-bloqueado timer-esperando">
+      00:10
+    </h2>
+
+    <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+    <audio id="musica-fondo" src="{% static 'sounds/musica_conocidos.mp3' %}" loop preload="auto"></audio>
+
+    <div
+      id="routes"
+      data-sesion-id="{{ grupo.sesion.idsesion }}"
+      data-grupo-id="{{ grupo.idgrupo }}"
+      data-csrf-token="{{ csrf_token }}"
+      data-tiempo="{{ grupo.sesion.segundos_restantes|default:10 }}"
+      data-modo-rapido="{% if modo_rapido %}true{% else %}false{% endif %}">
+    </div>
+  </main>
+
+  <div id="dialogo-inicial-overlay" aria-modal="true" role="dialog" aria-label="Mensaje de la Comandante Nova">
+    <div id="dialogo-backdrop"></div>
+
+    <div id="dialogo-box">
+      <div class="dialogo-personaje activo" id="pj-nova">
+        <img class="dialogo-img" src="{% static 'images/foto2.webp' %}" alt="Comandante Nova">
+      </div>
+
+      <div class="dialogo-burbuja" id="dialogo-burbuja">
+        <div class="dialogo-hablante" id="dialogo-hablante">
+          COMANDANTE NOVA
+        </div>
+
+        <p class="dialogo-texto-rpg" id="dialogo-texto"></p>
+
+        <button class="dialogo-siguiente" id="btn-dialogo-continuar" type="button">
+          <span id="btn-rpg-label">Siguiente</span>
+          <span class="dialogo-flecha">▶</span>
+        </button>
+
+        <div class="dialogo-progreso">
+          <div id="dialogo-dots"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
+
+  <script src="{% static 'js/fase1/conocidos.js' %}"></script>
+</body>
+</html>

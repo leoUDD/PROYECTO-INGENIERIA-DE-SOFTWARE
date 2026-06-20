@@ -1,0 +1,70 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title data-i18n="trabajo_equipo_document_title">
+    Misión Emprende UDD — Trabajo en equipo
+  </title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase1/estilo_trabajoenequipo.css' %}">
+</head>
+
+<body>
+  <main class="team-container-wrap" role="main" aria-labelledby="tituloTrabajoEquipo">
+    <section class="team-container">
+
+      <div class="title-wrapper">
+        <h1 id="tituloTrabajoEquipo" class="title" data-i18n="trabajo_equipo_titulo">
+          Trabajo en equipo
+        </h1>
+      </div>
+
+      <section class="mission-panel" aria-label="Instrucciones de trabajo en equipo">
+        <p class="body" data-i18n="trabajo_equipo_intro">
+          Antes de avanzar, recuerden que una misión no se supera en solitario.
+          Coordinen ideas, escuchen a su escuadrón y trabajen como equipo.
+        </p>
+
+        <p class="tablet-reminder" data-i18n="trabajo_equipo_recordatorio">
+          Revisen la tablet del equipo antes de continuar. Ahí encontrarán la siguiente instrucción de la misión.
+        </p>
+
+        <div class="panel-divider"></div>
+
+        <p class="body" data-i18n="trabajo_equipo_cierre">
+          Cuando todos tengan claro su rol, presionen el botón para continuar.
+        </p>
+
+        <div class="next-step">
+          <button id="btn-listo-f1" class="btn-chip" type="button" data-i18n="trabajo_equipo_boton">
+            ⚡ Listo para continuar
+          </button>
+
+          <p id="estado-listo-f1" class="oai-estado-listo">
+            0/0 grupos listos
+          </p>
+        </div>
+      </section>
+
+      <audio id="musica-fondo" src="{% static 'sounds/musica_trabajoenequipo.mp3' %}" loop preload="auto"></audio>
+    </section>
+  </main>
+
+  <div
+    id="routes"
+    data-sesion-id="{{ grupo.sesion.idsesion }}"
+    data-grupo-id="{{ grupo.idgrupo }}"
+    data-csrf-token="{{ csrf_token }}">
+  </div>
+
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <script src="{% static 'js/fase1/trabajoenequipo.js' %}"></script>
+</body>
+</html>

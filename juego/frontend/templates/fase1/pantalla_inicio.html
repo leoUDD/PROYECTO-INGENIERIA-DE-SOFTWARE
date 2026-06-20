@@ -1,0 +1,78 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Bienvenida</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase1/estilo_pantalla_inicio.css' %}">
+</head>
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-grupo-id="{{ grupo.idgrupo }}"
+  data-csrf-token="{{ csrf_token }}"
+>
+  <main class="transition-container">
+    <section class="card">
+
+      <div class="logo">
+        <img src="{% static 'images/logo.webp' %}" alt="Logo Misión Emprende">
+      </div>
+
+      <h1 data-i18n="bienvenida_title">¡Has sido reclutado para la misión!</h1>
+
+      <div class="console-card">
+        <p
+          class="console-title console-line"
+          data-i18n-text="bienvenida_reclutamiento"
+          data-text="RECLUTAMIENTO CONFIRMADO">
+        </p>
+
+        <p class="console-line">
+          <span class="console-label" data-i18n="bienvenida_rol_label">Rol asignado:</span>
+          <span class="console-val" data-i18n-text="bienvenida_rol_valor" data-text=" Agente en entrenamiento"></span>
+        </p>
+
+        <p class="console-line">
+          <span class="console-label" data-i18n="bienvenida_fase_label">Fase actual:</span>
+          <span class="console-val" data-i18n-text="bienvenida_fase_valor" data-text=" Activación"></span>
+        </p>
+
+        <p class="console-line">
+          <span class="console-label" data-i18n="bienvenida_estado_label">Estado:</span>
+          <span class="console-val" data-i18n-text="bienvenida_estado_valor" data-text=" Preparado para iniciar"></span>
+        </p>
+
+        <p class="console-prompt console-line">
+          <span class="console-val" data-i18n-text="bienvenida_aceptar" data-text="¿Aceptar misión?"></span>
+        </p>
+      </div>
+
+      <div class="next-step">
+        <button class="btn-chip" id="btnComenzar" type="button" data-i18n="bienvenida_boton_listo">
+          ¡Estoy listo!
+        </button>
+
+        <p id="estado-listo-lobby">0/0 grupos listos</p>
+      </div>
+
+    </section>
+  </main>
+
+  <audio
+    id="musica-fondo"
+    src="{% static 'sounds/musica_reclutamiento.mp3' %}"
+    loop
+    preload="auto">
+  </audio>
+
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <script src="{% static 'js/fase1/pantalla_inicio.js' %}"></script>
+</body>
+</html>
