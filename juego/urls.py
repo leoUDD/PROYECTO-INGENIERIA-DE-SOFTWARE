@@ -7,7 +7,13 @@ urlpatterns = [
     #ORDENAMIENTO
     path("", include("juego.backend.core_global.urls")),
     path("", include("juego.backend.fase1.urls")),
+    path("", include("juego.backend.fase2.urls")),
+    path("", include("juego.backend.fase3.urls")),
+    path("", include("juego.backend.fase4.urls")),
+    path("", include("juego.backend.fase5.urls")),
+    path("", include("juego.backend.ranking.urls")),
     #FIN ORDENAMIENTO
+    
     #NUEVO
     path(
     "sesion/<int:sesion_id>/dev/timer-10/",
@@ -33,7 +39,6 @@ urlpatterns = [
     path("habilidades-intro/", views.habilidades_intro, name="habilidades_intro"),
     path('dashboardadmin/tematicas/', views.admin_tematicas, name='admin_tematicas'),
     path('dashboardadmin/desafios/', views.admin_desafios, name='admin_desafios'),
-    path("grupo/<int:grupo_id>/listo-ranking/", views.marcar_listo_ranking, name="marcar_listo_ranking"),
     path("cambiar-tematica/", views.cambiar_tematica, name="cambiar_tematica"),
     path("guardar-tematica/", views.guardar_tematica, name="guardar_tematica"),
     path("guardar-desafio/", views.guardar_desafio, name="guardar_desafio"),
@@ -96,7 +101,6 @@ path(
     path('market/', views.market_view, name='market'),
     path('market/issue/<int:challenge_id>/', views.issue_challenge_view, name='issue_challenge'),
     path('peer-review/', views.peer_review_view, name='peer_review'),
-    path("ranking/", views.ranking_view, name="ranking"),
     path('reflexion/', views.reflexion, name='reflexion'),
     path("mision-cumplida/", views.mision_cumplida_view, name="mision_cumplida"),
 

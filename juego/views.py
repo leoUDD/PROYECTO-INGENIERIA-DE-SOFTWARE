@@ -4,6 +4,7 @@ from juego.backend.core_global.constants import (
     RUTA_POR_FASE,
     ETIQUETA_FASE,
     FASES_CON_INICIO_POR_ALUMNOS,
+    FASES_ORDEN,
 )
 
 from juego.backend.core_global.services import (
@@ -64,41 +65,6 @@ import random
 from math import ceil
 from django.utils import timezone
 from django.db.models import F
-
-
-
-FASES_ORDEN = [
-    "intro_habilidades",
-    "f1_bienvenida",
-    "f1_conocidos",
-    "f1_pre_sopa",
-    "f1_sopa",
-    "f1_ranking",
-
-    "mapa_f2_empatia",
-    "f2_transicion",
-    "f2_tematicas",
-    "f2_transicion_empatia",
-    "f2_bubblemap",
-    "f2_ranking",
-
-    "mapa_f3_creatividad",
-    "f3_transicion_creatividad",
-    "f3_lego",
-    "f3_ranking",
-
-    "mapa_f4_final",
-    "f4_transicion_comunicacion",
-    "f4_construccion_pitch",
-    "f4_orden_pitch",
-    "f4_presentacion_pitch",
-    "f5_evaluacion_pitch",
-
-    "f6_ranking",
-    "reflexion",
-]
-
-
 
 def iniciar_timer_de_sesion(sesion):
     segundos = int(sesion.segundos_restantes or 0)
@@ -531,50 +497,6 @@ def espera_eleccion(request):
         "total_grupos": total_grupos,
     })
 
-def serializar_estado_pitch(sesion, grupo_solicitante=None):
-    grupo_actual = sesion.grupo_presentando
-
-    orden_pitch = list(
-        Grupo.objects.filter(sesion=sesion, orden_presentacion__isnull=False)
-        .order_by("orden_presentacion")
-        .values("idgrupo", "nombregrupo", "orden_presentacion")
-    )
-
-    foto_lego_url = None
-    if grupo_actual and grupo_actual.foto_lego:
-        try:
-            foto_lego_url = grupo_actual.foto_lego.url
-        except Exception:
-            foto_lego_url = None
-
-    segundos_restantes = max(int(sesion.segundos_restantes or 0), 0)
-    if sesion.timer_corriendo and sesion.timer_fin_at:
-        segundos_restantes = max(int((sesion.timer_fin_at - timezone.now()).total_seconds()), 0)
-
-    return {
-        "grupoActual": {
-            "id": grupo_actual.idgrupo,
-            "nombre": grupo_actual.nombregrupo,
-            "fotoLego": foto_lego_url,
-            "orden": grupo_actual.orden_presentacion,
-        } if grupo_actual else None,
-        "ordenPitch": [
-            {
-                "id": g["idgrupo"],
-                "nombre": g["nombregrupo"],
-                "orden": g["orden_presentacion"],
-            }
-            for g in orden_pitch
-        ],
-        "ordenSorteado": getattr(sesion, "orden_sorteado", False),
-        "timerCorriendo": sesion.timer_corriendo,
-        "segundosRestantes": segundos_restantes,
-        "miPitch": grupo_solicitante.pitch_texto if grupo_solicitante else "",
-        "miEquipoPresenta": (
-    grupo_solicitante and grupo_actual and
-    grupo_solicitante.idgrupo == grupo_actual.idgrupo
-),
-    }
 
 
 #PRESENTACION PITCH/LEGO
@@ -1185,26 +1107,6 @@ def profesor_siguiente_fase(request, sesion_id):
     })
 
 
-@require_POST
-def marcar_listo_ranking(request, grupo_id):
-    grupo = get_object_or_404(Grupo, pk=grupo_id)
-
-    grupo.listo_ranking = True
-    grupo.save(update_fields=["listo_ranking"])
-
-    sesion = grupo.sesion
-    total_grupos = Grupo.objects.filter(sesion=sesion).count()
-    grupos_listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
-
-
-    return JsonResponse({
-        "ok": True,
-        "grupoId": grupo.idgrupo,
-        "listoRanking": True,
-        "gruposListosRanking": grupos_listos_ranking,
-        "totalGrupos": total_grupos,
-        "todosListosRanking": total_grupos > 0 and grupos_listos_ranking == total_grupos,
-    })
 
 
 @require_POST
@@ -2807,51 +2709,6 @@ def otorgar_tokens_peer_review(grupo_evaluador: Grupo):
     grupo_evaluador.save()
 
 
-def ranking_view(request):
-    grupo_id = request.session.get("grupo_id")
-    if not grupo_id:
-        messages.error(request, "No pudimos identificar tu grupo.")
-        return redirect("registro")
-
-    grupo_actual = get_object_or_404(Grupo, pk=grupo_id)
-    sesion = grupo_actual.sesion
-
-    if not sesion:
-        messages.error(request, "Tu grupo no está asociado a ninguna sesión.")
-        return redirect("registro")
-
-    grupos = (
-        Grupo.objects
-        .filter(sesion=sesion)
-        .order_by("-tokensgrupo", "idgrupo")
-    )
-
-    rankings = []
-    last_tokens = None
-    current_rank = 0
-    position = 0
-
-    for g in grupos:
-        position += 1
-        tokens = g.tokensgrupo or 0
-
-        if tokens != last_tokens:
-            current_rank = position
-            last_tokens = tokens
-
-        rankings.append({
-            "team_name": g.nombregrupo or f"Grupo {g.idgrupo}",
-            "tokens": tokens,
-            "is_me": g.idgrupo == grupo_actual.idgrupo,
-            "rank": current_rank,
-        })
-
-    context = {
-        "session": sesion,
-        "grupo": grupo_actual,
-        "rankings": rankings,
-    }
-    return render(request, "ranking.html", context)
 
 @never_cache
 def mision_cumplida_view(request):

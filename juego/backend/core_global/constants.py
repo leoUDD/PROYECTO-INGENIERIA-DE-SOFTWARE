@@ -1,3 +1,35 @@
+FASES_ORDEN = [
+    "intro_habilidades",
+    "f1_bienvenida",
+    "f1_conocidos",
+    "f1_pre_sopa",
+    "f1_sopa",
+    "f1_ranking",
+
+    "mapa_f2_empatia",
+    "f2_transicion",
+    "f2_tematicas",
+    "f2_transicion_empatia",
+    "f2_bubblemap",
+    "f2_ranking",
+
+    "mapa_f3_creatividad",
+    "f3_transicion_creatividad",
+    "f3_lego",
+    "f3_ranking",
+
+    "mapa_f4_final",
+    "f4_transicion_comunicacion",
+    "f4_construccion_pitch",
+    "f4_orden_pitch",
+    "f4_presentacion_pitch",
+    "f5_evaluacion_pitch",
+
+    "f6_ranking",
+    "reflexion",
+]
+
+
 RUTA_POR_FASE = {
     "lobby": "pantalla_espera",
     "intro_habilidades": "habilidades_intro",

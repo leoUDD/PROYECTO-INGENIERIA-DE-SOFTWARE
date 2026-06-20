@@ -1,6 +1,8 @@
 from juego.backend.core_global.constants import (
     RUTA_POR_FASE,
+    ETIQUETA_FASE,
     FASES_CON_INICIO_POR_ALUMNOS,
+    FASES_ORDEN,
 )
 
 from juego.models import Grupo
