@@ -1,0 +1,200 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <title>Misión Emprende UDD — Elige la temática</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase2/estilo_tematicas.css' %}">
+</head>
+
+<body>
+
+  <audio id="musica-desafios" src="{% static 'sounds/musica_desafios.mp3' %}" loop preload="auto"></audio>
+
+  <button
+    id="btn-musica-desafios"
+    class="btn-musica-desafios"
+    title="Silenciar música"
+    aria-label="Silenciar música"
+    type="button"
+  >
+    🔊
+  </button>
+
+  <main class="selector-container" role="main" aria-labelledby="page-title">
+
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge" data-i18n="tematicas_overlay_badge">
+          ASIGNACIÓN DE OBJETIVO
+        </div>
+
+        <h3 data-i18n="tematicas_overlay_titulo">Antes de comenzar</h3>
+
+        <p data-i18n="tematicas_overlay_p1">
+          Agentes, definan el campo de acción de su próxima misión.
+        </p>
+
+        <p data-i18n="tematicas_overlay_p2">
+          Tendrán 2 minutos para elegir temática y desafío. Cuando todos estén listos, el temporizador se activará.
+        </p>
+
+        <button id="btnListoTematica" class="btn-chip" type="button" data-i18n="tematicas_boton_listo">
+          ⚡ Listo para comenzar
+        </button>
+
+        <div id="textoEsperaTematica" class="contador-fase" data-i18n="tematicas_esperando">
+          Esperando a los demás equipos...
+        </div>
+
+        <div id="contadorListosTematica" class="contador-fase">
+          0/0 grupos listos
+        </div>
+      </section>
+    </div>
+
+    <div id="contenidoTematicas" class="contenido-tematicas blur-tematicas">
+
+      <header class="header">
+        <h1 id="page-title" data-i18n="tematicas_titulo">
+          Elige la temática del desafío
+        </h1>
+
+        <p class="subtitle" data-i18n="tematicas_subtitulo">
+          Selecciona una categoría para continuar. Cada bloque explica de qué trata.
+        </p>
+
+        <div class="timer-box">
+          <span data-i18n="tematicas_timer_label">
+            ⏱️ Tiempo para elegir temática y desafío:
+          </span>
+
+          <strong id="timerTematica">--</strong>
+
+          <br>
+
+          <span class="timer-hint" data-i18n="tematicas_timer_hint">
+            Si no eligen a tiempo, el sistema asignará una temática y desafío al azar.
+          </span>
+        </div>
+      </header>
+
+      <button
+        id="objetoCamaraTrigger"
+        class="objeto-camara-trigger"
+        type="button"
+        aria-label="Encontrar cámara perdida"
+        data-i18n="tematicas_camara_aria"
+        data-i18n-attr="aria-label"
+      >
+        <img src="{% static 'images/Camara.webp' %}" class="objeto-camara-img" alt="" aria-hidden="true">
+      </button>
+
+      <div id="objetoCamaraOverlay" class="astro-object-overlay" aria-hidden="true">
+        <div class="astro-flex">
+          <img src="{% static 'images/Parado.webp' %}" class="astro-img" alt="" aria-hidden="true">
+
+          <div class="astro-text">
+            <h3 data-i18n="tematicas_camara_titulo">📷 Objeto encontrado</h3>
+
+            <p data-i18n="tematicas_camara_p1">
+              Agente… gracias por encontrar mi equipo.
+            </p>
+
+            <p data-i18n="tematicas_camara_p2">
+              Pista clave: serán evaluados por cómo conectan su solución con las necesidades reales del usuario.
+            </p>
+
+            <p data-i18n="tematicas_camara_p3">
+              Sigue atento… aún quedan objetos perdidos en la misión.
+            </p>
+
+            <button id="objetoCamaraClose" class="astro-object-close" type="button" data-i18n="tematicas_camara_boton">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <section class="themes-carousel" aria-label="Temáticas disponibles">
+        <button
+          class="carousel-btn prev"
+          type="button"
+          aria-label="Anterior"
+          data-i18n="tematicas_anterior"
+          data-i18n-attr="aria-label"
+        >
+          ‹
+        </button>
+
+        <div class="themes-track" id="themesTrack">
+          {% for tema in tematicas %}
+            <article
+              class="theme-card"
+              tabindex="-1"
+              data-slug="{{ tema.slug }}"
+              data-url="{% url 'desafios' %}"
+            >
+              <div class="thumb">
+                <img src="{% static tema.image %}" alt="Icono de {{ tema.title }}">
+              </div>
+
+              <div class="content">
+                <h2 class="title">{{ tema.title }}</h2>
+
+                <div class="chips">
+                  {% for chip in tema.chips %}
+                    <span class="chip">{{ chip }}</span>
+                  {% endfor %}
+                </div>
+
+                <p class="desc">{{ tema.hero }}</p>
+              </div>
+
+              <div class="actions">
+                <button class="btn select" type="button" data-slug="{{ tema.slug }}">
+                  Elegir
+                </button>
+              </div>
+            </article>
+          {% empty %}
+            <p class="sin-tematicas" data-i18n="tematicas_sin_disponibles">
+              No hay temáticas disponibles.
+            </p>
+          {% endfor %}
+        </div>
+
+        <button
+          class="carousel-btn next"
+          type="button"
+          aria-label="Siguiente"
+          data-i18n="tematicas_siguiente"
+          data-i18n-attr="aria-label"
+        >
+          ›
+        </button>
+      </section>
+
+    </div>
+  </main>
+
+  <div
+    id="routes"
+    data-sesion-id="{{ grupo.sesion.idsesion }}"
+    data-grupo-id="{{ grupo.idgrupo }}"
+    data-tema-actual="{{ tema_actual|default:'' }}"
+    data-guardar-tematica-url="{% url 'guardar_tematica' %}"
+    data-desafios-url="{% url 'desafios' %}"
+  ></div>
+
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <script src="{% static 'js/fase2/tematicas.js' %}"></script>
+</body>
+</html>

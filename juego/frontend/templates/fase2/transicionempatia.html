@@ -1,0 +1,50 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Misión Emprende UDD — Empatía</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase2/estilo_transicionempatia.css' %}" />
+</head>
+
+<body data-sesion-id="{{ grupo.sesion.idsesion }}">
+  <main class="team-container" role="region" aria-label="Introducción a empatía">
+    <section class="team-section">
+
+      <div class="title-wrapper">
+        <h1 class="title" data-i18n="empatia_intro_titulo">Empatía</h1>
+      </div>
+
+      <div class="mission-panel">
+        <p data-i18n="empatia_intro_texto">
+          Agentes, antes de crear una solución deben entender a quién están ayudando.
+          Completarán un Bubble Map sobre su persona objetivo.
+        </p>
+
+        <div class="tablet-reminder" data-i18n="empatia_intro_tablet">
+          📱 Protocolo: recuerden rotar la tablet.
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <div class="next-step">
+          {% include "includes/boton_listo_fase.html" with fase_clave="f2_empatia" fase_actual_esperada="f2_transicion_empatia" campo_listos="gruposListosF2Empatia" campo_mi_grupo="listoF2Empatia" texto_boton="¡Estoy listo!" %}
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <div id="routes" data-sesion-id="{{ grupo.sesion.idsesion }}"></div>
+
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <script src="{% static 'js/fase2/transicionempatia.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+const BASE_STORAGE_KEY = "bubblemap_data_v3";
+    const SESSION_KEY = "browser_session_id";
+
+    function uuidv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const routesEl = document.getElementById("routes");
+      const sesionId = routesEl?.dataset?.sesionId || "";
+      const grupoId = routesEl?.dataset?.grupoId || "";
+      const csrfToken = routesEl?.dataset?.csrfToken || "";
+
+      // ── Música de fondo ──
+      const musicaBubble = document.getElementById("musicaBubble");
+      const btnMute = document.getElementById("btnMuteBubble");
+      let musicaIniciada = false;
+
+      function iniciarMusica() {
+        if (musicaIniciada) return;
+        musicaIniciada = true;
+        if (musicaBubble) {
+          musicaBubble.volume = 0.35;
+          musicaBubble.play().catch(() => {});
+        }
+        document.removeEventListener("click", iniciarMusica);
+        document.removeEventListener("touchstart", iniciarMusica);
+      }
+      document.addEventListener("click", iniciarMusica);
+      document.addEventListener("touchstart", iniciarMusica);
+
+      if (btnMute) {
+        btnMute.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (!musicaBubble) return;
+          musicaBubble.muted = !musicaBubble.muted;
+          btnMute.textContent = musicaBubble.muted ? "🔇" : "🔊";
+        });
+      }
+
+      function tJuego(clave, fallback = "") {
+        const idioma = window.i18nJuego?.obtenerIdioma?.() || "es";
+        return window.i18nJuego?.traducciones?.[idioma]?.[clave] || fallback;
+      }
+
+      function textoGruposListos(listos, total) {
+        return `${listos}/${total} ${tJuego("bubble_grupos_listos", "grupos listos")}`;
+      }
+      function textoEsperando() { return tJuego("bubble_boton_esperando", "Esperando..."); }
+      function textoListo() { return tJuego("bubble_boton_listo", "⚡ Listo para comenzar"); }
+      function textoEsperaEquipos() { return tJuego("bubble_esperando", "Esperando a los demás equipos..."); }
+
+      function actualizarBadgeDesafio(data) {
+        const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+        if (!miGrupo) return;
+        const titulo = miGrupo.desafioNombre || tJuego("bubble_desafio_no_seleccionado", "Desafío no seleccionado");
+        const descripcion = miGrupo.desafioDescripcion || tJuego("bubble_desafio_sin_descripcion", "Aún no hay descripción disponible para este desafío.");
+        const desafioNombre = document.getElementById("desafioNombre");
+        const desafioDescripcion = document.getElementById("desafioDescripcion");
+        if (desafioNombre) desafioNombre.textContent = titulo;
+        if (desafioDescripcion) desafioDescripcion.textContent = descripcion;
+      }
+
+      const STORAGE_KEY = `${BASE_STORAGE_KEY}_sesion_${sesionId}_grupo_${grupoId}`;
+
+      const desafioToggle = document.getElementById("desafioToggle");
+      const desafioBody = document.getElementById("desafioBody");
+      const desafioIcono = document.getElementById("desafioIcono");
+
+      if (desafioToggle && desafioBody && desafioIcono) {
+        desafioToggle.addEventListener("click", () => {
+          const abierto = !desafioBody.hasAttribute("hidden");
+          if (abierto) { desafioBody.setAttribute("hidden", "hidden"); desafioIcono.textContent = "▼"; }
+          else { desafioBody.removeAttribute("hidden"); desafioIcono.textContent = "▲"; }
+        });
+      }
+
+      const boton = document.getElementById("btn-listo-fase");
+      const textoEspera = document.getElementById("texto-espera-fase");
+      const contador = document.getElementById("contador-listos-fase");
+      const overlay = document.getElementById("inicio-fase-overlay");
+      const timerWrap = document.getElementById("timerWrap");
+      const timerElement = document.getElementById("timer");
+      const bubblesSection = document.getElementById("bubblesSection");
+      const personaObjetivoImg = document.getElementById("personaObjetivoImg");
+
+      const celularTrigger = document.getElementById("objetoCelularTrigger");
+      const celularOverlay = document.getElementById("objetoCelularOverlay");
+      const celularClose = document.getElementById("objetoCelularClose");
+      const STORAGE_CELULAR = `objeto_celular_bubblemap_usado_${sesionId}_${grupoId}`;
+
+      if (localStorage.getItem(STORAGE_CELULAR) === "1" && celularTrigger) {
+        celularTrigger.classList.add("oculto");
+      }
+
+      function abrirCelular() {
+        if (!celularOverlay) return;
+        celularOverlay.classList.add("activo");
+        celularOverlay.setAttribute("aria-hidden", "false");
+      }
+
+      function cerrarCelular() {
+        if (!celularOverlay) return;
+        celularOverlay.classList.remove("activo");
+        celularOverlay.setAttribute("aria-hidden", "true");
+        if (celularTrigger) celularTrigger.classList.add("oculto");
+        localStorage.setItem(STORAGE_CELULAR, "1");
+      }
+
+      celularTrigger?.addEventListener("click", abrirCelular);
+      celularClose?.addEventListener("click", cerrarCelular);
+      celularOverlay?.addEventListener("click", (e) => { if (e.target === celularOverlay) cerrarCelular(); });
+
+      const editorModal = document.getElementById("editorModal");
+      const editorTitulo = document.getElementById("editorTitulo");
+      const editorPregunta = document.getElementById("editorPregunta");
+      const editorTexto = document.getElementById("editorTexto");
+      const btnCerrarEditor = document.getElementById("btnCerrarEditor");
+      const btnCancelarEditor = document.getElementById("btnCancelarEditor");
+      const btnGuardarEditor = document.getElementById("btnGuardarEditor");
+      const otrosTabs = document.getElementById("otrosTabs");
+      const btnAgregarOtro = document.getElementById("btnAgregarOtro");
+      const btnAbrirRelato = document.getElementById("btnAbrirRelato");
+      const btnAbrirLink = document.getElementById("btnAbrirLink");
+      const resultadoModal = document.getElementById("resultadoModal");
+      const resultadoNivel = document.getElementById("resultadoNivel");
+      const resultadoResumen = document.getElementById("resultadoResumen");
+      const resultadoDetalle = document.getElementById("resultadoDetalle");
+      const btnConfirmarResultado = document.getElementById("btnConfirmarResultado");
+
+      const dataNode = document.getElementById("bubblemap-desafio-data");
+      const fotoDesafio = dataNode?.dataset?.foto || "";
+      if (fotoDesafio && personaObjetivoImg) personaObjetivoImg.src = fotoDesafio;
+
+      const blurTargets = [
+        document.getElementById("tituloBubble"),
+        document.getElementById("subtituloBubble"),
+        document.getElementById("desafioPanel"),
+        document.getElementById("reglasBubble"),
+        document.getElementById("timerWrap"),
+        document.getElementById("bubblesSection"),
+        document.getElementById("bubbleActions"),
+        document.getElementById("footerBubble"),
+        document.getElementById("objetoCelularTrigger"),
+      ];
+
+      const burbujasBase = [
+        { id: "gustos",     clase: "bubble-gustos",     tituloKey: "bubble_cat_gustos",     preguntaKey: "bubble_q_gustos",     titulo: "Gustos",     pregunta: "¿Qué actividades, intereses o preferencias parecen importantes para esta persona?" },
+        { id: "emociones",  clase: "bubble-emociones",  tituloKey: "bubble_cat_emociones",  preguntaKey: "bubble_q_emociones",  titulo: "Emociones",  pregunta: "¿Qué podría sentir esta persona frente al problema o necesidad del desafío?" },
+        { id: "obstaculos", clase: "bubble-obstaculos", tituloKey: "bubble_cat_obstaculos", preguntaKey: "bubble_q_obstaculos", titulo: "Obstáculos", pregunta: "¿Qué dificultades o barreras enfrenta en su día a día?" },
+        { id: "entorno",    clase: "bubble-entorno",    tituloKey: "bubble_cat_entorno",    preguntaKey: "bubble_q_entorno",    titulo: "Entorno",    pregunta: "¿Qué personas, lugares o situaciones influyen en su comportamiento?" },
+        { id: "habitos",    clase: "bubble-habitos",    tituloKey: "bubble_cat_habitos",    preguntaKey: "bubble_q_habitos",    titulo: "Hábitos",    pregunta: "¿Qué suele hacer normalmente? Piensen en rutinas, tiempo libre o costumbres." },
+        { id: "otros",      clase: "bubble-otros",      tituloKey: "bubble_cat_otros",      preguntaKey: "bubble_q_otros",      titulo: "Otros",      pregunta: "Agrega ideas relevantes que no calzan en las demás burbujas. Puedes crear varias." },
+      ];
+
+      let estado = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      if (!estado.burbujas) estado.burbujas = {};
+      if (!estado.otros) estado.otros = [""];
+      if (!estado.relato) estado.relato = "";
+      if (!estado.link) estado.link = "";
+
+      let editorActual = null;
+      let timeLeft = Number(routesEl?.dataset?.tiempo || 180);
+      let timerInterval = null;
+      let timerIniciado = false;
+      let redirigiendo = false;
+      let tokensBubbleEnviados = false;
+      let timerLiberadoTrasCountdown = false;
+      let timerRealSolicitado = false;
+      let countdownMostrado = false;
+      let countdownEnCurso = false;
+      let resultadoMostrado = false;
+
+      function guardarEstadoLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(estado)); }
+
+      function textoCorto(txt) {
+        txt = (txt || "").trim();
+        if (!txt) return tJuego("bubble_toca_responder", "Toca para responder");
+        return txt.length > 54 ? txt.slice(0, 54).trim() + "..." : txt;
+      }
+
+      function textoValido(txt) { return (txt || "").trim().length >= 5; }
+      function cantidadOtrosValidos() { return estado.otros.filter(textoValido).length; }
+
+      function resumenOtros() {
+        const validos = cantidadOtrosValidos();
+        const total = estado.otros.length;
+        if (validos > 0) return `${validos}/${total} ${tJuego("bubble_ideas_completas", "ideas completas")}`;
+        return tJuego("bubble_toca_responder", "Toca para responder");
+      }
+
+      function renderBurbujas() {
+        const central = document.getElementById("bubbleCentral");
+        bubblesSection.innerHTML = "";
+        bubblesSection.appendChild(central);
+        burbujasBase.forEach((b) => {
+          const tituloTraducido = tJuego(b.tituloKey, b.titulo);
+          const preguntaTraducida = tJuego(b.preguntaKey, b.pregunta);
+          const texto = b.id === "otros" ? resumenOtros() : (estado.burbujas[b.id] || "");
+          const ok = b.id === "otros" ? cantidadOtrosValidos() > 0 : textoValido(texto);
+          bubblesSection.appendChild(crearBurbuja({ id: b.id, clase: b.clase, titulo: tituloTraducido, pregunta: preguntaTraducida, texto, ok, esOtros: b.id === "otros" }));
+        });
+      }
+
+      function crearBurbuja({ id, clase, titulo, pregunta, texto, ok, esOtros }) {
+        const div = document.createElement("div");
+        div.className = `bubble bubble-item ${clase}`;
+        div.dataset.id = id;
+        div.dataset.titulo = titulo;
+        div.dataset.pregunta = pregunta;
+        div.innerHTML = `
+          ${esOtros ? `<span class="bubble-count">${estado.otros.length}</span>` : ""}
+          <span class="bubble-status">${ok ? "✅" : "✍️"}</span>
+          <div>
+            <div class="bubble-title">${titulo}</div>
+            <div class="bubble-preview">${textoCorto(texto)}</div>
+          </div>
+        `;
+        div.addEventListener("click", () => {
+          if (id === "otros") abrirEditorOtros(0);
+          else abrirEditorBase(id, titulo, pregunta);
+        });
+        return div;
+      }
+
+      function renderOtrosTabs(indiceActivo) {
+        otrosTabs.innerHTML = "";
+        otrosTabs.classList.add("visible");
+        estado.otros.forEach((_, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `otro-tab ${idx === indiceActivo ? "active" : ""}`;
+          btn.textContent = `${tJuego("bubble_otro", "Otro")} ${idx + 1}`;
+          btn.addEventListener("click", () => abrirEditorOtros(idx));
+          otrosTabs.appendChild(btn);
+        });
+        const add = document.createElement("button");
+        add.type = "button";
+        add.className = "otro-tab otro-tab-add";
+        add.textContent = `+ ${tJuego("bubble_otro", "Otro")}`;
+        add.addEventListener("click", () => {
+          guardarEditorSinCerrar();
+          estado.otros.push("");
+          guardarEstadoLocal();
+          abrirEditorOtros(estado.otros.length - 1);
+          renderBurbujas();
+        });
+        otrosTabs.appendChild(add);
+      }
+
+      function abrirEditorBase(id, titulo, pregunta) {
+        editorActual = { tipo: "base", id };
+        otrosTabs.classList.remove("visible");
+        otrosTabs.innerHTML = "";
+        editorTitulo.textContent = titulo;
+        editorPregunta.textContent = pregunta;
+        editorTexto.value = estado.burbujas[id] || "";
+        abrirModalEditor();
+      }
+
+      function abrirEditorOtros(indice) {
+        if (!estado.otros.length) estado.otros.push("");
+        editorActual = { tipo: "otro", id: String(indice) };
+        editorTitulo.textContent = tJuego("bubble_cat_otros", "Otros");
+        editorPregunta.textContent = tJuego("bubble_q_otros_editor", "Escribe ideas adicionales que no encajen en las demás burbujas. Puedes moverte entre tus ideas usando las pestañas.");
+        editorTexto.value = estado.otros[indice] || "";
+        renderOtrosTabs(indice);
+        abrirModalEditor();
+      }
+
+      function abrirEditorEspecial(tipo, titulo, pregunta) {
+        editorActual = { tipo, id: tipo };
+        otrosTabs.classList.remove("visible");
+        otrosTabs.innerHTML = "";
+        editorTitulo.textContent = titulo;
+        editorPregunta.textContent = pregunta;
+        editorTexto.value = tipo === "relato" ? (estado.relato || "") : (estado.link || "");
+        abrirModalEditor();
+      }
+
+      function abrirModalEditor() {
+        editorModal.classList.add("visible");
+        editorModal.setAttribute("aria-hidden", "false");
+        setTimeout(() => editorTexto.focus(), 50);
+      }
+
+      function guardarEditorSinCerrar() {
+        if (!editorActual) return;
+        const texto = editorTexto.value.trim();
+        if (editorActual.tipo === "base") estado.burbujas[editorActual.id] = texto;
+        else if (editorActual.tipo === "otro") estado.otros[Number(editorActual.id)] = texto;
+        else if (editorActual.tipo === "relato") estado.relato = texto;
+        else if (editorActual.tipo === "link") estado.link = texto;
+        guardarEstadoLocal();
+      }
+
+      function cerrarEditor() {
+        editorModal.classList.remove("visible");
+        editorModal.setAttribute("aria-hidden", "true");
+        otrosTabs.classList.remove("visible");
+        otrosTabs.innerHTML = "";
+        editorActual = null;
+      }
+
+      function guardarEditor() { guardarEditorSinCerrar(); renderBurbujas(); cerrarEditor(); }
+
+      btnCerrarEditor.addEventListener("click", cerrarEditor);
+      btnCancelarEditor.addEventListener("click", cerrarEditor);
+      btnGuardarEditor.addEventListener("click", guardarEditor);
+
+      btnAgregarOtro.addEventListener("click", () => {
+        estado.otros.push("");
+        guardarEstadoLocal();
+        renderBurbujas();
+        abrirEditorOtros(estado.otros.length - 1);
+      });
+
+      btnAbrirRelato.addEventListener("click", () => {
+        abrirEditorEspecial("relato", tJuego("bubble_relato_titulo", "Relato breve"), tJuego("bubble_relato_pregunta", "Describe un día en la vida de esta persona. ¿Qué hace, qué necesita y qué problema vive?"));
+      });
+
+      btnAbrirLink.addEventListener("click", () => {
+        abrirEditorEspecial("link", tJuego("bubble_link_titulo", "Link o noticia"), tJuego("bubble_link_pregunta", "Agrega una referencia, noticia o ejemplo real relacionado con el desafío."));
+      });
+
+      function obtenerDatosParaTokens() {
+        const base = burbujasBase.filter(b => b.id !== "otros").map(b => ({ tipo: "base", id: b.id, titulo: tJuego(b.tituloKey, b.titulo), texto: estado.burbujas[b.id] || "" }));
+        const otros = estado.otros.map((txt, idx) => ({ tipo: "otro", id: `otro_${idx}`, titulo: `${tJuego("bubble_otro", "Otro")} ${idx + 1}`, texto: txt || "" }));
+        return { burbujas: [...base, ...otros], relato: estado.relato || "", link: estado.link || "" };
+      }
+
+      function calcularResultadoLocal() {
+        const datos = obtenerDatosParaTokens();
+        const respuestasValidas = datos.burbujas.filter(b => textoValido(b.texto));
+        const baseValidas = datos.burbujas.filter(b => b.tipo === "base" && textoValido(b.texto));
+        const respuestasLargas = datos.burbujas.filter(b => (b.texto || "").trim().split(/\s+/).filter(Boolean).length >= 10);
+        const relatoValido = (datos.relato || "").trim().split(/\s+/).filter(Boolean).length >= 18;
+        const linkValido = /https?:\/\/|www\./i.test(datos.link || "");
+        let nivel = tJuego("bubble_nivel_desarrollo", "En desarrollo");
+        if (respuestasValidas.length >= 3) nivel = tJuego("bubble_nivel_avance", "Buen avance");
+        if (baseValidas.length >= 5) nivel = tJuego("bubble_nivel_completo", "Bubble Map completo");
+        if (baseValidas.length >= 5 && (relatoValido || linkValido)) nivel = tJuego("bubble_nivel_destacado", "Análisis destacado");
+        return { nivel, respuestasValidas: respuestasValidas.length, baseValidas: baseValidas.length, respuestasLargas: respuestasLargas.length, relatoValido, linkValido };
+      }
+
+      function siNo(valor) { return valor ? tJuego("bubble_si", "Sí") : tJuego("bubble_no", "No"); }
+
+      function mostrarResultadoFinal() {
+        if (resultadoMostrado) return;
+        resultadoMostrado = true;
+        pausarTimerLocal();
+        if (musicaBubble) { musicaBubble.volume = 0.1; }
+        const r = calcularResultadoLocal();
+        resultadoNivel.textContent = r.nivel;
+        resultadoResumen.textContent = `${tJuego("bubble_resumen_completaron", "Completaron")} ${r.respuestasValidas} ${tJuego("bubble_resumen_respuestas_validas", "respuesta(s) válida(s).")}`;
+        resultadoDetalle.innerHTML = `
+          <strong>${tJuego("bubble_resumen_fichas", "Resumen de tokens:")}</strong><br>
+          ${tJuego("bubble_resumen_principales", "Burbujas principales completas:")} ${r.baseValidas}/5<br>
+          ${tJuego("bubble_resumen_otros", "Ideas adicionales en \"Otros\":")} ${cantidadOtrosValidos()}<br>
+          ${tJuego("bubble_resumen_desarrolladas", "Respuestas desarrolladas:")} ${r.respuestasLargas}<br>
+          ${tJuego("bubble_resumen_relato", "Relato breve agregado:")} ${siNo(r.relatoValido)}<br>
+          ${tJuego("bubble_resumen_link", "Link o noticia agregada:")} ${siNo(r.linkValido)}<br><br>
+        `;
+        const resultadoEspera = document.getElementById("resultadoEspera");
+        if (resultadoEspera) resultadoEspera.textContent = tJuego("bubble_resultado_espera", "Esperando confirmación de los demás equipos...");
+        if (btnConfirmarResultado) btnConfirmarResultado.textContent = tJuego("bubble_confirmar_continuar", "Confirmar y continuar");
+        document.body.classList.add("modal-open");
+        resultadoModal.classList.add("visible");
+        resultadoModal.setAttribute("aria-hidden", "false");
+        const audioResultado = document.getElementById("audioResultado");
+        if (audioResultado) { audioResultado.currentTime = 0; audioResultado.play().catch(() => {}); }
+      }
+
+      async function enviarTokensBubblemap() {
+        if (tokensBubbleEnviados) return null;
+        const url = routesEl?.dataset?.otorgarTokensUrl;
+        if (!url) return null;
+        tokensBubbleEnviados = true;
+        try {
+          const res = await fetch(url, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken }, body: JSON.stringify(obtenerDatosParaTokens()) });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || tJuego("bubble_error_tokens", "No se pudieron otorgar tokens."));
+          return data;
+        } catch (err) {
+          console.error("Error otorgando tokens bubblemap:", err);
+          tokensBubbleEnviados = false;
+          return null;
+        }
+      }
+
+      btnConfirmarResultado.addEventListener("click", async () => {
+        btnConfirmarResultado.disabled = true;
+        btnConfirmarResultado.textContent = tJuego("bubble_guardando", "Guardando...");
+        const data = await enviarTokensBubblemap();
+        if (!data || !data.ok) {
+          resultadoResumen.textContent = tJuego("bubble_error_tokens", "No se pudieron otorgar tokens.");
+          btnConfirmarResultado.disabled = false;
+          btnConfirmarResultado.textContent = tJuego("bubble_resultado_confirmar", "Confirmar y continuar");
+          return;
+        }
+        resultadoResumen.textContent = `${tJuego("bubble_resultado_guardado", "Resultado guardado. Esperando a los demás equipos...")} +${data.tokens_otorgados || 0} 🪙`;
+        btnConfirmarResultado.disabled = true;
+        btnConfirmarResultado.textContent = tJuego("bubble_esperando_equipos", "Esperando a los demás equipos...");
+        if (data?.todos_terminaron && data?.rutaAlumno) { redirigiendo = true; window.location.href = data.rutaAlumno; }
+      });
+
+      async function iniciarTimerRealDespuesCountdown() {
+        if (timerRealSolicitado) return;
+        timerRealSolicitado = true;
+        try {
+          const res = await fetch(`/sesion/${sesionId}/iniciar-timer-inicio-fase/`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken }, body: JSON.stringify({ fase: "f2_bubblemap" }) });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || tJuego("bubble_error_timer", "No se pudo iniciar el timer real."));
+          const backendSeconds = Number(data.segundosRestantes);
+          if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+        } catch (err) {
+          console.error("Error iniciando timer real bubblemap:", err);
+          timerRealSolicitado = false;
+        }
+      }
+
+      function activarFase() {
+        blurTargets.forEach(el => { if (!el) return; el.classList.remove("blur-target-bloqueado", "timer-esperando"); el.classList.add("blur-target-activo"); });
+        if (timerWrap) timerWrap.classList.remove("timer-esperando");
+        if (overlay) overlay.classList.add("overlay-hidden");
+      }
+
+      function bloquearFase() {
+        blurTargets.forEach(el => { if (!el) return; el.classList.remove("blur-target-activo"); el.classList.add("blur-target-bloqueado"); });
+        if (timerWrap) timerWrap.classList.add("timer-esperando");
+        if (overlay) overlay.classList.remove("overlay-hidden");
+      }
+
+      function pintarTiempo() {
+        const minutes = Math.floor(Math.max(0, timeLeft) / 60);
+        const seconds = Math.max(0, timeLeft) % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      function pausarTimerLocal() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+
+      function iniciarTimerLocal() {
+        if (timerInterval || redirigiendo) return;
+        timerIniciado = true;
+        pintarTiempo();
+        timerInterval = setInterval(() => {
+          if (redirigiendo) { pausarTimerLocal(); return; }
+          if (timeLeft > 0) { timeLeft--; pintarTiempo(); }
+          if (timeLeft <= 0) { pintarTiempo(); mostrarResultadoFinal(); }
+        }, 1000);
+      }
+
+      function procesarEstadoSesion(data) {
+        if (!data) return;
+        if (contador) contador.textContent = textoGruposListos(data.listosInicio || 0, data.totalListosInicio || 0);
+        const miGrupo = (data.grupos || []).find(g => Number(g.id) === Number(grupoId));
+        if (miGrupo && miGrupo.listoF2Generico) { boton.disabled = true; boton.textContent = textoEsperando(); if (textoEspera) textoEspera.textContent = textoEsperaEquipos(); }
+        if (data.inicioFaseHabilitado) { if (countdownMostrado && !countdownEnCurso) activarFase(); }
+        else { countdownMostrado = false; countdownEnCurso = false; timerLiberadoTrasCountdown = false; timerRealSolicitado = false; bloquearFase(); }
+        const backendSeconds = Number(data.segundosRestantes);
+        if ((!timerIniciado || !data.timerCorriendo) && !Number.isNaN(backendSeconds)) {
+          if (!countdownEnCurso && !timerLiberadoTrasCountdown && !resultadoMostrado) { timeLeft = backendSeconds; pintarTiempo(); }
+        }
+        if (data.inicioFaseHabilitado && backendSeconds <= 0 && !data.timerCorriendo) { mostrarResultadoFinal(); return; }
+        if (!timerIniciado && data.inicioFaseHabilitado) {
+          if (!countdownMostrado && !countdownEnCurso) {
+            countdownEnCurso = true;
+            window.oaiCountdown.run(async () => {
+              countdownMostrado = true; countdownEnCurso = false; timerLiberadoTrasCountdown = true;
+              await iniciarTimerRealDespuesCountdown();
+              activarFase();
+            });
+            return;
+          }
+          if (!countdownMostrado || countdownEnCurso || !timerLiberadoTrasCountdown) return;
+          if (!data.timerCorriendo) return;
+          if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+          timerIniciado = true;
+          iniciarTimerLocal();
+          return;
+        }
+        if (timerIniciado && !data.timerCorriendo && !resultadoMostrado) {
+          pausarTimerLocal();
+          if (!Number.isNaN(backendSeconds)) { timeLeft = backendSeconds; pintarTiempo(); }
+          timerIniciado = false;
+        }
+      }
+
+      async function consultarEstadoSesion() {
+        if (redirigiendo) return;
+        try {
+          const res = await fetch(`/sesion/${sesionId}/estado/`, { credentials: "same-origin", cache: "no-store" });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.faseActual && data.faseActual !== "f2_bubblemap") {
+            if (data.rutaAlumno && window.location.pathname !== data.rutaAlumno) { redirigiendo = true; window.location.href = data.rutaAlumno; }
+            return;
+          }
+          procesarEstadoSesion(data);
+        } catch (err) { console.error("Error consultando estado de sesión:", err); }
+      }
+
+      if (boton) {
+        boton.addEventListener("click", async () => {
+          boton.disabled = true;
+          boton.textContent = textoEsperando();
+          try {
+            const res = await fetch(`/grupo/${grupoId}/listo/`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken }, body: JSON.stringify({ fase: "f2_bubblemap" }) });
+            const data = await res.json();
+            actualizarBadgeDesafio(data);
+            const resultadoEspera = document.getElementById("resultadoEspera");
+            if (resultadoMostrado && resultadoEspera) {
+              const terminados = (data.grupos || []).filter(g => g.bubbleTokensOtorgados).length;
+              const total = Number(data.totalGrupos || 0);
+              resultadoEspera.textContent = `${tJuego("bubble_equipos_confirmados", "Equipos confirmados:")} ${terminados}/${total}`;
+            }
+            if (!res.ok || !data.ok) throw new Error(data.error || tJuego("bubble_error_listo", "No se pudo marcar listo."));
+            if (contador) contador.textContent = textoGruposListos(data.listos || 0, data.total || 0);
+            if (textoEspera) textoEspera.textContent = textoEsperaEquipos();
+            if (data.inicio_fase_habilitado) consultarEstadoSesion();
+          } catch (err) {
+            console.error("Error marcando listo:", err);
+            boton.disabled = false;
+            boton.textContent = textoListo();
+            if (textoEspera) textoEspera.textContent = tJuego("bubble_error_registro", "No se pudo registrar. Intenta nuevamente.");
+          }
+        });
+      }
+
+      window.addEventListener("idiomaJuegoCambiado", () => {
+        renderBurbujas();
+        if (boton) boton.textContent = boton.disabled ? textoEsperando() : textoListo();
+        if (textoEspera) textoEspera.textContent = textoEsperaEquipos();
+        if (contador) { const partes = contador.textContent.match(/(\d+)\/(\d+)/); if (partes) contador.textContent = textoGruposListos(partes[1], partes[2]); }
+        if (resultadoMostrado) mostrarResultadoFinal();
+      });
+
+      renderBurbujas();
+      bloquearFase();
+      pintarTiempo();
+      setInterval(consultarEstadoSesion, 1500);
+      consultarEstadoSesion();
+    });
