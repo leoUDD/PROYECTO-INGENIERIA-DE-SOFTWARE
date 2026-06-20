@@ -1,0 +1,94 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Misión Emprende UDD — Orden de presentación</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase4/estilo_orden_presentacion.css' %}">
+</head>
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-grupo-id="{{ grupo.idgrupo }}"
+  data-csrf-token="{{ csrf_token }}"
+  data-presentar-pitch-url="{% url 'presentar_pitch' %}"
+>
+  <main class="contenedor">
+    <section class="card">
+      <h1 class="titulo" data-i18n="orden_presentacion_titulo">Orden de presentación</h1>
+
+      <p class="subtexto" data-i18n="orden_presentacion_subtexto">
+        Se realizará el sorteo del orden en que cada equipo presentará su pitch.
+      </p>
+
+      <div id="panelOrden" class="lista">
+        <div class="flash-sorteo" id="flashSorteo"></div>
+
+        <div class="panel-sorteo">
+          <div id="sorteoStage" class="sorteo-stage">
+            <div class="vaso-wrap">
+              <div class="varitas" id="varitas">
+                <div class="varita varita-1" data-slot="0"></div>
+                <div class="varita varita-2" data-slot="1"></div>
+                <div class="varita varita-3" data-slot="2"></div>
+                <div class="varita varita-4" data-slot="3"></div>
+                <div class="varita varita-5" data-slot="4"></div>
+                <div class="varita varita-6" data-slot="5"></div>
+              </div>
+
+              <div class="vaso"></div>
+
+              <div class="chispas" id="chispas">
+                <span class="chispa"></span>
+                <span class="chispa c2"></span>
+                <span class="chispa c3"></span>
+                <span class="chispa"></span>
+              </div>
+            </div>
+
+            <div id="estadoAnimacionSorteo" class="estado-sorteo" data-i18n="orden_presentacion_esperando">
+              Esperando el sorteo
+            </div>
+
+            <div id="dotsSorteo" class="dots">
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+
+          <div id="resultadoStage" class="resultado-stage oculto">
+            <div id="listaOrdenBonita" class="lista-orden-bonita"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="estado-fase" id="estadoFaseTexto"></div>
+
+      <div class="acciones-listo" id="accionesListoOrden">
+        <button id="btnOrdenListo" class="btn-listo" type="button" data-i18n="orden_presentacion_boton">
+          ¡Estoy listo!
+        </button>
+        <p id="ordenListoEstado" class="estado-listos">0/0 grupos listos</p>
+      </div>
+    </section>
+  </main>
+
+  <audio id="audioSorteoAgitar" preload="auto">
+    <source src="{% static 'sounds/sorteo_varitas.mp3' %}" type="audio/mpeg">
+  </audio>
+
+  <audio id="audioSorteoReveal" preload="auto">
+    <source src="{% static 'sounds/sorteo_reveal.mp3' %}" type="audio/mpeg">
+  </audio>
+
+  {% include "includes/sincronizacion_fase.html" %}
+
+  <script src="{% static 'js/fase4/orden_presentacion.js' %}"></script>
+</body>
+</html>

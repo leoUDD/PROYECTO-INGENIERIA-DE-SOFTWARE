@@ -15,8 +15,10 @@ from juego.models import (
 )
 
 from juego.backend.core_global.services import (
-    obtener_grupo_desde_session,
     acceso_permitido,
+    obtener_grupo_desde_session,
+    calcular_segundos_restantes,
+    autoavanzar_si_todos_listos,
 )
 
 

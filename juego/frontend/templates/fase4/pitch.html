@@ -1,0 +1,142 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Misión Emprende UDD — Pitch</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase4/estilo_pitch.css' %}">
+</head>
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-grupo-id="{{ grupo.idgrupo }}"
+  data-csrf-token="{{ csrf_token }}"
+  data-tiempo-inicial="{{ tiempo_inicial_pitch|default:300 }}"
+  data-guardar-pitch-url="{% url 'guardar_pitch' %}"
+>
+  <main class="pitch-editor">
+
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge" data-i18n="pitch_overlay_badge">
+          MISIÓN DE COMUNICACIÓN
+        </div>
+        <h3 data-i18n="pitch_overlay_titulo">Antes de comenzar</h3>
+        <p data-i18n="pitch_overlay_p1">Agentes, redacten un pitch claro, breve y persuasivo para presentar su solución.</p>
+        <p data-i18n="pitch_overlay_p2">Tendrán el tiempo configurado para esta fase. Cuando todos los equipos presionen "Listo para comenzar", la redacción se habilitará automáticamente.</p>
+        <button type="button" id="btn-listo-fase" class="btn-chip" data-i18n="pitch_boton_listo">
+          ⚡ Listo para comenzar
+        </button>
+        <div id="texto-espera-fase" class="contador-fase" data-i18n="pitch_esperando_equipos">
+          Esperando a los demás equipos...
+        </div>
+        <div id="contador-listos-fase" class="contador-fase">0/0 grupos listos</div>
+      </section>
+    </div>
+
+    <h1 id="tituloPitch" class="title blur-target-bloqueado" data-i18n="pitch_titulo">¡Crea tu pitch!</h1>
+
+    <p id="subtituloPitch" class="subtitle blur-target-bloqueado" data-i18n="pitch_subtitulo">
+      Escribe un pitch, o simplemente prepara algunas notas para tu presentación.
+    </p>
+
+    <div id="timer-wrap-pitch" class="timer-wrap-pitch blur-target-bloqueado timer-esperando">
+      <div class="timer-label-pitch" data-i18n="pitch_timer_label">Tiempo restante</div>
+      <div id="timer" class="timer-box-pitch">00:00</div>
+    </div>
+
+    <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+
+    <div id="desafioPitchWrap" class="blur-target-bloqueado">
+      <section id="desafioPanel" class="desafio-panel">
+        <button type="button" class="desafio-toggle" id="desafioToggle">
+          <div class="desafio-toggle-head">
+            <span class="desafio-etiqueta" data-i18n="pitch_desafio_label">Desafío seleccionado</span>
+            <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
+          </div>
+          <span class="desafio-icono" id="desafioIcono">▼</span>
+        </button>
+        <div class="desafio-body" id="desafioBody" hidden>
+          <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="pitch-desafio-data"
+      data-nombre="{{ desafio_nombre_actual|default:'Desafío no seleccionado'|escape }}"
+      data-descripcion="{{ desafio_descripcion_actual|default:'Aún no hay descripción disponible para este desafío.'|escape }}"
+      hidden
+    ></div>
+
+    <section id="tipsPitch" class="tips blur-target-bloqueado">
+      <h2 data-i18n="pitch_tips_titulo">Consejos para un buen pitch</h2>
+      <ul>
+        <li data-i18n="pitch_tip_1">Comienza explicando claramente tu problema.</li>
+        <li data-i18n="pitch_tip_2">Explica brevemente tu solución construida con LEGOs.</li>
+        <li data-i18n="pitch_tip_3">Destaca por qué tu solución es especial y sus beneficios.</li>
+        <li data-i18n="pitch_tip_4">Manténlo breve. Tendrás 1 minuto y 30 segundos para decir tu pitch.</li>
+      </ul>
+    </section>
+
+    <form id="pitchFormWrap" class="pitch-form blur-target-bloqueado" onsubmit="return false;">
+      <textarea
+        id="pitch-text"
+        name="pitch-text"
+        data-i18n="pitch_placeholder"
+        data-i18n-attr="placeholder"
+        placeholder="Escribe tu pitch..."
+        rows="10"
+      >{{ pitch_guardado }}</textarea>
+
+      <!-- Footer de autoguardado (reemplaza al botón limpiar) -->
+      <div class="pitch-footer">
+        <span class="save-hint" data-i18n="pitch_guardado_auto">&#10003; Todo lo que escribas se guarda automáticamente</span>
+      </div>
+    </form>
+
+    <button
+      id="astroTriggerPitch"
+      class="astro-trigger-pitch oculto"
+      type="button"
+      aria-label="Abrir consejo del astronauta"
+      data-i18n="pitch_astro_aria"
+      data-i18n-attr="aria-label"
+    >
+      <span class="astro-signal-pitch" aria-hidden="true"></span>
+      <img class="astro-img-falling-pitch" src="{% static 'images/Cayendo.webp' %}" alt="" aria-hidden="true">
+    </button>
+
+    <div id="astroPitchOverlay" class="astro-pitch-overlay" aria-hidden="true">
+      <div class="astro-pitch-card">
+        <img src="{% static 'images/Parado.webp' %}" alt="" aria-hidden="true" class="astro-pitch-img">
+        <div class="astro-pitch-text">
+          <h3 id="astroPitchTitulo" data-i18n="pitch_astro_titulo_inicio">Estructura recomendada</h3>
+          <p id="astroPitchMensaje" data-i18n="pitch_astro_mensaje_inicio">
+            Para tu pitch, usa esta estructura: primero explica el problema, luego presenta tu solución, después cuenta por qué es valiosa y termina con un cierre claro.
+          </p>
+          <button type="button" id="astroPitchCerrar" class="astro-pitch-btn" data-i18n="pitch_astro_cerrar">
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="modal-fin" class="modal-fin">
+    <div class="modal-fin-box">
+      <h2 data-i18n="pitch_modal_titulo">¡Tiempo terminado!</h2>
+      <p data-i18n="pitch_modal_texto">Prepárate para presentar tu pitch.</p>
+    </div>
+  </div>
+  {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
+
+  <script src="{% static 'js/fase4/pitch.js' %}"></script>
+</body>
+</html>
