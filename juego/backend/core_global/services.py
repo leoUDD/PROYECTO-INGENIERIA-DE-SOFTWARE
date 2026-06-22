@@ -5,7 +5,9 @@ from juego.backend.core_global.constants import (
     FASES_ORDEN,
 )
 
-from juego.models import Grupo
+import random
+
+from juego.models import Grupo, Sesion, Evaluacion
 
 from django.utils import timezone
 
@@ -453,3 +455,79 @@ def ruta_alumno_por_estado(grupo):
         return "peer_review"
 
     return RUTA_POR_FASE.get(fase, "pantalla_espera")
+
+def completar_evaluaciones_faltantes(sesion):
+    grupo_actual = sesion.grupo_presentando
+
+    if not grupo_actual:
+        return
+
+    evaluadores = Grupo.objects.filter(sesion=sesion).exclude(pk=grupo_actual.pk)
+
+    for evaluador in evaluadores:
+        ya_evaluo = Evaluacion.objects.filter(
+            sesion=sesion,
+            grupo_evaluador=evaluador,
+            grupo_evaluado=grupo_actual,
+        ).exists()
+
+        if ya_evaluo:
+            continue
+
+        Evaluacion.objects.create(
+            sesion=sesion,
+            grupo_evaluador=evaluador,
+            grupo_evaluado=grupo_actual,
+            claridad=5,
+            creatividad=5,
+            viabilidad=5,
+            equipo=5,
+            presentacion=5,
+            comentario="Evaluación completada automáticamente porque se agotó el tiempo.",
+            reflexion="",
+        )
+
+        evaluador.tokensgrupo = max((evaluador.tokensgrupo or 0) - 2, 0)
+        evaluador.save(update_fields=["tokensgrupo"])
+
+def avanzar_al_siguiente_pitch_o_ranking(sesion):
+    actual = sesion.grupo_presentando
+
+    if actual is None:
+        sesion.fase_actual = "f6_ranking"
+        sesion.save(update_fields=["fase_actual"])
+        return
+
+    siguiente = (
+        Grupo.objects
+        .filter(
+            sesion=sesion,
+            orden_presentacion__gt=actual.orden_presentacion,
+        )
+        .order_by("orden_presentacion")
+        .first()
+    )
+
+    if siguiente is None:
+        sesion.fase_actual = "f6_ranking"
+        sesion.grupo_presentando = None
+        sesion.save(update_fields=["fase_actual", "grupo_presentando"])
+        return
+
+    sesion.grupo_presentando = siguiente
+    sesion.fase_actual = "f4_presentacion_pitch"
+    sesion.segundos_restantes = int(sesion.t_pitch or 90)
+    sesion.timer_corriendo = False
+    sesion.timer_inicio_at = None
+    sesion.timer_fin_at = None
+    sesion.inicio_fase_habilitado = True
+
+    sesion.save(update_fields=[
+        "grupo_presentando",
+        "fase_actual",
+        "segundos_restantes",
+        "timer_corriendo",
+        "timer_inicio_at",
+        "timer_fin_at",
+        "inicio_fase_habilitado",
+    ])

@@ -16,7 +16,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   min-height: 100%;
 }
 
@@ -32,15 +33,10 @@ body {
   overflow-x: hidden;
 }
 
-@media (min-width: 1101px) {
-  body { padding-left: 155px; }
-}
-
-/* ── Contenedor principal ── */
 .team-container {
   width: clamp(620px, 72vw, 980px);
   min-height: clamp(620px, 78vh, 820px);
-  background: url('/static/images/fondo3.webp') center/cover no-repeat;
+  background: url('/static/images/comunicacion.webp') center/cover no-repeat;
   border-radius: 28px;
   box-shadow: var(--shadow);
   position: relative;
@@ -56,45 +52,9 @@ body {
   position: relative;
 }
 
-/* ── Personajes a los lados ── */
-.team-container::before,
-.team-container::after {
-  content: "";
-  position: absolute;
-  bottom: -60px;
-  width: 52%;
-  max-width: 460px;
-  aspect-ratio: 3/5;
-  background-repeat: no-repeat;
-  background-size: contain;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.team-container::before {
-  left: -8%;
-  background-image: url('/static/images/foto3.webp');
-  background-position: bottom left;
-}
-
-.team-container::after {
-  right: -8%;
-  background-image: url('/static/images/foto4.webp');
-  background-position: bottom right;
-}
-
-@media (max-width: 700px) {
-  .team-container::before,
-  .team-container::after {
-    width: 45%;
-    bottom: -30px;
-  }
-}
-
-/* ── Marco del título ── */
 .title-wrapper {
   position: absolute;
-  top: 10px;
+  top: -18px;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -119,14 +79,13 @@ body {
   text-shadow: 0 0 14px rgba(255, 122, 26, 0.50);
 }
 
-/* ── Panel unificado ── */
 .mission-panel {
   position: absolute;
   bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(56%, 480px);
-  padding: 8px 20px;
+  width: min(72%, 620px);
+  padding: 8px 24px;
   border-radius: 12px;
   background: rgba(0, 20, 38, 0.62);
   border: 1.8px solid rgba(0, 200, 255, 0.78);
@@ -153,7 +112,6 @@ body {
   margin: 0 0 8px;
 }
 
-/* ── Recordatorio tablet ── */
 .tablet-reminder {
   width: 100%;
   padding: 7px 10px;
@@ -167,7 +125,6 @@ body {
   box-shadow: 0 0 12px rgba(255, 122, 26, 0.22);
 }
 
-/* ── Divisor ── */
 .panel-divider {
   width: calc(100% + 36px);
   margin: 12px -18px;
@@ -181,7 +138,6 @@ body {
   );
 }
 
-/* ── Zona del botón dentro del panel ── */
 .next-step {
   width: 100%;
   display: flex;
@@ -219,9 +175,16 @@ body {
   text-align: center;
 }
 
-/* ── Tablet (≤1100px) ── */
+@media (min-width: 1101px) {
+  body {
+    padding-left: 155px;
+  }
+}
+
 @media (max-width: 1100px) {
-  body { padding-left: 105px; }
+  body {
+    padding-left: 105px;
+  }
 
   .team-container {
     width: clamp(560px, 78vw, 860px);
@@ -229,12 +192,15 @@ body {
     padding: 30px 34px 34px;
   }
 
-  .title { font-size: clamp(36px, 5vw, 54px); }
+  .title {
+    font-size: clamp(36px, 5vw, 54px);
+  }
 
-  .mission-panel { width: min(84%, 640px); }
+  .mission-panel {
+    width: min(70%, 520px);
+  }
 }
 
-/* ── Móvil (≤700px) ── */
 @media (max-width: 700px) {
   body {
     padding: 14px;
@@ -253,7 +219,9 @@ body {
     padding: 8px 24px 10px;
   }
 
-  .title { font-size: clamp(30px, 9vw, 42px); }
+  .title {
+    font-size: clamp(30px, 9vw, 42px);
+  }
 
   .mission-panel {
     width: 88%;
@@ -270,5 +238,7 @@ body {
     line-height: 1.4;
   }
 
-  .next-step::before { font-size: 9px; }
+  .next-step::before {
+    font-size: 9px;
+  }
 }

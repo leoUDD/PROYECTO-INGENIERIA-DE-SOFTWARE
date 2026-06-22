@@ -11,7 +11,9 @@ from juego.models import Grupo, Sesion, BubbleMapRespuesta
 from juego.backend.core_global.services import (
     acceso_permitido,
     obtener_grupo_desde_session,
-    )
+    calcular_segundos_restantes,
+    autoavanzar_si_todos_listos,
+)
 
 
 def transiciondesafio(request):

@@ -1,0 +1,120 @@
+{% load static %}
+{% include "atajos.html" %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — Presentar Pitch</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/fase4/estilo_presentar_pitch.css' %}">
+</head>
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-grupo-id="{{ grupo.idgrupo }}"
+  data-csrf-token="{{ csrf_token }}"
+  data-pantalla-espera-url="{% url 'pantalla_espera' %}"
+>
+  <main class="pitch-container" role="main" aria-labelledby="page-title">
+    <header class="header">
+      <div>
+        <h1 id="page-title" class="title" data-i18n="presentar_pitch_titulo">Pitch del equipo</h1>
+        <p class="subtitle" data-i18n="presentar_pitch_subtitulo">
+          Presenten su solución usando el texto que prepararon.
+        </p>
+      </div>
+    </header>
+
+    <section class="presentacion-layout">
+      <section class="presentacion-top">
+        <article class="panel media-panel">
+          <h3 data-i18n="presentar_pitch_presentacion_actual">Presentación actual</h3>
+
+          <div id="grupoActualAlumnoNombre" class="grupo-actual-nombre">
+            Esperando sorteo...
+          </div>
+
+          <div id="grupoActualAlumnoOrden" class="grupo-actual-orden">
+            -
+          </div>
+
+          <div class="pitch-media-wrap">
+            <img
+              id="grupoActualAlumnoFoto"
+              src=""
+              alt="Foto del lego del grupo que está presentando"
+              class="pitch-lego-img is-hidden"
+            >
+
+            <div
+              id="grupoActualAlumnoSinFoto"
+              class="pitch-media-fallback is-hidden"
+              data-i18n="presentar_pitch_sin_foto"
+            >
+              Este equipo no subió foto de su solución LEGO.
+            </div>
+          </div>
+        </article>
+
+        <aside class="timer-card timer-panel" aria-label="Temporizador de Pitch">
+          <div class="timer-display-wrap">
+            <div class="timer-label-pitch" data-i18n="presentar_pitch_temporizador">Temporizador</div>
+            <div id="timer" class="timer-display" data-seconds="90">01:30</div>
+          </div>
+
+          <div id="pitchStartWrap" class="pitch-start-wrap is-hidden">
+            <button id="btnIniciarPresentacion" type="button" class="btn-chip" data-i18n="presentar_pitch_boton_iniciar">
+              ⚡ Iniciar presentación
+            </button>
+
+            <p id="pitchStartHelp" class="pitch-start-help" data-i18n="presentar_pitch_help_solo_equipo">
+              Solo el equipo que está presentando puede iniciar el temporizador.
+            </p>
+          </div>
+
+          <audio id="alarmAudio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+        </aside>
+      </section>
+
+      <section class="presentacion-bottom">
+        <article class="panel pitch-panel">
+          <h3 data-i18n="presentar_pitch_mi_pitch">Pitch de mi equipo</h3>
+
+          <div id="textoGuardado" class="pitch-text" aria-live="polite">
+            {% if miPitch %}
+              <div class="prewrap">{{ miPitch }}</div>
+            {% else %}
+              <em data-i18n="presentar_pitch_sin_texto">
+                No se encontró texto guardado. Vuelve a la etapa anterior y escribe tu pitch.
+              </em>
+            {% endif %}
+          </div>
+        </article>
+
+        <article class="panel orden-panel">
+          <h3 data-i18n="presentar_pitch_orden_titulo">Orden del pitch</h3>
+
+          <ol id="ordenPitchAlumno" class="orden-pitch-lista">
+            <li data-i18n="presentar_pitch_esperando_sorteo">Esperando sorteo...</li>
+          </ol>
+        </article>
+      </section>
+    </section>
+
+    <footer class="footer-actions">
+      <div class="left-actions">
+        <span class="subtitle" data-i18n="presentar_pitch_consejo">
+          Consejo: enfoquen problema, solución, impacto y próximos pasos.
+        </span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="{% static 'js/fase4/presentar_pitch.js' %}"></script>
+
+  {% include "includes/sincronizacion_fase.html" %}
+</body>
+</html>

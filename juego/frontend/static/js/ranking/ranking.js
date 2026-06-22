@@ -19,17 +19,12 @@
       });
       window.toggleMusicaRanking = function () {
         audio.muted = !audio.muted;
-        if (btn) {
-          btn.textContent = audio.muted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
-          btn.title = audio.muted ? "Activar música" : "Silenciar música";
-          btn.setAttribute("aria-label", btn.title);
-        }
+        btn.textContent = audio.muted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
+        btn.title = audio.muted ? "Activar música" : "Silenciar música";
       };
-
       if (btn) {
         btn.addEventListener("click", window.toggleMusicaRanking);
       }
-
       window.addEventListener("beforeunload", () => audio.pause());
     })();
 
@@ -236,14 +231,6 @@
       const rankingEstado   = document.getElementById("rankingEstado");
       const btnSaltarVideo  = document.getElementById("btnSaltarVideo");
 
-      if (btnSaltarVideo) {
-        btnSaltarVideo.addEventListener("click", () => {
-          if (typeof window.saltarVideo === "function") {
-            window.saltarVideo();
-          }
-        });
-      }
-
       /* barras dinámicas: ahora puede haber N equipos */
       const barras = Array.from(
         document.querySelectorAll(".barra")
@@ -328,6 +315,14 @@
             window.location.href = data.rutaAlumno;
           }
         } catch (e) { console.error("Error consultando ranking:", e); }
+      }
+
+      if (btnSaltarVideo) {
+        btnSaltarVideo.addEventListener("click", () => {
+          if (typeof window.saltarVideo === "function") {
+            window.saltarVideo();
+          }
+        });
       }
 
       if (btnRankingListo) {
@@ -432,8 +427,29 @@
               /* pausar música de fondo para que no compita con el video */
               const musicaBg = document.getElementById("musica-ranking");
               if (musicaBg) musicaBg.pause();
-              vid.play().catch(() => {});
-              vid.onended = () => window.mostrarPodioFinal();
+              let videoRankingTerminado = false;
+
+              function terminarVideoRanking() {
+                if (videoRankingTerminado) return;
+                videoRankingTerminado = true;
+                window.mostrarPodioFinal();
+              }
+
+              vid.onended = terminarVideoRanking;
+
+              vid.addEventListener("error", () => {
+                console.warn("El video ranking no cargó. Saltando al podio.");
+                terminarVideoRanking();
+              }, { once: true });
+
+              vid.play().catch((error) => {
+                console.warn("No se pudo reproducir el video ranking. Saltando al podio:", error);
+                terminarVideoRanking();
+              });
+
+              setTimeout(() => {
+                terminarVideoRanking();
+              }, 12000);
             } else {
               /* sin video: ir directo al podio */
               if (podio) podio.classList.add("visible");

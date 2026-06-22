@@ -1,13 +1,10 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from juego.models import Grupo
 
-from juego.backend.core_global.services import (
-    obtener_grupo_desde_session,
-    acceso_permitido,
-)
 
 def ranking_view(request):
     grupo_id = request.session.get("grupo_id")
@@ -48,12 +45,12 @@ def ranking_view(request):
             "rank": current_rank,
         })
 
-    context = {
+    return render(request, "ranking/ranking.html", {
         "session": sesion,
         "grupo": grupo_actual,
         "rankings": rankings,
-    }
-    return render(request, "ranking/ranking.html", context)
+    })
+
 
 @require_POST
 def marcar_listo_ranking(request, grupo_id):
@@ -64,8 +61,10 @@ def marcar_listo_ranking(request, grupo_id):
 
     sesion = grupo.sesion
     total_grupos = Grupo.objects.filter(sesion=sesion).count()
-    grupos_listos_ranking = Grupo.objects.filter(sesion=sesion, listo_ranking=True).count()
-
+    grupos_listos_ranking = Grupo.objects.filter(
+        sesion=sesion,
+        listo_ranking=True,
+    ).count()
 
     return JsonResponse({
         "ok": True,

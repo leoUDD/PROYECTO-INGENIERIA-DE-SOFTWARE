@@ -1,4 +1,5 @@
 # juego/urls.py
+from juego.backend.fase4 import views as fase4_views
 from django.urls import path, include
 from . import views
 from django.conf import settings
@@ -30,9 +31,7 @@ urlpatterns = [
     path("profesor/<int:profesor_id>/eliminar/", views.eliminar_profesor, name="eliminar_profesor"),
     path("profesor/<int:profesor_id>/eliminar-forzado/", views.eliminar_profesor_forzado, name="eliminar_profesor_forzado"),
     path("sesion/<int:sesion_id>/iniciar-timer-inicio-fase/", views.iniciar_timer_inicio_fase, name="iniciar_timer_inicio_fase"),
-    path("presentar-pitch/", views.presentar_pitch, name="presentar_pitch"),
-    path("sesion/<int:sesion_id>/iniciar-presentacion/", views.iniciar_presentacion_pitch, name="iniciar_presentacion_pitch"),
-    path("guardar-pitch/", views.guardar_pitch, name="guardar_pitch"),
+    path("presentar-pitch/", fase4_views.presentar_pitch, name="presentar_pitch"),
     path("habilidades-intro/", views.habilidades_intro, name="habilidades_intro"),
     path('dashboardadmin/tematicas/', views.admin_tematicas, name='admin_tematicas'),
     path('dashboardadmin/desafios/', views.admin_desafios, name='admin_desafios'),
@@ -44,23 +43,13 @@ urlpatterns = [
     path("sesion/<int:sesion_id>/control/", views.control_sesion, name="control_sesion"),
     path("sesion/<int:sesion_id>/preview/", views.preview_pantalla_profesor, name="preview_pantalla_profesor"),
     path("espera-eleccion/", views.espera_eleccion, name="espera_eleccion"),
-    path(
-    "sesion/<int:sesion_id>/sortear-orden/",
-    views.profesor_sortear_orden_pitch,
-    name="profesor_sortear_orden_pitch"
-),
-
 
 path(
     "sesion/<int:sesion_id>/estado-presentacion/",
-    views.estado_presentacion_pitch,
+    fase4_views.estado_presentacion_pitch,
     name="estado_presentacion_pitch",
 ),
-path(
-    "sesion/<int:sesion_id>/siguiente-grupo-pitch/",
-    views.siguiente_grupo_pitch,
-    name="siguiente_grupo_pitch",
-),
+
     #NUEVO CIERRE 
 
 
@@ -68,9 +57,6 @@ path(
     path('bienvenida/', views.bienvenida, name='bienvenida'),
     path('registro/', views.registro, name='registro'),
     path('introducciones/', views.introducciones, name='introducciones'),
-    path("orden-presentacion/", views.orden_presentacion_alumno, name="orden_presentacion_alumno"),
-    path('pitch/', views.pitch, name='pitch'),
-    path('presentar_pitch/', views.presentar_pitch, name='presentar_pitch'),
     path('dashboardprofesor/', views.dashboardprofesor, name='dashboardprofesor'),
     path('profesor/sesiones/', views.listar_sesiones, name='listar_sesiones'),
     path('profesor/sesiones/crear/', views.crear_sesion, name='crear_sesion'),
@@ -83,13 +69,10 @@ path(
     path('agregardesafio/', views.agregardesafio, name='agregardesafio'),
     path('listardesafios/', views.lista_desafios, name='lista_desafios'),
     path('desafios/<int:iddesafio>/eliminar/', views.eliminar_desafio, name='eliminar_desafio'),
-    path('transicioncomunicacion/', views.transicioncomunicacion, name='transicioncomunicacion'),
     path('transicionapoyo/', views.transicionapoyo, name='transicionapoyo'),
     path('registrargrupos/', views.registrargrupos, name='registrargrupos'),
     path('market/', views.market_view, name='market'),
     path('market/issue/<int:challenge_id>/', views.issue_challenge_view, name='issue_challenge'),
-    path('peer-review/', views.peer_review_view, name='peer_review'),
-    path('reflexion/', views.reflexion, name='reflexion'),
     path("mision-cumplida/", views.mision_cumplida_view, name="mision_cumplida"),
 
 ]
