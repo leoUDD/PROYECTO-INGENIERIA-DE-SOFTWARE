@@ -112,9 +112,8 @@ Resources:
         Minify: true
         Sourcemap: true
         Target: es2022
-        Format: esm
-        OutExtension:
-          - .js=.mjs
+        Format: cjs
+
 
   FuncionSesiones:
     Type: AWS::Serverless::Function

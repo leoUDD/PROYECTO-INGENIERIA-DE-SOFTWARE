@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "Backend serverless en TypeScript para Misión Emprende UDD.",
-  "type": "module",
   "engines": {
     "node": ">=22"
   },
@@ -16,7 +15,7 @@
     "local:base": "docker compose up -d",
     "local:detener": "docker compose down",
     "local:preparar": "tsx scripts/prepararLocal.ts",
-    "local:api": "sam local start-api --env-vars env.local.json --docker-network mision-serverless"
+    "local:api": "sam local start-api --host 0.0.0.0 --env-vars env.local.json --docker-network mision-serverless"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1085.0",
