@@ -1,7 +1,7 @@
 from django.db.models import F
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
-
+from juego.backend.fase5.services import peer_review_completado
 from juego.models import Grupo, Evaluacion
 
 from juego.backend.core_global.services import (
@@ -194,3 +194,24 @@ def reflexion(request):
         return redirect("pantalla_espera")
 
     return render(request, "fase5/reflexion.html", {"grupo": grupo})
+
+def finalizar_mision(request):
+    request.session.pop("grupo_id", None)
+    return redirect("perfiles")
+
+@never_cache
+def mision_cumplida_view(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        messages.error(request, "No pudimos identificar tu grupo.")
+        return redirect("registro")
+
+    if not acceso_permitido(grupo, "mision_cumplida"):
+        return redirect("pantalla_espera")
+
+    if not peer_review_completado(grupo):
+        return redirect("peer_review")
+
+    return render(request, "mision_cumplida.html", {
+        "grupo": grupo,
+    })

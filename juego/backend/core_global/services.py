@@ -531,3 +531,30 @@ def avanzar_al_siguiente_pitch_o_ranking(sesion):
         "timer_fin_at",
         "inicio_fase_habilitado",
     ])
+
+def iniciar_timer_de_sesion(sesion):
+    segundos = int(sesion.segundos_restantes or 0)
+
+    if segundos <= 0:
+        return
+
+    ahora = timezone.now()
+
+    sesion.timer_corriendo = True
+    sesion.timer_inicio_at = ahora
+    sesion.timer_fin_at = ahora + timedelta(seconds=segundos)
+    sesion.save(update_fields=[
+        "timer_corriendo",
+        "timer_inicio_at",
+        "timer_fin_at",
+    ])
+
+def fase_anterior_automatica(fase_actual):
+    try:
+        idx = FASES_ORDEN.index(fase_actual)
+        if idx - 1 >= 0:
+            return FASES_ORDEN[idx - 1]
+    except ValueError:
+        pass
+
+    return fase_actual

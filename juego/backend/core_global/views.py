@@ -832,3 +832,109 @@ def marcar_grupo_listo(request, grupo_id):
             f"Fase actual: {fase_actual}, fase recibida: {fase_clave}"
         ),
     }, status=400)
+
+def introducciones(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+    if not acceso_permitido(grupo, "introducciones"):
+        return redirect("pantalla_espera")
+    return render(request, "introducciones.html", {"grupo": grupo})
+
+@never_cache
+def continuar_desde_mapa(request):
+    grupo = obtener_grupo_desde_session(request)
+
+    if not grupo:
+        return redirect("registro")
+
+    sesion = grupo.sesion
+    fase_actual = sesion.fase_actual
+
+    mapa_a_fase = {
+        "intro_habilidades": "f1_conocidos",
+        "mapa_f2_empatia": "f2_transicion",
+        "mapa_f3_creatividad": "f3_transicion_creatividad",
+        "mapa_f4_final": "f4_transicion_comunicacion",
+    }
+
+    nueva_fase = mapa_a_fase.get(fase_actual)
+
+    if not nueva_fase:
+        return redirect(ruta_alumno_por_estado(grupo))
+
+    sesion.fase_actual = nueva_fase
+    sesion.segundos_restantes = tiempo_por_fase(sesion, nueva_fase)
+    sesion.timer_corriendo = False
+    sesion.timer_inicio_at = None
+    sesion.timer_fin_at = None
+    sesion.inicio_fase_habilitado = False if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS else True
+    sesion.save()
+
+    if nueva_fase in FASES_CON_INICIO_POR_ALUMNOS:
+        reset_listos_inicio_fase(sesion, nueva_fase)
+
+    return redirect(ruta_alumno_por_estado(grupo))
+
+@never_cache
+def habilidades_intro(request):
+    grupo = obtener_grupo_desde_session(request)
+
+    if not grupo:
+        return redirect("registro")
+
+    sesion = grupo.sesion
+    fase_actual = sesion.fase_actual
+
+    estado_mapa = {
+        "habilidad_activa": "trabajo en equipo",
+        "habilidades_completadas": [],
+        "ruta_continuar": reverse("continuar_desde_mapa"),
+        "texto_boton": "CONTINUAR A TRABAJO EN EQUIPO",
+        "titulo_mapa": "HABILIDADES DE MISIÓN",
+    }
+
+    if fase_actual in ["mapa_f2_empatia", "f2_transicion", "f2_tematicas", "f2_transicion_empatia", "f2_bubblemap", "f2_ranking"]:
+        estado_mapa = {
+            "habilidad_activa": "empatia",
+            "habilidades_completadas": ["trabajo en equipo"],
+            "ruta_continuar": reverse("continuar_desde_mapa"),
+            "texto_boton": "CONTINUAR A EMPATÍA",
+            "titulo_mapa": "HABILIDADES DE MISIÓN",
+        }
+
+    elif fase_actual in ["mapa_f3_creatividad", "f3_transicion_creatividad", "f3_lego", "f3_ranking"]:
+        estado_mapa = {
+            "habilidad_activa": "creatividad",
+            "habilidades_completadas": ["trabajo en equipo", "empatia"],
+            "ruta_continuar": reverse("continuar_desde_mapa"),
+            "texto_boton": "CONTINUAR A CREATIVIDAD",
+            "titulo_mapa": "HABILIDADES DE MISIÓN",
+        }
+
+    elif fase_actual in [
+        "mapa_f4_final",
+        "f4_transicion_comunicacion",
+        "f4_construccion_pitch",
+        "f4_orden_pitch",
+        "f4_presentacion_pitch",
+        "f5_evaluacion_pitch",
+        "f6_ranking",
+    ]:
+        estado_mapa = {
+            "habilidad_activa": "mision final",
+            "habilidades_completadas": ["trabajo en equipo", "empatia", "creatividad"],
+            "ruta_continuar": reverse("continuar_desde_mapa"),
+            "texto_boton": "CONTINUAR A MISIÓN FINAL",
+            "titulo_mapa": "MISIÓN FINAL",
+        }
+
+    return render(request, "habilidades_intro.html", {
+    "grupo": grupo,
+    "sesion": sesion,
+    "estado_mapa": estado_mapa,
+    "habilidades_completadas_json": json.dumps(
+        estado_mapa["habilidades_completadas"],
+        ensure_ascii=False
+    ),
+})

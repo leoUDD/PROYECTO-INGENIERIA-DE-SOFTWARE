@@ -364,3 +364,46 @@ def otorgar_tokens_bubblemap(request):
         "todos_terminaron": todos_terminaron,
         "rutaAlumno": reverse("ranking") if todos_terminaron else reverse("bubblemap"),
     })
+
+def espera_eleccion(request):
+    grupo = obtener_grupo_desde_session(request)
+
+    if not grupo:
+        return redirect("registro")
+
+    sesion = grupo.sesion
+    grupos = Grupo.objects.filter(sesion=sesion)
+
+    grupos_listos = grupos.filter(listo_f2_desafio=True).count()
+    total_grupos = grupos.count()
+
+    return render(request, "espera_eleccion.html", {
+        "grupo": grupo,
+        "tema": grupo.tema_elegido or "No seleccionada",
+        "desafio_nombre": grupo.desafio_nombre or "No seleccionado",
+        "grupos_listos": grupos_listos,
+        "total_grupos": total_grupos,
+    })
+
+def cambiar_tematica(request):
+    grupo = obtener_grupo_desde_session(request)
+    if not grupo:
+        return redirect("registro")
+
+    grupo.tema_elegido = ""
+    grupo.desafio_id_externo = ""
+    grupo.desafio_nombre = ""
+    grupo.desafio_descripcion = ""
+    grupo.listo_f2_tematica = False
+    grupo.listo_f2_desafio = False
+
+    grupo.save(update_fields=[
+        "tema_elegido",
+        "desafio_id_externo",
+        "desafio_nombre",
+        "desafio_descripcion",
+        "listo_f2_tematica",
+        "listo_f2_desafio",
+    ])
+
+    return redirect("tematicas")
