@@ -258,7 +258,7 @@ formulario?.addEventListener("submit", async (evento) => {
     guardarSesionGrupo(resultado, codigo);
 
     // Se creará en el siguiente paso conservando también su diseño original.
-    window.location.href = "bienvenida.html";
+    window.location.href = "../juego/fase1/bienvenida.html";
   } catch (error) {
     mostrarError(error.message || "No fue posible ingresar al escuadrón.");
   } finally {

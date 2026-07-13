@@ -192,6 +192,41 @@ Resources:
       Handler: src/fase1/api.manejador
       Policies: *PermisosDynamo
       Events:
+        IniciarFase1:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase1/iniciar
+            Method: POST
+
+        SeleccionarModoEquipo:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase1/modo-equipo
+            Method: POST
+
+        MarcarGrupoListo:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase1/listo
+            Method: POST
+
+        FinalizarActividadConocidos:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase1/finalizar-conocidos
+            Method: POST
+
+        ObtenerRankingFase1:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase1/ranking
+            Method: GET
+
         ObtenerEstado:
           Type: HttpApi
           Properties:

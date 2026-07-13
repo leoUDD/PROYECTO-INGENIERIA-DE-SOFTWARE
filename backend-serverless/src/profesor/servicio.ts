@@ -458,14 +458,32 @@ export async function obtenerControlSesion(
       nombreGrupo: String(item.nombreGrupo || "Grupo"),
       codigoAcceso: String(item.codigoAcceso || ""),
       tokens: Number(item.tokens || 0),
-      listo: Boolean(
-        item.listoF1 ||
+      listo: (() => {
+        const faseActual = String(sesion.fase || "");
+
+        if (faseActual === "f1_conocidos") {
+          return Boolean(item.listoConocidos);
+        }
+
+        if (faseActual === "f1_pre_sopa") {
+          return Boolean(item.listoF1);
+        }
+
+        if (
+          faseActual === "f1_sopa" ||
+          faseActual === "f1_ranking"
+        ) {
+          return Boolean(item.sopaCompletada);
+        }
+
+        return Boolean(
           item.listoF2 ||
-          item.listoF3 ||
-          item.listoF4 ||
-          item.listoF5 ||
-          item.listoF6,
-      ),
+            item.listoF3 ||
+            item.listoF4 ||
+            item.listoF5 ||
+            item.listoF6,
+        );
+      })(),
       temaElegido: String(item.temaElegido || ""),
       desafioNombre: String(item.desafioNombre || ""),
       legoCompletado: Boolean(item.legoCompletado),
