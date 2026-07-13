@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    {% if grupo.sesion.fase_actual == "f6_ranking" %}
+      Ranking final
+    {% else %}
+      Ranking parcial
+    {% endif %}
+  </title>
+
+  <link rel="stylesheet" href="{% static 'css/ranking/estilo_ranking.css' %}">
+</head>
+
+<body>
+  <div
+    id="ranking-config"
+    data-fase-actual="{{ grupo.sesion.fase_actual }}"
+    data-sesion-id="{{ grupo.sesion.idsesion }}"
+    data-grupo-id="{{ grupo.idgrupo }}"
+    data-csrf-token="{{ csrf_token }}"
+    hidden>
+  </div>
+  {% include "includes/selector_idioma.html" %}
+
+  <!-- Música de fondo -->
+  <audio id="musica-ranking" src="{% static 'sounds/musica_ranking.mp3' %}" loop preload="auto"></audio>
+  <button id="btn-musica-ranking" title="Silenciar música" aria-label="Silenciar música">&#128266;</button>
+
+  <!-- Canvas fuegos artificiales (solo fase final) -->
+  {% if grupo.sesion.fase_actual == "f6_ranking" %}
+    <canvas id="fw-canvas"></canvas>
+  {% endif %}
+
+  <!-- Flash de revelación -->
+  <div id="revealFlash"></div>
+
+
+
+  <!-- ═══════════════════════════════════════════
+       PANTALLA DE SUSPENSO (solo fase final)
+  ═══════════════════════════════════════════ -->
+  {% if grupo.sesion.fase_actual == "f6_ranking" %}
+  <div id="suspenseOverlay">
+    <div class="sus-scan"></div>
+    <div class="sus-corner tl"></div>
+    <div class="sus-corner tr"></div>
+    <div class="sus-corner bl"></div>
+    <div class="sus-corner br"></div>
+
+    <div style="text-align:center; position:relative; z-index:2;">
+      <div class="sus-ring-wrap">
+        <div class="sus-ring">&#128269;</div>
+      </div>
+      <div class="sus-label" data-i18n="ranking_clasificacion_oficial">Clasificación oficial — Descifrado en curso</div>
+      <div id="susTitle" data-i18n="ranking_calculando">Calculando...</div>
+      <div id="susSub" data-i18n="ranking_procesando">PROCESANDO RESULTADOS FINALES</div>
+      <div class="sus-bar-wrap"><div id="susBar"></div></div>
+      <div class="sus-teams">
+        {% for equipo in rankings %}
+          {% if forloop.counter == 1 %}<div class="sus-team-row" id="susTeam{{ forloop.counter0 }}"><div class="sus-dot" style="background:#00C8FF"></div>
+          {% elif forloop.counter == 2 %}<div class="sus-team-row" id="susTeam{{ forloop.counter0 }}"><div class="sus-dot" style="background:#FF7A1A"></div>
+          {% elif forloop.counter == 3 %}<div class="sus-team-row" id="susTeam{{ forloop.counter0 }}"><div class="sus-dot" style="background:#a78bfa"></div>
+          {% elif forloop.counter == 4 %}<div class="sus-team-row" id="susTeam{{ forloop.counter0 }}"><div class="sus-dot" style="background:#7dffb3"></div>
+          {% else %}<div class="sus-team-row" id="susTeam{{ forloop.counter0 }}"><div class="sus-dot" style="background:#ff5533"></div>
+          {% endif %}
+            <div class="sus-team-name">{{ equipo.team_name }}</div>
+            <div class="sus-question">?</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <main class="ranking-scene">
+
+    {% if grupo.sesion.fase_actual == "f6_ranking" %}
+
+      <!-- CARRERA -->
+      <section class="carrera-wrap" id="carreraWrap">
+        <h1 class="titulo" data-i18n="ranking_final_titulo">Gran final</h1>
+        <p class="subtitulo" data-i18n="ranking_final_subtitulo">
+          Último tramo. Todos aceleran. La meta está a la vista.
+        </p>
+
+        <div class="camera-frame">
+          <div class="track-world">
+            {% for equipo in rankings %}
+              <div class="carril carril-race c-slot-{{ forloop.counter0 }}" id="carril{{ forloop.counter0 }}">
+                <span class="nombre-equipo">{{ equipo.team_name|default:"Equipo" }}</span>
+                <div class="pista">
+                  <div class="barra" id="barra{{ forloop.counter0 }}"></div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <!-- OVERLAY GANADOR -->
+      <section class="ganador-overlay" id="ganadorOverlay">
+        <div class="ganador-box">
+          <p class="ganador-label" data-i18n="ranking_ganador_label">El ganador es...</p>
+          <h2 class="ganador-nombre" id="ganadorNombre">{{ rankings.0.team_name|default:"¡Felicitaciones!" }}</h2>
+        </div>
+      </section>
+
+      <!-- VIDEO CINEMÁTICO — mismo ancho que podio, dentro del flujo -->
+      <div id="videoOverlay">
+        <video id="videoMisionCumplida" src="{% static 'videos/ranking.webm' %}" preload="auto" playsinline muted></video>
+        <button id="btnSaltarVideo" data-i18n="ranking_saltar">Saltar &rsaquo;</button>
+      </div>
+
+      <!-- PODIO ÉPICO -->
+      <section class="podio-wrap" id="podioWrap">
+        <div class="podio-card">
+
+          <!-- Hero header -->
+          <div class="podio-hero">
+            <div class="podio-hero-badge" data-i18n="ranking_mision_completada">Misi&oacute;n completada</div>
+            <h2 class="podio-titulo" data-i18n="ranking_podio_final">Operaci&oacute;n Exitosa</h2>
+            <div class="podio-subtitulo" data-i18n="ranking_clasificacion_final">Clasificaci&oacute;n final &middot; Agentes certificados</div>
+          </div>
+
+          <!-- Escenario de pedestales -->
+          <div class="podio">
+
+            <!-- 2do lugar -->
+            <div class="puesto puesto-2">
+              <div class="puesto-medal">2</div>
+              <div class="puesto-nombre-top">{{ rankings.1.team_name|default:"Equipo 2" }}</div>
+              <div class="puesto-tok-top">{{ rankings.1.tokens|default:0 }} <span data-i18n="ranking_tokens">tokens</span></div>
+              <div class="caja">
+                <div class="caja-num">2</div>
+                <div class="equipo">
+                  {{ rankings.1.team_name|default:"Equipo 2" }}
+                  <div class="equipo-tok">{{ rankings.1.tokens|default:0 }} tokens</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 1er lugar -->
+            <div class="puesto puesto-1">
+              <div class="puesto-medal">1</div>
+              <div class="puesto-nombre-top">{{ rankings.0.team_name|default:"Equipo 1" }}</div>
+              <div class="puesto-tok-top">{{ rankings.0.tokens|default:0 }} <span data-i18n="ranking_tokens">tokens</span></div>
+              <div class="caja">
+                <div class="caja-num">1</div>
+                <div class="equipo">
+                  {{ rankings.0.team_name|default:"Equipo 1" }}
+                  <div class="equipo-tok">{{ rankings.0.tokens|default:0 }} tokens</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3er lugar -->
+            <div class="puesto puesto-3">
+              <div class="puesto-medal">3</div>
+              <div class="puesto-nombre-top">{{ rankings.2.team_name|default:"Equipo 3" }}</div>
+              <div class="puesto-tok-top">{{ rankings.2.tokens|default:0 }} <span data-i18n="ranking_tokens">tokens</span></div>
+              <div class="caja">
+                <div class="caja-num">3</div>
+                <div class="equipo">
+                  {{ rankings.2.team_name|default:"Equipo 3" }}
+                  <div class="equipo-tok">{{ rankings.2.tokens|default:0 }} tokens</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Divisor HUD -->
+          <div class="podio-hud-line"></div>
+
+          <!-- Tabla completa rediseñada -->
+          <div class="tabla-final">
+            <div class="tabla-final-head">
+              <span class="tfh-r">#</span>
+              <span class="tfh-n" data-i18n="ranking_equipo_col">Equipo</span>
+              <span class="tfh-t" data-i18n="ranking_tokens">Tokens</span>
+            </div>
+            {% for equipo in rankings %}
+              <div class="tabla-final-row
+                {% if equipo.rank == 1 %}rank-1{% elif equipo.rank == 2 %}rank-2{% elif equipo.rank == 3 %}rank-3{% else %}rank-n{% endif %}
+                {% if equipo.is_me %}es-me{% endif %}">
+                <div class="tfr-rank">
+                  <div class="tfr-badge">{{ equipo.rank }}</div>
+                </div>
+                <div class="tfr-name">
+                  {{ equipo.team_name }}
+                  {% if equipo.is_me %}
+                    <span class="tfr-yo-tag" data-i18n="ranking_tu_equipo">tu equipo</span>
+                  {% endif %}
+                </div>
+                <div class="tfr-tok">{{ equipo.tokens }} <span data-i18n="ranking_tokens">tokens</span></div>
+              </div>
+            {% endfor %}
+          </div>
+
+        </div>
+      </section>
+
+    {% else %}
+
+      <!-- RANKING PARCIAL — sin cambios -->
+      <section class="ranking-parcial-wrap">
+        <div class="ranking-parcial-card">
+          <h1 class="titulo" data-i18n="ranking_parcial_titulo">Ranking parcial</h1>
+          <p class="subtitulo" data-i18n="ranking_parcial_subtitulo">
+            Así van los equipos en este momento.
+          </p>
+
+          <div class="ranking-barras">
+            {% for equipo in rankings %}
+              <div class="ranking-fila
+                {% if equipo.rank == 1 %}ranking-primero{% endif %}
+                {% if forloop.last %}ranking-ultimo{% endif %}
+                {% if equipo.is_me %}es-mi-equipo{% endif %}">
+                <div class="ranking-fila-top">
+                  <div class="ranking-fila-nombre">
+                    <span>{{ equipo.rank }}. {{ equipo.team_name }}</span>
+                    {% if equipo.is_me %}
+                      <span class="tag-mi-equipo" data-i18n="ranking_tu_equipo">tu equipo</span>
+                    {% endif %}
+                  </div>
+                  <div class="ranking-fila-tokens">
+                    {{ equipo.tokens }} <span data-i18n="ranking_tokens">tokens</span>
+                  </div>
+                </div>
+                <div class="ranking-barra-wrap">
+                  <div class="ranking-barra-fill" data-tokens="{{ equipo.tokens|default:0 }}"></div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+    {% endif %}
+
+    <div class="ranking-actions">
+      <button id="btnRankingListo" class="btn-ranking-listo" type="button" data-i18n="ranking_continuar">
+        Continuar
+      </button>
+      <p id="rankingEstado" class="ranking-estado">
+        0/0 <span data-i18n="ranking_grupos_listos">grupos listos</span>
+      </p>
+    </div>
+
+    {% if grupo.sesion.fase_actual == "f6_ranking" %}
+      <audio id="audioCelebracion" src="{% static 'sounds/sonido_victoria.mp3' %}" preload="auto"></audio>
+    {% endif %}
+  </main>
+  <script src="{% static 'js/ranking/ranking.js' %}"></script>
+{% include "includes/sincronizacion_fase.html" %}
+</body>
+</html>

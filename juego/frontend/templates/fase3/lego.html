@@ -1,0 +1,267 @@
+{% load static %}
+{% include "atajos.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misión Emprende UDD — LEGO</title>
+  <link rel="stylesheet" href="{% static 'css/fase3/estilo_lego.css' %}">
+
+  </head>
+
+<body
+  data-sesion-id="{{ grupo.sesion.idsesion }}"
+  data-grupo-id="{{ grupo.idgrupo }}"
+  data-csrf-token="{{ csrf_token }}"
+  data-tiempo-inicial="{{ tiempo_inicial_lego|default:15 }}"
+  data-aplicar-resultado-ruleta-url="{% url 'aplicar_resultado_ruleta_lego' %}"
+>
+
+  <!-- ═══ MÚSICA DE FONDO ═══ -->
+  <audio id="musica-lego"
+         src="{% static 'sounds/musica_lego.mp3' %}"
+         loop
+         preload="auto">
+  </audio>
+  <button id="btn-musica-lego"
+          title="Silenciar música"
+          aria-label="Silenciar música"
+          >
+    &#128266;
+  </button>
+
+  <main class="phone">
+
+    <div id="inicio-fase-overlay" class="inicio-fase-overlay">
+      <section id="inicio-fase-card" class="inicio-fase-card">
+        <div class="inicio-fase-badge" data-i18n="lego_overlay_badge">
+          MISIÓN DE CREATIVIDAD
+        </div>
+        <h3 data-i18n="lego_overlay_titulo">Antes de comenzar</h3>
+        <p data-i18n="lego_overlay_p1">Agentes, revisen el desafío y preparen su construcción.</p>
+        <p data-i18n="lego_overlay_p2">Tendrán 15 segundos para construir. Cuando todos los equipos presionen "Listo para comenzar", la actividad se habilitará automáticamente.</p>
+        <button type="button" id="btn-listo-fase" class="btn-chip" data-i18n="lego_boton_listo">
+          ⚡ Listo para comenzar
+        </button>
+        <div id="texto-espera-fase" class="contador-fase" data-i18n="lego_esperando_equipos">
+          Esperando a los demás equipos...
+        </div>
+        <div id="contador-listos-fase" class="contador-fase">0/0 grupos listos</div>
+      </section>
+    </div>
+
+    <img id="legoLogo" src="{% static 'images/Lego-logo.webp' %}" class="logo blur-target-bloqueado" alt="Lego logo">
+
+    <h1 id="legoTitle" class="title blur-target-bloqueado" data-i18n="lego_titulo">
+      Construye tu solución
+    </h1>
+
+    <section id="ruletaLegoCard" class="ruleta-lego-card blur-target-bloqueado">
+      <div class="ruleta-lego-head">
+        <div>
+          <div class="ruleta-lego-kicker" data-i18n="lego_ruleta_opcional">Opcional</div>
+          <h3 class="ruleta-lego-title" data-i18n="lego_ruleta_titulo">🎡 Ruleta LEGO</h3>
+          <p class="ruleta-lego-texto" data-i18n="lego_ruleta_texto">
+            Puedes lanzar la ruleta hasta 3 veces durante esta fase para obtener recompensas, pequeñas penalizaciones o retos rápidos.
+          </p>
+        </div>
+        <button type="button" id="btnAbrirRuletaLego" class="btn-chip" data-i18n="lego_ruleta_abrir">
+          Abrir ruleta
+        </button>
+      </div>
+      <div id="ruletaLegoResumen" class="ruleta-lego-resumen">
+        <span id="ruletaIntentosTexto">Intentos disponibles: 3/3</span>
+        <span id="ruletaUltimoResultado">Aún no has lanzado la ruleta.</span>
+      </div>
+    </section>
+
+    <button
+      id="astroLegoTrigger"
+      class="astro-lego-trigger blur-target-bloqueado"
+      type="button"
+      aria-label="Encontrar astronauta"
+      data-i18n="lego_astro_aria"
+      data-i18n-attr="aria-label"
+    >
+      <img src="{% static 'images/Cayendo.webp' %}" class="astro-lego-icon" alt="">
+    </button>
+
+    <div id="astroLegoOverlay" class="astro-lego-overlay" aria-hidden="true">
+      <div class="astro-lego-card">
+        <div class="astro-lego-flex">
+          <img src="{% static 'images/Parado.webp' %}" class="astro-lego-standing" alt="">
+          <div class="astro-lego-text">
+            <h3 data-i18n="lego_astro_titulo">👨‍🚀 Pregunta del astronauta</h3>
+            <p data-i18n-html="true" data-i18n="lego_astro_intro">
+              ¿Cómo vas? Si has estado atento, podrás responder esta pregunta y ganar <strong>2 tokens</strong>.
+            </p>
+            <p data-i18n="lego_astro_pregunta">¿Qué habilidades y en qué orden han visto hasta ahora?</p>
+            <div class="astro-lego-opciones" id="astroLegoOpciones">
+              <button type="button" class="astro-lego-opcion" data-correcta="false" data-i18n="lego_astro_opcion_a">
+                A) Creatividad → Trabajo en equipo → Empatía
+              </button>
+              <button type="button" class="astro-lego-opcion" data-correcta="true" data-i18n="lego_astro_opcion_b">
+                B) Trabajo en equipo → Empatía → Creatividad
+              </button>
+              <button type="button" class="astro-lego-opcion" data-correcta="false" data-i18n="lego_astro_opcion_c">
+                C) Empatía → Comunicación → Apoyo
+              </button>
+              <button type="button" class="astro-lego-opcion" data-correcta="false" data-i18n="lego_astro_opcion_d">
+                D) Comunicación → Creatividad → Trabajo en equipo
+              </button>
+            </div>
+            <div id="astroLegoFeedback" class="astro-lego-feedback"></div>
+            <button id="astroLegoClose" class="astro-lego-close" type="button" data-i18n="lego_astro_cerrar">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section id="desafioPanel" class="desafio-panel blur-target-bloqueado">
+      <button type="button" class="desafio-toggle" id="desafioToggle">
+        <div class="desafio-toggle-head">
+          <span class="desafio-etiqueta" data-i18n="lego_desafio_label">Desafío seleccionado</span>
+          <strong class="desafio-titulo" id="desafioNombre">{{ desafio_nombre_actual }}</strong>
+        </div>
+        <span class="desafio-icono" id="desafioIcono">▼</span>
+      </button>
+      <div class="desafio-body" id="desafioBody" hidden>
+        <p class="desafio-descripcion" id="desafioDescripcion">{{ desafio_descripcion_actual }}</p>
+      </div>
+    </section>
+
+    <h2 id="legoSubtitle" class="subtitle blur-target-bloqueado" data-i18n="lego_subtitulo">
+      Recuerda las características de tu cliente
+    </h2>
+
+    <ul id="ideasList" class="ideas-list blur-target-bloqueado"></ul>
+
+    <p id="legoBody" class="body blur-target-bloqueado" data-i18n="lego_body">
+      Ahora usa las piezas de LEGO para construir tu solución.
+    </p>
+
+    <audio id="alarm-audio" src="{% static 'sounds/alarma.mp3' %}" preload="auto"></audio>
+
+    <div id="timer" class="timer blur-target-bloqueado timer-esperando">00:15</div>
+
+    <div id="fotoPanel" class="foto-panel blur-target-bloqueado">
+      <h3 data-i18n="lego_foto_titulo">Prepara la foto de tu solución LEGO</h3>
+      <p class="texto-espera-foto" data-i18n="lego_foto_texto">
+        Cuando termine el tiempo, sube una foto de tu construcción para usarla más adelante en la presentación.
+      </p>
+      <p class="ayuda-foto" data-i18n="lego_foto_ayuda">
+        Si por algún motivo no pueden subir la foto, podrán marcar la opción correspondiente y continuar.
+      </p>
+      <div id="previewWrapper" class="preview-wrapper">
+        <div class="preview-label" data-i18n="lego_foto_preview">Vista previa</div>
+        <img id="previewImg" class="preview-img" alt="Vista previa de la foto LEGO"
+             data-i18n="lego_foto_preview_alt" data-i18n-attr="alt">
+      </div>
+    </div>
+
+    <div id="modal-fin" class="modal">
+      <div class="modal-content">
+        <h2 data-i18n="lego_modal_titulo">Tiempo terminado</h2>
+        <p data-i18n="lego_modal_texto">
+          El tiempo para construir ha terminado. Ahora sube la foto de tu LEGO o marca que no pudieron subirla.
+        </p>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="file" name="foto_lego" id="foto_lego" class="foto-input" accept="image/*">
+          <div class="sin-foto-wrap">
+            <label class="sin-foto-label" for="sin_foto_lego">
+              <input type="checkbox" name="sin_foto_lego" id="sin_foto_lego">
+              <span data-i18n="lego_sin_foto">No pudimos subir foto</span>
+            </label>
+          </div>
+          <div id="errorFoto" class="error-foto" style="display:none;" data-i18n="lego_error_foto">
+            Debes subir una foto o marcar que no pudieron subirla.
+          </div>
+          <button type="submit" id="buttonGuardarFoto" class="btn-guardar-foto" disabled data-i18n="lego_guardar_continuar">
+            Guardar y continuar
+          </button>
+          <div id="estadoGruposLego" class="estado-grupos-lego">0/0 grupos listos</div>
+          <div id="detalleGruposLego" class="detalle-grupos-lego">0 con foto · 0 sin foto</div>
+        </form>
+      </div>
+    </div>
+
+    <div id="modalRuletaLego" class="modal ruleta-modal">
+      <div class="modal-content ruleta-modal-content">
+        <button type="button" id="btnCerrarRuletaLego" class="ruleta-cerrar"
+                aria-label="Cerrar ruleta" data-i18n="lego_ruleta_cerrar_aria" data-i18n-attr="aria-label">✕</button>
+        <h2 class="ruleta-modal-title" data-i18n="lego_ruleta_modal_titulo">🎲 Desafío LEGO (Opcional)</h2>
+        <p class="ruleta-modal-subtitle" data-i18n="lego_ruleta_modal_subtitulo">
+          Lanza la ruleta para obtener tokens, una oportunidad o un reto rápido.
+        </p>
+        <div class="ruleta-layout-nuevo">
+          <div class="ruleta-zona-nueva">
+            <div class="ruleta-puntero-nuevo"></div>
+            <div class="ruleta-wheel-wrap-nuevo">
+              <div id="ruletaWheel" class="ruleta-wheel-nueva">
+                {% for op in opciones_ruleta %}
+                  <span class="ruleta-op ruleta-op-{{ forloop.counter }}">{{ op.emoji }}</span>
+                {% endfor %}
+              </div>
+              <div class="ruleta-centro-nuevo">UDD</div>
+            </div>
+            <div class="ruleta-intentos-nuevo">
+              <span data-i18n="lego_ruleta_intentos_restantes">Intentos restantes:</span>
+              <strong id="ruletaIntentosRestantes">3</strong>/3
+            </div>
+            <button type="button" id="btnLanzarRuletaLego" class="btn-chip" data-i18n="lego_ruleta_lanzar">
+              Lanzar ruleta
+            </button>
+            <div id="ruletaResultadoActual" class="ruleta-resultado-nuevo">
+              Aún no has lanzado la ruleta.
+            </div>
+          </div>
+          <div class="ruleta-tabla-nueva">
+            <h3 data-i18n="lego_ruleta_oportunidades">Oportunidades</h3>
+            {% for op in opciones_ruleta %}
+              <div class="ruleta-item-nuevo">
+                <span class="ruleta-mini {% if op.tokens > 0 %}positivo{% elif op.tokens < 0 %}negativo{% else %}neutro{% endif %}">
+                  {{ op.emoji }}
+                </span>
+                <div>
+                  <strong>{{ op.titulo }}</strong>
+                  <small>{{ op.descripcion }}</small>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <audio id="ruletaAudio" preload="auto">
+          <source src="{% static 'sounds/ruleta.mp3' %}" type="audio/mpeg">
+        </audio>
+      </div>
+    </div>
+
+  </main>
+<!-- ═══ SCRIPT MÚSICA DE FONDO ═══ -->
+
+  <script id="opciones-ruleta-data" type="application/json">
+  [
+    {% for op in opciones_ruleta %}
+      {
+        "id": "{{ op.codigo|escapejs }}",
+        "icono": "{{ op.emoji|escapejs }}",
+        "titulo": "{{ op.titulo|escapejs }}",
+        "detalle": "{{ op.descripcion|escapejs }}",
+        "tokens": {{ op.tokens }},
+        "prob": {{ op.porcentaje }},
+        "slice": {{ forloop.counter0 }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+  </script>
+
+  <script src="{% static 'js/fase3/lego.js' %}"></script>
+
+  {% include "includes/sincronizacion_fase.html" %}
+  {% include "includes/countdown_inicio_fase.html" %}
+</body>
+</html>
