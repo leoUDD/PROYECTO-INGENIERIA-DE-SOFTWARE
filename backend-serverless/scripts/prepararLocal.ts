@@ -146,9 +146,20 @@ async function cargarDatos(): Promise<void> {
   );
 }
 
-await eliminarTabla();
-await crearTabla();
-await cargarDatos();
+async function ejecutar(): Promise<void> {
+  await eliminarTabla();
+  await crearTabla();
+  await cargarDatos();
+}
+
+ejecutar().catch((error: unknown) => {
+  console.error(
+    "No fue posible preparar DynamoDB Local:",
+    error,
+  );
+
+  process.exitCode = 1;
+});
 
 console.log("Base local preparada.");
 console.log("Códigos de prueba: ABC123 y XYZ789");

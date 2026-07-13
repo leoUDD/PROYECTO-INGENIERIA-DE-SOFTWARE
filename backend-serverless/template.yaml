@@ -6,14 +6,22 @@ Parameters:
   Etapa:
     Type: String
     Default: dev
+
   ClaveToken:
     Type: String
     NoEcho: true
     MinLength: 32
     Default: cambiar-esta-clave-antes-de-desplegar-123456
+
+  ClaveAccesoProfesor:
+    Type: String
+    NoEcho: true
+    Default: profe123
+
   DuracionTokenSegundos:
     Type: Number
     Default: 43200
+
   OrigenCors:
     Type: String
     Default: "*"
@@ -21,14 +29,15 @@ Parameters:
 Globals:
   Function:
     Runtime: nodejs22.x
-    Timeout: 15
-    MemorySize: 256
+    Timeout: 20
+    MemorySize: 512
     Architectures:
       - x86_64
     Environment:
       Variables:
         NOMBRE_TABLA: !Ref TablaPrincipal
         CLAVE_TOKEN: !Ref ClaveToken
+        CLAVE_ACCESO_PROFESOR: !Ref ClaveAccesoProfesor
         DURACION_TOKEN_SEGUNDOS: !Ref DuracionTokenSegundos
         ORIGEN_CORS: !Ref OrigenCors
         DYNAMODB_ENDPOINT: ""
@@ -114,6 +123,50 @@ Resources:
         Target: es2022
         Format: cjs
 
+  FuncionProfesor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: src/profesor/api.manejador
+      Policies: *PermisosDynamo
+      Events:
+        IngresarProfesor:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/profesor/ingresar
+            Method: POST
+
+        ListarSesionesProfesor:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/profesor/sesiones
+            Method: GET
+
+        CrearSesionesProfesor:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/profesor/sesiones
+            Method: POST
+
+        ObtenerControlSesion:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/profesor/sesiones/{sesionId}
+            Method: GET
+
+        EjecutarAccionSesion:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/profesor/sesiones/{sesionId}/acciones
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties: *ConfiguracionEsbuild
 
   FuncionSesiones:
     Type: AWS::Serverless::Function
@@ -145,12 +198,14 @@ Resources:
             ApiId: !Ref ApiBackend
             Path: /api/fase1/estado
             Method: GET
+
         RegistrarPalabra:
           Type: HttpApi
           Properties:
             ApiId: !Ref ApiBackend
             Path: /api/fase1/palabras
             Method: POST
+
         CompletarSopa:
           Type: HttpApi
           Properties:
@@ -165,6 +220,7 @@ Outputs:
   UrlApi:
     Description: URL base de la API
     Value: !Sub "https://${ApiBackend}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${Etapa}"
+
   NombreTabla:
     Description: Nombre de la tabla DynamoDB
     Value: !Ref TablaPrincipal
