@@ -87,6 +87,26 @@ function rutaSugerida(
     return "ranking.html";
   }
 
+  if (fase === "mapa_f2_empatia" || fase === "f2_transicion") {
+    return "../fase2/transicion-desafio.html";
+  }
+
+  if (fase === "f2_tematicas") {
+    return "../fase2/tematicas.html";
+  }
+
+  if (fase === "f2_transicion_empatia") {
+    return "../fase2/transicion-empatia.html";
+  }
+
+  if (fase === "f2_bubblemap") {
+    return "../fase2/bubblemap.html";
+  }
+
+  if (fase === "f2_ranking") {
+    return "../fase2/ranking.html";
+  }
+
   return "ranking.html";
 }
 

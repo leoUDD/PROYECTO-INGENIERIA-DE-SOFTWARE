@@ -251,6 +251,73 @@ Resources:
       BuildMethod: esbuild
       BuildProperties: *ConfiguracionEsbuild
 
+
+  FuncionFase2:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: src/fase2/api.manejador
+      Policies: *PermisosDynamo
+      Events:
+        ObtenerEstadoFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/estado
+            Method: GET
+
+        IniciarFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/iniciar
+            Method: POST
+
+        MarcarListoFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/listo
+            Method: POST
+
+        SeleccionarDesafioFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/seleccion
+            Method: POST
+
+        AsignarDesafioAleatorioFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/asignar-azar
+            Method: POST
+
+        GuardarBubbleMapFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/bubblemap/guardar
+            Method: POST
+
+        CompletarBubbleMapFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/bubblemap/completar
+            Method: POST
+
+        ObtenerRankingFase2:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase2/ranking
+            Method: GET
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties: *ConfiguracionEsbuild
+
 Outputs:
   UrlApi:
     Description: URL base de la API
