@@ -105,9 +105,7 @@ Resources:
     Properties:
       CodeUri: .
       Handler: src/acceso/api.manejador
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TablaMision
+      Role: arn:aws:iam::876388743639:role/LabRole
       Events:
         Ingresar:
           Type: HttpApi
@@ -132,9 +130,7 @@ Resources:
     Properties:
       CodeUri: .
       Handler: src/profesor/api.manejador
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TablaMision
+      Role: arn:aws:iam::876388743639:role/LabRole
       Events:
         IngresarProfesor:
           Type: HttpApi
@@ -183,9 +179,7 @@ Resources:
     Properties:
       CodeUri: .
       Handler: src/sesiones/api.manejador
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TablaMision
+      Role: arn:aws:iam::876388743639:role/LabRole
       Events:
         ObtenerSesionActual:
           Type: HttpApi
@@ -210,9 +204,7 @@ Resources:
     Properties:
       CodeUri: .
       Handler: src/fase1/api.manejador
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TablaMision
+      Role: arn:aws:iam::876388743639:role/LabRole
       Events:
         EstadoFase1:
           Type: HttpApi
@@ -279,9 +271,7 @@ Resources:
     Properties:
       CodeUri: .
       Handler: src/fase2/api.manejador
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TablaMision
+      Role: arn:aws:iam::876388743639:role/LabRole
       Events:
         EstadoFase2:
           Type: HttpApi
@@ -348,9 +338,7 @@ Resources:
     Properties:
       CodeUri: .
       Handler: src/fase3/api.manejador
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TablaMision
+      Role: arn:aws:iam::876388743639:role/LabRole
       Events:
         EstadoFase3:
           Type: HttpApi
