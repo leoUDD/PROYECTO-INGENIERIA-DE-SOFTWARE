@@ -190,8 +190,24 @@ function rutaSugerida(
     return "ranking.html";
   }
 
-  if (fase.startsWith("f3_") || fase === "mapa_f3_creatividad") {
-    return "ranking.html";
+  if (fase === "mapa_f3_creatividad") {
+    return "../mapa/creatividad.html";
+  }
+
+  if (fase === "f3_transicion_creatividad") {
+    return "../fase3/transicion-creatividad.html";
+  }
+
+  if (fase === "f3_lego") {
+    return "../fase3/lego.html";
+  }
+
+  if (fase === "f3_ranking") {
+    return "../fase3/ranking.html";
+  }
+
+  if (fase === "mapa_f4_final" || fase.startsWith("f4_")) {
+    return "../mapa/final.html";
   }
 
   return "transicion-desafio.html";

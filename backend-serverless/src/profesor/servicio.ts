@@ -80,7 +80,7 @@ const TIEMPOS_POR_FASE: Record<string, number> = {
   f2_ranking: 0,
   mapa_f3_creatividad: 0,
   f3_transicion_creatividad: 0,
-  f3_lego: 120,
+  f3_lego: 15,
   f3_ranking: 0,
   mapa_f4_final: 0,
   f4_transicion_comunicacion: 0,
