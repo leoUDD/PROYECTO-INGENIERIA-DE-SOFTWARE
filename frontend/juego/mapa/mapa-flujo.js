@@ -1,17 +1,46 @@
 if (exigirSesionGrupo()) {
-  const boton = document.getElementById("bt-btn");
+  const botonPanel = document.getElementById("pc-btn");
+  const botonInferior = document.getElementById("bt-btn");
+
   let enviado = false;
+
+  function bloquearBotones(texto) {
+    [botonPanel, botonInferior].forEach((boton) => {
+      if (!boton) return;
+
+      boton.style.pointerEvents = "none";
+      boton.setAttribute("aria-disabled", "true");
+      boton.textContent = texto;
+    });
+  }
+
+  function desbloquearBotones() {
+    enviado = false;
+
+    if (botonPanel) {
+      botonPanel.style.pointerEvents = "";
+      botonPanel.setAttribute("aria-disabled", "false");
+      botonPanel.textContent = "[ CONTINUAR A DESAFÍOS ]";
+    }
+
+    if (botonInferior) {
+      botonInferior.style.pointerEvents = "";
+      botonInferior.setAttribute("aria-disabled", "false");
+      botonInferior.textContent = "▶ CONTINUAR A DESAFÍOS";
+    }
+  }
 
   async function confirmarMapa(evento) {
     evento?.preventDefault();
+    evento?.stopPropagation();
+    evento?.stopImmediatePropagation();
 
-    if (!boton || enviado) {
+    if (enviado) {
       return;
     }
 
     enviado = true;
-    boton.style.pointerEvents = "none";
-    boton.textContent = "▶ ESPERANDO A LOS EQUIPOS...";
+    bloquearBotones("CARGANDO MISIÓN...");
 
     try {
       const estado = await llamarApiJuego(
@@ -24,19 +53,39 @@ if (exigirSesionGrupo()) {
         },
       );
 
+      const progreso = estado.progreso?.mapaEmpatia;
+
+      if (
+        estado.fase === "mapa_f2_empatia" &&
+        progreso
+      ) {
+        bloquearBotones(
+          `ESPERANDO A LOS EQUIPOS (${progreso.completados}/${progreso.totalGrupos})`,
+        );
+      }
+
       redirigirEstadoFase2(
         estado,
         ["habilidades.html"],
       );
     } catch (error) {
-      enviado = false;
-      boton.style.pointerEvents = "";
-      boton.textContent = "▶ CONTINUAR A DESAFÍOS";
+      desbloquearBotones();
       mostrarErrorJuego(error);
     }
   }
 
-  boton?.addEventListener(
+  /*
+   * El mapa original ejecuta markDone() desde pc-btn y luego
+   * navega usando rutaContinuar. Capturamos el clic antes de
+   * esa función para que el avance dependa del backend.
+   */
+  botonPanel?.addEventListener(
+    "click",
+    confirmarMapa,
+    true,
+  );
+
+  botonInferior?.addEventListener(
     "click",
     confirmarMapa,
     true,
@@ -45,13 +94,14 @@ if (exigirSesionGrupo()) {
   crearPollingFase2((estado) => {
     const progreso = estado.progreso?.mapaEmpatia;
 
-    if (estado.grupo?.listoF2Mapa && boton) {
+    if (estado.grupo?.listoF2Mapa) {
       enviado = true;
-      boton.style.pointerEvents = "none";
-      boton.textContent =
+
+      bloquearBotones(
         progreso
-          ? `▶ ESPERANDO A LOS EQUIPOS (${progreso.completados}/${progreso.totalGrupos})`
-          : "▶ ESPERANDO A LOS EQUIPOS...";
+          ? `ESPERANDO A LOS EQUIPOS (${progreso.completados}/${progreso.totalGrupos})`
+          : "ESPERANDO A LOS EQUIPOS...",
+      );
     }
 
     redirigirEstadoFase2(
