@@ -401,7 +401,92 @@ Resources:
         Target: es2022
         Platform: node
         Format: cjs
+  FuncionFase4:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: src/fase4/api.manejador
+      Role: arn:aws:iam::876388743639:role/LabRole
+      Events:
+        EstadoFase4:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase4/estado
+            Method: GET
+        ListoFase4:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase4/listo
+            Method: POST
+        GuardarPitchFase4:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase4/pitch/guardar
+            Method: POST
+        IniciarPitchFase4:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase4/pitch/iniciar
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+          - src/fase4/api.ts
+        Bundle: true
+        Minify: false
+        Sourcemap: true
+        Target: es2022
+        Platform: node
+        Format: cjs
 
+  FuncionFase5:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: src/fase5/api.manejador
+      Role: arn:aws:iam::876388743639:role/LabRole
+      Events:
+        EstadoFase5:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase5/estado
+            Method: GET
+        EvaluarFase5:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase5/evaluar
+            Method: POST
+        RankingFase5:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase5/ranking
+            Method: GET
+        RankingListoFase5:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiBackend
+            Path: /api/fase5/ranking/listo
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+          - src/fase5/api.ts
+        Bundle: true
+        Minify: false
+        Sourcemap: true
+        Target: es2022
+        Platform: node
+        Format: cjs
+        
 Outputs:
   UrlApi:
     Description: URL publica de API Gateway
