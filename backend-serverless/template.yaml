@@ -27,6 +27,13 @@ Parameters:
     Default: profe123
     Description: Clave temporal de acceso del profesor.
 
+  DynamoDbEndpointLocal:
+    Type: String
+    Default: ""
+    Description: >
+      Endpoint de DynamoDB local (solo para sam local). Vacío en AWS real,
+      donde el SDK usa el endpoint real de DynamoDB automáticamente.
+
 Globals:
   Function:
     Runtime: nodejs22.x
@@ -42,6 +49,7 @@ Globals:
         DURACION_TOKEN_SEGUNDOS: "28800"
         ORIGEN_CORS: !Ref OrigenCors
         ENTORNO: !Ref Entorno
+        DYNAMODB_ENDPOINT: !Ref DynamoDbEndpointLocal
 
   HttpApi:
     CorsConfiguration:

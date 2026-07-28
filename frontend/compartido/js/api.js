@@ -1,4 +1,4 @@
-const API_URL = "https://symmetrical-space-funicular-4jrjvqw4x5763j9qq-3000.app.github.dev";
+const API_URL = "http://127.0.0.1:3000";
 
 async function llamarApi(ruta, opciones = {}) {
   const token = localStorage.getItem("tokenAcceso");
